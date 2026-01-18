@@ -1,8 +1,9 @@
-// src/00-core/app-context.ts
+import type { PingController } from '@/03-interface-adapters/controllers/Ping.controller'
 
 export type AppContextType = {
-  // sau này sẽ thêm:
-  // authController?: AuthController
+  ping?: {
+    controller: PingController
+  }
 }
 
 class AppContextImpl {

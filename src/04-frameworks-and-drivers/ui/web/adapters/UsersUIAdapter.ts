@@ -1,1 +1,0 @@
-// File: UsersUIAdapter.ts

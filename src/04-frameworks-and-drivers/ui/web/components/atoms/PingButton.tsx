@@ -1,21 +1,22 @@
-// src/04-frameworks-and-drivers/ui/web/components/atoms/PingButton.tsx
 import { useState } from 'react'
-import { PingUIAdapter } from '../../adapters/PingUIAdapter'
-
-const adapter = new PingUIAdapter()
+import { AppContext } from '@/00-core/app-context'
+import type { PingViewModel } from '@/03-interface-adapters/presenters/Ping.presenter'
 
 export function PingButton() {
-  const [result, setResult] = useState('')
+  const [result, setResult] = useState<PingViewModel | null>(null)
 
   const handleClick = () => {
-    const res = adapter.ping()
-    setResult(res)
+    const { ping } = AppContext.get()
+    if (!ping) return
+
+    const vm = ping.controller.ping()
+    setResult(vm)
   }
 
   return (
     <div style={{ padding: 16 }}>
       <button onClick={handleClick}>Ping</button>
-      {result && <p>Result: {result}</p>}
+      {result && <p>Result: {result.message}</p>}
     </div>
   )
 }
