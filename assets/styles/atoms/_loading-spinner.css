@@ -1,0 +1,163 @@
+/* frontend/assets/styles/atoms/_loading-spinner.css */
+
+/**
+ * 🎯 Loading Spinner Atom (FINAL)
+ */
+
+.loading-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-600);
+}
+
+/* ========== Circle Spinner ========== */
+
+.loading-spinner__circle {
+  box-sizing: border-box;
+  width: 1em;
+  height: 1em;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-right-color: currentColor;
+  border-radius: 50%;
+  animation: loading-spin 0.8s linear infinite;
+}
+
+/* Sizes */
+.loading-spinner--small .loading-spinner__circle {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.loading-spinner--medium .loading-spinner__circle {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
+}
+
+.loading-spinner--large .loading-spinner__circle {
+  width: 32px;
+  height: 32px;
+  border-width: 4px;
+}
+
+.loading-spinner--xlarge .loading-spinner__circle {
+  width: 48px;
+  height: 48px;
+  border-width: 4px;
+}
+
+/* ========== Colors ========== */
+
+.loading-spinner--primary {
+  color: var(--color-primary-600);
+}
+
+.loading-spinner--success {
+  color: var(--color-success);
+}
+
+.loading-spinner--warning {
+  color: var(--color-warning);
+}
+
+.loading-spinner--error {
+  color: var(--color-error);
+}
+
+.loading-spinner--muted {
+  color: var(--color-gray-400);
+}
+
+/* ========== With Text ========== */
+
+.loading-spinner--with-text {
+  gap: var(--space-sm);
+}
+
+.loading-spinner__text {
+  font-size: var(--text-sm);
+  color: currentColor;
+  white-space: nowrap;
+}
+
+/* ========== Centered (IMPORTANT FIX) ========== */
+/* Dùng cho centered=true (KHÔNG overlay) */
+
+.loading-spinner--centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px; /* 🔑 giúp spinner luôn hiện */
+  width: 100%;
+}
+
+/* ========== Overlay ========== */
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.6);
+  z-index: var(--z-modal);
+}
+
+/* ========== Animation ========== */
+
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========== Dots Variant ========== */
+
+.loading-spinner__dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.loading-spinner__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+  animation: loading-dots 1.4s ease-in-out infinite both;
+}
+
+.loading-spinner__dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-spinner__dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+/* Sizes for dots */
+.loading-spinner--small .loading-spinner__dot {
+  width: 6px;
+  height: 6px;
+}
+
+.loading-spinner--large .loading-spinner__dot {
+  width: 10px;
+  height: 10px;
+}
+
+@keyframes loading-dots {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+    opacity: 0.3;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

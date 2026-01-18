@@ -1,0 +1,307 @@
+/* frontend/assets/styles/atoms/_radio.css */
+
+/**
+ * 🎯 Radio Atom - Updated to match component structure
+ */
+
+/* Radio wrapper (container for input + visual + label) */
+.radio-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm, 0.5rem);
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.radio-wrapper--disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.radio-wrapper--checked {
+  /* Optional: add styles for checked wrapper if needed */
+}
+
+/* Hidden native input */
+.radio__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Visual radio circle */
+.radio {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-gray-300, #d1d5db);
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--color-bg-primary, #ffffff);
+  transition: all var(--transition-fast, 150ms) ease;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Hover state (only when not disabled) */
+.radio-wrapper:not(.radio-wrapper--disabled):hover .radio {
+  border-color: var(--color-primary-500, #3b82f6);
+}
+
+/* Checked state */
+.radio--checked {
+  border-color: var(--color-primary-600, #2563eb);
+}
+
+.radio--checked::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full, 9999px);
+  background-color: var(--color-primary-600, #2563eb);
+  transition: all var(--transition-fast, 150ms) ease;
+}
+
+/* Label */
+.radio__label {
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-primary, #111827);
+  line-height: var(--leading-normal, 1.5);
+  user-select: none;
+}
+
+.radio-wrapper--disabled .radio__label {
+  color: var(--color-text-tertiary, #6b7280);
+}
+
+/* Focus state (keyboard navigation) */
+.radio__input:focus-visible + .radio {
+  outline: 2px solid var(--color-primary-500, #3b82f6);
+  outline-offset: 2px;
+}
+
+/* Alternative: focus on wrapper for better a11y */
+.radio-wrapper:focus-within {
+  outline: 2px solid transparent;
+}
+
+.radio-wrapper:focus-within .radio {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Sizes */
+.radio-wrapper--small {
+  gap: var(--space-xs, 0.25rem);
+}
+
+.radio-wrapper--small .radio {
+  width: 16px;
+  height: 16px;
+  border-width: 1.5px;
+}
+
+.radio-wrapper--small .radio--checked::after {
+  width: 8px;
+  height: 8px;
+}
+
+.radio-wrapper--small .radio__label {
+  font-size: var(--text-xs, 0.75rem);
+}
+
+.radio-wrapper--large {
+  gap: var(--space-md, 0.75rem);
+}
+
+.radio-wrapper--large .radio {
+  width: 24px;
+  height: 24px;
+  border-width: 2.5px;
+}
+
+.radio-wrapper--large .radio--checked::after {
+  width: 12px;
+  height: 12px;
+}
+
+.radio-wrapper--large .radio__label {
+  font-size: var(--text-base, 1rem);
+}
+
+/* Error state */
+.radio-wrapper--error .radio {
+  border-color: var(--color-error, #ef4444);
+}
+
+.radio-wrapper--error .radio--checked::after {
+  background-color: var(--color-error, #ef4444);
+}
+
+/* Success state */
+.radio-wrapper--success .radio {
+  border-color: var(--color-success, #10b981);
+}
+
+.radio-wrapper--success .radio--checked::after {
+  background-color: var(--color-success, #10b981);
+}
+
+/* Warning state */
+.radio-wrapper--warning .radio {
+  border-color: var(--color-warning, #f59e0b);
+}
+
+.radio-wrapper--warning .radio--checked::after {
+  background-color: var(--color-warning, #f59e0b);
+}
+
+/* Active/pressed state */
+.radio-wrapper:active:not(.radio-wrapper--disabled) .radio {
+  transform: scale(0.95);
+}
+
+/* Loading state (future feature) */
+.radio--loading {
+  position: relative;
+  border-color: transparent;
+}
+
+.radio--loading::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 2px solid var(--color-primary-500, #3b82f6);
+  border-top-color: transparent;
+  border-radius: var(--radius-full, 9999px);
+  animation: radio-loading 1s linear infinite;
+}
+
+@keyframes radio-loading {
+  to { transform: rotate(360deg); }
+}
+
+/* Pulse animation for checked state */
+@keyframes radio-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0);
+  }
+}
+
+.radio--checked {
+  animation: radio-pulse 2s infinite;
+}
+
+/* Radio group styles */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm, 0.5rem);
+}
+
+.radio-group--horizontal {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-lg, 1.5rem);
+}
+
+.radio-group__label {
+  display: block;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--color-text-secondary, #4b5563);
+  margin-bottom: var(--space-sm, 0.5rem);
+}
+
+/* Validation message */
+.radio-group__validation {
+  font-size: var(--text-xs, 0.75rem);
+  margin-top: var(--space-xs, 0.25rem);
+}
+
+.radio-group__validation--error {
+  color: var(--color-error, #ef4444);
+}
+
+/* Accessibility: reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .radio,
+  .radio--checked::after {
+    transition: none;
+  }
+  
+  .radio--checked {
+    animation: none;
+  }
+  
+  .radio--loading::before {
+    animation: none;
+    border-color: var(--color-primary-500, #3b82f6);
+    border-top-color: transparent;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .radio {
+    border-color: var(--color-gray-600, #4b5563);
+    background-color: var(--color-gray-900, #111827);
+  }
+  
+  .radio-wrapper:not(.radio-wrapper--disabled):hover .radio {
+    border-color: var(--color-primary-400, #60a5fa);
+  }
+  
+  .radio--checked {
+    border-color: var(--color-primary-500, #3b82f6);
+  }
+  
+  .radio--checked::after {
+    background-color: var(--color-primary-500, #3b82f6);
+  }
+  
+  .radio__label {
+    color: var(--color-gray-200, #e5e7eb);
+  }
+  
+  .radio-wrapper--disabled .radio__label {
+    color: var(--color-gray-500, #6b7280);
+  }
+}
+
+/* RTL (Right-to-Left) support */
+[dir="rtl"] .radio-wrapper {
+  gap: var(--space-sm, 0.5rem);
+}
+
+[dir="rtl"] .radio-wrapper--small {
+  gap: var(--space-xs, 0.25rem);
+}
+
+[dir="rtl"] .radio-wrapper--large {
+  gap: var(--space-md, 0.75rem);
+}
+
+/* Print styles */
+@media print {
+  .radio {
+    border-color: #000 !important;
+    background-color: transparent !important;
+  }
+  
+  .radio--checked::after {
+    background-color: #000 !important;
+  }
+  
+  .radio__label {
+    color: #000 !important;
+  }
+}

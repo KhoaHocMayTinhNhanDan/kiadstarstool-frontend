@@ -1,0 +1,122 @@
+/* frontend/assets/styles/atoms/_input.css */
+
+/**
+ * 🎯 Input Atom
+ */
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.input::placeholder {
+  color: var(--color-text-tertiary);
+  opacity: 0.7;
+}
+
+/* Sizes */
+.input-wrapper--small .input {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--text-xs);
+}
+
+.input-wrapper--medium .input {
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-sm);
+}
+
+.input-wrapper--large .input {
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--text-base);
+}
+
+/* States */
+.input-wrapper--disabled .input {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.input-wrapper--error .input {
+  border-color: var(--color-error);
+}
+
+.input-wrapper--error .input:focus {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Prefix & Suffix */
+.input__prefix,
+.input__suffix {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.input__prefix {
+  left: var(--space-md);
+}
+
+.input__suffix {
+  right: var(--space-md);
+}
+
+.input-wrapper--with-prefix .input {
+  padding-left: calc(var(--space-md) * 2.5);
+}
+
+.input-wrapper--with-suffix .input {
+  padding-right: calc(var(--space-md) * 2.5);
+}
+
+/* Clear button */
+.input__clear {
+  position: absolute;
+  right: var(--space-md);
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  padding: var(--space-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.input__clear:hover {
+  opacity: 1;
+}
+
+.input-wrapper--with-prefix .input__clear {
+  right: calc(var(--space-md) * 2.5);
+}

@@ -1,0 +1,165 @@
+/* frontend/assets/styles/atoms/_button.css */
+
+/**
+ * 🎯 Button Atom
+ * Base styles for all button variants
+ */
+
+.btn {
+  /* Base styles */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: var(--leading-none);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Sizes */
+.btn--small {
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--text-xs);
+}
+
+.btn--medium {
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--text-sm);
+}
+
+.btn--large {
+  padding: var(--space-md) var(--space-xl);
+  font-size: var(--text-base);
+}
+
+/* Variants */
+.btn--primary {
+  background-color: var(--color-primary-600);
+  color: var(--color-text-inverse);
+  border-color: var(--color-primary-600);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background-color: var(--color-primary-700);
+  border-color: var(--color-primary-700);
+}
+
+.btn--secondary {
+  background-color: var(--color-gray-100);
+  color: var(--color-text-secondary);
+  border-color: var(--color-gray-200);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background-color: var(--color-gray-200);
+}
+
+.btn--success {
+  background-color: var(--color-success);
+  color: var(--color-text-inverse);
+  border-color: var(--color-success);
+}
+
+.btn--warning {
+  background-color: var(--color-warning);
+  color: var(--color-text-primary);
+  border-color: var(--color-warning);
+}
+
+.btn--error {
+  background-color: var(--color-error);
+  color: var(--color-text-inverse);
+  border-color: var(--color-error);
+}
+
+/* Outline variant */
+.btn--outline {
+  background-color: transparent;
+  border: 1px solid currentColor;
+}
+
+.btn--outline.btn--primary {
+  color: var(--color-primary-600);
+  border-color: var(--color-primary-600);
+}
+
+.btn--outline.btn--primary:hover:not(:disabled) {
+  background-color: var(--color-primary-50);
+}
+
+/* Ghost variant */
+.btn--ghost {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.btn--ghost.btn--primary {
+  color: var(--color-primary-600);
+}
+
+.btn--ghost.btn--primary:hover:not(:disabled) {
+  background-color: var(--color-primary-50);
+}
+
+/* States */
+.btn--disabled,
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn--loading {
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn--loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid;
+  border-color: currentColor transparent currentColor transparent;
+  border-radius: var(--radius-full);
+  animation: btn-spin 1.2s linear infinite;
+}
+
+@keyframes btn-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Full width */
+.btn--full-width {
+  width: 100%;
+}
+
+/* Icon positioning */
+.btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn__icon--left {
+  order: -1;
+}
+
+.btn__icon--right {
+  order: 1;
+}
+
+/* Focus styles */
+.btn:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}

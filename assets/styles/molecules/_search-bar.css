@@ -1,0 +1,144 @@
+/* =========================
+   Search Bar Molecule
+   ========================= */
+
+.search-bar {
+  --sb-height: 40px;
+  --sb-padding-x: 12px;
+  --sb-gap: 8px;
+  --sb-radius: 8px;
+
+  --sb-bg: var(--color-surface, #ffffff);
+  --sb-border: var(--color-border, #e5e7eb);
+  --sb-border-focus: var(--color-primary, #6366f1);
+  --sb-text: var(--color-text, #111827);
+  --sb-placeholder: var(--color-text-muted, #9ca3af);
+  --sb-icon: var(--color-text-muted, #6b7280);
+
+  display: flex;
+  align-items: center;
+  gap: var(--sb-gap);
+
+  height: var(--sb-height);
+  padding: 0 var(--sb-padding-x);
+
+  background: var(--sb-bg);
+  border: 1px solid var(--sb-border);
+  border-radius: var(--sb-radius);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* =========================
+   Focus state
+   ========================= */
+
+.search-bar:focus-within {
+  border-color: var(--sb-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sb-border-focus) 20%, transparent);
+}
+
+/* =========================
+   Disabled state
+   ========================= */
+
+.search-bar--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  background: var(--color-surface-disabled, #f9fafb);
+}
+
+/* =========================
+   Icon
+   ========================= */
+
+.search-bar__icon {
+  display: flex;
+  align-items: center;
+  color: var(--sb-icon);
+  flex-shrink: 0;
+}
+
+/* Icon atom size normalization */
+.search-bar__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* =========================
+   Input
+   ========================= */
+
+.search-bar__input {
+  flex: 1;
+  height: 100%;
+  border: none;
+  background: transparent;
+
+  color: var(--sb-text);
+  font-size: 0.95rem;
+  line-height: 1;
+
+  padding: 0;
+}
+
+.search-bar__input::placeholder {
+  color: var(--sb-placeholder);
+}
+
+.search-bar__input:focus {
+  outline: none;
+}
+
+/* =========================
+   Clear button
+   ========================= */
+
+.search-bar__clear {
+  display: flex;
+  align-items: center;
+}
+
+.search-bar__clear button {
+  min-width: auto;
+  padding: 4px;
+  border-radius: 50%;
+}
+
+.search-bar__clear svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* =========================
+   Size modifiers (future-proof)
+   ========================= */
+
+.search-bar--sm {
+  --sb-height: 32px;
+  --sb-padding-x: 8px;
+  font-size: 0.85rem;
+}
+
+.search-bar--lg {
+  --sb-height: 48px;
+  --sb-padding-x: 16px;
+  font-size: 1rem;
+}
+
+/* =========================
+   Variant modifiers (optional)
+   ========================= */
+
+.search-bar--ghost {
+  background: transparent;
+  border-color: transparent;
+}
+
+.search-bar--outlined {
+  background: var(--sb-bg);
+  border-style: dashed;
+}

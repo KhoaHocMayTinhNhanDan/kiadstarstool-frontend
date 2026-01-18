@@ -1,0 +1,1 @@
+// File: Branch.entity.ts

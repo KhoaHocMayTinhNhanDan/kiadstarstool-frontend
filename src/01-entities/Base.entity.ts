@@ -1,0 +1,1 @@
+// File: Base.entity.ts

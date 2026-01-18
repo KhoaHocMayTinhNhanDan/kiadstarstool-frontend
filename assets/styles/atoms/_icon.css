@@ -1,0 +1,209 @@
+/* frontend/assets/styles/atoms/_icon.css */
+
+/**
+ * 🎯 Icon Atom – FINAL
+ * - Safe transform composition (rotate / spin / pulse / flip)
+ * - Compatible with Icon FINAL (JS)
+ * - Ready for SVG / sprite migration
+ */
+
+/* ============================= */
+/* Core                          */
+/* ============================= */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 1em;
+  height: 1em;
+
+  flex-shrink: 0;
+  user-select: none;
+  color: currentColor;
+  fill: currentColor;
+
+  /* 🔑 Single source of truth for transform */
+  transform:
+    rotate(var(--icon-rotate, 0deg))
+    scaleX(var(--icon-flip-x, 1))
+    scaleY(var(--icon-flip-y, 1));
+
+  transform-origin: center;
+}
+
+/* ============================= */
+/* Sizes                         */
+/* ============================= */
+
+.icon--small {
+  font-size: 16px; /* 1rem */
+}
+
+.icon--medium {
+  font-size: 20px; /* 1.25rem */
+}
+
+.icon--large {
+  font-size: 24px; /* 1.5rem */
+}
+
+.icon--xlarge {
+  font-size: 32px; /* 2rem */
+}
+
+/* ============================= */
+/* Colors (semantic)             */
+/* ============================= */
+
+.icon--primary {
+  color: var(--color-primary-600);
+}
+
+.icon--success {
+  color: var(--color-success);
+}
+
+.icon--warning {
+  color: var(--color-warning);
+}
+
+.icon--error {
+  color: var(--color-error);
+}
+
+.icon--info {
+  color: var(--color-info);
+}
+
+.icon--muted {
+  color: var(--color-gray-500);
+}
+
+/* ============================= */
+/* Animations                    */
+/* ============================= */
+
+/* Spin (preserves rotate offset) */
+.icon--spin {
+  animation: icon-spin 1s linear infinite;
+}
+
+@keyframes icon-spin {
+  to {
+    transform:
+      rotate(calc(360deg + var(--icon-rotate, 0deg)))
+      scaleX(var(--icon-flip-x, 1))
+      scaleY(var(--icon-flip-y, 1));
+  }
+}
+
+/* Pulse (safe with rotate & flip) */
+.icon--pulse {
+  animation: icon-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform:
+      rotate(var(--icon-rotate, 0deg))
+      scaleX(var(--icon-flip-x, 1))
+      scaleY(var(--icon-flip-y, 1))
+      scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform:
+      rotate(var(--icon-rotate, 0deg))
+      scaleX(var(--icon-flip-x, 1))
+      scaleY(var(--icon-flip-y, 1))
+      scale(1.1);
+  }
+}
+
+/* ============================= */
+/* Clickable Icon Button         */
+/* ============================= */
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: none;
+  border: none;
+  padding: var(--space-xs);
+  border-radius: var(--radius-md);
+
+  color: inherit;
+  cursor: pointer;
+
+  transition:
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.icon-button:hover:not(:disabled) {
+  background-color: var(--color-gray-100);
+}
+
+.icon-button:active:not(:disabled) {
+  background-color: var(--color-gray-200);
+}
+
+.icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-button:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+/* Icon-button sizes */
+.icon-button--small {
+  padding: 2px;
+}
+
+.icon-button--medium {
+  padding: var(--space-xs);
+}
+
+.icon-button--large {
+  padding: var(--space-sm);
+}
+
+/* ============================= */
+/* Context helpers               */
+/* ============================= */
+
+.icon-in-button {
+  font-size: 0.875em;
+}
+
+.icon-in-input {
+  font-size: 1em;
+}
+
+.icon-in-badge {
+  font-size: 0.75em;
+}
+
+/* ============================= */
+/* Deprecated (DO NOT USE)       */
+/* ============================= */
+/*
+.icon--rotate-90
+.icon--rotate-180
+.icon--rotate-270
+.icon--flip-horizontal
+.icon--flip-vertical
+
+❌ Deprecated – handled by CSS variables:
+   --icon-rotate
+   --icon-flip-x
+   --icon-flip-y
+*/

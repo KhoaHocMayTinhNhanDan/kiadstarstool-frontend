@@ -1,0 +1,245 @@
+/* frontend/assets/styles/atoms/_switch.css */
+
+/**
+ * 🎯 Switch Atom - Updated for Enhanced Component
+ */
+
+/* Switch container */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm, 0.5rem);
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.switch--disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.switch--loading {
+  pointer-events: none;
+}
+
+/* Hidden input */
+.switch__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Track (visual background) */
+.switch__track {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  background-color: var(--color-gray-300, #d1d5db);
+  border-radius: var(--radius-full, 9999px);
+  transition: all var(--transition-fast, 150ms) ease;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* Thumb (moving part) */
+.switch__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-white, #ffffff);
+  border-radius: var(--radius-full, 9999px);
+  transition: all var(--transition-fast, 150ms) ease;
+  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(0);
+}
+
+/* Checked states */
+.switch--checked .switch__track {
+  background-color: var(--color-primary-600, #2563eb);
+}
+
+.switch--checked .switch__thumb {
+  transform: translateX(20px);
+}
+
+/* Hover states (only when interactive) */
+.switch:not(.switch--disabled):not(.switch--loading):hover .switch__track {
+  background-color: var(--color-gray-400, #9ca3af);
+}
+
+.switch.switch--checked:not(.switch--disabled):not(.switch--loading):hover .switch__track {
+  background-color: var(--color-primary-700, #1d4ed8);
+}
+
+/* Label */
+.switch__label {
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-primary, #111827);
+  line-height: var(--leading-normal, 1.5);
+  user-select: none;
+}
+
+.switch--disabled .switch__label {
+  color: var(--color-text-tertiary, #6b7280);
+}
+
+/* Focus state */
+.switch__input:focus-visible + .switch__track {
+  outline: 2px solid var(--color-primary-500, #3b82f6);
+  outline-offset: 2px;
+}
+
+/* Keyboard focus for label */
+.switch:focus-within {
+  outline: 2px solid transparent;
+}
+
+.switch:focus-within .switch__track {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Sizes */
+.switch--small {
+  gap: var(--space-xs, 0.25rem);
+}
+
+.switch--small .switch__track {
+  width: 36px;
+  height: 20px;
+}
+
+.switch--small .switch__thumb {
+  width: 16px;
+  height: 16px;
+}
+
+.switch--small.switch--checked .switch__thumb {
+  transform: translateX(16px);
+}
+
+.switch--small .switch__label {
+  font-size: var(--text-xs, 0.75rem);
+}
+
+.switch--large {
+  gap: var(--space-md, 0.75rem);
+}
+
+.switch--large .switch__track {
+  width: 52px;
+  height: 28px;
+}
+
+.switch--large .switch__thumb {
+  width: 24px;
+  height: 24px;
+}
+
+.switch--large.switch--checked .switch__thumb {
+  transform: translateX(24px);
+}
+
+.switch--large .switch__label {
+  font-size: var(--text-base, 1rem);
+}
+
+/* Icons inside thumb */
+.switch--with-icons .switch__thumb {
+  padding: 2px;
+}
+
+.switch__icon {
+  width: 12px;
+  height: 12px;
+  opacity: 0.8;
+  transition: opacity var(--transition-fast, 150ms);
+}
+
+.switch:not(.switch--disabled):hover .switch__icon {
+  opacity: 1;
+}
+
+/* Loading state */
+.switch__loading {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: var(--radius-full, 9999px);
+  animation: switch-loading 1.2s linear infinite;
+}
+
+@keyframes switch-loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pulse animation for checked state */
+@keyframes switch-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0);
+  }
+}
+
+.switch--checked .switch__thumb {
+  animation: switch-pulse 2s infinite;
+}
+
+/* Variants (when using status prop) */
+.switch--success.switch--checked .switch__track {
+  background-color: var(--color-success, #10b981);
+}
+
+.switch--warning.switch--checked .switch__track {
+  background-color: var(--color-warning, #f59e0b);
+}
+
+.switch--error.switch--checked .switch__track {
+  background-color: var(--color-error, #ef4444);
+}
+
+/* Accessibility: reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .switch__track,
+  .switch__thumb {
+    transition: none;
+  }
+  
+  .switch__thumb {
+    animation: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .switch__track {
+    background-color: var(--color-gray-700, #374151);
+  }
+  
+  .switch--checked .switch__track {
+    background-color: var(--color-primary-500, #3b82f6);
+  }
+  
+  .switch:not(.switch--disabled):hover .switch__track {
+    background-color: var(--color-gray-600, #4b5563);
+  }
+  
+  .switch.switch--checked:not(.switch--disabled):hover .switch__track {
+    background-color: var(--color-primary-600, #2563eb);
+  }
+}

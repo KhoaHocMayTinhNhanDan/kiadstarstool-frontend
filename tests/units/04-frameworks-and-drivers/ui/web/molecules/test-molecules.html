@@ -1,0 +1,157 @@
+<!-- frontend/test-molecules.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecules Components Test</title>
+  
+  <!-- Import main CSS -->
+  <link rel="stylesheet" href="./assets/styles/main.css">
+  
+  <!-- Test page specific styles -->
+  <style>
+    /* Basic styles while loading */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--color-bg-secondary);
+      color: var(--color-text-primary);
+    }
+    
+    #app {
+      max-width: var(--container-2xl);
+      margin: 0 auto;
+      padding: var(--space-lg);
+    }
+    
+    .loading {
+      text-align: center;
+      padding: var(--space-3xl);
+      font-size: var(--text-lg);
+      color: var(--color-text-tertiary);
+    }
+    
+    /* Test specific styles */
+    .test-page-only .test-header {
+      background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-800) 100%);
+      color: white;
+      padding: var(--space-xl);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-xl);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .test-page-only .controls {
+      display: flex;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .test-page-only .component-test-group {
+      background: var(--color-bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+      border: 1px solid var(--color-border-light);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .test-page-only .component-instance {
+      padding: var(--space-md);
+      margin: var(--space-md) 0;
+      background: var(--color-bg-secondary);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border-light);
+    }
+    
+    /* Molecules specific */
+    .molecules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: var(--space-lg);
+    }
+    
+    .molecule-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      border: 1px solid var(--color-border-light);
+      transition: all 0.2s;
+    }
+    
+    .molecule-card:hover {
+      border-color: var(--color-primary-300);
+      box-shadow: var(--shadow-md);
+    }
+  </style>
+</head>
+<body class="test-page-only">
+  <div id="app">
+    <div class="loading">
+      <p>Loading Molecules Tester...</p>
+      <p class="text-sm text-tertiary">Testing molecular components built from atoms</p>
+    </div>
+  </div>
+  
+  <script type="module">
+    import { runMoleculesTest } from './test-molecules.js';
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('🧬 Starting molecules test suite...');
+      
+      runMoleculesTest().catch(error => {
+        console.error('❌ Test failed:', error);
+        document.getElementById('app').innerHTML = `
+          <div style="
+            background: var(--color-error-bg);
+            color: var(--color-error);
+            padding: var(--space-xl);
+            border-radius: var(--radius-lg);
+            margin: var(--space-lg);
+            border: 1px solid var(--color-error-border);
+          ">
+            <h2 style="margin-top: 0;">❌ Molecules Test Failed</h2>
+            <p><strong>Error:</strong> ${error.message}</p>
+            <p>This might be because molecules components aren't built yet or atoms are missing.</p>
+            <p>Check browser console (F12) for detailed error information.</p>
+            <div style="margin-top: var(--space-md);">
+              <button onclick="location.reload()" style="
+                padding: var(--space-sm) var(--space-lg);
+                background: var(--color-error);
+                color: white;
+                border: none;
+                border-radius: var(--radius-md);
+                cursor: pointer;
+                font-weight: 500;
+                margin-right: var(--space-sm);
+              ">
+                Retry
+              </button>
+              <button onclick="location.href='./test-atoms.html'" style="
+                padding: var(--space-sm) var(--space-lg);
+                background: transparent;
+                color: var(--color-error);
+                border: 1px solid var(--color-error);
+                border-radius: var(--radius-md);
+                cursor: pointer;
+                font-weight: 500;
+              ">
+                Test Atoms First
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    });
+    
+    // Global error handler
+    window.addEventListener('error', (event) => {
+      console.error('Global error:', event.error);
+    });
+    
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+    });
+  </script>
+</body>
+</html>
