@@ -1,7 +1,7 @@
 // src/03-interface-adapters/gateways/repositories/AuthRepository.ts
 
 import type { IAuthRepository } from '@/02-usecases/ports/input/IAuthRepository';
-import type { UserAuth } from '@/01-entities/users/UserAuth.entity';
+import type { UserAuth } from '@/01-entities/business/users/UserAuth.entity';
 import type { IAuthDriver } from '../device-interfaces/auth/IAuthDriver';
 
 export class AuthRepository implements IAuthRepository {

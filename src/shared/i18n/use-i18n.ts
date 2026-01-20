@@ -1,3 +1,4 @@
+// src/shared/i18n/use-i18n.ts
 import { useSyncExternalStore } from 'react'
 import { i18nStore } from './i18n.store'
 import type { Locale } from './i18n.store'

@@ -2,7 +2,7 @@
 
 import type { IAuthRepository } from '../../ports/input/IAuthRepository';
 import type { IAuthPresenter } from '../../ports/output/IAuthPresenter';
-import { UserAuth } from '@/01-entities/users/UserAuth.entity';
+import { UserAuth } from '@/01-entities/business/users/UserAuth.entity';
 import { AuthError } from '@/shared/errors/AuthError';
 
 export interface RegisterPayload {

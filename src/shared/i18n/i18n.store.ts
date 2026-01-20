@@ -1,3 +1,4 @@
+// src/shared/i18n/i18n.store.ts
 import { en } from './en'
 import { vi } from './vi'
 import { ja } from './ja'
@@ -44,8 +45,13 @@ export const i18nStore = {
     listeners.forEach(fn => fn())
   },
 
-  t(key: I18nKey): string {
-    return dictionary[locale][key] ?? dictionary.en[key]
+
+  t(p0: string, p1: string, key: I18nKey): string {
+    return (
+      dictionary[locale]?.[key] ??
+      dictionary.en?.[key] ??
+      '[i18n] Missing translation'
+    )
   },
 
   subscribe(fn: () => void) {

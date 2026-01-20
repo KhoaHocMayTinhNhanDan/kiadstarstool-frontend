@@ -5,4 +5,6 @@ export const en = {
   'auth.logout': 'Logout',
   'user.name': 'User name',
   'error.UNKNOWN': 'Something went wrong',
+  'loadingSpinner.defaultLabel': 'LoadingLable...',
+  'loadingSpinner.loading': 'Loading...',
 } as const

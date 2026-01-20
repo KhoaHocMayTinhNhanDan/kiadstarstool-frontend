@@ -1,6 +1,6 @@
 // src/02-usecases/ports/input/IAuthRepository.ts
 
-import type { UserAuth } from '@/01-entities/users/UserAuth.entity'
+import type { UserAuth } from '@/01-entities/business/users/UserAuth.entity'
 
 /* =====================
  *  LOGIN

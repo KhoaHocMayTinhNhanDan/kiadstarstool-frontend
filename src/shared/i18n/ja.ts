@@ -6,4 +6,6 @@ export const ja: Record<keyof typeof en, string> = {
   'auth.logout': 'ログアウト',
   'user.name': 'ユーザー名',
   'error.UNKNOWN': 'エラーが発生しました',
+  'loadingSpinner.defaultLabel': '読み込み中...',
+  'loadingSpinner.loading': '読み込み中...',
 }

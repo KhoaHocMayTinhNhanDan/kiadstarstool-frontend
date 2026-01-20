@@ -1,7 +1,7 @@
 // src/04-frameworks-and-drivers/devices/auth/MockAuthDriver.ts
 
 import type { IAuthDriver } from '@/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver';
-import { UserAuth } from '@/01-entities/users/UserAuth.entity';
+import { UserAuth } from '@/01-entities/business/users/UserAuth.entity';
 
 export class MockAuthDriver implements IAuthDriver {
   private mockUsers: Array<{

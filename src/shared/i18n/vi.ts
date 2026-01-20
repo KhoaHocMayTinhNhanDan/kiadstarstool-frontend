@@ -7,4 +7,6 @@ export const vi: Record<keyof typeof en, string> = {
   'auth.logout': 'Đăng xuất',
   'user.name': 'Tên người dùng',
   'error.UNKNOWN': 'Đã xảy ra lỗi',
+  'loadingSpinner.defaultLabel': 'Đang tải...',
+  'loadingSpinner.loading': 'Đang tải...',
 }
