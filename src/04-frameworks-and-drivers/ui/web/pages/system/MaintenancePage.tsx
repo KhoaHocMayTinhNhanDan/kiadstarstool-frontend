@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const MaintenancePage = () => {
   return (
     <div style={{ padding: 48, textAlign: 'center', color: '#666', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
