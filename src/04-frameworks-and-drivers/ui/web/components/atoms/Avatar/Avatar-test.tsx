@@ -1,4 +1,4 @@
-// src/04-frameworks-and-drivers/ui/web/components/atoms/Avatar/Avatar-test.tsx
+// src/04-frameworks-and-drivers/ui/web/components/atoms/Avatar/Avatar.playground.tsx
 import { useState } from 'react';
 import { Avatar, AvatarGroup } from './Avatar';
 

@@ -1,294 +1,298 @@
 // src/04-frameworks-and-drivers/ui/web/components/atoms/Switch/Switch-test.tsx
-import { useState } from 'react';
-import { Switch, SwitchWithStatus, SwitchGroup } from './Switch';
+import { useState, useCallback } from 'react';
+import { Switch, SwitchGroup } from './Switch';
 import { useI18n } from '@/shared/i18n';
-import { SWITCH_CONFIG } from './Switch.constants';
+
+import {
+  SWITCH_SIZES,
+  SWITCH_VARIANTS,
+  SWITCH_CONFIG,
+} from './Switch.constants';
+
+import type {
+  SwitchSize,
+  SwitchVariant,
+  SwitchLabelPosition,
+} from './Switch.types';
+
+// ===== ICONS =====
+const MoonIcon = () => <span style={{ fontSize: 14 }}>🌙</span>;
+const SunIcon = () => <span style={{ fontSize: 14 }}>☀️</span>;
+const BellIcon = () => <span style={{ fontSize: 14 }}>🔔</span>;
+const ShieldIcon = () => <span style={{ fontSize: 14 }}>🛡️</span>;
+const CloudIcon = () => <span style={{ fontSize: 14 }}>☁️</span>;
+const WifiOffIcon = () => <span style={{ fontSize: 14 }}>🚫📶</span>;
 
 export function SwitchTest() {
   const { t, locale, setLocale } = useI18n();
-  const [selectedVariant, setSelectedVariant] = useState('default');
-  const [selectedSize, setSelectedSize] = useState('md');
-  const [clickCount, setClickCount] = useState(0);
 
-  const handleClick = () => {
-    setClickCount(prev => prev + 1);
-    alert(t(SWITCH_I18N_KEYS.clickMessage, 'Switch clicked!'));
-  };
+  // ===== STATE =====
+  const [states, setStates] = useState<Record<string, boolean>>({
+    basic: true,
+    disabledOn: true,
+    disabledOff: false,
+    loading: false,
+    required: false,
+    darkMode: false,
+    customColor: true,
+    push: true,
+    email: false,
+    sms: true,
+    twoFactor: false,
+    sync: true,
+  });
 
-  const variants = SWITCH_CONFIG.variants;
-  const sizes = SWITCH_CONFIG.sizes;
+  const [loadingKeys, setLoadingKeys] = useState<Record<string, boolean>>({});
+  const [visibleSizes, setVisibleSizes] = useState<SwitchSize[]>(['sm', 'md', 'lg']);
+  const [visibleVariants, setVisibleVariants] = useState<SwitchVariant[]>([
+    'primary',
+    'success',
+    'warning',
+    'error',
+  ]);
 
+  // ===== HELPERS =====
+  const toggle = useCallback((key: string, value: boolean) => {
+    setStates(prev => ({ ...prev, [key]: value }));
+  }, []);
+
+  const simulateLoading = useCallback(
+    (key: string) => {
+      setLoadingKeys(prev => ({ ...prev, [key]: true }));
+      setTimeout(() => {
+        setLoadingKeys(prev => ({ ...prev, [key]: false }));
+        toggle(key, !states[key]);
+      }, 1200);
+    },
+    [states, toggle]
+  );
+
+  const toggleAll = useCallback((target: boolean) => {
+    setStates(prev => {
+      const next = { ...prev };
+      Object.keys(next).forEach(k => {
+        if (k !== 'darkMode') next[k] = target;
+      });
+      return next;
+    });
+  }, []);
+
+  const isDark = states.darkMode;
+
+  // ===== DATA =====
+  const labelPositions: SwitchLabelPosition[] = ['left', 'right', 'top', 'bottom'];
+
+  const customThemes = [
+    {
+      key: 'switch.test.theme.purple',
+      checked: '#8b5cf6',
+      unchecked: '#ede9fe',
+      thumb: '#ffffff',
+    },
+    {
+      key: 'switch.test.theme.emerald',
+      checked: '#10b981',
+      unchecked: '#d1fae5',
+      thumb: '#ffffff',
+    },
+    {
+      key: 'switch.test.theme.rose',
+      checked: '#f43f5e',
+      unchecked: '#ffe4e6',
+      thumb: '#ffffff',
+    },
+  ];
+
+  // ===== RENDER =====
   return (
-    <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
-      <h2 style={{ marginBottom: 24, color: '#333' }}>🧪 Switch Component Tests</h2>
-      
-      {/* I18N Demo */}
-      <section style={{ marginBottom: 32, padding: 16, backgroundColor: '#f8fafc', borderRadius: 8 }}>
-        <h3 style={{ marginBottom: 12, color: '#555' }}>🌐 I18N Demo</h3>
-        <p style={{ marginBottom: 12, color: '#666' }}>
-          Current locale: <strong>{locale}</strong>
+    <div
+      style={{
+        padding: 24,
+        minHeight: '100vh',
+        background: isDark ? '#111827' : '#f9fafb',
+        color: isDark ? '#e5e7eb' : '#111827',
+        transition: 'all 0.3s',
+        fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+      }}
+    >
+      {/* ===== HEADER ===== */}
+      <header style={{ marginBottom: 48 }}>
+        <h1 style={{ fontSize: 32, fontWeight: 700 }}>
+          🔘 Switch Test Suite – {locale.toUpperCase()}
+        </h1>
+
+        <p style={{ color: isDark ? '#9ca3af' : '#4b5563' }}>
+          {t('switch.test.description')}
         </p>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {['en', 'vi', 'ja', 'zh'].map(lang => (
+
+        <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+          {(['en', 'vi', 'ja', 'zh'] as const).map(lang => (
             <button
               key={lang}
               onClick={() => setLocale(lang)}
               style={{
                 padding: '6px 12px',
-                backgroundColor: locale === lang ? '#3b82f6' : '#e5e7eb',
-                color: locale === lang ? 'white' : '#374151',
-                border: 'none',
-                borderRadius: 4,
+                borderRadius: 6,
                 cursor: 'pointer',
-                fontSize: 14
+                border: '1px solid #ccc',
+                background: locale === lang ? '#3b82f6' : 'transparent',
+                color: locale === lang ? '#fff' : 'inherit',
               }}
             >
               {lang.toUpperCase()}
             </button>
           ))}
         </div>
+      </header>
+
+      {/* ===== GLOBAL ===== */}
+      <section style={{ marginBottom: 40 }}>
+        <Switch
+          checked={isDark}
+          onChange={v => toggle('darkMode', v)}
+          label={t('switch.darkMode')}
+          withIcons
+          checkedIcon={<MoonIcon />}
+          uncheckedIcon={<SunIcon />}
+        />
+
+        <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
+          <button onClick={() => toggleAll(true)}>ON</button>
+          <button onClick={() => toggleAll(false)}>OFF</button>
+        </div>
       </section>
 
-      {/* Variants Demo */}
-      <section style={{ marginBottom: 32 }}>
-        <h3 style={{ marginBottom: 16, color: '#555' }}>🎨 Variants</h3>
-        <p style={{ marginBottom: 12, color: '#666' }}>
-          Selected: <strong>{selectedVariant}</strong>
+      {/* ===== STATES ===== */}
+      <section style={{ marginBottom: 48 }}>
+        <h2>{t('switch.sections.states')}</h2>
+
+        <Switch
+          checked={states.basic}
+          onChange={v => toggle('basic', v)}
+          label={t('switch.basic')}
+        />
+
+        <Switch checked disabled label={t('switch.disabledOn')} />
+        <Switch checked={false} disabled label={t('switch.disabledOff')} />
+
+        <Switch
+          checked={states.loading}
+          loading={loadingKeys.loading}
+          onChange={() => simulateLoading('loading')}
+          label={t('switch.loading')}
+        />
+
+        <Switch
+          checked={states.required}
+          onChange={v => toggle('required', v)}
+          label={t('switch.required')}
+          required
+        />
+
+        <Switch checked readOnly label={t('switch.readonly')} />
+      </section>
+
+      {/* ===== I18N FALLBACK ===== */}
+      <section style={{ marginBottom: 48 }}>
+        <h2>🌐 i18n fallback</h2>
+
+        <Switch checked size="sm" />
+        <Switch checked={false} size="sm" />
+        <Switch checked size="md" disabled />
+        <Switch checked={false} size="lg" />
+
+        <p style={{ fontSize: 13 }}>
+          {t(SWITCH_I18N_KEYS.on)} / {t(SWITCH_I18N_KEYS.off)} | {locale}
         </p>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
-          {variants.map(variant => (
-            <Switch
-              key={variant}
-              variant={variant}
-              size="md"
-              onClick={() => setSelectedVariant(variant)}
-              style={{
-                border: selectedVariant === variant ? '2px solid #3b82f6' : 'none'
-              }}
-            >
-              {variant.charAt(0).toUpperCase() + variant.slice(1)}
-            </Switch>
-          ))}
-        </div>
       </section>
 
-      {/* Sizes Demo */}
-      <section style={{ marginBottom: 32 }}>
-        <h3 style={{ marginBottom: 16, color: '#555' }}>📏 Sizes</h3>
-        <p style={{ marginBottom: 12, color: '#666' }}>
-          Selected: <strong>{selectedSize}</strong>
-        </p>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
-          {sizes.map(size => (
-            <Switch
-              key={size}
-              size={size}
-              variant="primary"
-              onClick={() => setSelectedSize(size)}
-              style={{
-                border: selectedSize === size ? '2px solid #3b82f6' : 'none'
-              }}
-            >
-              {size.toUpperCase()}
-            </Switch>
-          ))}
-        </div>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-          {sizes.map(size => (
-            <div key={size} style={{ textAlign: 'center' }}>
-              <Switch size={size} variant="secondary">
-                {size}
-              </Switch>
-              <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
-                {SWITCH_CONFIG.getSizeStyle(size).size}px
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* ===== SIZES ===== */}
+      <section style={{ marginBottom: 48 }}>
+        <h2>{t('switch.sections.sizes')}</h2>
 
-      {/* States Demo */}
-      <section style={{ marginBottom: 32 }}>
-        <h3 style={{ marginBottom: 16, color: '#555' }}>⚡ States</h3>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <Switch variant="primary">
-            Normal
-          </Switch>
-          <Switch variant="primary" disabled>
-            Disabled
-          </Switch>
-          <Switch variant="primary" loading>
-            {t(SWITCH_I18N_KEYS.loadingText, 'Loading...')}
-          </Switch>
-          <Switch variant="primary" selected>
-            Selected
-          </Switch>
-          <Switch 
-            variant="primary" 
-            onClick={handleClick}
-          >
-            Click Me ({clickCount})
-          </Switch>
-        </div>
-      </section>
-
-      {/* With Status */}
-      <section style={{ marginBottom: 32 }}>
-        <h3 style={{ marginBottom: 16, color: '#555' }}>🔴 With Status</h3>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-          <SwitchWithStatus 
-            variant="default" 
-            size="lg"
-            status="online"
-          >
-            Online
-          </SwitchWithStatus>
-          <SwitchWithStatus 
-            variant="default" 
-            size="lg"
-            status="away"
-          >
-            Away
-          </SwitchWithStatus>
-          <SwitchWithStatus 
-            variant="default" 
-            size="lg"
-            status="busy"
-          >
-            Busy
-          </SwitchWithStatus>
-          <SwitchWithStatus 
-            variant="default" 
-            size="lg"
-            status="offline"
-          >
-            Offline
-          </SwitchWithStatus>
-        </div>
-      </section>
-
-      {/* Group Demo */}
-      <section style={{ marginBottom: 32 }}>
-        <h3 style={{ marginBottom: 16, color: '#555' }}>👥 Group</h3>
-        <div style={{ marginBottom: 16 }}>
-          <h4 style={{ marginBottom: 8, color: '#666' }}>Basic Group</h4>
-          <SwitchGroup spacing={12}>
-            <Switch variant="primary">Item 1</Switch>
-            <Switch variant="secondary">Item 2</Switch>
-            <Switch variant="default">Item 3</Switch>
-            <Switch variant="primary">Item 4</Switch>
-            <Switch variant="secondary">Item 5</Switch>
-          </SwitchGroup>
-        </div>
-        <div>
-          <h4 style={{ marginBottom: 8, color: '#666' }}>With Max Limit</h4>
-          <SwitchGroup max={3} spacing={8}>
-            <Switch size="sm" variant="primary">A</Switch>
-            <Switch size="sm" variant="secondary">B</Switch>
-            <Switch size="sm" variant="default">C</Switch>
-            <Switch size="sm" variant="primary">D</Switch>
-            <Switch size="sm" variant="secondary">E</Switch>
-          </SwitchGroup>
-          <p style={{ fontSize: 14, color: '#666', marginTop: 8 }}>
-            Showing 3 of 5 items
-          </p>
-        </div>
-      </section>
-
-      {/* Config Summary */}
-      <section style={{ 
-        padding: 20, 
-        backgroundColor: '#f0f9ff', 
-        borderRadius: 8,
-        border: '1px solid #bae6fd'
-      }}>
-        <h4 style={{ marginTop: 0, color: '#0369a1' }}>📊 Config Summary</h4>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 16 }}>
-          <div>
-            <strong>Variants:</strong>
-            <ul style={{ margin: '8px 0 0 0', paddingLeft: 20 }}>
-              {variants.map(v => <li key={v}>{v}</li>)}
-            </ul>
-          </div>
-          <div>
-            <strong>Sizes:</strong>
-            <ul style={{ margin: '8px 0 0 0', paddingLeft: 20 }}>
-              {sizes.map(s => (
-                <li key={s}>{s}: {SWITCH_CONFIG.getSizeStyle(s).size}px</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <strong>Defaults:</strong>
-            <ul style={{ margin: '8px 0 0 0', paddingLeft: 20 }}>
-              <li>Variant: {SWITCH_CONFIG.defaults.variant}</li>
-              <li>Size: {SWITCH_CONFIG.defaults.size}</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Interactive Test */}
-      <section style={{ 
-        padding: 20, 
-        backgroundColor: '#f8fafc', 
-        borderRadius: 8,
-        marginTop: 32
-      }}>
-        <h3 style={{ marginBottom: 12, color: '#555' }}>🔄 Interactive Test</h3>
-        <p style={{ marginBottom: 16, color: '#666' }}>
-          Create your custom Switch:
-        </p>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 400 }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: 8, color: '#555' }}>
-              Variant:
-              <select 
-                value={selectedVariant}
-                onChange={(e) => setSelectedVariant(e.target.value)}
-                style={{ marginLeft: 8, padding: '6px 12px', borderRadius: 4 }}
-              >
-                {variants.map(v => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-          
-          <div>
-            <label style={{ display: 'block', marginBottom: 8, color: '#555' }}>
-              Size:
-              <select 
-                value={selectedSize}
-                onChange={(e) => setSelectedSize(e.target.value)}
-                style={{ marginLeft: 8, padding: '6px 12px', borderRadius: 4 }}
-              >
-                {sizes.map(s => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-          
+        {visibleSizes.map(size => (
           <Switch
-            variant={selectedVariant}
-            size={selectedSize}
-            onClick={handleClick}
-            style={{ alignSelf: 'flex-start' }}
-          >
-            Test Switch
-          </Switch>
-          
-          <div style={{ padding: 12, backgroundColor: '#e9ecef', borderRadius: 6 }}>
-            <strong>Current config:</strong>
-            <div style={{ marginTop: 4, fontSize: 14 }}>
-              Variant: <code>{selectedVariant}</code>, 
-              Size: <code>{selectedSize}</code> ({SWITCH_CONFIG.getSizeStyle(selectedSize).size}px),
-              Clicks: <code>{clickCount}</code>
-            </div>
-          </div>
-        </div>
+            key={size}
+            size={size}
+            checked
+            label={t(`switch.size.${size}`)}
+            description={`Size: ${size}`}
+          />
+        ))}
+      </section>
+
+      {/* ===== VARIANTS ===== */}
+      <section style={{ marginBottom: 48 }}>
+        <h2>{t('switch.sections.variants')}</h2>
+
+        {visibleVariants.map(v => (
+          <Switch
+            key={v}
+            variant={v}
+            checked
+            label={t(`switch.variant.${v}`)}
+          />
+        ))}
+      </section>
+
+      {/* ===== CUSTOM COLORS ===== */}
+      <section style={{ marginBottom: 48 }}>
+        <h2>{t('switch.sections.customColors')}</h2>
+
+        {customThemes.map(th => (
+          <Switch
+            key={th.key}
+            checked={states.customColor}
+            onChange={v => toggle('customColor', v)}
+            label={t(th.key)}
+            checkedColor={th.checked}
+            uncheckedColor={th.unchecked}
+            thumbColor={th.thumb}
+          />
+        ))}
+      </section>
+
+      {/* ===== GROUPS ===== */}
+      <section>
+        <h2>{t('switch.sections.groups')}</h2>
+
+        <SwitchGroup label={t('switch.groups.notifications')}>
+          <Switch
+            checked={states.push}
+            onChange={v => toggle('push', v)}
+            label={t('switch.push')}
+            withIcons
+            checkedIcon={<BellIcon />}
+          />
+          <Switch
+            checked={states.email}
+            onChange={v => toggle('email', v)}
+            label={t('switch.email')}
+          />
+          <Switch
+            checked={states.sms}
+            onChange={v => toggle('sms', v)}
+            label={t('switch.sms')}
+          />
+        </SwitchGroup>
+
+        <SwitchGroup label={t('switch.groups.security')} direction="horizontal">
+          <Switch
+            checked={states.twoFactor}
+            onChange={v => toggle('twoFactor', v)}
+            label={t('switch.twoFactor')}
+            withIcons
+            checkedIcon={<ShieldIcon />}
+          />
+          <Switch
+            checked={states.sync}
+            onChange={v => toggle('sync', v)}
+            label={t('switch.sync')}
+            withIcons
+            checkedIcon={<CloudIcon />}
+            uncheckedIcon={<WifiOffIcon />}
+          />
+        </SwitchGroup>
       </section>
     </div>
   );

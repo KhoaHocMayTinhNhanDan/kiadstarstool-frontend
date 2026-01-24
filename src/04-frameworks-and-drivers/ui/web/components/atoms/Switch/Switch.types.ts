@@ -1,100 +1,121 @@
 // src/04-frameworks-and-drivers/ui/web/components/atoms/Switch/Switch.types.ts
-import type { 
-  SwitchVariant, 
-  SwitchSize 
-} from './Switch.constants';
 
-export interface SwitchProps {
-  // ===== CORE PROPS =====
-  /** Visual style variant */
-  variant?: SwitchVariant;
+// ===== BASE TYPES =====
+export type SwitchSize = 'sm' | 'md' | 'lg';
+export type SwitchVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'error';
+export type SwitchLabelPosition = 'left' | 'right' | 'top' | 'bottom';
+
+// ===== SWITCH PROPS =====
+export interface SwitchProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+  /** Whether switch is checked */
+  checked?: boolean;
   
-  /** Size of the component */
+  /** Default checked state (uncontrolled) */
+  defaultChecked?: boolean;
+  
+  /** Called when switch state changes */
+  onChange?: (checked: boolean) => void;
+  
+  /** Size of the switch */
   size?: SwitchSize;
   
-  /** Component content */
-  children?: React.ReactNode;
+  /** Visual variant */
+  variant?: SwitchVariant;
   
-  /** Custom label/text */
+  /** Label text */
   label?: string;
   
-  // ===== STATE PROPS =====
-  /** Disabled state */
+  /** Label position */
+  labelPosition?: SwitchLabelPosition;
+  
+  /** Description text */
+  description?: string;
+  
+  /** Whether switch is disabled */
   disabled?: boolean;
   
-  /** Loading state */
+  /** Whether switch is loading */
   loading?: boolean;
   
-  /** Selected/Active state */
-  selected?: boolean;
+  /** Whether switch is read-only */
+  readOnly?: boolean;
   
-  // ===== VISUAL PROPS =====
-  /** Custom class name */
+  /** Required field */
+  required?: boolean;
+  
+  /** Custom checked background color */
+  checkedColor?: string;
+  
+  /** Custom unchecked background color */
+  uncheckedColor?: string;
+  
+  /** Custom thumb color */
+  thumbColor?: string;
+  
+  /** Show icons on switch */
+  withIcons?: boolean;
+  
+  /** Custom checked icon */
+  checkedIcon?: React.ReactNode;
+  
+  /** Custom unchecked icon */
+  uncheckedIcon?: React.ReactNode;
+  
+  /** Custom className */
   className?: string;
   
-  /** Custom styles */
+  /** Custom style */
   style?: React.CSSProperties;
   
-  /** Show border */
-  border?: boolean;
+  /** HTML id attribute */
+  id?: string;
   
-  /** Border radius override */
-  borderRadius?: number | string;
+  /** HTML name attribute (for forms) */
+  name?: string;
   
-  // ===== INTERACTION PROPS =====
-  /** Click handler */
-  onClick?: () => void;
+  /** HTML value attribute (for forms) */
+  value?: string | number;
   
-  /** Mouse enter handler */
-  onMouseEnter?: () => void;
-  
-  /** Mouse leave handler */
-  onMouseLeave?: () => void;
-  
-  // ===== ACCESSIBILITY =====
-  /** ARIA label */
+  /** Accessibility label */
   'aria-label'?: string;
   
-  /** ARIA described by */
+  /** Accessibility description */
   'aria-describedby'?: string;
+
+  // Data attributes
+  'data-group'?: string;
+  'data-group-index'?: number;
   
-  /** Tab index */
-  tabIndex?: number;
-  
-  // ===== ICON SUPPORT =====
-  /** Left icon/element */
-  leftElement?: React.ReactNode;
-  
-  /** Right icon/element */
-  rightElement?: React.ReactNode;
-  
-  /** Icon only mode */
-  iconOnly?: boolean;
-  
-  // ===== ADDITIONAL =====
-  /** Any other HTML attributes */
-  [key: string]: any;
+  // Event handlers
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLDivElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLDivElement>) => void;
 }
 
-// Optional: Extended props for specific use cases
-export interface SwitchWithStatusProps extends SwitchProps {
-  /** Status indicator (online/offline/etc) */
-  status?: 'online' | 'offline' | 'away' | 'busy' | 'none';
-  
-  /** Status position */
-  statusPosition?: 'top-right' | 'bottom-right' | 'top-left' | 'bottom-left';
-}
-
-export interface SwitchGroupProps {
+// ===== SWITCH GROUP PROPS =====
+export interface SwitchGroupProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Group children */
   children: React.ReactNode;
   
-  /** Size for all items in group */
-  size?: SwitchSize;
+  /** Label for the group */
+  label?: string;
   
-  /** Spacing between items */
+  /** Description for the group */
+  description?: string;
+  
+  /** Whether group is disabled */
+  disabled?: boolean;
+  
+  /** Direction of switches */
+  direction?: 'vertical' | 'horizontal';
+  
+  /** Spacing between switches */
   spacing?: number | string;
   
-  /** Maximum items to show */
-  max?: number;
+  /** Custom className */
+  className?: string;
+  
+  /** Custom style */
+  style?: React.CSSProperties;
 }

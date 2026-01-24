@@ -46,13 +46,25 @@ export const i18nStore = {
   },
 
 
-  t(p0: string, p1: string, key: I18nKey): string {
-    return (
-      dictionary[locale]?.[key] ??
-      dictionary.en?.[key] ??
-      '[i18n] Missing translation'
-    )
+  // i18n.store.ts
+  // src/shared/i18n/i18n.store.ts
+  t(key: I18nKey): string {
+    const currentLangDict = dictionary[locale];
+
+    // 1. Locale hiện tại
+    if (currentLangDict && key in currentLangDict) {
+      return currentLangDict[key];
+    }
+
+    // 2. Fallback sang EN
+    if (dictionary.en && key in dictionary.en) {
+      return dictionary.en[key];
+    }
+
+    // 3. Không tìm thấy → TRẢ VỀ KEY
+    return key;
   },
+
 
   subscribe(fn: () => void) {
     listeners.add(fn)

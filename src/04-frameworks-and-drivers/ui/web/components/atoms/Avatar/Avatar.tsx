@@ -7,7 +7,7 @@ import {
   StatusIndicator,
   AvatarGroupContainer,
   RemainingCount,
-} from './Avatar.styles';
+} from './Avatar.css';
 import type { AvatarProps, AvatarGroupProps, AvatarSize } from './Avatar.types';
 
 // Type guard để kiểm tra string fallback
