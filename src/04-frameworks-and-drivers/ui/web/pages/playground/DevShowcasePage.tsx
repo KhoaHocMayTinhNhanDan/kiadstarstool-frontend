@@ -1,38 +1,37 @@
-// src/04-frameworks-and-drivers/ui/web/App.tsx
+// src/04-frameworks-and-drivers/ui/web/pages/dev/DevShowcasePage.tsx
 import { useState } from 'react'
-import { AvatarTest } from './components/atoms/Avatar/Avatar-test'
-import { BadgeTest } from './components/atoms/Badge/Badge-test'
-import { ButtonTest } from './components/atoms/Button/Button-test'
-import { CheckboxTest } from './components/atoms/Checkbox/Checkbox-test'
-import { ChipTest } from './components/atoms/Chip/Chip-test'
-import { IconTest } from './components/atoms/Icon/Icon-test'
-import { InputTest } from './components/atoms/Input/Input-test'
-import { LoadingSpinnerTest } from './components/atoms/Loading-spinner/Loading-spinner-test'
-import { LogoTest } from './components/atoms/Logo/Logo-test' // 👈 THÊM IMPORT
-import { ProgressTest } from './components/atoms/Progress/Progress-test'
-import { SwitchTest } from './components/atoms/Switch/Switch-test'
-import { TextareaTest } from './components/atoms/Textarea/Textarea-test'
-
-import { LoginPageTest } from './pages/auth/LoginPage-test'
+// import { AvatarTest } from '../../components/atoms/Avatar/Avatar-test'
+// import { BadgeTest } from '../../components/atoms/Badge/Badge-test'
+// import { ButtonTest } from '../../components/atoms/Button/Button-test'
+// import { CheckboxTest } from '../../components/atoms/Checkbox/Checkbox-test'
+// import { ChipTest } from '../../components/atoms/Chip/Chip-test'
+// import { IconTest } from '../../components/atoms/Icon/Icon-test'
+// import { InputTest } from '../../components/atoms/Input/Input-test'
+// import { LoadingSpinnerTest } from '../../components/atoms/Loading-spinner/Loading-spinner-test'
+// import { LogoTest } from '../../components/atoms/Logo/Logo-test'
+// import { ProgressTest } from '../../components/atoms/Progress/Progress-test'
+// import { SwitchTest } from '../../components/atoms/Switch/Switch-test'
+// import { TextareaTest } from '../../components/atoms/Textarea/Textarea-test'
+import { LoginPageTest } from '../auth/LoginPage-test'
 import { AppContext } from '@/00-core/app-context'
 
 const components = [
-  { id: 'avatar', label: 'Avatar Component', component: <AvatarTest /> },
-  { id: 'badge', label: 'Badge Component', component: <BadgeTest /> },
-  { id: 'button', label: 'Button Component', component: <ButtonTest /> },
-  { id: 'checkbox', label: 'Checkbox Component', component: <CheckboxTest /> },
-  { id: 'chip', label: 'Chip Component', component: <ChipTest /> },
-  { id: 'icon', label: 'Icon Component', component: <IconTest /> },
-  { id: 'input', label: 'Input Component', component: <InputTest /> },
-  { id: 'loading-spinner', label: 'Loading Spinner', component: <LoadingSpinnerTest /> },
-  { id: 'logo', label: 'Logo Component', component: <LogoTest /> }, 
-  { id: 'progress', label: 'Progress Component', component: <ProgressTest /> },
-  { id: 'switch', label: 'Switch Component', component: <SwitchTest /> },
-  { id: 'textarea', label: 'Textarea Component', component: <TextareaTest /> },
-
+  // { id: 'avatar', label: 'Avatar Component', component: <AvatarTest /> },
+  // { id: 'badge', label: 'Badge Component', component: <BadgeTest /> },
+  // { id: 'button', label: 'Button Component', component: <ButtonTest /> },
+  // { id: 'checkbox', label: 'Checkbox Component', component: <CheckboxTest /> },
+  // { id: 'chip', label: 'Chip Component', component: <ChipTest /> },
+  // { id: 'icon', label: 'Icon Component', component: <IconTest /> },
+  // { id: 'input', label: 'Input Component', component: <InputTest /> },
+  // { id: 'loading-spinner', label: 'Loading Spinner', component: <LoadingSpinnerTest /> },
+  // { id: 'logo', label: 'Logo Component', component: <LogoTest /> }, 
+  // { id: 'progress', label: 'Progress Component', component: <ProgressTest /> },
+  // { id: 'switch', label: 'Switch Component', component: <SwitchTest /> },
+  // { id: 'textarea', label: 'Textarea Component', component: <TextareaTest /> },
   { id: 'login', label: 'Login Page', component: <LoginPageTest /> },
 ]
-function App() {
+
+export function DevShowcasePage() {
   const [selectedComponent, setSelectedComponent] = useState('login')
   const appInfo = AppContext.debug()
 
@@ -107,5 +106,3 @@ function App() {
     </div>
   )
 }
-
-export default App

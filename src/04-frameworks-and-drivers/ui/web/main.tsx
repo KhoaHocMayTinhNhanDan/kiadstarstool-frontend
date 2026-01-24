@@ -1,8 +1,9 @@
 // src/04-frameworks-and-drivers/ui/web/main.tsx
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { RouterProvider } from 'react-router-dom'
 import { bootstrapApp } from '../../../00-core/bootstrap'
-import WebApp from './App'
+import { router } from './infrastructure/router/router'
 
 // Determine which mode to use
 function getAuthMode(): boolean {
@@ -37,6 +38,6 @@ bootstrapApp({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <WebApp />
+    <RouterProvider router={router} />
   </StrictMode>,
 )

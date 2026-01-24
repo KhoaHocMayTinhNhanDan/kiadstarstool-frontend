@@ -1,4 +1,4 @@
-<!-- src\04-frameworks-and-drivers\ui\web\style\reset.css -->
+/* src\04-frameworks-and-drivers\ui\web\style\reset.css  */
 /* ==========================================================================
  * Modern CSS Reset
  * --------------------------------------------------------------------------
@@ -7,7 +7,6 @@
  * - Andy Bell's Modern CSS Reset
  * - Tailwind CSS Preflight
  * ========================================================================== */
-
 /* 1. Use a more-intuitive box-sizing model */
 *, *::before, *::after {
   box-sizing: border-box;

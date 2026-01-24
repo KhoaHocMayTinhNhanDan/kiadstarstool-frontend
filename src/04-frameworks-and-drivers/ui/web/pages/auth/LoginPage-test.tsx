@@ -88,10 +88,14 @@ export function LoginPageTest() {
 
       {/* Language Selector */}
       <div style={{ marginBottom: 24 }}>
-        <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
+        <label 
+          htmlFor="language-select"
+          style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}
+        >
           Language:
         </label>
         <select
+          id="language-select"
           value={locale}
           onChange={e => setLocale(e.target.value as typeof locale)}
           style={{
