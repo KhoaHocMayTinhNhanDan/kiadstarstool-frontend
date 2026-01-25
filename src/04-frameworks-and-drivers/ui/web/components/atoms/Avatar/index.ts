@@ -1,3 +1,2 @@
-// src/04-frameworks-and-drivers/ui/web/components/atoms/Avatar/index.ts
-export { Avatar, AvatarGroup } from './Avatar';
-export type { AvatarProps, AvatarGroupProps, AvatarSize, AvatarVariant, AvatarStatus } from './Avatar.types';
+export { Avatar } from './Avatar';
+export type { AvatarProps, AvatarSize } from './Avatar';

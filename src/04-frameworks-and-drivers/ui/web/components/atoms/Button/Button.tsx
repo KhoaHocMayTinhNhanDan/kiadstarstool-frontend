@@ -1,80 +1,54 @@
-// src/04-frameworks-and-drivers/ui/web/components/atoms/Button/Button.tsx
-import React, { forwardRef } from 'react';
-import { StyledButton, LoadingSpinner } from './Button.styles';
-import type { ButtonProps } from './Button.types';
+/** @jsxImportSource @emotion/react */
+import React from 'react';
+import { Slot } from '@radix-ui/react-slot';
+import { getButtonStyles } from './Button.styles';
+import { LoadingSpinner } from '../Loading-spinner/Loading-spinner';
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      children,
-      variant = 'primary',
-      size = 'md',
-      radius = 'md',
-      loading = false,
-      disabled = false,
-      fullWidth = false,
-      leftIcon,
-      rightIcon,
-      loadingText,
-      className,
-      onClick,
-      type = 'button',
-      ...props
-    },
-    ref
-  ) => {
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-      if (loading || disabled) {
-        event.preventDefault();
-        return;
-      }
-      
-      onClick?.(event);
-    };
+export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'link';
 
-    // Determine what to render based on loading state
-    const renderContent = () => {
-      if (loading) {
-        return (
-          <>
-            <LoadingSpinner />
-            {loadingText || children}
-          </>
-        );
-      }
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  asChild?: boolean;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  fullWidth?: boolean;
+  loading?: boolean;
+  leftIcon?: React.ReactNode;
+}
 
-      return (
-        <>
-          {leftIcon && <span className="button-icon-left">{leftIcon}</span>}
-          <span className="button-content">{children}</span>
-          {rightIcon && <span className="button-icon-right">{rightIcon}</span>}
-        </>
-      );
-    };
-
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ 
+    asChild = false, 
+    variant = 'primary', 
+    size = 'md', 
+    fullWidth = false, 
+    loading = false,
+    leftIcon,
+    children, 
+    className,
+    disabled,
+    ...props 
+  }, ref) => {
+    const Component = asChild ? Slot : 'button';
+    
     return (
-      <StyledButton
+      <Component
         ref={ref}
-        type={type}
-        $variant={variant}
-        $size={size}
-        $radius={radius}
-        $fullWidth={fullWidth}
+        css={getButtonStyles(size, variant, fullWidth, loading)}
+        className={className}
         disabled={disabled || loading}
-        data-loading={loading}
-        className={`button ${className || ''}`}
-        onClick={handleClick}
-        aria-busy={loading}
-        aria-disabled={disabled}
         {...props}
       >
-        {renderContent()}
-      </StyledButton>
+        {loading && (
+          <span style={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <LoadingSpinner size="sm" variant={variant === 'primary' || variant === 'danger' || variant === 'secondary' ? 'white' : 'primary'} />
+          </span>
+        )}
+        {!loading && leftIcon && <span style={{ display: 'flex', marginRight: size === 'icon' ? 0 : 8 }}>{leftIcon}</span>}
+        {children}
+      </Component>
     );
   }
 );
 
 Button.displayName = 'Button';
-
-// Export component
-export default Button;

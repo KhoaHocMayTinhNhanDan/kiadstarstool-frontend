@@ -1,111 +1,32 @@
-// src/04-frameworks-and-drivers/ui/web/components/atoms/Checkbox/Checkbox.tsx
-import React, { forwardRef, useId } from 'react';
-import {
-  CheckboxWrapper,
-  HiddenInput,
-  CheckboxContainer,
-  Label,
-  Description
-} from './Checkbox.styles';
-import type { CheckboxProps } from './Checkbox.types';
+/** @jsxImportSource @emotion/react */
+import React from 'react';
+import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
+import { getCheckboxRootStyles, getCheckboxIndicatorStyles } from './Checkbox.styles';
+import { Icon } from '../Icon/Icon';
 
-export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  (
-    {
-      label,
-      variant = 'default',
-      size = 'md',
-      checked = false,
-      indeterminate = false,
-      disabled = false,
-      error = false,
-      success = false,
-      className,
-      labelClassName,
-      labelPosition = 'right',
-      onChange,
-      description,
-      required = false,
-      showCheckIcon = true,
-      id,
-      name,
-      value,
-      ...props
-    },
-    ref
-  ) => {
-    const generatedId = useId();
-    const checkboxId = id || generatedId;
-    const descriptionId = `${checkboxId}-description`;
+const CheckIcon = <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>;
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (disabled) return;
-      onChange?.(event.target.checked, event);
-    };
+export interface CheckboxProps extends React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root> {
+  // Có thể thêm props custom nếu cần
+}
 
-    // If indeterminate is true, override checked state for visual
-    const visualChecked = indeterminate ? false : checked;
-
+export const Checkbox = React.forwardRef<React.ElementRef<typeof CheckboxPrimitive.Root>, CheckboxProps>(
+  ({ className, ...props }, ref) => {
     return (
-      <CheckboxWrapper
-        $disabled={disabled}
-        $labelPosition={labelPosition}
+      <CheckboxPrimitive.Root
+        ref={ref}
+        css={getCheckboxRootStyles()}
         className={className}
-        htmlFor={checkboxId}
-        data-disabled={disabled}
+        {...props}
       >
-        <HiddenInput
-          ref={ref}
-          id={checkboxId}
-          name={name}
-          checked={checked}
-          disabled={disabled}
-          onChange={handleChange}
-          value={value}
-          aria-checked={indeterminate ? 'mixed' : checked}
-          aria-invalid={error}
-          aria-describedby={description ? descriptionId : undefined}
-          {...props}
-        />
-        
-        <CheckboxContainer
-          $size={size}
-          $variant={variant}
-          $checked={visualChecked && showCheckIcon}
-          $indeterminate={indeterminate}
-          $error={error}
-          $success={success}
-          $disabled={disabled}
-          data-disabled={disabled}
-          aria-hidden="true"
-        />
-        
-        {(label || description) && (
-          <div className={`checkbox-label-container ${labelClassName || ''}`}>
-            {label && (
-              <Label 
-                $required={required}
-                className="checkbox-label"
-              >
-                {label}
-              </Label>
-            )}
-            
-            {description && (
-              <Description 
-                id={descriptionId}
-                className="checkbox-description"
-              >
-                {description}
-              </Description>
-            )}
-          </div>
-        )}
-      </CheckboxWrapper>
+        <CheckboxPrimitive.Indicator css={getCheckboxIndicatorStyles()}>
+          <Icon size="sm" style={{ width: 16, height: 16 }}>
+            {CheckIcon}
+          </Icon>
+        </CheckboxPrimitive.Indicator>
+      </CheckboxPrimitive.Root>
     );
   }
 );
 
 Checkbox.displayName = 'Checkbox';
-
-export default Checkbox;

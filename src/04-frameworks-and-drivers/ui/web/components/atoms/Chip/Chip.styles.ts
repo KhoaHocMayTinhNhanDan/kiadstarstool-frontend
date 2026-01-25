@@ -1,156 +1,68 @@
-// src/04-frameworks-and-drivers/ui/web/components/atoms/Chip/Chip.styles.ts
-import styled, { css } from 'styled-components';
-import type { ChipVariant, ChipSize } from './Chip.constants';
-import { CHIP_SIZE_CONFIG, CHIP_VARIANT_CONFIG } from './Chip.constants';
+import { css } from '@emotion/react';
+import { COLORS, RADIUS, SPACING } from '../00-core/tokens-constants';
+import { type ChipVariant, type ChipColor } from './Chip';
 
-export interface StyledChipProps {
-  $variant: ChipVariant;
-  $size: ChipSize;
-  $disabled: boolean;
-  $selected: boolean;
-  $clickable: boolean;
-  $removable: boolean;
-}
+const VARIANTS = {
+  filled: {
+    primary: { bg: COLORS.PRIMARY, color: COLORS.WHITE, border: 'transparent' },
+    success: { bg: COLORS.SUCCESS, color: COLORS.WHITE, border: 'transparent' },
+    danger: { bg: COLORS.DANGER, color: COLORS.WHITE, border: 'transparent' },
+    warning: { bg: COLORS.WARNING, color: COLORS.WHITE, border: 'transparent' },
+    neutral: { bg: COLORS.NEUTRAL_LIGHT, color: COLORS.TEXT, border: 'transparent' },
+  },
+  outlined: {
+    primary: { bg: 'transparent', color: COLORS.PRIMARY, border: COLORS.PRIMARY },
+    success: { bg: 'transparent', color: COLORS.SUCCESS, border: COLORS.SUCCESS },
+    danger: { bg: 'transparent', color: COLORS.DANGER, border: COLORS.DANGER },
+    warning: { bg: 'transparent', color: COLORS.WARNING, border: COLORS.WARNING },
+    neutral: { bg: 'transparent', color: COLORS.TEXT, border: COLORS.NEUTRAL_RING },
+  },
+  ghost: {
+    primary: { bg: COLORS.PRIMARY_LIGHT + '33', color: COLORS.PRIMARY, border: 'transparent' }, // 33 is ~20% opacity hex
+    success: { bg: COLORS.SUCCESS_LIGHT + '33', color: COLORS.SUCCESS, border: 'transparent' },
+    danger: { bg: COLORS.DANGER_LIGHT + '33', color: COLORS.DANGER, border: 'transparent' },
+    warning: { bg: COLORS.WARNING + '33', color: COLORS.WARNING, border: 'transparent' },
+    neutral: { bg: COLORS.NEUTRAL_LIGHT, color: COLORS.TEXT, border: 'transparent' },
+  }
+};
 
-export const StyledChip = styled.div<StyledChipProps>`
-  // ===== LAYOUT =====
+export const getChipStyles = (variant: ChipVariant, color: ChipColor, clickable: boolean) => {
+  const styleConfig = VARIANTS[variant][color];
+  
+  return css`
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    padding: 0 ${SPACING.sm};
+    border-radius: ${RADIUS.full};
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    
+    background-color: ${styleConfig.bg};
+    color: ${styleConfig.color};
+    border: 1px solid ${styleConfig.border};
+    
+    ${clickable && css`
+      cursor: pointer;
+      &:hover {
+        opacity: 0.8;
+      }
+    `}
+  `;
+};
+
+export const getDeleteIconStyles = () => css`
+  margin-left: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  box-sizing: border-box;
-  gap: 6px;
-  
-  // ===== TYPOGRAPHY =====
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  font-weight: 500;
-  line-height: 1;
-  white-space: nowrap;
-  
-  // ===== INTERACTION =====
-  cursor: ${props => {
-    if (props.$disabled) return 'not-allowed';
-    if (props.$clickable) return 'pointer';
-    return 'default';
-  }};
-  user-select: none;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  
-  // ===== STATES =====
-  ${props => props.$disabled && css`
-    opacity: 0.6;
-    pointer-events: none;
-  `}
-  
-  ${props => props.$clickable && !props.$disabled && css`
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    &:active {
-      transform: translateY(0);
-    }
-  `}
-  
-  &:focus-visible {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-  }
-  
-  // ===== SIZE-BASED STYLES =====
-  ${props => {
-    const size = props.$size;
-    const sizeStyle = CHIP_SIZE_CONFIG[size];
-    
-    return css`
-      height: ${sizeStyle.height}px;
-      font-size: ${sizeStyle.fontSize}px;
-      padding: ${sizeStyle.paddingY}px ${sizeStyle.paddingX}px;
-      padding-right: ${props.$removable ? sizeStyle.paddingX + sizeStyle.removeIconSize + 4 : sizeStyle.paddingX}px;
-      border-radius: ${sizeStyle.borderRadius}px;
-      gap: ${sizeStyle.paddingY}px;
-    `;
-  }}
-  
-  // ===== VARIANT-BASED STYLES =====
-  ${props => {
-    const variant = props.$variant;
-    const variantStyle = CHIP_VARIANT_CONFIG[variant];
-    
-    return css`
-      color: ${props.$selected ? variantStyle.selectedColor : variantStyle.color};
-      background-color: ${props.$selected ? variantStyle.selectedBackgroundColor : variantStyle.backgroundColor};
-      border: 1px solid ${variantStyle.borderColor || 'transparent'};
-      
-      ${!props.$disabled && css`
-        &:hover {
-          color: ${variantStyle.hoverColor || variantStyle.color};
-          background-color: ${variantStyle.hoverBackgroundColor};
-        }
-      `}
-    `;
-  }}
-`;
-
-// Remove button
-export const RemoveButton = styled.button<{ $size: ChipSize }>`
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  padding: 2px;
   cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.15s ease;
-  border-radius: 50%;
+  opacity: 0.6;
   
   &:hover {
     opacity: 1;
-    background-color: rgba(0, 0, 0, 0.1);
   }
-  
-  &:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 1px;
-  }
-  
-  ${props => {
-    const size = CHIP_SIZE_CONFIG[props.$size];
-    return css`
-      width: ${size.removeIconSize}px;
-      height: ${size.removeIconSize}px;
-      font-size: ${size.removeIconSize}px;
-    `;
-  }}
-`;
-
-// Icon wrapper
-export const IconWrapper = styled.span<{ $size: ChipSize }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  
-  ${props => {
-    const size = CHIP_SIZE_CONFIG[props.$size];
-    return css`
-      width: ${size.iconSize}px;
-      height: ${size.iconSize}px;
-      font-size: ${size.iconSize}px;
-    `;
-  }}
-`;
-
-// Chip group container
-export const ChipGroupContainer = styled.div<{ $spacing: number | string }>`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: ${props => typeof props.$spacing === 'number' ? `${props.$spacing}px` : props.$spacing};
 `;

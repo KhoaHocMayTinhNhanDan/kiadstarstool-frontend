@@ -1,9 +1,2 @@
-export { Logo } from './Logo';
-export { Chip } from './Chip';
-export { Badge } from './Badge';
-export { Icon } from './Icon';
-export { Loading-spinner } from './Loading-spinner';
-export { Progress } from './Progress';
-export { Radio } from './Radio';
-export { Switch } from './Switch';
-export { Textarea } from './Textarea';
+export { UserCard } from '../molecules/UserCard/UserCard.molecule';
+export type { UserCardProps } from '../molecules/UserCard/UserCard.molecule';

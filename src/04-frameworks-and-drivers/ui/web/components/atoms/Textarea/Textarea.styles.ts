@@ -1,164 +1,64 @@
-// src/04-frameworks-and-drivers/ui/web/components/atoms/Textarea/Textarea.styles.ts
-import styled, { css } from 'styled-components';
-import type { TextareaVariant, TextareaSize } from './Textarea.constants';
+import { css } from '@emotion/react';
+import { COLORS, RADIUS, SPACING, TRANSITIONS } from '../00-core/tokens-constants';
+import { type TextareaSize } from './Textarea';
 
-export interface StyledTextareaProps {
-  $variant: TextareaVariant;
-  $size: TextareaSize;
-  $disabled: boolean;
-  $selected: boolean;
-  $loading: boolean;
-  $border: boolean;
-}
+const SIZES = {
+  sm: { padding: '8px 12px', fontSize: '14px' },
+  md: { padding: '12px 16px', fontSize: '16px' },
+  lg: { padding: '16px 20px', fontSize: '18px' },
+};
 
-// Base styles - TỔNG QUÁT CHO MỌI ATOM
-export const StyledTextarea = styled.div<StyledTextareaProps>`
-  // ===== LAYOUT =====
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  box-sizing: border-box;
-  
-  // ===== TYPOGRAPHY =====
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  font-weight: 500;
-  line-height: ${props => props.theme?.lineHeight || 1.4};
-  white-space: nowrap;
-  text-decoration: none;
-  
-  // ===== INTERACTION =====
-  cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
-  user-select: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  
-  &:hover:not(:disabled) {
-    opacity: ${props => props.$disabled ? 1 : 0.9};
-    transform: ${props => props.$disabled ? 'none' : 'translateY(-1px)'};
-  }
-  
-  &:active:not(:disabled) {
-    transform: ${props => props.$disabled ? 'none' : 'translateY(0)'};
-  }
-  
-  &:focus-visible {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-  }
-  
-  // ===== STATES =====
-  ${props => props.$disabled && css`
-    opacity: 0.6;
-    pointer-events: none;
-  `}
-  
-  ${props => props.$selected && css`
-    box-shadow: 0 0 0 2px #3b82f6;
-  `}
-  
-  ${props => props.$loading && css`
-    pointer-events: none;
-    opacity: 0.8;
-  `}
-  
-  ${props => props.$border && css`
-    border-style: solid;
-    border-width: 1px;
-  `}
-  
-  // ===== SIZE-BASED STYLES =====
-  ${props => {
-    const size = props.$size;
-    return css`
-      font-size: ${props.theme?.fontSize || '14px'};
-      padding: ${props.theme?.padding || '6px 12px'};
-      border-radius: ${props.theme?.borderRadius || '6px'};
-      min-height: ${props.theme?.size || '40px'};
-      min-width: ${props.theme?.size || '40px'};
-    `;
-  }}
-  
-  // ===== VARIANT-BASED STYLES =====
-  ${props => {
-    const variant = props.$variant;
-    return css`
-      color: ${props.theme?.color || '#374151'};
-      background-color: ${props.theme?.bgColor || '#f3f4f6'};
-      border-color: ${props.theme?.borderColor || 'transparent'};
-    `;
-  }}
+export const getTextareaWrapperStyles = (fullWidth: boolean) => css`
+  display: flex;
+  flex-direction: column;
+  width: ${fullWidth ? '100%' : 'auto'};
 `;
 
-// Status indicator - TỔNG QUÁT, DÙNG CHO AVATAR, BADGE, ETC.
-export const StatusIndicator = styled.div<{
-  $size: TextareaSize;
-  $status: 'online' | 'offline' | 'away' | 'busy';
-  $position: 'top-right' | 'bottom-right' | 'top-left' | 'bottom-left';
-}>`
-  position: absolute;
-  border-radius: 50%;
-  border: 2px solid white;
-  z-index: 1;
-  
-  // Size-based
-  ${props => {
-    const statusSize = props.$size === 'xs' ? 6 : 
-                       props.$size === 'sm' ? 8 : 
-                       props.$size === 'md' ? 10 : 
-                       props.$size === 'lg' ? 12 : 14;
-    return css`
-      width: ${statusSize}px;
-      height: ${statusSize}px;
-    `;
-  }}
-  
-  // Position-based
-  ${props => {
-    const position = props.$position;
-    const offset = props.$size === 'xs' ? 1 : 2;
+export const getTextareaStyles = (size: TextareaSize, error: boolean, resize: 'none' | 'vertical' | 'horizontal' | 'both') => {
+  const sizeConfig = SIZES[size];
+
+  return css`
+    width: 100%;
+    min-height: 80px;
+    padding: ${sizeConfig.padding};
     
-    switch (position) {
-      case 'top-right': return css` top: -${offset}px; right: -${offset}px; `;
-      case 'bottom-right': return css` bottom: -${offset}px; right: -${offset}px; `;
-      case 'top-left': return css` top: -${offset}px; left: -${offset}px; `;
-      case 'bottom-left': return css` bottom: -${offset}px; left: -${offset}px; `;
-      default: return css` top: -${offset}px; right: -${offset}px; `;
-    }
-  }}
-  
-  // Status color
-  ${props => {
-    const status = props.$status;
-    switch (status) {
-      case 'online': return css` background-color: #22c55e; `;
-      case 'offline': return css` background-color: #94a3b8; `;
-      case 'away': return css` background-color: #f59e0b; `;
-      case 'busy': return css` background-color: #ef4444; `;
-      default: return css` background-color: transparent; `;
-    }
-  }}
-`;
+    font-family: inherit;
+    font-size: ${sizeConfig.fontSize};
+    color: ${COLORS.TEXT};
+    background-color: ${COLORS.WHITE};
+    
+    border: 1px solid ${error ? COLORS.DANGER : COLORS.NEUTRAL_RING};
+    border-radius: ${RADIUS.md};
+    
+    outline: none;
+    transition: border-color ${TRANSITIONS.fast}, box-shadow ${TRANSITIONS.fast};
+    resize: ${resize};
 
-// Loading spinner - TỔNG QUÁT
-export const LoadingSpinner = styled.div<{ $size: TextareaSize }>`
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  
-  border: 2px solid currentColor;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  
-  ${props => {
-    const spinnerSize = props.$size === 'xs' ? 12 : 
-                        props.$size === 'sm' ? 14 : 
-                        props.$size === 'md' ? 16 : 
-                        props.$size === 'lg' ? 18 : 20;
-    return css`
-      width: ${spinnerSize}px;
-      height: ${spinnerSize}px;
-    `;
-  }}
+    &::placeholder {
+      color: ${COLORS.SECONDARY};
+      opacity: 0.7;
+    }
+
+    &:hover:not(:disabled) {
+      border-color: ${error ? COLORS.DANGER : COLORS.PRIMARY};
+    }
+
+    &:focus:not(:disabled) {
+      border-color: ${error ? COLORS.DANGER : COLORS.PRIMARY};
+      box-shadow: 0 0 0 3px ${error ? COLORS.DANGER_LIGHT : COLORS.PRIMARY_LIGHT};
+    }
+
+    &:disabled {
+      background-color: ${COLORS.NEUTRAL_LIGHT};
+      color: ${COLORS.SECONDARY};
+      cursor: not-allowed;
+      border-color: ${COLORS.NEUTRAL_RING};
+    }
+  `;
+};
+
+export const getErrorMessageStyles = () => css`
+  margin-top: ${SPACING.xs};
+  color: ${COLORS.DANGER};
+  font-size: 12px;
 `;
