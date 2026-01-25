@@ -6,4 +6,4 @@ export {
   ToastDescription,
   ToastAction,
   ToastClose
-} from './Toast.molecule';
+} from '../Toast/Toast.molecule';

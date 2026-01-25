@@ -1,2 +1,1 @@
-export { UserCard } from '../molecules/UserCard/UserCard.molecule';
-export type { UserCardProps } from '../molecules/UserCard/UserCard.molecule';
+// src\04-frameworks-and-drivers\ui\web\components\atoms\index.ts
