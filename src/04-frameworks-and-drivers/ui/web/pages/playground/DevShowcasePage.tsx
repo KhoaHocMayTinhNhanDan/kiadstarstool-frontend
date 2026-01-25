@@ -26,21 +26,32 @@ import { SearchInputTest } from '../../components/molecules/SearchInput/SearchIn
 import { ThemeToggleTest } from '../../components/molecules/ThemeToggle/ThemeToggle.molecule-playground'
 import { DropdownMenuTest } from '../../components/molecules/DropdownMenu/DropdownMenu.molecule-playground'
 import { ToastTest } from '../../components/molecules/Toast/Toast.molecule-playground'
-// import { OrganismsTest } from '../../components/organisms/Organisms-playground'
+
+import { LoginFormPlayground } from '../../components/organisms/auth/LoginForm/LoginForm.organism-playground'
+import { ForgotPasswordFormPlayground } from '../../components/organisms/auth/ForgotPasswordForm/ForgotPasswordForm.organism-playground'
+
+import { DataTablePlayground } from '../../components/organisms/data/DataTable/DataTable.organism-playground'
 
 import { LoginPageTest } from '../auth/LoginPage-test'
 import { AppContext } from '@/00-core/app-context'
 
+// Type definitions for the sidebar structure
 type ComponentItem = {
   id: string;
   label: string;
   component: React.ReactNode;
 };
 
+type SubHeaderItem = {
+  id: string;
+  label: string;
+  isHeader: true;
+}
+
 type Category = {
   id: string;
   label: string;
-  items: ComponentItem[];
+  items: (ComponentItem | SubHeaderItem)[];
 };
 
 const categories: Category[] = [
@@ -82,6 +93,21 @@ const categories: Category[] = [
     ]
   },
   {
+    id: 'organisms',
+    label: '🧩 Organisms',
+    items: [
+      { id: 'org-header-auth', label: 'Authentication', isHeader: true },
+      { id: 'login-form', label: 'LoginForm', component: <LoginFormPlayground /> },
+      { id: 'forgot-password-form', label: 'ForgotPasswordForm', component: <ForgotPasswordFormPlayground /> },
+     
+      { id: 'org-header-data', label: 'Data Display', isHeader: true },
+      { id: 'data-table', label: 'DataTable', component: <DataTablePlayground /> },
+
+      { id: 'org-header-charts', label: 'Charts & Graphs', isHeader: true },
+      // { id: 'data-table', label: 'DataTable', component: <DataTablePlayground /> },
+    ]
+  },
+  {
     id: 'pages',
     label: '📄 Pages',
     items: [
@@ -96,10 +122,13 @@ export function DevShowcasePage() {
 
   const activeComponent = useMemo(() => {
     for (const cat of categories) {
-      const found = cat.items.find(item => item.id === selectedId);
+      // Find an item that is a component (not a header) and matches the ID
+      const found = cat.items.find((item): item is ComponentItem => 'component' in item && item.id === selectedId);
       if (found) return found;
     }
-    return categories[0].items[0];
+    // Fallback to the first available component
+    const firstComponent = categories.flatMap(c => c.items).find((item): item is ComponentItem => 'component' in item);
+    return firstComponent || { id: 'error', label: 'Not Found', component: <div>No components available.</div> };
   }, [selectedId]);
 
   return (
@@ -121,26 +150,47 @@ export function DevShowcasePage() {
                 {category.label}
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                {category.items.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setSelectedId(item.id)}
-                    style={{
-                      textAlign: 'left',
-                      padding: '8px 12px',
-                      backgroundColor: selectedId === item.id ? '#e2e8f0' : 'transparent',
-                      color: selectedId === item.id ? '#2d3748' : '#4a5568',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: selectedId === item.id ? 600 : 400,
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    {item.label}
-                  </button>
-                ))}
+                {category.items.map((item) => {
+                  // Render a non-clickable sub-header
+                  if ('isHeader' in item && item.isHeader) {
+                    return (
+                      <div
+                        key={item.id}
+                        style={{
+                          padding: '12px 12px 4px 12px',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          color: '#718096',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                        }}
+                      >
+                        {item.label}
+                      </div>
+                    );
+                  }
+                  // Render a clickable component button
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setSelectedId(item.id)}
+                      style={{
+                        textAlign: 'left',
+                        padding: `8px 12px 8px ${category.items.some(i => 'isHeader' in i) ? '24px' : '12px'}`,
+                        backgroundColor: selectedId === item.id ? '#e2e8f0' : 'transparent',
+                        color: selectedId === item.id ? '#2d3748' : '#4a5568',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: selectedId === item.id ? 600 : 400,
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ))}
