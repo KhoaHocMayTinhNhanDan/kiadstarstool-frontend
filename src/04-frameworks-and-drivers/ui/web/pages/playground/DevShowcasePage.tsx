@@ -26,6 +26,7 @@ import { SearchInputTest } from '../../components/molecules/SearchInput/SearchIn
 import { ThemeToggleTest } from '../../components/molecules/ThemeToggle/ThemeToggle.molecule-playground'
 import { DropdownMenuTest } from '../../components/molecules/DropdownMenu/DropdownMenu.molecule-playground'
 import { ToastTest } from '../../components/molecules/Toast/Toast.molecule-playground'
+// import { OrganismsTest } from '../../components/organisms/Organisms-playground'
 
 import { LoginPageTest } from '../auth/LoginPage-test'
 import { AppContext } from '@/00-core/app-context'

@@ -163,7 +163,34 @@ export interface BranchProps {
   socialMedia?: Partial<SocialMedia>;
 }
 
-export interface BranchJSON extends ReturnType<Branch['toJSON']> {}
+export interface BranchJSON extends BaseEntityJSON {
+  name: string;
+  code: string;
+  shortName: string;
+  description: string;
+  address: BranchAddress;
+  contact: ContactInfo;
+  managerId: string;
+  managerName: string;
+  assistantManagerIds: string[];
+  operatingHours: DailyHours;
+  capacity: Capacity;
+  isActive: boolean;
+  establishmentDate: string;
+  closureDate: string;
+  type: 'center' | 'satellite' | 'partner' | 'online';
+  tier: 'standard' | 'premium' | 'vip' | 'flagship';
+  financial: FinancialInfo;
+  facilities: string[];
+  amenities: string[];
+  images: Images;
+  stats: Statistics;
+  settings: BranchSettings;
+  metadata: Metadata;
+  tags: string[];
+  categories: string[];
+  socialMedia: SocialMedia;
+}
 
 export class Branch extends BaseEntity<BranchJSON> {
   // Basic Information
@@ -364,6 +391,7 @@ export class Branch extends BaseEntity<BranchJSON> {
       name: `Chi nhánh ${city}`,
       code: Branch.generateCode(city.substring(0, 2).toUpperCase(), 'CTR', 1),
       shortName: `CN ${city.substring(0, 3)}`,
+      description: `Chi nhánh tại ${city}`,
       address: {
         city,
         country: 'Việt Nam'
@@ -448,7 +476,7 @@ export class Branch extends BaseEntity<BranchJSON> {
     const dayKey = dayMap[dayOfWeek];
     const hours = this.operatingHours[dayKey];
     
-    if (!hours || !hours.open || !hours.close) return false;
+    if (typeof hours === 'string' || !hours || !hours.open || !hours.close) return false;
     
     const [openHour, openMinute] = hours.open.split(':').map(Number);
     const [closeHour, closeMinute] = hours.close.split(':').map(Number);
@@ -653,7 +681,7 @@ export class Branch extends BaseEntity<BranchJSON> {
     const dayKey = dayMap[dayOfWeek];
     const hours = this.operatingHours[dayKey];
     
-    if (!hours || !hours.close) return 0;
+    if (typeof hours === 'string' || !hours || !hours.close) return 0;
     
     const [closeHour, closeMinute] = hours.close.split(':').map(Number);
     const closeTime = closeHour * 60 + closeMinute;
@@ -769,7 +797,7 @@ export class Branch extends BaseEntity<BranchJSON> {
 
   toJSON(): BranchJSON {
     return {
-      ...super.baseToJSON(),
+      ...this.baseToJSON(),
       name: this.name,
       code: this.code,
       shortName: this.shortName,

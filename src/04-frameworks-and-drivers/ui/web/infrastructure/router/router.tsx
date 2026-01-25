@@ -1,13 +1,13 @@
+// src/04-frameworks-and-drivers/ui/web/infrastructure/router/router.tsx
 import { createBrowserRouter, type RouteObject, Navigate } from 'react-router-dom';
 import { RouteGuard } from './RouteGuard';
 import { LoginPageTest } from '../../pages/auth/LoginPage-test';
 import { DashboardPage } from '../../pages/dashboard/DashboardPage';
 import { NotFoundPage } from '../../pages/system/NotFoundPage';
 import { DevShowcasePage } from '../../pages/playground/DevShowcasePage';
-import { RootLayout } from '../../components/layouts/RootLayout';
-import { AuthLayout } from '../../components/layouts/AuthLayout';
-import { MainLayout } from '../../components/layouts/MainLayout';
-
+import { RootLayout } from '../../components/organisms/layouts/RootLayout';
+import { AuthLayout } from '../../components/organisms/layouts/AuthLayout';
+import { MainLayout } from '../../components/organisms/layouts/MainLayout';
 /* ==========================================================================
  * Router Configuration
  * ========================================================================== */
