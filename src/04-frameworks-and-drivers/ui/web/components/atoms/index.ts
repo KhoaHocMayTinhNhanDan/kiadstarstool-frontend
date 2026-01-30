@@ -1,7 +1,7 @@
 export * from './Button';
 export * from './Input';
 export * from './Icon'; 
-export * from './Loading-spinner';
+export * from './LoadingSpinner';
 export * from './Textarea';
 export * from './Avatar';
 export * from './Badge';
@@ -15,3 +15,7 @@ export * from './Radio';
 export * from './Skeleton';
 export * from './Switch';
 export * from './Text';
+export * from './IconButton';
+export * from './Divider';
+export * from './Select';
+export * from './Code';

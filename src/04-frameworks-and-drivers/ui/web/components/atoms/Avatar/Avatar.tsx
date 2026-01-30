@@ -1,38 +1,31 @@
 /** @jsxImportSource @emotion/react */
 import React from 'react';
 import * as AvatarPrimitive from '@radix-ui/react-avatar';
-import { getAvatarRootStyles, getAvatarImageStyles, getAvatarFallbackStyles } from './Avatar.styles';
-
-export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
-
-export interface AvatarProps extends React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> {
-  src?: string;
-  alt?: string;
-  fallback?: string;
-  size?: AvatarSize;
-}
+import { getAvatarRootStyles, avatarImageStyles, getAvatarFallbackStyles, avatarWrapper } from './Avatar.styles';
+import type { AvatarProps } from './Avatar.types';
 
 export const Avatar = React.forwardRef<React.ElementRef<typeof AvatarPrimitive.Root>, AvatarProps>(
-  ({ src, alt, fallback, size = 'md', className, ...props }, ref) => {
+  ({ src, alt, fallback, size = 'md', className, sx, ...props }, ref) => {
     return (
-      <AvatarPrimitive.Root
-        ref={ref}
-        css={getAvatarRootStyles(size)}
-        className={className}
-        {...props}
-      >
-        <AvatarPrimitive.Image
-          src={src}
-          alt={alt}
-          css={getAvatarImageStyles()}
-        />
-        <AvatarPrimitive.Fallback
-          css={getAvatarFallbackStyles(size)}
-          delayMs={600} // Delay hiển thị fallback để tránh nháy khi ảnh đang load nhanh
+      <div css={avatarWrapper} className={className}>
+        <AvatarPrimitive.Root
+          ref={ref}
+          css={[getAvatarRootStyles(size), sx]}
+          {...props}
         >
-          {fallback?.slice(0, 2).toUpperCase()}
-        </AvatarPrimitive.Fallback>
-      </AvatarPrimitive.Root>
+          <AvatarPrimitive.Image
+            src={src}
+            alt={alt}
+            css={avatarImageStyles}
+          />
+          <AvatarPrimitive.Fallback
+            delayMs={600}
+            css={getAvatarFallbackStyles(size)}
+          >
+            {fallback}
+          </AvatarPrimitive.Fallback>
+        </AvatarPrimitive.Root>
+      </div>
     );
   }
 );

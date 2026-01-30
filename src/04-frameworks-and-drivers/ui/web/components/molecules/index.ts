@@ -5,3 +5,5 @@ export * from './Modal';
 export * from './LanguageSelector';
 export * from './ThemeToggle';
 export * from './DropdownMenu';
+export * from './Toast';
+  

@@ -1,51 +1,58 @@
 import { Textarea } from './Textarea';
+import { Box } from '../Box/Box';
+import { Text } from '../Text/Text';
 
-export const TextareaTest = () => {
+export const TextareaPlayground = () => {
   return (
-    <div style={{ padding: '24px', fontFamily: 'system-ui' }}>
-      <h2 style={{ marginBottom: '32px', color: '#1a202c', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
-        📝 Textarea Component Demo
-      </h2>
+    <Box p="lg">
+      <Text as="h2" size="2xl" weight="bold" sx={{ marginBottom: '24px' }}>
+        📝 Textarea Demo
+      </Text>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', maxWidth: '500px' }}>
+      <Box display="flex" flexDirection="column" gap="xl" maxW="500px">
         
-        {/* Sizes */}
-        <section>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4a5568' }}>Sizes</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <Textarea size="sm" placeholder="Small Textarea" rows={2} />
-            <Textarea size="md" placeholder="Medium Textarea (Default)" rows={3} />
-            <Textarea size="lg" placeholder="Large Textarea" rows={4} />
-          </div>
-        </section>
+        <Box>
+          <Box mb="sm"><Text weight="semibold">Basic</Text></Box>
+          <Textarea placeholder="Enter your bio..." />
+        </Box>
 
-        {/* States */}
-        <section>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4a5568' }}>States</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <Textarea placeholder="Normal" />
-            <Textarea placeholder="Disabled" disabled />
-            <Textarea placeholder="Error State" error defaultValue="Invalid content" />
-            <Textarea placeholder="Error with Message" error="Description is required" />
-          </div>
-        </section>
+        <Box>
+          <Box mb="sm"><Text weight="semibold">Full Width & Rows</Text></Box>
+          <Textarea fullWidth rows={4} placeholder="Type a long message..." />
+        </Box>
 
-        {/* Resize Options */}
-        <section>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4a5568' }}>Resize Options</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px' }}>Vertical (Default)</label>
-              <Textarea resize="vertical" placeholder="Can resize vertically" />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px' }}>No Resize</label>
-              <Textarea resize="none" placeholder="Fixed size" />
-            </div>
-          </div>
-        </section>
+        <Box>
+          <Box mb="sm"><Text weight="semibold">States</Text></Box>
+          <Box display="flex" flexDirection="column" gap="md">
+            <Textarea disabled placeholder="Disabled textarea" />
+            <Textarea error placeholder="Error state" />
+          </Box>
+        </Box>
 
-      </div>
-    </div>
+        <Box>
+          <Box mb="sm"><Text weight="semibold">Resize Options</Text></Box>
+          <Box display="flex" gap="md">
+            <Textarea resize="none" placeholder="No resize" />
+            <Textarea resize="both" placeholder="Resize both" />
+          </Box>
+        </Box>
+
+        <Box>
+          <Box mb="sm"><Text weight="semibold">Custom Style (sx)</Text></Box>
+          <Textarea 
+            placeholder="Custom styled textarea"
+            sx={{
+              backgroundColor: '#f0f9ff',
+              border: '2px dashed #3b82f6',
+              borderRadius: '12px',
+              '&:focus': {
+                backgroundColor: '#fff',
+              }
+            }}
+          />
+        </Box>
+
+      </Box>
+    </Box>
   );
 };

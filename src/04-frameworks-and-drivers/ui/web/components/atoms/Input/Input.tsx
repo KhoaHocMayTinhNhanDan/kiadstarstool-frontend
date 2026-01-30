@@ -1,49 +1,67 @@
+// src/04-frameworks-and-drivers/ui/web/components/atoms/Input/Input.tsx
 /** @jsxImportSource @emotion/react */
-import React, { forwardRef } from 'react';
-import { css } from '@emotion/react';
-import { getInputStyles, getInputWrapperStyles, getIconStyles, getErrorMessageStyles } from './Input.styles';
+import React from 'react';
+import {
+  inputStyles,
+  errorText,
+  inputWrapper,
+  iconWrapper,
+} from './Input.styles';
+import type { InputProps } from './Input.types';
 
-export type InputSize = 'sm' | 'md' | 'lg';
-
-export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
-  size?: InputSize;
-  fullWidth?: boolean;
-  error?: boolean | string; // Có thể truyền boolean hoặc message lỗi
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
-}
-
-export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ size = 'md', fullWidth = false, error, leftIcon, rightIcon, className, style, ...props }, ref) => {
-    const hasError = !!error;
-    const errorMessage = typeof error === 'string' ? error : null;
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  (
+    {
+      size = 'md',
+      error,
+      disabled,
+      readOnly,
+      fullWidth, // Destructure to consume it, preventing it from being in ...props
+      leftIcon,
+      rightIcon,
+      sx,
+      className,
+      ...props
+    },
+    ref
+  ) => {
+    const hasError = Boolean(error);
 
     return (
-      <div css={css`display: flex; flex-direction: column; width: ${fullWidth ? '100%' : 'auto'};`}>
-        <div css={getInputWrapperStyles(fullWidth)} className={className} style={style}>
-          {leftIcon && (
-            <div css={getIconStyles('left', size)}>
-              {leftIcon}
-            </div>
-          )}
-          
-          <input
-            ref={ref}
-            css={getInputStyles(size, !!leftIcon, !!rightIcon, hasError)}
-            {...props}
-          />
+      <div css={inputWrapper} className={className}>
+        {leftIcon && <div css={iconWrapper('left')}>{leftIcon}</div>}
 
-          {rightIcon && (
-            <div css={getIconStyles('right', size)}>
-              {rightIcon}
-            </div>
-          )}
-        </div>
-        
-        {errorMessage && <span css={getErrorMessageStyles()}>{errorMessage}</span>}
+        <input
+          ref={ref}
+          css={[
+            inputStyles({
+              size,
+              error: hasError,
+              disabled,
+              readOnly,
+              hasLeftIcon: !!leftIcon,
+              hasRightIcon: !!rightIcon,
+            }),
+            sx,
+          ]}
+          aria-invalid={hasError}
+          aria-readonly={readOnly}
+          disabled={disabled}
+          readOnly={readOnly}
+          {...props}
+        />
+
+        {rightIcon && <div css={iconWrapper('right')}>{rightIcon}</div>}
+
+        {typeof error === 'string' && (
+          <div css={errorText} role="alert">
+            {error}
+          </div>
+        )}
       </div>
     );
   }
 );
 
 Input.displayName = 'Input';
+export default Input;

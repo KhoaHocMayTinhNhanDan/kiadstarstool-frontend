@@ -1,30 +1,45 @@
 import { Card } from './Card';
-import { Text } from '../Text';
-import { Button } from '../Button/Button';
 import { Box } from '../Box/Box';
+import { Text } from '../Text/Text';
+import { Button } from '../Button';
 
-export const CardTest = () => {
+export const CardPlayground = () => {
   return (
-    <Box p="24px">
-      <Text as="h2" size="2xl" weight="bold" style={{ marginBottom: 24 }}>🃏 Card Demo</Text>
-      
-      <Box display="flex" gap="24px" flexWrap="wrap">
-        <Card variant="elevated" style={{ width: 300 }}>
-          <Text size="lg" weight="bold" style={{ marginBottom: 8 }}>Elevated Card</Text>
-          <Text color="SECONDARY" style={{ marginBottom: 16 }}>This is the default card style with a subtle shadow.</Text>
-          <Button size="sm">Action</Button>
-        </Card>
+    <Box p="lg">
+      <Text as="h2" size="2xl" weight="bold" sx={{ marginBottom: '24px' }}>
+        🃏 Card Demo
+      </Text>
 
-        <Card variant="outlined" style={{ width: 300 }}>
-          <Text size="lg" weight="bold" style={{ marginBottom: 8 }}>Outlined Card</Text>
-          <Text color="SECONDARY" style={{ marginBottom: 16 }}>Useful for secondary content areas or grouped lists.</Text>
-          <Button size="sm" variant="outline">View Details</Button>
-        </Card>
+      <Box display="flex" flexDirection="column" gap="xl">
+        
+        <Box>
+          <Box mb="sm"><Text weight="semibold">Basic Card</Text></Box>
+          <Card sx={{ maxWidth: 400 }}>
+            <Box mb="sm"><Text weight="bold" size="lg">Card Title</Text></Box>
+            <Box mb="md"><Text color="SECONDARY">
+              This is a basic card component used to group related content. It has default padding, border radius, and shadow.
+            </Text></Box>
+            <Button size="sm">Action</Button>
+          </Card>
+        </Box>
 
-        <Card variant="flat" style={{ width: 300, backgroundColor: '#f8f9fa' }}>
-          <Text size="lg" weight="bold" style={{ marginBottom: 8 }}>Flat Card</Text>
-          <Text color="SECONDARY" style={{ marginBottom: 16 }}>No shadow or border. Good for background grouping.</Text>
-        </Card>
+        <Box>
+          <Box mb="sm"><Text weight="semibold">Custom Style (sx)</Text></Box>
+          <Box display="flex" gap="md" flexWrap="wrap">
+            <Card sx={{ backgroundColor: '#f0f9ff', borderColor: '#bae6fd', maxWidth: 300 }}>
+              <Text weight="bold" color="#0369a1">Info Card</Text>
+              <Text size="sm" color="#0c4a6e">This card has custom background and border colors.</Text>
+            </Card>
+
+            <Card sx={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', border: 'none', maxWidth: 300 }}>
+              <Text weight="bold" color="WHITE">Gradient Card</Text>
+              <Text size="sm" color="WHITE" sx={{ opacity: 0.9 }}>
+                Using sx prop for gradient background and white text.
+              </Text>
+            </Card>
+          </Box>
+        </Box>
+
       </Box>
     </Box>
   );

@@ -1,0 +1,61 @@
+import { Select } from './Select';
+import { Box } from '../Box/Box';
+import { Text } from '../Text/Text';
+
+const OPTIONS = [
+  { label: 'Option 1', value: '1' },
+  { label: 'Option 2', value: '2' },
+  { label: 'Option 3 (Disabled)', value: '3', disabled: true },
+];
+
+export const SelectPlayground = () => {
+  return (
+    <Box p="lg">
+      <Text as="h2" size="2xl" weight="bold" sx={{ marginBottom: '24px' }}>
+        🔽 Select Demo
+      </Text>
+
+      <Box display="flex" flexDirection="column" gap="xl" maxW="400px">
+        
+        <Box>
+          <Box mb="sm"><Text weight="semibold">Basic</Text></Box>
+          <Select options={OPTIONS} />
+        </Box>
+
+        <Box>
+          <Box mb="sm"><Text weight="semibold">With Label & Full Width</Text></Box>
+          <Select label="Choose an option" fullWidth options={OPTIONS} />
+        </Box>
+
+        <Box>
+          <Box mb="sm"><Text weight="semibold">Sizes</Text></Box>
+          <Box display="flex" flexDirection="column" gap="md">
+            <Select size="sm" options={[{ label: 'Small', value: 'sm' }]} />
+            <Select size="md" options={[{ label: 'Medium', value: 'md' }]} />
+            <Select size="lg" options={[{ label: 'Large', value: 'lg' }]} />
+          </Box>
+        </Box>
+
+        <Box>
+          <Box mb="sm"><Text weight="semibold">States</Text></Box>
+          <Box display="flex" flexDirection="column" gap="md">
+            <Select disabled label="Disabled" options={OPTIONS} />
+            <Select error="This field is required" label="Error State" options={OPTIONS} />
+          </Box>
+        </Box>
+
+        <Box>
+          <Box mb="sm"><Text weight="semibold">Custom Style (sx)</Text></Box>
+          <Select 
+            options={OPTIONS}
+            sx={{
+              backgroundColor: '#f0f9ff',
+              borderColor: '#3b82f6',
+            }}
+          />
+        </Box>
+
+      </Box>
+    </Box>
+  );
+};

@@ -1,20 +1,26 @@
-// src/shared/i18n/zh.ts
 import { en } from './en'
 
 export const zh: Record<keyof typeof en, string> = {
   'app.title': '学生管理',
   'auth.login': '登录',
-  'auth.logout': '退出登录',
+  'auth.logout': '登出',
+  'auth.email': '电子邮件',
+  'auth.backToLogin': '返回登录',
+  'auth.forgotPassword.title': '忘记密码？',
+  'auth.forgotPassword.description': '输入您的电子邮件，我们将向您发送重置密码的说明。',
+  'auth.forgotPassword.submit': '发送链接',
+  'auth.validation.emailRequired': '请输入您的电子邮件',
+  'auth.validation.emailInvalid': '无效的电子邮件地址',
   'user.name': '用户名',
   'error.UNKNOWN': '发生错误',
   'loadingSpinner.defaultLabel': '加载中...',
   'loadingSpinner.loading': '加载中...',
-  'switch.on': '开',
-  'switch.off': '关',
+  'switch.on': '开启',
+  'switch.off': '关闭',
   'switch.required': '必填',
   'switch.test.themes.purple': '紫色',
-  'switch.test.themes.emerald': '翡翠绿',
+  'switch.test.themes.emerald': '祖母绿',
   'switch.test.themes.rose': '玫瑰红',
-  'switch.test.description': '这是一个用于切换设置开关的开关组件。',
-  'switch.test.darkMode': 'test_darkMode_zh'
+  'switch.test.description': '这是一个用于切换设置开启和关闭的开关组件。',
+  'switch.test.darkMode': '深色模式',
 }

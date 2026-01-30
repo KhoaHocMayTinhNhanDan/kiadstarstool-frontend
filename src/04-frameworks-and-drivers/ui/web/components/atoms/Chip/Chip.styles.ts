@@ -1,67 +1,79 @@
 import { css } from '@emotion/react';
-import { COLORS, RADIUS, SPACING } from '../00-core/tokens-constants';
-import { type ChipVariant, type ChipColor } from './Chip';
+import { COLORS, FONT_SIZES, FONT_WEIGHTS, RADIUS, SPACING, TRANSITIONS } from '../00-core/tokens-constants';
+import type { ChipColor, ChipVariant } from './Chip.types';
 
-const VARIANTS = {
-  filled: {
-    primary: { bg: COLORS.PRIMARY, color: COLORS.WHITE, border: 'transparent' },
-    success: { bg: COLORS.SUCCESS, color: COLORS.WHITE, border: 'transparent' },
-    danger: { bg: COLORS.DANGER, color: COLORS.WHITE, border: 'transparent' },
-    warning: { bg: COLORS.WARNING, color: COLORS.WHITE, border: 'transparent' },
-    neutral: { bg: COLORS.NEUTRAL_LIGHT, color: COLORS.TEXT, border: 'transparent' },
-  },
-  outlined: {
-    primary: { bg: 'transparent', color: COLORS.PRIMARY, border: COLORS.PRIMARY },
-    success: { bg: 'transparent', color: COLORS.SUCCESS, border: COLORS.SUCCESS },
-    danger: { bg: 'transparent', color: COLORS.DANGER, border: COLORS.DANGER },
-    warning: { bg: 'transparent', color: COLORS.WARNING, border: COLORS.WARNING },
-    neutral: { bg: 'transparent', color: COLORS.TEXT, border: COLORS.NEUTRAL_RING },
-  },
-  ghost: {
-    primary: { bg: COLORS.PRIMARY_LIGHT + '33', color: COLORS.PRIMARY, border: 'transparent' }, // 33 is ~20% opacity hex
-    success: { bg: COLORS.SUCCESS_LIGHT + '33', color: COLORS.SUCCESS, border: 'transparent' },
-    danger: { bg: COLORS.DANGER_LIGHT + '33', color: COLORS.DANGER, border: 'transparent' },
-    warning: { bg: COLORS.WARNING + '33', color: COLORS.WARNING, border: 'transparent' },
-    neutral: { bg: COLORS.NEUTRAL_LIGHT, color: COLORS.TEXT, border: 'transparent' },
+/** 🔥 GRID + FLEX SAFE WRAPPER */
+export const chipWrapper = css`
+  display: inline-flex;
+  flex-shrink: 0; /* Quan trọng: Tránh bị co lại trong flex/grid container */
+  vertical-align: middle;
+  max-width: 100%; /* Đảm bảo không tràn container cha */
+`;
+
+const getColorStyles = (variant: ChipVariant, color: ChipColor) => {
+  const colors: Record<ChipColor, string> = {
+    primary: COLORS.PRIMARY,
+    secondary: COLORS.SECONDARY,
+    success: COLORS.SUCCESS,
+    danger: COLORS.DANGER,
+    warning: COLORS.WARNING,
+    info: COLORS.INFO,
+    neutral: COLORS.NEUTRAL_DARK,
+  };
+
+  const baseColor = colors[color];
+
+  if (variant === 'filled') {
+    return css`
+      background-color: ${baseColor};
+      color: ${COLORS.WHITE};
+      border: 1px solid transparent;
+    `;
   }
-};
 
-export const getChipStyles = (variant: ChipVariant, color: ChipColor, clickable: boolean) => {
-  const styleConfig = VARIANTS[variant][color];
-  
+  if (variant === 'outlined') {
+    return css`
+      background-color: transparent;
+      color: ${baseColor};
+      border: 1px solid ${baseColor};
+    `;
+  }
+
+  // Ghost
   return css`
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 24px;
-    padding: 0 ${SPACING.sm};
-    border-radius: ${RADIUS.full};
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-    transition: all 0.2s ease;
-    
-    background-color: ${styleConfig.bg};
-    color: ${styleConfig.color};
-    border: 1px solid ${styleConfig.border};
-    
-    ${clickable && css`
-      cursor: pointer;
-      &:hover {
-        opacity: 0.8;
-      }
-    `}
+    background-color: ${baseColor}20;
+    color: ${baseColor};
+    border: 1px solid transparent;
   `;
 };
 
-export const getDeleteIconStyles = () => css`
-  margin-left: 4px;
+export const getChipStyles = (variant: ChipVariant, color: ChipColor, clickable: boolean) => css`
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  opacity: 0.6;
+  height: 32px;
+  padding: 0 ${SPACING.sm};
+  font-size: ${FONT_SIZES.sm};
+  font-weight: ${FONT_WEIGHTS.medium};
+  border-radius: ${RADIUS.full};
+  white-space: nowrap;
+  transition: all ${TRANSITIONS.fast};
+  cursor: ${clickable ? 'pointer' : 'default'};
   
+  ${getColorStyles(variant, color)}
+
+  &:hover {
+    opacity: ${clickable ? 0.8 : 1};
+  }
+`;
+
+export const getDeleteIconStyles = () => css`
+  margin-left: ${SPACING.xs};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+  transition: opacity ${TRANSITIONS.fast};
+
   &:hover {
     opacity: 1;
   }

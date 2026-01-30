@@ -1,52 +1,70 @@
+// src/04-frameworks-and-drivers/ui/web/components/molecules/FormField/FormField.molecule.tsx
 /** @jsxImportSource @emotion/react */
-import React from 'react';
+import React, { useId, isValidElement, cloneElement } from 'react';
 import { Box } from '../../atoms/Box';
 import { Text } from '../../atoms/Text';
-import { SPACING } from '../../atoms/00-core/tokens-constants';
+import * as styles from './FormField.molecule.styles';
+import type { FormFieldProps } from './FormField.types';
 
-export interface FormFieldProps {
-  label?: string;
-  error?: string;
-  helperText?: string;
-  required?: boolean;
-  id?: string; // Để link label với input
-  children: React.ReactNode;
-  className?: string;
-  disabled?: boolean;
-}
-
-export const FormField = ({ 
-  label, 
-  error, 
+export const FormField = ({
+  label,
+  error,
   helperText,
-  required, 
-  id, 
+  required,
+  id,
   children,
   className,
-  disabled
+  disabled = false,
+  sx,
+  orientation = 'vertical',
 }: FormFieldProps) => {
+  const isHorizontal = orientation === 'horizontal';
+  const generatedId = useId();
+  const fieldId = id ?? generatedId;
+
+  const control =
+    isValidElement(children)
+      ? cloneElement(children as React.ReactElement<any>, {
+          id: fieldId,
+          disabled,
+        })
+      : children;
+
   return (
-    <Box display="flex" flexDirection="column" gap={SPACING.xs} className={className}>
+    <Box css={[styles.container(isHorizontal), sx]} className={className}>
       {label && (
-        <Text 
-          as="label" 
-          {...({ htmlFor: id } as any)}
-          size="sm" 
-          weight="medium" 
-          color={disabled ? 'SECONDARY' : 'TEXT'} 
-          style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
+        <Text
+          as="label"
+          htmlFor={fieldId}
+          css={styles.label(isHorizontal, disabled)}
         >
-          {label} {required && <Text as="span" color="DANGER">*</Text>}
+          {label}
+          {required && (
+            <Text as="span" color="DANGER">
+              {' '}*
+            </Text>
+          )}
         </Text>
       )}
-      
-      {children}
-      
-      {error ? (
-        <Text size="xs" color="DANGER" role="alert">{error}</Text>
-      ) : helperText ? (
-        <Text size="xs" color="SECONDARY">{helperText}</Text>
-      ) : null}
+
+      <Box css={styles.control}>
+        {control}
+
+        <Box css={styles.messageSlot}>
+          {error ? (
+            <Text size="xs" css={styles.errorText} role="alert">
+              {error}
+            </Text>
+          ) : helperText ? (
+            <Text size="xs" css={styles.helperText}>
+              {helperText}
+            </Text>
+          ) : null}
+        </Box>
+      </Box>
     </Box>
   );
 };
+
+FormField.displayName = 'FormField';
+export default FormField;

@@ -1,40 +1,48 @@
-import { type ElementType, type HTMLAttributes } from 'react';
+import type { CSSObject } from '@emotion/react';
+import type { ElementType, ComponentPropsWithoutRef } from 'react';
+import type { SpacingKey } from '../00-core/tokens-constants';
 
-export interface BoxStyleProps {
-  // Spacing
-  m?: string | number;
-  mt?: string | number;
-  mr?: string | number;
-  mb?: string | number;
-  ml?: string | number;
-  mx?: string | number;
-  my?: string | number;
-  p?: string | number;
-  pt?: string | number;
-  pr?: string | number;
-  pb?: string | number;
-  pl?: string | number;
-  px?: string | number;
-  py?: string | number;
-  
-  // Layout & Flex
-  display?: string;
-  flexDirection?: string;
-  alignItems?: string;
-  justifyContent?: string;
-  gap?: string | number;
-  flexWrap?: string;
-  flex?: string | number;
-  w?: string | number;
-  h?: string | number;
-  minW?: string | number;
-  maxW?: string | number;
-  minH?: string | number;
-  maxH?: string | number;
+export type BoxOwnProps = {
+  as?: ElementType;
+
+  display?: CSSObject['display'];
+  flexDirection?: CSSObject['flexDirection'];
+  alignItems?: CSSObject['alignItems'];
+  justifyContent?: CSSObject['justifyContent'];
+  flexWrap?: CSSObject['flexWrap'];
+  flex?: CSSObject['flex'];
+  gap?: SpacingKey | string | number;
+
+  w?: CSSObject['width'];
+  h?: CSSObject['height'];
+  minW?: CSSObject['minWidth'];
+  maxW?: CSSObject['maxWidth'];
+  minH?: CSSObject['minHeight'];
+  maxH?: CSSObject['maxHeight'];
+
+  m?: SpacingKey | string | number;
+  mt?: SpacingKey | string | number;
+  mr?: SpacingKey | string | number;
+  mb?: SpacingKey | string | number;
+  ml?: SpacingKey | string | number;
+  mx?: SpacingKey | string | number;
+  my?: SpacingKey | string | number;
+
+  p?: SpacingKey | string | number;
+  pt?: SpacingKey | string | number;
+  pr?: SpacingKey | string | number;
+  pb?: SpacingKey | string | number;
+  pl?: SpacingKey | string | number;
+  px?: SpacingKey | string | number;
+  py?: SpacingKey | string | number;
+
   bg?: string;
-  color?: string;
-}
+  border?: string;
+  radius?: string | number;
 
-export interface BoxProps<T extends ElementType = 'div'> extends BoxStyleProps, HTMLAttributes<HTMLElement> {
-  as?: T;
-}
+  sx?: CSSObject;
+};
+
+export type BoxProps<T extends ElementType = 'div'> =
+  BoxOwnProps &
+  Omit<ComponentPropsWithoutRef<T>, keyof BoxOwnProps>;

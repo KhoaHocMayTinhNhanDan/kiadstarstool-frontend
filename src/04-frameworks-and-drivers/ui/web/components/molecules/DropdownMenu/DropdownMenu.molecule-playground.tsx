@@ -1,3 +1,4 @@
+// src/04-frameworks-and-drivers/ui/web/components/molecules/DropdownMenu/DropdownMenu.molecule-playground.tsx
 import { Box } from '../../atoms/Box';
 import { Button } from '../../atoms/Button';
 import { Text } from '../../atoms/Text';
@@ -12,16 +13,16 @@ import {
 
 const MoreIcon = <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>;
 
-export const DropdownMenuTest = () => {
+export const DropdownMenuPlayground = () => {
   return (
-    <Box p="24px">
+    <Box p="lg">
       <Text as="h2" size="2xl" weight="bold" style={{ marginBottom: 24 }}>
         👇 DropdownMenu Demo
       </Text>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="md">
             <Icon size="sm">{MoreIcon}</Icon>
           </Button>
         </DropdownMenuTrigger>

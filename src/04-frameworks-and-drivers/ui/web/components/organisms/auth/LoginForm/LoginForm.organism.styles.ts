@@ -39,6 +39,11 @@ export const rememberMeContainer = css`
 export const forgotPasswordLink = css`
   color: ${COLORS.PRIMARY};
   text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
   &:hover {
     text-decoration: underline;
   }

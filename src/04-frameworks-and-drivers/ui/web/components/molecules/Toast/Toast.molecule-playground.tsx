@@ -4,7 +4,7 @@ import { Button } from '../../atoms/Button';
 import { Text } from '../../atoms/Text';
 import { Toast, ToastTitle, ToastDescription, ToastAction, ToastClose, ToastProvider, ToastViewport } from './Toast.molecule';
 
-export const ToastTest = () => {
+export const ToastPlayground = () => {
   const [open, setOpen] = useState(false);
   const [openError, setOpenError] = useState(false);
   const [openAction, setOpenAction] = useState(false);
@@ -12,12 +12,12 @@ export const ToastTest = () => {
 
   return (
     <ToastProvider swipeDirection="right">
-      <Box p="24px">
+      <Box p="lg">
         <Text as="h2" size="2xl" weight="bold" style={{ marginBottom: 24 }}>
           🍞 Toast Demo
         </Text>
 
-        <Box display="flex" gap="16px" flexWrap="wrap">
+        <Box display="flex" gap="md" flexWrap="wrap">
           <Button 
             onClick={() => {
               setOpen(false);

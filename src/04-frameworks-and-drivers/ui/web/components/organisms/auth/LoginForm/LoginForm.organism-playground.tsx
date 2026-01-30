@@ -45,6 +45,7 @@ export const LoginFormPlayground = () => {
             onSubmit={handleSubmit}
             isLoading={loading}
             errorMessage={error}
+            onForgotPassword={() => alert('Navigate to Forgot Password Page')}
           />
         </div>
 

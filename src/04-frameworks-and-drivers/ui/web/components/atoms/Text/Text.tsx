@@ -1,40 +1,43 @@
 /** @jsxImportSource @emotion/react */
 import React from 'react';
 import { getTextStyles } from './Text.styles';
-import { FONT_SIZES, FONT_WEIGHTS, COLORS } from '../00-core/tokens-constants';
+import type { TextProps } from './Text.types';
 
-export type TextSize = keyof typeof FONT_SIZES;
-export type TextWeight = keyof typeof FONT_WEIGHTS;
-export type TextColor = keyof typeof COLORS | string;
-export type TextAlign = 'left' | 'center' | 'right' | 'justify';
+function TextInner<T extends React.ElementType = 'p'>(
+  {
+    as,
+    sx,
+    // Destructure all custom styling props to prevent them from being passed to the DOM
+    variant,
+    size,
+    weight,
+    color,
+    align,
+    truncate,
+    lineHeight,
+    ...rest // `rest` now only contains valid HTML attributes
+  }: TextProps<T>,
+  ref: React.Ref<any>
+) {
+  const Component = as || 'p';
 
-export interface TextProps extends React.HTMLAttributes<HTMLElement> {
-  as?: React.ElementType;
-  size?: TextSize;
-  weight?: TextWeight;
-  color?: TextColor;
-  align?: TextAlign;
-  truncate?: boolean;
-  lineHeight?: string | number;
+  return (
+    <Component
+      ref={ref}
+      css={[
+        getTextStyles({ variant, size, weight, color, align, truncate, lineHeight }),
+        sx,
+      ]}
+      {...rest}
+    />
+  );
 }
 
-export const Text = ({
-  as: Component = 'p',
-  size = 'md',
-  weight = 'normal',
-  color = 'TEXT',
-  align = 'left',
-  truncate = false,
-  lineHeight,
-  className,
-  children,
-  ...props
-}: TextProps) => {
-  return (
-    <Component css={getTextStyles({ size, weight, color, align, truncate, lineHeight })} className={className} {...props}>
-      {children}
-    </Component>
-  );
-};
+export const Text = React.forwardRef(TextInner) as <
+  T extends React.ElementType = 'p'
+>(
+  props: TextProps<T> & { ref?: React.Ref<any> }
+) => React.ReactElement;
 
-Text.displayName = 'Text';
+
+(Text as any).displayName  = 'Text';

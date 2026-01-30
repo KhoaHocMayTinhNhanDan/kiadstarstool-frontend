@@ -1,36 +1,57 @@
 // src/04-frameworks-and-drivers/ui/web/pages/dev/DevShowcasePage.tsx
 import { useState, useMemo } from 'react'
-import { AvatarTest } from '../../components/atoms/Avatar/Avatar-playground'
-import { BadgeTest } from '../../components/atoms/Badge/Badge-playground'
-import { BoxTest } from '../../components/atoms/Box/Box-playground'
-import { ButtonTest } from '../../components/atoms/Button/Button-playground'
-import { CardTest } from '../../components/atoms/Card/Card-playground'
-import { CheckboxTest } from '../../components/atoms/Checkbox/Checkbox-playground'
-import { ChipTest } from '../../components/atoms/Chip/Chip-playground'
-import { IconTest } from '../../components/atoms/Icon/Icon-playground'
-import { InputTest } from '../../components/atoms/Input/Input-playground'
-import { LoadingSpinnerTest } from '../../components/atoms/Loading-spinner/Loading-spinner-playground'
-import { LogoTest } from '../../components/atoms/Logo/Logo-playground'
-import { ProgressTest } from '../../components/atoms/Progress/Progress-playground'
-import { RadioTest } from '../../components/atoms/Radio/Radio-playground'
-import { SkeletonTest } from '../../components/atoms/Skeleton/Skeleton-playground'
-import { SwitchTest } from '../../components/atoms/Switch/Switch-playground'
-import { TextTest } from '../../components/atoms/Text/Text-playground'
-import { TextareaTest } from '../../components/atoms/Textarea/Textarea-playground'
+import { AvatarPlayground } from '../../components/atoms/Avatar/Avatar-playground'
+import { BadgePlayground } from '../../components/atoms/Badge/Badge-playground'
+import { BoxPlayground } from '../../components/atoms/Box/Box-playground'
+import { ButtonPlayground } from '../../components/atoms/Button/Button-playground'
+import { CardPlayground } from '../../components/atoms/Card/Card-playground'
+import { CheckboxPlayground } from '../../components/atoms/Checkbox/Checkbox-playground'
+import { ChipPlayground } from '../../components/atoms/Chip/Chip-playground'
+import { IconPlayground } from '../../components/atoms/Icon/Icon-playground'
+import { IconButtonPlayground } from '../../components/atoms/IconButton/IconButton-playground'
+import { InputPlayground } from '../../components/atoms/Input/Input-playground'
+import { LoadingSpinnerPlayground } from '../../components/atoms/LoadingSpinner/LoadingSpinner-playground'
+import { LogoPlayground } from '../../components/atoms/Logo/Logo-playground'
+import { ProgressPlayground } from '../../components/atoms/Progress/Progress-playground'
+import { RadioPlayground } from '../../components/atoms/Radio/Radio-playground'
+import { SkeletonPlayground } from '../../components/atoms/Skeleton/Skeleton-playground'
+import { SelectPlayground } from '../../components/atoms/Select/Select-playground'
+import { SliderPlayground } from '../../components/atoms/Slider/Slider-playground'
+import { SwitchPlayground } from '../../components/atoms/Switch/Switch-playground'
+import { TextPlayground } from '../../components/atoms/Text/Text-playground'
+import { TextareaPlayground } from '../../components/atoms/Textarea/Textarea-playground'
+import { DividerPlayground } from '../../components/atoms/Divider/Divider-playground'
 
-import { FormFieldTest } from '../../components/molecules/FormField/FormField.molecule-playground'
-import { ModalTest } from '../../components/molecules/Modal/Modal.molecule-playground'
-import { UserCardTest } from '../../components/molecules/UserCard/UserCard.molecule-playground'
-import { LanguageSelectorTest } from '../../components/molecules/LanguageSelector/LanguageSelector.molecule-playground'
-import { SearchInputTest } from '../../components/molecules/SearchInput/SearchInput.molecule-playground'
-import { ThemeToggleTest } from '../../components/molecules/ThemeToggle/ThemeToggle.molecule-playground'
-import { DropdownMenuTest } from '../../components/molecules/DropdownMenu/DropdownMenu.molecule-playground'
-import { ToastTest } from '../../components/molecules/Toast/Toast.molecule-playground'
+import { FormFieldPlayground } from '../../components/molecules/FormField/FormField.molecule-playground'
+import { ModalPlayground } from '../../components/molecules/Modal/Modal.playground'
+import { UserCardPlayground } from '../../components/molecules/UserCard/UserCard.molecule-playground'
+import { LanguageSelectorPlayground } from '../../components/molecules/LanguageSelector/LanguageSelector.molecule-playground'
+import { SearchInputPlayground } from '../../components/molecules/SearchInput/SearchInput.molecule-playground'
+import { ThemeTogglePlayground } from '../../components/molecules/ThemeToggle/ThemeToggle.molecule-playground'
+import { DropdownMenuPlayground } from '../../components/molecules/DropdownMenu/DropdownMenu.molecule-playground'
+import { ToastPlayground } from '../../components/molecules/Toast/Toast.molecule-playground'
 
 import { LoginFormPlayground } from '../../components/organisms/auth/LoginForm/LoginForm.organism-playground'
 import { ForgotPasswordFormPlayground } from '../../components/organisms/auth/ForgotPasswordForm/ForgotPasswordForm.organism-playground'
 
+// Card
+import { DashboardCardPlayground } from '../../components/organisms/cards/DashboardCard/DashboardCard.playground'
+import { StatsCardPlayground } from '../../components/organisms/cards/StatsCard/StatsCard.playground'
+import { UserProfileCardPlayground } from './../../components/organisms/cards/UserProfileCard/UserProfileCard.playground'
+
+// Modal
+import { ConfirmDialogPlayground } from '../../components/organisms/modals/ConfirmDialog/ConfirmDialog.playground' 
+
 import { DataTablePlayground } from '../../components/organisms/data/DataTable/DataTable.organism-playground'
+import { RadarChartPlayground } from  '../../components/organisms/charts/RadarChart/RadarChart.organism-playground';
+import { BarChartPlayground } from './../../components/organisms/charts/BarChart/BarChart.organism-playground';
+import { GaugeChartPlayground } from '../../components/organisms/charts/GaugeChart/GaugeChart.organism-playground';
+import { HeatmapChartPlayground } from './../../components/organisms/charts/HeatmapChart/HeatmapChart-playground';
+import { StackedBarChartPlayground } from '../../components/organisms/charts/StackedBarChart/StackedBarChart-playground'
+
+import { AdvancedFilterPlayground } from '../../components/organisms/forms/AdvancedFilter/AdvancedFilter.form.playground'
+import { MultiStepFormPlayground } from '../../components/organisms/forms/MultiStepForm/MultiStepForm.playground'
+import { SearchFilterFormPlayground } from './../../components/organisms/forms/SearchFilterForm/SearchFilterForm.playground';
 
 import { LoginPageTest } from '../auth/LoginPage-test'
 import { AppContext } from '@/00-core/app-context'
@@ -59,37 +80,41 @@ const categories: Category[] = [
     id: 'atoms',
     label: '⚛️ Atoms',
     items: [
-      { id: 'avatar', label: 'Avatar', component: <AvatarTest /> },
-      { id: 'badge', label: 'Badge', component: <BadgeTest /> },
-      { id: 'box', label: 'Box', component: <BoxTest /> },
-      { id: 'button', label: 'Button', component: <ButtonTest /> },
-      { id: 'card', label: 'Card', component: <CardTest /> },
-      { id: 'checkbox', label: 'Checkbox', component: <CheckboxTest /> },
-      { id: 'chip', label: 'Chip', component: <ChipTest /> },
-      { id: 'icon', label: 'Icon', component: <IconTest /> },
-      { id: 'input', label: 'Input', component: <InputTest /> },
-      { id: 'loading-spinner', label: 'Loading Spinner', component: <LoadingSpinnerTest /> },
-      { id: 'logo', label: 'Logo', component: <LogoTest /> }, 
-      { id: 'progress', label: 'Progress', component: <ProgressTest /> },
-      { id: 'radio', label: 'Radio', component: <RadioTest /> },
-      { id: 'skeleton', label: 'Skeleton', component: <SkeletonTest /> },
-      { id: 'switch', label: 'Switch', component: <SwitchTest /> },
-      { id: 'text', label: 'Text', component: <TextTest /> },
-      { id: 'textarea', label: 'Textarea', component: <TextareaTest /> },
+      { id: 'avatar', label: 'Avatar', component: <AvatarPlayground /> },
+      { id: 'badge', label: 'Badge', component: <BadgePlayground /> },
+      { id: 'box', label: 'Box', component: <BoxPlayground /> },
+      { id: 'button', label: 'Button', component: <ButtonPlayground /> },
+      { id: 'card', label: 'Card', component: <CardPlayground /> },
+      { id: 'checkbox', label: 'Checkbox', component: <CheckboxPlayground /> },
+      { id: 'chip', label: 'Chip', component: <ChipPlayground /> },
+      { id: 'icon', label: 'Icon', component: <IconPlayground /> },
+      { id: 'icon-button', label: 'IconButton', component: <IconButtonPlayground /> },
+      { id: 'input', label: 'Input', component: <InputPlayground /> },
+      { id: 'loading-spinner', label: 'Loading Spinner', component: <LoadingSpinnerPlayground /> },
+      { id: 'logo', label: 'Logo', component: <LogoPlayground /> }, 
+      { id: 'progress', label: 'Progress', component: <ProgressPlayground /> },
+      { id: 'radio', label: 'Radio', component: <RadioPlayground /> },
+      { id: 'skeleton', label: 'Skeleton', component: <SkeletonPlayground /> },
+      { id: 'select', label: 'Select', component: <SelectPlayground /> },
+      { id: 'slider', label: 'Slider', component: <SliderPlayground /> },
+      { id: 'switch', label: 'Switch', component: <SwitchPlayground /> },
+      { id: 'text', label: 'Text', component: <TextPlayground /> },
+      { id: 'textarea', label: 'Textarea', component: <TextareaPlayground /> },
+      { id: 'divider', label: 'Divider', component: <DividerPlayground /> },
     ]
   },
   {
     id: 'molecules',
     label: '🧪 Molecules',
     items: [
-      { id: 'form-field', label: 'FormField', component: <FormFieldTest /> },
-      { id: 'modal', label: 'Modal', component: <ModalTest /> },
-      { id: 'user-card', label: 'UserCard', component: <UserCardTest /> },
-      { id: 'language-selector', label: 'LanguageSelector', component: <LanguageSelectorTest /> },
-      { id: 'search-input', label: 'SearchInput', component: <SearchInputTest /> },
-      { id: 'theme-toggle', label: 'ThemeToggle', component: <ThemeToggleTest /> },
-      { id: 'dropdown-menu', label: 'DropdownMenu', component: <DropdownMenuTest /> },
-      { id: 'toast', label: 'Toast', component: <ToastTest /> },
+      { id: 'form-field', label: 'FormField', component: <FormFieldPlayground /> },
+      { id: 'modal', label: 'Modal', component: <ModalPlayground /> },
+      { id: 'user-card', label: 'UserCard', component: <UserCardPlayground /> },
+      { id: 'language-selector', label: 'LanguageSelector', component: <LanguageSelectorPlayground /> },
+      { id: 'search-input', label: 'SearchInput', component: <SearchInputPlayground /> },
+      { id: 'theme-toggle', label: 'ThemeToggle', component: <ThemeTogglePlayground /> },
+      { id: 'dropdown-menu', label: 'DropdownMenu', component: <DropdownMenuPlayground /> },
+      { id: 'toast', label: 'Toast', component: <ToastPlayground /> },
     ]
   },
   {
@@ -99,12 +124,37 @@ const categories: Category[] = [
       { id: 'org-header-auth', label: 'Authentication', isHeader: true },
       { id: 'login-form', label: 'LoginForm', component: <LoginFormPlayground /> },
       { id: 'forgot-password-form', label: 'ForgotPasswordForm', component: <ForgotPasswordFormPlayground /> },
-     
+      
       { id: 'org-header-data', label: 'Data Display', isHeader: true },
       { id: 'data-table', label: 'DataTable', component: <DataTablePlayground /> },
+      { id: 'radar-chart', label: 'RadarChart', component: <RadarChartPlayground /> },
+      { id: 'bar-chart', label: 'BarChart', component: <BarChartPlayground /> },
+      { id: 'gauge-chart', label: 'GaugeChart', component: <GaugeChartPlayground /> },
+      { id: 'heatmap-chart', label: 'HeatmapChart', component: <HeatmapChartPlayground /> },
+      { id: 'stacked-bar-chart', label: 'StackedBarChart', component: <StackedBarChartPlayground /> },
 
-      { id: 'org-header-charts', label: 'Charts & Graphs', isHeader: true },
-      // { id: 'data-table', label: 'DataTable', component: <DataTablePlayground /> },
+
+      { id: 'org-header-card', label: 'Card Display', isHeader: true },
+      { id: 'dashboard-card', label: 'DashboardCard', component: <DashboardCardPlayground /> },
+      { id: 'stats-card', label: 'StatsCard', component: <StatsCardPlayground /> },
+      { id: 'user-profile-card', label: 'UserProfileCard', component: <UserProfileCardPlayground /> },
+    
+
+    ]
+  },
+  {
+    id: 'Forms',
+    label: '🧩 AdvanceFilter',
+    items: [
+      { id: 'advanced-filter', label: 'AdvancedFilter', component: <AdvancedFilterPlayground /> },
+      { id: 'multi-step-form', label: 'MultiStepForm', component: <MultiStepFormPlayground /> },
+      { id: 'search-filter-form', label: 'SearchFilterForm', component: <SearchFilterFormPlayground /> },
+
+    ]
+  },
+  {id: 'modals', label: '🧩 Modals',
+    items: [
+      { id: 'confirm-dialog', label: 'ConfirmDialog', component: <ConfirmDialogPlayground /> },
     ]
   },
   {

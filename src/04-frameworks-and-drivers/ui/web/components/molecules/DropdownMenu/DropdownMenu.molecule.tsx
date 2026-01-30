@@ -1,29 +1,74 @@
 /** @jsxImportSource @emotion/react */
-import React from 'react';
+import * as React from 'react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import { contentStyles, itemStyles, separatorStyles } from './DropdownMenu.molecule.styles';
+import {
+  contentStyles,
+  itemStyles,
+  separatorStyles,
+} from './DropdownMenu.molecule.styles';
+import type {
+  DropdownMenuContentProps,
+  DropdownMenuItemProps,
+  DropdownMenuSeparatorProps,
+} from './DropdownMenu.types';
+
+/* ==========================================================================
+ * ROOT & TRIGGER
+ * ========================================================================== */
 
 export const DropdownMenu = DropdownMenuPrimitive.Root;
 export const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 
+/* ==========================================================================
+ * CONTENT
+ * ========================================================================== */
+
 export const DropdownMenuContent = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
->(({ children, ...props }, ref) => (
+  DropdownMenuContentProps
+>(({ children, sideOffset = 4, sx, ...props }, ref) => (
   <DropdownMenuPrimitive.Portal>
-    <DropdownMenuPrimitive.Content ref={ref} css={contentStyles} {...props}>
+    <DropdownMenuPrimitive.Content
+      ref={ref}
+      sideOffset={sideOffset}
+      css={[contentStyles, sx]}
+      {...props}
+    >
       {children}
     </DropdownMenuPrimitive.Content>
   </DropdownMenuPrimitive.Portal>
 ));
 
+DropdownMenuContent.displayName = 'DropdownMenuContent';
+
+/* ==========================================================================
+ * ITEM
+ * ========================================================================== */
+
 export const DropdownMenuItem = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item>
->(({ children, ...props }, ref) => (
-  <DropdownMenuPrimitive.Item ref={ref} css={itemStyles} {...props}>
+  DropdownMenuItemProps
+>(({ children, sx, ...props }, ref) => (
+  <DropdownMenuPrimitive.Item ref={ref} css={[itemStyles, sx]} {...props}>
     {children}
   </DropdownMenuPrimitive.Item>
 ));
 
-export const DropdownMenuSeparator = () => <DropdownMenuPrimitive.Separator css={separatorStyles} />;
+DropdownMenuItem.displayName = 'DropdownMenuItem';
+
+/* ==========================================================================
+ * SEPARATOR
+ * ========================================================================== */
+
+export const DropdownMenuSeparator = React.forwardRef<
+  React.ElementRef<typeof DropdownMenuPrimitive.Separator>,
+  DropdownMenuSeparatorProps
+>(({ sx, ...props }, ref) => (
+  <DropdownMenuPrimitive.Separator
+    ref={ref}
+    css={[separatorStyles, sx]}
+    {...props}
+  />
+));
+
+DropdownMenuSeparator.displayName = 'DropdownMenuSeparator';

@@ -2,14 +2,14 @@ import { Box } from '../../atoms/Box';
 import { Text } from '../../atoms/Text';
 import { UserCard } from './UserCard.molecule';
 
-export const UserCardTest = () => {
+export const UserCardPlayground = () => {
   return (
-    <Box p="24px">
+    <Box p="lg">
       <Text as="h2" size="2xl" weight="bold" style={{ marginBottom: 24 }}>
         👤 UserCard Demo
       </Text>
 
-      <Box display="flex" flexDirection="column" gap="24px" maxW="400px">
+      <Box display="flex" flexDirection="column" gap="lg" maxW="400px">
         <section>
           <Text size="lg" weight="bold" style={{ marginBottom: 16 }}>Basic</Text>
           <UserCard 

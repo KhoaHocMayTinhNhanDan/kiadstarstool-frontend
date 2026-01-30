@@ -5,31 +5,11 @@ import {
   Input,
   Text,
   LoadingSpinner,
+  Box,
 } from '../../../atoms';
 import * as styles from './ForgotPasswordForm.organism.styles';
-
-export interface ForgotPasswordFormData {
-  email: string;
-}
-
-interface ForgotPasswordFormProps {
-  /**
-   * Hàm được gọi khi form submit hợp lệ
-   */
-  onSubmit: (data: ForgotPasswordFormData) => void;
-  /**
-   * Trạng thái đang xử lý
-   */
-  isLoading?: boolean;
-  /**
-   * Thông báo lỗi từ server (nếu có)
-   */
-  errorMessage?: string;
-  /**
-   * Đường dẫn hoặc hàm xử lý khi bấm "Quay lại đăng nhập"
-   */
-  onBackToLogin?: () => void;
-}
+import { useI18n } from '../../../providers/I18nProvider';
+import type { ForgotPasswordFormProps } from './ForgotPasswordForm.organism.types';
 
 const ForgotPasswordForm = ({ 
   onSubmit, 
@@ -38,24 +18,40 @@ const ForgotPasswordForm = ({
   onBackToLogin 
 }: ForgotPasswordFormProps) => {
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState<string | undefined>();
+  const { t } = useI18n();
+
+  const validate = () => {
+    if (!email.trim()) {
+      setEmailError(t('auth.validation.emailRequired') || 'Vui lòng nhập email');
+      return false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError(t('auth.validation.emailInvalid') || 'Email không hợp lệ');
+      return false;
+    }
+    setEmailError(undefined);
+    return true;
+  };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isLoading) return;
-    onSubmit({ email });
+    if (validate()) {
+      onSubmit({ email });
+    }
   };
 
   return (
-    <form css={styles.formContainer} onSubmit={handleSubmit} noValidate>
-      <div>
-        <h2 css={styles.title}>Quên mật khẩu?</h2>
-        <p css={styles.description}>
-          Nhập email của bạn và chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu.
-        </p>
-      </div>
+    <Box as="form" css={styles.formContainer} onSubmit={handleSubmit} noValidate>
+      <Box>
+        <Text as="h2" css={styles.title}>{t('auth.forgotPassword.title') || 'Quên mật khẩu?'}</Text>
+        <Text as="p" css={styles.description}>
+          {t('auth.forgotPassword.description') || 'Nhập email của bạn và chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu.'}
+        </Text>
+      </Box>
 
-      <div css={styles.fieldWrapper}>
-        <label htmlFor="forgot-email" css={styles.label}>Email</label>
+      <Box css={styles.fieldWrapper}>
+        <Text as="label" htmlFor="forgot-email" css={styles.label}>{t('auth.email') || 'Email'}</Text>
         <Input
           id="forgot-email"
           type="email"
@@ -65,8 +61,9 @@ const ForgotPasswordForm = ({
           disabled={isLoading}
           required
           autoComplete="email"
+          error={emailError}
         />
-      </div>
+      </Box>
 
       {errorMessage && (
         <div css={styles.errorMessage}>
@@ -75,25 +72,26 @@ const ForgotPasswordForm = ({
       )}
 
       <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
-        {isLoading ? <LoadingSpinner size="sm" color="white" /> : 'Gửi liên kết'}
+        {isLoading ? <LoadingSpinner size="sm" color="white" /> : (t('auth.forgotPassword.submit') || 'Gửi liên kết')}
       </Button>
 
-      <div css={styles.footer}>
+      <Box css={styles.footer}>
         {onBackToLogin ? (
-          <button 
+          <Button 
             type="button" 
             onClick={onBackToLogin} 
-            css={[styles.backLink, { background: 'none', border: 'none', cursor: 'pointer', padding: 0 }]}
+            variant="ghost"
+            sx={styles.backLink}
           >
-            Quay lại đăng nhập
-          </button>
+            {t('auth.backToLogin') || 'Quay lại đăng nhập'}
+          </Button>
         ) : (
-          <a href="/auth/login" css={styles.backLink}>
-            Quay lại đăng nhập
-          </a>
+          <Text as="a" href="/auth/login" css={styles.backLink}>
+            {t('auth.backToLogin') || 'Quay lại đăng nhập'}
+          </Text>
         )}
-      </div>
-    </form>
+      </Box>
+    </Box>
   );
 };
 

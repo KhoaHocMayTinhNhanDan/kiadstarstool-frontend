@@ -1,5 +1,9 @@
 import { css } from '@emotion/react';
+import { COLORS } from '../../atoms/00-core/tokens-constants';
 
-// Hiện tại SearchInput tái sử dụng hoàn toàn style của Input Atom.
-// File này giữ chỗ để custom style đặc thù cho SearchInput nếu cần trong tương lai.
-export const searchInputStyles = css``;
+export const container = css`
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+`;

@@ -1,68 +1,69 @@
 import { css } from '@emotion/react';
-import { COLORS, RADIUS } from '../00-core/tokens-constants';
-import { type BadgeVariant, type BadgeColor } from './Badge';
+import { COLORS, FONT_SIZES, FONT_WEIGHTS, RADIUS, SPACING } from '../00-core/tokens-constants';
+import type { BadgeColor, BadgeSize, BadgeVariant } from './Badge.types';
 
-const VARIANTS = {
-  filled: {
-    primary: { bg: COLORS.PRIMARY, color: COLORS.WHITE },
-    success: { bg: COLORS.SUCCESS, color: COLORS.WHITE },
-    danger: { bg: COLORS.DANGER, color: COLORS.WHITE },
-    warning: { bg: COLORS.WARNING, color: COLORS.WHITE },
-    neutral: { bg: COLORS.NEUTRAL_DARK, color: COLORS.WHITE },
-  },
-  outline: {
-    primary: { bg: COLORS.WHITE, color: COLORS.PRIMARY, border: COLORS.PRIMARY },
-    success: { bg: COLORS.WHITE, color: COLORS.SUCCESS, border: COLORS.SUCCESS },
-    danger: { bg: COLORS.WHITE, color: COLORS.DANGER, border: COLORS.DANGER },
-    warning: { bg: COLORS.WHITE, color: COLORS.WARNING, border: COLORS.WARNING },
-    neutral: { bg: COLORS.WHITE, color: COLORS.NEUTRAL_DARK, border: COLORS.NEUTRAL_DARK },
-  }
+/** 🔥 GRID + FLEX SAFE WRAPPER */
+export const badgeWrapper = css`
+  display: inline-flex;
+  flex-shrink: 0; /* Quan trọng: Tránh bị co lại trong flex/grid container */
+  vertical-align: middle;
+`;
+
+const sizeMap: Record<BadgeSize, { height: string; px: string; fontSize: string }> = {
+  sm: { height: '20px', px: SPACING.xs, fontSize: '10px' },
+  md: { height: '24px', px: SPACING.sm, fontSize: FONT_SIZES.xs },
 };
 
-export const getBadgeStyles = (variant: BadgeVariant, color: BadgeColor, isDot: boolean) => {
-  const styleConfig = VARIANTS[variant][color];
-  
+const getColorStyles = (variant: BadgeVariant, color: BadgeColor) => {
+  const colors: Record<BadgeColor, string> = {
+    primary: COLORS.PRIMARY,
+    secondary: COLORS.SECONDARY,
+    success: COLORS.SUCCESS,
+    danger: COLORS.DANGER,
+    warning: COLORS.WARNING,
+    info: COLORS.INFO,
+    neutral: COLORS.NEUTRAL_DARK,
+  };
+
+  const baseColor = colors[color];
+
+  if (variant === 'filled') {
+    return css`
+      background-color: ${baseColor};
+      color: ${COLORS.WHITE};
+      border: 1px solid transparent;
+    `;
+  }
+
+  if (variant === 'outline') {
+    return css`
+      background-color: transparent;
+      color: ${baseColor};
+      border: 1px solid ${baseColor};
+    `;
+  }
+
+  // Ghost
+  return css`
+    background-color: ${baseColor}20; /* 20% opacity approx */
+    color: ${baseColor};
+    border: 1px solid transparent;
+  `;
+};
+
+export const getBadgeStyles = (variant: BadgeVariant, color: BadgeColor, size: BadgeSize) => {
+  const s = sizeMap[size];
+
   return css`
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    
-    /* Dot mode vs Content mode */
-    min-width: ${isDot ? '8px' : '18px'};
-    height: ${isDot ? '8px' : '18px'};
-    padding: ${isDot ? '0' : '0 6px'};
-    
+    height: ${s.height};
+    padding: 0 ${s.px};
+    font-size: ${s.fontSize};
+    font-weight: ${FONT_WEIGHTS.semibold};
     border-radius: ${RADIUS.full};
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1;
     white-space: nowrap;
-    
-    background-color: ${styleConfig.bg};
-    color: ${styleConfig.color};
-    border: 1px solid ${variant === 'outline' ? (styleConfig as any).border : 'transparent'};
-    
-    /* Position absolute logic handled by parent or wrapper if needed */
-  `;
-};
-
-export const getBadgeWrapperStyles = () => css`
-  position: relative;
-  display: inline-flex;
-  vertical-align: middle;
-`;
-
-export const getBadgePositionStyles = (position: 'top-right' | 'bottom-right' | 'top-left' | 'bottom-left') => {
-  const positions = {
-    'top-right': css`top: 0; right: 0; transform: translate(50%, -50%);`,
-    'bottom-right': css`bottom: 0; right: 0; transform: translate(50%, 50%);`,
-    'top-left': css`top: 0; left: 0; transform: translate(-50%, -50%);`,
-    'bottom-left': css`bottom: 0; left: 0; transform: translate(-50%, 50%);`,
-  };
-  
-  return css`
-    position: absolute;
-    z-index: 10;
-    ${positions[position]}
+    ${getColorStyles(variant, color)}
   `;
 };

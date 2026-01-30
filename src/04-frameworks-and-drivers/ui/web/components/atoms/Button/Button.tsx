@@ -1,54 +1,83 @@
+// src/04-frameworks-and-drivers/ui/web/components/atoms/Button/Button.tsx
 /** @jsxImportSource @emotion/react */
 import React from 'react';
-import { Slot } from '@radix-ui/react-slot';
 import { getButtonStyles } from './Button.styles';
-import { LoadingSpinner } from '../Loading-spinner/Loading-spinner';
+import { LoadingSpinner } from '../LoadingSpinner';
+import type { ButtonProps, PolymorphicRef } from './Button.types';
+import type { SpinnerSize } from '../LoadingSpinner/';
+import type { ButtonSize } from './Button.types';
 
-export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'link';
+/* ================= Spinner size map ================= */
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  asChild?: boolean;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  fullWidth?: boolean;
-  loading?: boolean;
-  leftIcon?: React.ReactNode;
+const buttonSpinnerSizeMap: Record<ButtonSize, SpinnerSize> = {
+  xs: 'xs',
+  sm: 'sm',
+  md: 'md',
+  lg: 'lg',
+  xl: 'xl',
+};
+
+function ButtonInner<T extends React.ElementType = 'button'>(
+  props: ButtonProps<T>,
+  ref: PolymorphicRef<T>
+) {
+  const {
+    as,
+    variant = 'primary',
+    intent = 'default',
+    size = 'md',
+    isLoading = false,
+    disabled = false,
+    fullWidth = false,
+    sx,
+    leftIcon,
+    rightIcon,
+    children,
+    ...rest
+  } = props;
+
+  const Component = as || 'button';
+  const isButton = Component === 'button';
+  const isDisabled = disabled || isLoading;
+  const spinnerSize = buttonSpinnerSizeMap[size];
+
+  return (
+    <Component
+      ref={ref}
+      css={[getButtonStyles(variant, intent, size, fullWidth, isLoading), sx]}
+      {...(isButton
+        ? { type: 'button', disabled: isDisabled }
+        : {
+            role: 'button',
+            'aria-disabled': isDisabled,
+            tabIndex: isDisabled ? -1 : 0,
+          })}
+      aria-busy={isLoading || undefined}
+      {...rest}
+    >
+      <span className="btn-content">
+        {isLoading && <LoadingSpinner size={spinnerSize} color="currentColor" />}
+        {!isLoading &&
+          leftIcon &&
+          React.cloneElement(leftIcon as React.ReactElement, { size: spinnerSize })}
+        {!isLoading && children}
+        {!isLoading &&
+          rightIcon &&
+          React.cloneElement(rightIcon as React.ReactElement, { size: spinnerSize })}
+      </span>
+    </Component>
+  );
 }
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ 
-    asChild = false, 
-    variant = 'primary', 
-    size = 'md', 
-    fullWidth = false, 
-    loading = false,
-    leftIcon,
-    children, 
-    className,
-    disabled,
-    ...props 
-  }, ref) => {
-    const Component = asChild ? Slot : 'button';
-    
-    return (
-      <Component
-        ref={ref}
-        css={getButtonStyles(size, variant, fullWidth, loading)}
-        className={className}
-        disabled={disabled || loading}
-        {...props}
-      >
-        {loading && (
-          <span style={{ position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <LoadingSpinner size="sm" variant={variant === 'primary' || variant === 'danger' || variant === 'secondary' ? 'white' : 'primary'} />
-          </span>
-        )}
-        {!loading && leftIcon && <span style={{ display: 'flex', marginRight: size === 'icon' ? 0 : 8 }}>{leftIcon}</span>}
-        {children}
-      </Component>
-    );
-  }
-);
+type ButtonComponent = <T extends React.ElementType = 'button'>(
+  props: ButtonProps<T> & { ref?: PolymorphicRef<T> }
+) => React.ReactElement | null;
 
-Button.displayName = 'Button';
+export const Button = React.forwardRef(
+  ButtonInner as unknown as (
+    props: ButtonProps<any>,
+    ref: React.Ref<any>
+  ) => React.ReactElement | null
+) as ButtonComponent;
+
+(Button as React.ForwardRefExoticComponent<any>).displayName = 'Button';

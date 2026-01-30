@@ -1,34 +1,8 @@
 /** @jsxImportSource @emotion/react */
 import React from 'react';
-import { Button, LoadingSpinner, Checkbox, Text } from '../../../atoms';
+import { Button, LoadingSpinner, Checkbox, Text, Box } from '../../../atoms';
 import * as styles from './DataTable.organism.styles';
-
-export interface Column<T> {
-  key: string;
-  header: string;
-  width?: string | number;
-  align?: 'left' | 'center' | 'right';
-  render?: (item: T) => React.ReactNode;
-}
-
-export interface DataTableProps<T> {
-  data: T[];
-  columns: Column<T>[];
-  isLoading?: boolean;
-  keyExtractor: (item: T) => string | number;
-  onRowClick?: (item: T) => void;
-  
-  // Pagination
-  currentPage?: number;
-  totalPages?: number;
-  onPageChange?: (page: number) => void;
-
-  // Selection
-  selectedIds?: (string | number)[];
-  onSelectionChange?: (ids: (string | number)[]) => void;
-
-  emptyMessage?: string;
-}
+import type { DataTableProps } from './DataTable.types';
 
 export const DataTable = <T extends object>({
   data,
@@ -67,13 +41,13 @@ export const DataTable = <T extends object>({
   // const isIndeterminate = selectedIds && selectedIds.length > 0 && selectedIds.length < data.length;
 
   return (
-    <div css={styles.container}>
-      <div css={styles.tableWrapper}>
+    <Box css={styles.container}>
+      <Box css={styles.tableWrapper}>
         <table css={styles.table}>
           <thead css={styles.thead}>
             <tr>
               {onSelectionChange && (
-                <th css={styles.th} style={{ width: '48px', textAlign: 'center' }}>
+                <th css={styles.th} style={{ width: 48, textAlign: 'center' }}>
                   <Checkbox 
                     checked={isAllSelected} 
                     onCheckedChange={(checked) => handleSelectAll(!!checked)}
@@ -84,10 +58,7 @@ export const DataTable = <T extends object>({
                 <th 
                   key={col.key} 
                   css={styles.th} 
-                  style={{ 
-                    width: col.width, 
-                    textAlign: col.align || 'left' 
-                  }}
+                  style={{ width: col.width, textAlign: col.align || 'left' }}
                 >
                   {col.header}
                 </th>
@@ -99,17 +70,17 @@ export const DataTable = <T extends object>({
             {isLoading ? (
               <tr>
                 <td colSpan={columns.length + (onSelectionChange ? 1 : 0)}>
-                  <div css={styles.loadingOverlay}>
+                  <Box css={styles.loadingOverlay}>
                     <LoadingSpinner size="md" />
-                  </div>
+                  </Box>
                 </td>
               </tr>
             ) : data.length === 0 ? (
               <tr>
                 <td colSpan={columns.length + (onSelectionChange ? 1 : 0)}>
-                  <div css={styles.emptyState}>
-                    <Text color="secondary">{emptyMessage}</Text>
-                  </div>
+                  <Box css={styles.emptyState}>
+                    <Text color="SECONDARY">{emptyMessage}</Text>
+                  </Box>
                 </td>
               </tr>
             ) : (
@@ -150,15 +121,15 @@ export const DataTable = <T extends object>({
             )}
           </tbody>
         </table>
-      </div>
+      </Box>
 
       {/* Pagination Footer */}
       {totalPages > 0 && (
-        <div css={styles.paginationContainer}>
-          <div>
+        <Box css={styles.paginationContainer}>
+          <Box>
             Trang <strong>{currentPage}</strong> / {totalPages}
-          </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          </Box>
+          <Box display="flex" gap="sm">
             <Button 
               size="sm" 
               variant="outline" 
@@ -175,10 +146,10 @@ export const DataTable = <T extends object>({
             >
               Sau
             </Button>
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 

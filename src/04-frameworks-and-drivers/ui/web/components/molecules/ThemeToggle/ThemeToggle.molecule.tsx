@@ -1,7 +1,8 @@
 /** @jsxImportSource @emotion/react */
 import { useTheme } from '../../providers/ThemeProvider';
-import { Button } from '../../atoms/Button';
 import { Icon } from '../../atoms/Icon';
+import { IconButton } from '../../atoms/IconButton';
+import type { ThemeToggleProps } from './ThemeToggle.types';
 
 const SunIcon = (
   <svg viewBox="0 0 24 24">
@@ -15,19 +16,18 @@ const MoonIcon = (
   </svg>
 );
 
-export const ThemeToggle = () => {
+export const ThemeToggle = ({ className, sx }: ThemeToggleProps) => {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <Button
+    <IconButton
       variant="ghost"
-      size="icon"
+      size="md"
+      sx={sx}
+      className={className}
       onClick={toggleTheme}
-      title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-    >
-      <Icon size="md">
-        {theme === 'light' ? MoonIcon : SunIcon}
-      </Icon>
-    </Button>
+      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      icon={<Icon size="md">{theme === 'light' ? MoonIcon : SunIcon}</Icon>}
+    />
   );
 };

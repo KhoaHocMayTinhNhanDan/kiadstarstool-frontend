@@ -1,30 +1,19 @@
 import { css } from '@emotion/react';
-import { COLORS, RADIUS, SHADOWS } from '../00-core/tokens-constants';
-import { type CardVariant } from './Card';
+import { COLORS, RADIUS, SHADOWS, SPACING } from '../00-core/tokens-constants';
 
-export const getCardStyles = (variant: CardVariant, padding: string | number) => {
-  const baseStyles = css`
-    background-color: ${COLORS.WHITE};
-    border-radius: ${RADIUS.lg};
-    padding: ${typeof padding === 'number' ? `${padding}px` : padding};
-    overflow: hidden;
-  `;
-
-  if (variant === 'elevated') {
-    return css`
-      ${baseStyles};
-      box-shadow: ${SHADOWS.md};
-      border: none;
-    `;
-  }
-
-  if (variant === 'outlined') {
-    return css`
-      ${baseStyles};
-      box-shadow: none;
-      border: 1px solid ${COLORS.NEUTRAL_RING};
-    `;
-  }
-
-  return baseStyles;
-};
+/** 🔥 GRID + FLEX SAFE WRAPPER */
+export const cardStyles = css`
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0; /* 🔥 QUAN TRỌNG: Tránh bị tràn trong flex/grid container */
+  position: relative;
+  
+  background-color: ${COLORS.WHITE};
+  border-radius: ${RADIUS.md};
+  box-shadow: ${SHADOWS.sm};
+  border: 1px solid ${COLORS.NEUTRAL_LIGHT};
+  padding: ${SPACING.lg};
+  overflow: hidden; /* Đảm bảo nội dung con không tràn ra ngoài border-radius */
+`;

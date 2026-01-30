@@ -1,27 +1,37 @@
 import { css } from '@emotion/react';
-import { COLORS } from '../00-core/tokens-constants';
+import { SIZES } from '../00-core/tokens-constants';
+import type { IconSize } from './Icon.types';
 
-export const SIZES = {
-  xs: '12px',
-  sm: '16px',
-  md: '24px',
-  lg: '32px',
-  xl: '48px',
-};
-
-export const getIconStyles = (size: keyof typeof SIZES, color?: string) => css`
+/** ✅ WRAPPER CHUẨN PRODUCT */
+export const iconWrapper = css`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: ${SIZES[size]};
-  height: ${SIZES[size]};
-  color: ${color || 'currentColor'};
+
   flex-shrink: 0;
-  line-height: 1;
-  
+  line-height: 0;          /* 🔥 FIX BASELINE */
+`;
+
+/** size map */
+const sizeMap: Record<string, string> = {
+  ...SIZES,
+  inherit: 'inherit',
+};
+
+export const getIconStyles = (size: IconSize) => css`
+  display: inline-flex;     /* 🔥 ÉP FLEX */
+  align-items: center;
+  justify-content: center;
+
+  width: 1em;
+  height: 1em;
+  font-size: ${sizeMap[size]};
+  color: currentColor;
+
+  /* 🔥 FIX GỐC: SVG */
   svg {
+    display: block;         /* 💥 QUAN TRỌNG NHẤT */
     width: 100%;
     height: 100%;
-    fill: currentColor;
   }
 `;

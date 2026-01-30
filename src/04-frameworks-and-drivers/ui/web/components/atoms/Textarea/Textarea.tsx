@@ -1,37 +1,32 @@
 /** @jsxImportSource @emotion/react */
-import React, { forwardRef } from 'react';
-import { getTextareaStyles, getTextareaWrapperStyles, getErrorMessageStyles } from './Textarea.styles';
+import React from 'react';
+import { getTextareaStyles, textareaWrapper, errorTextStyles } from './Textarea.styles';
+import type { TextareaProps } from './Textarea.types';
 
-export type TextareaSize = 'sm' | 'md' | 'lg';
-
-export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  size?: TextareaSize;
-  fullWidth?: boolean;
-  error?: boolean | string;
-  resize?: 'none' | 'vertical' | 'horizontal' | 'both';
-}
-
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ 
-    size = 'md', 
-    fullWidth = false, 
-    error, 
-    resize = 'vertical', 
-    className, 
-    style, 
-    ...props 
-  }, ref) => {
-    const hasError = !!error;
-    const errorMessage = typeof error === 'string' ? error : null;
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ error, fullWidth, resize = 'vertical', disabled, readOnly, className, sx, ...props }, ref) => {
+    const hasError = Boolean(error);
 
     return (
-      <div css={getTextareaWrapperStyles(fullWidth)} className={className} style={style}>
+      <div css={textareaWrapper} className={className}>
         <textarea
           ref={ref}
-          css={getTextareaStyles(size, hasError, resize)}
+          css={[
+            getTextareaStyles({ error: hasError, disabled, readOnly, resize }),
+            sx
+          ]}
+          disabled={disabled}
+          readOnly={readOnly}
+          aria-invalid={hasError}
+          aria-readonly={readOnly}
           {...props}
         />
-        {errorMessage && <span css={getErrorMessageStyles()}>{errorMessage}</span>}
+        
+        {typeof error === 'string' && (
+          <div css={errorTextStyles} role="alert">
+            {error}
+          </div>
+        )}
       </div>
     );
   }

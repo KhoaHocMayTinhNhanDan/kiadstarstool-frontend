@@ -1,88 +1,113 @@
+// src/04-frameworks-and-drivers/ui/web/components/atoms/Input/Input.styles.ts
 import { css } from '@emotion/react';
-import { COLORS, RADIUS, SPACING, TRANSITIONS } from '../00-core/tokens-constants';
-import { type InputSize } from './Input';
+import {
+  COLORS,
+  SPACING,
+  RADIUS,
+  FONT_SIZES,
+  TRANSITIONS,
+} from '../00-core/tokens-constants';
+import type { InputSize } from './Input.types';
 
-const SIZES = {
-  sm: { height: '32px', padding: '0 12px', fontSize: '14px' },
-  md: { height: '40px', padding: '0 16px', fontSize: '16px' },
-  lg: { height: '48px', padding: '0 20px', fontSize: '18px' },
+const heightMap: Record<InputSize, string> = {
+  sm: '32px',
+  md: '40px',
+  lg: '48px',
 };
 
-export const getInputWrapperStyles = (fullWidth: boolean) => css`
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  width: ${fullWidth ? '100%' : 'auto'};
-`;
-
-export const getInputStyles = (size: InputSize, hasLeftIcon: boolean, hasRightIcon: boolean, error: boolean) => {
-  const sizeConfig = SIZES[size];
-  
+export function inputStyles({
+  size,
+  error,
+  disabled,
+  readOnly,
+  hasLeftIcon,
+  hasRightIcon,
+}: {
+  size: InputSize;
+  error?: boolean;
+  disabled?: boolean;
+  readOnly?: boolean;
+  hasLeftIcon?: boolean;
+  hasRightIcon?: boolean;
+}) {
   return css`
     width: 100%;
-    height: ${sizeConfig.height};
-    padding: ${sizeConfig.padding};
-    padding-left: ${hasLeftIcon ? `calc(${sizeConfig.height} + 4px)` : sizeConfig.padding};
-    padding-right: ${hasRightIcon ? `calc(${sizeConfig.height} + 4px)` : sizeConfig.padding};
-    
-    font-family: inherit;
-    font-size: ${sizeConfig.fontSize};
+    min-width: 0;
+    box-sizing: border-box;
+
+    height: ${heightMap[size]};
+    padding-left: ${hasLeftIcon ? '36px' : SPACING.md};
+    padding-right: ${hasRightIcon ? '36px' : SPACING.md};
+
+    font-size: ${FONT_SIZES.sm};
     color: ${COLORS.TEXT};
     background-color: ${COLORS.WHITE};
-    
-    border: 1px solid ${error ? COLORS.DANGER : COLORS.NEUTRAL_RING};
+
+    border: 1px solid
+      ${error ? COLORS.DANGER : COLORS.NEUTRAL_LIGHT};
     border-radius: ${RADIUS.md};
-    
+
     outline: none;
     transition: all ${TRANSITIONS.fast};
 
     &::placeholder {
       color: ${COLORS.SECONDARY};
-      opacity: 0.7;
     }
 
-    &:hover:not(:disabled) {
-      border-color: ${error ? COLORS.DANGER : COLORS.PRIMARY};
+    &:hover:not(:disabled):not(:read-only) {
+      border-color: ${error
+        ? COLORS.DANGER_DARK
+        : COLORS.PRIMARY_LIGHT};
     }
 
-    &:focus:not(:disabled) {
+    &:focus:not(:disabled):not(:read-only) {
       border-color: ${error ? COLORS.DANGER : COLORS.PRIMARY};
-      box-shadow: 0 0 0 3px ${error ? COLORS.DANGER_LIGHT : COLORS.PRIMARY_LIGHT};
+      box-shadow: 0 0 0 2px
+        ${error ? COLORS.DANGER_LIGHT : COLORS.PRIMARY_LIGHT};
     }
 
     &:disabled {
-      background-color: ${COLORS.NEUTRAL_LIGHT};
+      background-color: ${COLORS.LIGHT};
       color: ${COLORS.SECONDARY};
       cursor: not-allowed;
-      border-color: ${COLORS.NEUTRAL_RING};
+    }
+
+    &:read-only {
+      background-color: ${COLORS.NEUTRAL_LIGHT};
+      cursor: default;
     }
   `;
-};
+}
 
-export const getIconStyles = (position: 'left' | 'right', size: InputSize) => {
-  const sizeConfig = SIZES[size];
-  
-  return css`
-    position: absolute;
-    top: 0;
-    ${position}: 0;
-    height: 100%;
-    width: ${sizeConfig.height};
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: ${COLORS.SECONDARY};
-    pointer-events: none; // Icon không chặn click vào input
-    
-    svg {
-      width: 1.2em;
-      height: 1.2em;
-    }
-  `;
-};
-
-export const getErrorMessageStyles = () => css`
+export const errorText = css`
   margin-top: ${SPACING.xs};
+  font-size: ${FONT_SIZES.xs};
   color: ${COLORS.DANGER};
-  font-size: 12px;
+`;
+
+/** 🔥 GRID + FLEX SAFE WRAPPER */
+export const inputWrapper = css`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  position: relative;
+`;
+
+export const iconWrapper = (position: 'left' | 'right') => css`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  ${position}: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${COLORS.SECONDARY};
+  pointer-events: none;
+  z-index: 1;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
 `;

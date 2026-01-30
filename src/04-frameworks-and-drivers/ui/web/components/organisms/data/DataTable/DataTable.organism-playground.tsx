@@ -1,6 +1,9 @@
+// src/04-frameworks-and-drivers/ui/web/components/organisms/data/DataTable/DataTable.organism-playground.tsx
 import { useState } from 'react';
-import { DataTable, type Column } from './DataTable.organism';
+import { DataTable } from './DataTable.organism';
 import { Box, Chip, Text, Button } from '../../../atoms';
+import {type Column} from './DataTable.types';
+
 
 interface User {
   id: number;
@@ -34,10 +37,10 @@ export const DataTablePlayground = () => {
       key: 'name', 
       header: 'Họ và tên',
       render: (user) => (
-        <div>
+        <Box>
           <Text weight="medium">{user.name}</Text>
-          <Text size="xs" color="secondary">{user.email}</Text>
-        </div>
+          <Text size="xs" color="SECONDARY">{user.email}</Text>
+        </Box>
       )
     },
     { 
@@ -81,10 +84,10 @@ export const DataTablePlayground = () => {
   };
 
   return (
-    <Box style={{ padding: '40px', backgroundColor: '#f4f4f5', minHeight: '100vh' }}>
-      <Text as="h1" size="3xl" weight="bold" style={{ marginBottom: '24px' }}>
-        📊 DataTable Playground
-      </Text>
+    <Box p="4xl" bg="LIGHT" minH="100vh">
+      <Box mb="2xl">
+        <Text as="h1" size="3xl" weight="bold">📊 DataTable Playground</Text>
+      </Box>
 
       <DataTable
         data={MOCK_DATA}
@@ -99,9 +102,9 @@ export const DataTablePlayground = () => {
         onRowClick={(item) => console.log('Row clicked:', item)}
       />
 
-      <div style={{ marginTop: '20px' }}>
+      <Box mt="xl">
         <Text size="sm">Selected IDs: {JSON.stringify(selectedIds)}</Text>
-      </div>
+      </Box>
     </Box>
   );
 };

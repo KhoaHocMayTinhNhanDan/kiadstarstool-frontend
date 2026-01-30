@@ -1,22 +1,17 @@
 import { css } from '@emotion/react';
-import { COLORS } from '../00-core/tokens-constants';
-import { type LogoSize, type LogoVariant } from './Logo';
 
-const SIZES = {
-  sm: '24px',
-  md: '32px',
-  lg: '48px',
-  xl: '64px',
-};
+/** 🔥 GRID + FLEX SAFE WRAPPER */
+export const logoWrapper = css`
+  display: inline-flex;
+  flex-shrink: 0; /* Quan trọng: Tránh bị co lại trong flex/grid container */
+  vertical-align: middle;
+  line-height: 1;
+`;
 
-const VARIANTS = {
-  color: COLORS.PRIMARY,
-  white: COLORS.WHITE,
-  black: COLORS.BLACK,
-};
-
-export const getLogoStyles = (size: LogoSize, variant: LogoVariant) => css`
-  width: ${SIZES[size]};
-  height: ${SIZES[size]};
-  color: ${VARIANTS[variant]};
+export const getLogoStyles = (width?: number | string, height?: number | string) => css`
+  width: ${typeof width === 'number' ? `${width}px` : width};
+  height: ${typeof height === 'number' ? `${height}px` : height};
+  color: inherit; /* Kế thừa màu từ cha */
+  fill: currentColor; /* SVG sẽ nhận màu từ color */
+  display: block;
 `;

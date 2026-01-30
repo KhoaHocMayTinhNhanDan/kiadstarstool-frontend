@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import ForgotPasswordForm, { type ForgotPasswordFormData } from './ForgotPasswordForm.organism';
 import { Box, Text } from '../../../atoms';
+import { I18nProvider } from '../../../providers/I18nProvider';
+import { LanguageSelector } from '../../../molecules/LanguageSelector/LanguageSelector.molecule';
 
 export const ForgotPasswordFormPlayground = () => {
   const [loading, setLoading] = useState(false);
@@ -23,30 +25,36 @@ export const ForgotPasswordFormPlayground = () => {
   };
 
   return (
-    <Box style={{ padding: '40px', backgroundColor: '#f4f4f5', minHeight: '100vh' }}>
-      <Text as="h1" size="3xl" weight="bold" style={{ marginBottom: '40px', textAlign: 'center' }}>
-        🔐 ForgotPasswordForm Playground
-      </Text>
+    <I18nProvider>
+      <Box style={{ padding: '40px', backgroundColor: '#f4f4f5', minHeight: '100vh', position: 'relative' }}>
+        <Box position="absolute" top="20px" right="20px">
+          <LanguageSelector />
+        </Box>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px', justifyContent: 'center' }}>
-        
-        <div style={{ width: '100%', maxWidth: '400px' }}>
-          <Text as="h3" size="xl" weight="semibold" style={{ marginBottom: '16px', textAlign: 'center' }}>
-            Interactive Demo
-          </Text>
-          <Text size="sm" style={{ marginBottom: '16px', textAlign: 'center', color: '#666' }}>
-            (Nhập "error" vào email để test lỗi)
-          </Text>
+        <Text as="h1" size="3xl" weight="bold" style={{ marginBottom: '40px', textAlign: 'center' }}>
+          🔐 ForgotPasswordForm Playground
+        </Text>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px', justifyContent: 'center' }}>
           
-          <ForgotPasswordForm 
-            onSubmit={handleSubmit}
-            isLoading={loading}
-            errorMessage={error}
-            onBackToLogin={() => alert('Navigate back to login')}
-          />
-        </div>
+          <div style={{ width: '100%', maxWidth: '400px' }}>
+            <Text as="h3" size="xl" weight="semibold" style={{ marginBottom: '16px', textAlign: 'center' }}>
+              Interactive Demo
+            </Text>
+            <Text size="sm" style={{ marginBottom: '16px', textAlign: 'center', color: '#666' }}>
+              (Nhập "error" vào email để test lỗi)
+            </Text>
+            
+            <ForgotPasswordForm 
+              onSubmit={handleSubmit}
+              isLoading={loading}
+              errorMessage={error}
+              onBackToLogin={() => alert('Navigate back to login')}
+            />
+          </div>
 
-      </div>
-    </Box>
+        </div>
+      </Box>
+    </I18nProvider>
   );
 };

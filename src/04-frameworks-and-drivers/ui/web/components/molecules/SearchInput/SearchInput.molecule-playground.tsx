@@ -2,14 +2,14 @@ import { Box } from '../../atoms/Box';
 import { Text } from '../../atoms/Text';
 import { SearchInput } from './SearchInput.molecule';
 
-export const SearchInputTest = () => {
+export const SearchInputPlayground = () => {
   return (
-    <Box p="24px">
+    <Box p="lg">
       <Text as="h2" size="2xl" weight="bold" style={{ marginBottom: 24 }}>
         🔍 SearchInput Demo
       </Text>
 
-      <Box display="flex" flexDirection="column" gap="32px" maxW="400px">
+      <Box display="flex" flexDirection="column" gap="xl" maxW="400px">
         <section>
           <Text size="lg" weight="bold" style={{ marginBottom: 16 }}>Default</Text>
           <SearchInput />
@@ -17,7 +17,7 @@ export const SearchInputTest = () => {
 
         <section>
           <Text size="lg" weight="bold" style={{ marginBottom: 16 }}>Sizes</Text>
-          <Box display="flex" flexDirection="column" gap="16px">
+          <Box display="flex" flexDirection="column" gap="md">
             <SearchInput size="sm" placeholder="Small search..." />
             <SearchInput size="md" placeholder="Medium search..." />
             <SearchInput size="lg" placeholder="Large search..." />

@@ -1,84 +1,270 @@
+/** @jsxImportSource @emotion/react */
+import React from 'react';
 import { Button } from './Button';
+import { Box } from '../Box/Box';
+import { Text } from '../Text/Text';
 import { Icon } from '../Icon/Icon';
 
-const PlusIcon = <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>;
+const StarIcon = (
+  <svg viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+  </svg>
+);
 
-export const ButtonTest = () => {
+const LongText =
+  'This is a very very long button label to test overflow behavior';
+
+export const ButtonPlayground = () => {
   return (
-    <div style={{ padding: '24px', fontFamily: 'system-ui' }}>
-      <h2 style={{ marginBottom: '32px', color: '#1a202c', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
-        🔘 Button Component Demo
-      </h2>
+    <Box p="lg">
+      <Text as="h2" size="2xl" weight="bold" sx={{ mb: '24px' }}>
+        🔘 Button – Production Contract Demo
+      </Text>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        
+      <Box display="flex" flexDirection="column" gap="2xl">
+
+        {/* ================================================= */}
+        {/* VARIANTS */}
+        {/* ================================================= */}
         <section>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4a5568' }}>Variants</h3>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <Text weight="semibold" sx={{ mb: '8px' }}>
+            Variants
+          </Text>
+          <Box display="flex" gap="md" flexWrap="wrap">
             <Button variant="primary">Primary</Button>
             <Button variant="secondary">Secondary</Button>
             <Button variant="outline">Outline</Button>
             <Button variant="ghost">Ghost</Button>
-            <Button variant="danger">Danger</Button>
-            <Button variant="link">Link Button</Button>
-          </div>
+          </Box>
         </section>
 
+        {/* ================================================= */}
+        {/* SIZES – TYPOGRAPHY SCALE */}
+        {/* ================================================= */}
         <section>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4a5568' }}>Sizes</h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Button size="sm">Small</Button>
-            <Button size="md">Medium</Button>
-            <Button size="lg">Large</Button>
-            <Button size="icon"><Icon size="sm">{PlusIcon}</Icon></Button>
-          </div>
+          <Text weight="semibold" sx={{ mb: '8px' }}>
+            Sizes (text & icon scale together)
+          </Text>
+          <Text size="sm" color="TEXT_MUTED" sx={{ mb: '12px' }}>
+            Button controls font-size. Icon uses 1em.
+          </Text>
+          <Box display="flex" gap="md" alignItems="center" flexWrap="wrap">
+            <Button size="xs">
+              <Icon>{StarIcon}</Icon>
+              XS
+            </Button>
+            <Button size="sm">
+              <Icon>{StarIcon}</Icon>
+              SM
+            </Button>
+            <Button size="md">
+              <Icon>{StarIcon}</Icon>
+              MD
+            </Button>
+            <Button size="lg">
+              <Icon>{StarIcon}</Icon>
+              LG
+            </Button>
+            <Button size="xl">
+              <Icon>{StarIcon}</Icon>
+              XL
+            </Button>
+          </Box>
         </section>
 
+        {/* ================================================= */}
+        {/* ICON AS CHILDREN (ORDER MATTERS) */}
+        {/* ================================================= */}
         <section>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4a5568' }}>States</h3>
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <Text weight="semibold" sx={{ mb: '8px' }}>
+            Icon as children (order matters)
+          </Text>
+          <Text size="sm" color="TEXT_MUTED" sx={{ mb: '12px' }}>
+            Button does not know left/right icon – layout is children-driven.
+          </Text>
+          <Box display="flex" gap="md" flexWrap="wrap">
+            <Button>
+              <Icon>{StarIcon}</Icon>
+              Left icon
+            </Button>
+
+            <Button>
+              Right icon
+              <Icon>{StarIcon}</Icon>
+            </Button>
+
+            <Button>
+              <Icon>{StarIcon}</Icon>
+              Both
+              <Icon>{StarIcon}</Icon>
+            </Button>
+          </Box>
+        </section>
+
+        {/* ================================================= */}
+        {/* ICON ONLY */}
+        {/* ================================================= */}
+        <section>
+          <Text weight="semibold" sx={{ mb: '8px' }}>
+            Icon only
+          </Text>
+          <Text size="sm" color="TEXT_MUTED" sx={{ mb: '12px' }}>
+            aria-label required. Square hit-area recommended.
+          </Text>
+          <Box display="flex" gap="md">
+            <Button
+              aria-label="Favorite"
+              sx={{ aspectRatio: '1 / 1', padding: 0 }}
+            >
+              <Icon>{StarIcon}</Icon>
+            </Button>
+
+            <Button
+              size="lg"
+              aria-label="Favorite large"
+              sx={{ aspectRatio: '1 / 1', padding: 0 }}
+            >
+              <Icon>{StarIcon}</Icon>
+            </Button>
+          </Box>
+        </section>
+
+        {/* ================================================= */}
+        {/* STATES */}
+        {/* ================================================= */}
+        <section>
+          <Text weight="semibold" sx={{ mb: '8px' }}>
+            States
+          </Text>
+          <Box display="flex" gap="md" flexWrap="wrap">
+            <Button isLoading>Loading</Button>
+            <Button isLoading size="lg">
+              Loading LG
+            </Button>
             <Button disabled>Disabled</Button>
-            <Button loading>Loading</Button>
-            <Button variant="outline" loading>Loading</Button>
-          </div>
+            <Button disabled>
+              <Icon>{StarIcon}</Icon>
+              Disabled + Icon
+            </Button>
+          </Box>
         </section>
 
+        {/* ================================================= */}
+        {/* FULL WIDTH */}
+        {/* ================================================= */}
         <section>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4a5568' }}>With Icons</h3>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <Button leftIcon={<Icon size="sm">{PlusIcon}</Icon>}>Create New</Button>
-            <Button variant="outline" leftIcon={<Icon size="sm">{PlusIcon}</Icon>}>Add Item</Button>
-          </div>
+          <Text weight="semibold" sx={{ mb: '8px' }}>
+            Full width
+          </Text>
+          <Box display="grid" gap="md" maxWidth="400px">
+            <Button fullWidth>Full width</Button>
+            <Button fullWidth size="lg">
+              <Icon>{StarIcon}</Icon>
+              Full width + Icon
+            </Button>
+          </Box>
         </section>
 
+        {/* ================================================= */}
+        {/* LONG TEXT – LIMIT */}
+        {/* ================================================= */}
         <section>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4a5568' }}>Full Width</h3>
-          <div style={{ maxWidth: '300px' }}>
-            <Button fullWidth>Full Width Button</Button>
-          </div>
+          <Text weight="semibold" sx={{ mb: '8px' }}>
+            Long text (no truncate by default)
+          </Text>
+          <Text size="sm" color="TEXT_MUTED" sx={{ mb: '12px' }}>
+            Truncation is a consumer decision, not Button’s responsibility.
+          </Text>
+          <Box maxWidth="300px">
+            <Button>{LongText}</Button>
+          </Box>
         </section>
 
-        {/* Real-world Examples */}
+        {/* ================================================= */}
+        {/* POLYMORPHIC */}
+        {/* ================================================= */}
         <section>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4a5568' }}>Real-world Examples</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '24px', border: '1px solid #e2e8f0', borderRadius: '8px', backgroundColor: 'white', maxWidth: '500px' }}>
-            
-            {/* Form Actions */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-              <Button variant="ghost">Cancel</Button>
-              <Button>Save Changes</Button>
-            </div>
-
-            {/* Toolbar */}
-            <div style={{ display: 'flex', gap: '8px', padding: '8px', backgroundColor: '#f7fafc', borderRadius: '6px' }}>
-              <Button size="icon" variant="ghost"><Icon size="sm">{PlusIcon}</Icon></Button>
-              <Button size="icon" variant="ghost"><Icon size="sm">{PlusIcon}</Icon></Button>
-              <div style={{ width: '1px', backgroundColor: '#e2e8f0', margin: '0 4px' }} />
-              <Button size="sm" variant="secondary">Export</Button>
-            </div>
-          </div>
+          <Text weight="semibold" sx={{ mb: '8px' }}>
+            Polymorphic usage
+          </Text>
+          <Box display="flex" gap="md">
+            <Button as="a" href="https://example.com">
+              Link Button
+            </Button>
+            <Button as="div" role="button">
+              Div Button
+            </Button>
+          </Box>
         </section>
-      </div>
-    </div>
+
+        {/* ================================================= */}
+        {/* ICON AS CHILDREN (ORDER MATTERS) */}
+        {/* ================================================= */}
+        <section>
+          <Text weight="semibold" sx={{ mb: '8px' }}>
+            Icon as children (order matters)
+          </Text>
+          <Text size="sm" color="TEXT_MUTED" sx={{ mb: '12px' }}>
+            Button does not know left/right icon – layout is children-driven.
+          </Text>
+          <Box display="flex" gap="md" flexWrap="wrap">
+            <Button leftIcon={<Icon>{StarIcon}</Icon>}>Left icon</Button>
+
+            <Button rightIcon={<Icon>{StarIcon}</Icon>}>Right icon</Button>
+
+            <Button leftIcon={<Icon>{StarIcon}</Icon>} rightIcon={<Icon>{StarIcon}</Icon>}>Both</Button>
+          </Box>
+        </section>
+
+        {/* ================================================= */}
+        {/* INTENTS */}
+        {/* ================================================= */}
+        <section>
+          <Text weight="semibold" sx={{ mb: '8px' }}>
+            Intents (semantic variants)
+          </Text>
+          <Text size="sm" color="TEXT_MUTED" sx={{ mb: '12px' }}>
+            Describes the button's purpose. Overrides color for filled variants.
+          </Text>
+          <Box display="flex" gap="md" flexWrap="wrap">
+            <Button intent="default">Default</Button>
+            <Button intent="success">Success</Button>
+            <Button intent="danger">Danger</Button>
+            <Button intent="warning">Warning</Button>
+          </Box>
+        </section>
+
+        {/* ================================================= */}
+        {/* SX OVERRIDE – POWER & DANGER */}
+        {/* ================================================= */}
+        <section>
+          <Text weight="semibold" sx={{ mb: '8px' }}>
+            SX override (power & danger)
+          </Text>
+          <Box display="flex" gap="md">
+            <Button
+              sx={{
+                borderRadius: '999px',
+                fontSize: '20px',
+                paddingInline: '32px',
+              }}
+            >
+              Custom Shape
+            </Button>
+
+            <Button
+              sx={{
+                background: 'black',
+                color: 'lime',
+                '&:hover': { background: '#222' },
+              }}
+            >
+              Hacker Mode
+            </Button>
+          </Box>
+        </section>
+
+      </Box>
+    </Box>
   );
 };

@@ -1,64 +1,70 @@
 import { css } from '@emotion/react';
-import { COLORS, RADIUS, SPACING, TRANSITIONS } from '../00-core/tokens-constants';
-import { type TextareaSize } from './Textarea';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, TRANSITIONS } from '../00-core/tokens-constants';
+import type { TextareaProps } from './Textarea.types';
 
-const SIZES = {
-  sm: { padding: '8px 12px', fontSize: '14px' },
-  md: { padding: '12px 16px', fontSize: '16px' },
-  lg: { padding: '16px 20px', fontSize: '18px' },
-};
-
-export const getTextareaWrapperStyles = (fullWidth: boolean) => css`
+/** 🔥 GRID + FLEX SAFE WRAPPER (Giống Input) */
+export const textareaWrapper = css`
   display: flex;
   flex-direction: column;
-  width: ${fullWidth ? '100%' : 'auto'};
+  width: 100%;
+  min-width: 0;
+  position: relative;
 `;
 
-export const getTextareaStyles = (size: TextareaSize, error: boolean, resize: 'none' | 'vertical' | 'horizontal' | 'both') => {
-  const sizeConfig = SIZES[size];
+interface TextareaStyleProps {
+  error?: boolean;
+  disabled?: boolean;
+  readOnly?: boolean;
+  resize?: TextareaProps['resize'];
+}
 
-  return css`
-    width: 100%;
-    min-height: 80px;
-    padding: ${sizeConfig.padding};
-    
-    font-family: inherit;
-    font-size: ${sizeConfig.fontSize};
-    color: ${COLORS.TEXT};
-    background-color: ${COLORS.WHITE};
-    
-    border: 1px solid ${error ? COLORS.DANGER : COLORS.NEUTRAL_RING};
-    border-radius: ${RADIUS.md};
-    
-    outline: none;
-    transition: border-color ${TRANSITIONS.fast}, box-shadow ${TRANSITIONS.fast};
-    resize: ${resize};
+export const getTextareaStyles = ({ error, disabled, readOnly, resize = 'vertical' }: TextareaStyleProps) => css`
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  
+  padding: ${SPACING.md};
+  font-family: inherit;
+  font-size: ${FONT_SIZES.sm};
+  color: ${COLORS.TEXT};
+  background-color: ${COLORS.WHITE};
+  
+  border: 1px solid ${error ? COLORS.DANGER : COLORS.NEUTRAL_LIGHT};
+  border-radius: ${RADIUS.md};
+  
+  outline: none;
+  transition: all ${TRANSITIONS.fast};
+  resize: ${resize};
+  min-height: 80px;
 
-    &::placeholder {
-      color: ${COLORS.SECONDARY};
-      opacity: 0.7;
-    }
+  &::placeholder {
+    color: ${COLORS.SECONDARY};
+  }
 
-    &:hover:not(:disabled) {
-      border-color: ${error ? COLORS.DANGER : COLORS.PRIMARY};
-    }
+  &:hover:not(:disabled):not(:read-only) {
+    border-color: ${error ? COLORS.DANGER_DARK : COLORS.PRIMARY_LIGHT};
+  }
 
-    &:focus:not(:disabled) {
-      border-color: ${error ? COLORS.DANGER : COLORS.PRIMARY};
-      box-shadow: 0 0 0 3px ${error ? COLORS.DANGER_LIGHT : COLORS.PRIMARY_LIGHT};
-    }
+  &:focus:not(:disabled):not(:read-only) {
+    border-color: ${error ? COLORS.DANGER : COLORS.PRIMARY};
+    box-shadow: 0 0 0 2px ${error ? COLORS.DANGER_LIGHT : COLORS.PRIMARY_LIGHT};
+  }
 
-    &:disabled {
-      background-color: ${COLORS.NEUTRAL_LIGHT};
-      color: ${COLORS.SECONDARY};
-      cursor: not-allowed;
-      border-color: ${COLORS.NEUTRAL_RING};
-    }
-  `;
-};
+  &:disabled {
+    background-color: ${COLORS.LIGHT};
+    color: ${COLORS.SECONDARY};
+    cursor: not-allowed;
+    border-color: ${COLORS.NEUTRAL_LIGHT};
+  }
 
-export const getErrorMessageStyles = () => css`
+  &:read-only {
+    background-color: ${COLORS.NEUTRAL_LIGHT};
+    cursor: default;
+  }
+`;
+
+export const errorTextStyles = css`
   margin-top: ${SPACING.xs};
+  font-size: ${FONT_SIZES.xs};
   color: ${COLORS.DANGER};
-  font-size: 12px;
 `;

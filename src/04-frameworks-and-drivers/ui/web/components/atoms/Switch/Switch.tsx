@@ -1,30 +1,31 @@
-// src/04-frameworks-and-drivers/ui/web/components/atoms/Switch/Switch.tsx
 /** @jsxImportSource @emotion/react */
 import React from 'react';
 import * as SwitchPrimitive from '@radix-ui/react-switch';
-import { getSwitchRootStyles, getSwitchThumbStyles } from './Switch.styles';
+import { getSwitchRootStyles, getSwitchThumbStyles, switchWrapper, errorTextStyles } from './Switch.styles';
+import type { SwitchProps } from './Switch.types';
 
-export type SwitchSize = 'sm' | 'md' | 'lg';
-export type SwitchVariant = 'primary' | 'success' | 'danger' | 'neutral';
+export const Switch = React.forwardRef<React.ElementRef<typeof SwitchPrimitive.Root>, SwitchProps>(
+  ({ size = 'md', error, sx, className, ...props }, ref) => {
+    const hasError = Boolean(error);
 
-export interface SwitchProps extends React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root> {
-  size?: SwitchSize;
-  variant?: SwitchVariant;
-}
+    return (
+      <div css={switchWrapper} className={className}>
+        <SwitchPrimitive.Root
+          ref={ref} // Sửa lại để nhận ref
+          css={[getSwitchRootStyles({ size, error: hasError }), sx]}
+          {...props}
+        >
+          <SwitchPrimitive.Thumb css={getSwitchThumbStyles(size)} />
+        </SwitchPrimitive.Root>
 
-export const Switch = ({ 
-  size = 'md', 
-  variant = 'primary', 
-  className,
-  ...props 
-}: SwitchProps) => {
-  return (
-    <SwitchPrimitive.Root
-      css={getSwitchRootStyles(size, variant)}
-      className={className}
-      {...props}
-    >
-      <SwitchPrimitive.Thumb css={getSwitchThumbStyles(size)} />
-    </SwitchPrimitive.Root>
-  );
-};
+        {typeof error === 'string' && (
+          <div css={errorTextStyles} role="alert">
+            {error}
+          </div>
+        )}
+      </div>
+    );
+  }
+);
+
+Switch.displayName = 'Switch';

@@ -1,74 +1,61 @@
-import { Chip } from '../Chip/Chip';
+import { Chip } from './Chip';
+import { Box } from '../Box/Box';
+import { Text } from '../Text/Text';
+import { Icon } from '../Icon/Icon';
 
-export const ChipTest = () => {
+const UserIcon = (
+  <svg viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+  </svg>
+);
+
+export const ChipPlayground = () => {
   return (
-    <div style={{ padding: '24px', fontFamily: 'system-ui' }}>
-      <h2 style={{ marginBottom: '32px', color: '#1a202c', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
-        🏷️ Chip Component Demo
-      </h2>
+    <Box p="lg">
+      <Text as="h2" size="2xl" weight="bold" sx={{ marginBottom: '24px' }}>
+        🏷️ Chip Demo
+      </Text>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        <section>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4a5568' }}>Variants</h3>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <Chip label="Filled" variant="filled" color="primary" />
-            <Chip label="Outlined" variant="outlined" color="primary" />
-            <Chip label="Ghost" variant="ghost" color="primary" />
-          </div>
-        </section>
+      <Box display="flex" flexDirection="column" gap="xl">
+        
+        <Box>
+          <Box mb="sm"><Text weight="semibold">Variants</Text></Box>
+          <Box display="flex" gap="md" flexWrap="wrap">
+            <Chip label="Filled" variant="filled" />
+            <Chip label="Outlined" variant="outlined" />
+            <Chip label="Ghost" variant="ghost" />
+          </Box>
+        </Box>
 
-        <section>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4a5568' }}>Colors</h3>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <Chip label="Neutral" color="neutral" />
+        <Box>
+          <Box mb="sm"><Text weight="semibold">Colors</Text></Box>
+          <Box display="flex" gap="md" flexWrap="wrap">
             <Chip label="Primary" color="primary" />
             <Chip label="Success" color="success" />
+            <Chip label="Warning" color="warning" />
             <Chip label="Danger" color="danger" />
-          </div>
-        </section>
+            <Chip label="Neutral" color="neutral" />
+          </Box>
+        </Box>
 
-        <section>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4a5568' }}>Features</h3>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <Chip label="Deletable" onDelete={() => alert('Deleted!')} />
-            <Chip label="Clickable" onClick={() => alert('Clicked!')} color="primary" variant="outlined" />
-            <Chip 
-              label="With Icon" 
-              icon={<span>🔥</span>} 
-              color="danger" 
-              variant="ghost" 
-            />
-          </div>
-        </section>
+        <Box>
+          <Box mb="sm"><Text weight="semibold">With Icon & Delete</Text></Box>
+          <Box display="flex" gap="md" flexWrap="wrap">
+            <Chip label="User" icon={<Icon>{UserIcon}</Icon>} />
+            <Chip label="Deletable" onDelete={() => alert('Delete clicked')} />
+            <Chip label="Clickable" onClick={() => alert('Chip clicked')} />
+          </Box>
+        </Box>
 
-        {/* Real-world Examples */}
-        <section>
-          <h3 style={{ marginBottom: '16px', fontSize: '16px', color: '#4a5568' }}>Real-world Examples</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', border: '1px solid #e2e8f0', borderRadius: '8px', backgroundColor: 'white', maxWidth: '400px' }}>
-            
-            {/* Status Indicators */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '14px', color: '#2d3748' }}>Order #1234</span>
-              <Chip label="Processing" color="warning" variant="ghost" />
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '14px', color: '#2d3748' }}>Order #1235</span>
-              <Chip label="Delivered" color="success" variant="ghost" />
-            </div>
+        <Box>
+          <Box mb="sm"><Text weight="semibold">Custom Style (sx)</Text></Box>
+          <Box display="flex" gap="md">
+            <Chip label="Custom" sx={{ backgroundColor: '#8b5cf6', color: 'white', fontWeight: 'bold' }} />
+            <Chip label="Rounded" variant="outlined" sx={{ borderRadius: '4px', borderStyle: 'dashed' }} />
+          </Box>
+        </Box>
 
-            {/* Filter Tags */}
-            <div>
-              <div style={{ fontSize: '12px', color: '#718096', marginBottom: '8px' }}>Active Filters:</div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <Chip label="Size: Medium" onDelete={() => {}} />
-                <Chip label="Color: Blue" onDelete={() => {}} />
-                <Chip label="Price: $0-$50" onDelete={() => {}} />
-                <Chip label="Clear all" variant="ghost" color="danger" onClick={() => {}} />
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
