@@ -1,6 +1,7 @@
 // src/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver.ts
 
-import type { UserAuth } from '@/01-entities/users/UserAuth.entity';
+import type { UserAuth } from '@/01-entities/auth/AuthIdentity.entity';
+
 
 /**
  * Device Interface for Authentication

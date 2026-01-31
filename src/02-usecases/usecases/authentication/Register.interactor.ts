@@ -1,9 +1,9 @@
 // src/02-usecases/usecases/authentication/Register.interactor.ts
 
-import type { IAuthRepository } from '../../ports/input/IAuthRepository';
-import type { IAuthPresenter } from '../../ports/output/IAuthPresenter';
+import type { IAuthRepository } from '../../ports/repositories/IAuthRepository';
+import type { IAuthPresenter } from '../../ports/presenters/IAuthPresenter';
 import { UserAuth } from '@/01-entities/business/users/UserAuth.entity';
-import { AuthError } from '@/shared/errors/AuthError';
+import { AuthError } from '@/01-entities/errors/AuthError';
 
 export interface RegisterPayload {
   email: string;

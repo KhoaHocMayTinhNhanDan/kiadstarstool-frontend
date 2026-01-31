@@ -1,5 +1,5 @@
 // src/03-interface-adapters/presenters/auth/Auth.presenter.ts
-import type { IAuthPresenter } from '@/02-usecases/ports/output/IAuthPresenter'
+import type { IAuthPresenter } from '@/02-usecases/ports/presenters/IAuthPresenter'
 import type { UserAuth } from '@/01-entities/business/users/UserAuth.entity'
 import type { AuthViewModel } from './Auth.viewmodel'
 

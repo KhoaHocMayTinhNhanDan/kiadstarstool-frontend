@@ -1,7 +1,7 @@
 // src/02-usecases/usecases/authentication/Logout.interactor.ts
 
-import type { IAuthRepository } from '../../ports/input/IAuthRepository';
-import type { IAuthPresenter } from '../../ports/output/IAuthPresenter';
+import type { IAuthRepository } from '../../ports/repositories/IAuthRepository';
+import type { IAuthPresenter } from '../../ports/presenters/IAuthPresenter';
 
 export class LogoutInteractor {
   private readonly authRepository: IAuthRepository;
