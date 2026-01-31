@@ -15,6 +15,12 @@ const heightMap: Record<InputSize, string> = {
   lg: '48px',
 };
 
+const fontSizeMap: Record<InputSize, string> = {
+  sm: '0.875rem',  // 14px
+  md: '1rem',      // 16px
+  lg: '1.125rem',  // 18px
+};
+
 export function inputStyles({
   size,
   error,
@@ -39,7 +45,7 @@ export function inputStyles({
     padding-left: ${hasLeftIcon ? '36px' : SPACING.md};
     padding-right: ${hasRightIcon ? '36px' : SPACING.md};
 
-    font-size: ${FONT_SIZES.sm};
+    font-size: ${fontSizeMap[size]};
     color: ${COLORS.TEXT};
     background-color: ${COLORS.WHITE};
 

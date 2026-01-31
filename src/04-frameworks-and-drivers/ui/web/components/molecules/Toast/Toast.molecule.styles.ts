@@ -1,72 +1,71 @@
-import { css, keyframes } from '@emotion/react';
-import { COLORS, RADIUS, SHADOWS, TRANSITIONS } from '../../atoms/00-core/tokens-constants';
+import { css } from '@emotion/react';
+import type { ToastVariant } from './Toast.types';
 
-const hide = keyframes`
-  from { opacity: 1; }
-  to { opacity: 0; }
+export const container = (variant: ToastVariant) => {
+  const colors = {
+    success: { bg: '#f0fdf4', border: '#bbf7d0', text: '#166534' },
+    info: { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af' },
+    warning: { bg: '#fffbeb', border: '#fde68a', text: '#92400e' },
+    error: { bg: '#fef2f2', border: '#fecaca', text: '#991b1b' },
+  };
+
+  const color = colors[variant];
+
+  return css`
+    display: flex;
+    align-items: flex-start;
+    padding: 16px;
+    background-color: ${color.bg};
+    border: 1px solid ${color.border};
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    min-width: 300px;
+    max-width: 400px;
+    color: ${color.text};
+    animation: slideIn 0.3s ease-out;
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  `;
+};
+
+export const content = css`
+  flex: 1;
+  margin-left: 12px;
+  margin-right: 12px;
 `;
 
-const slideIn = keyframes`
-  from { transform: translateX(calc(100% + 32px)); }
-  to { transform: translateX(0); }
+export const title = css`
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
 `;
 
-const swipeOut = keyframes`
-  from { transform: translateX(var(--radix-toast-swipe-end-x)); }
-  to { transform: translateX(calc(100% + 32px)); }
+export const description = css`
+  font-size: 14px;
+  opacity: 0.9;
+  line-height: 1.4;
 `;
 
-export const viewportStyles = css`
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 32px;
-  gap: 10px;
-  width: 390px;
-  max-width: 100vw;
-  margin: 0;
-  list-style: none;
-  z-index: 2000;
-  outline: none;
-`;
+export const closeButton = css`
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  margin: -4px -4px 0 0;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  color: currentColor;
 
-export const getRootStyles = (variant: 'success' | 'error' | 'info' | 'warning' | 'default' = 'default') => css`
-  background-color: ${COLORS.WHITE};
-  border-radius: ${RADIUS.md};
-  border: 1px solid ${COLORS.NEUTRAL_LIGHT};
-  box-shadow: ${SHADOWS.lg};
-  padding: 16px;
-  display: grid;
-  grid-template-areas: 'title action' 'description action';
-  grid-template-columns: auto max-content;
-  column-gap: 16px;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-  transition: all ${TRANSITIONS.fast};
-
-  /* Decorative left border strip */
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background-color: ${
-      variant === 'success' ? COLORS.SUCCESS :
-      variant === 'error' ? COLORS.DANGER :
-      variant === 'warning' ? COLORS.WARNING :
-      variant === 'info' ? COLORS.INFO :
-      COLORS.PRIMARY
-    };
+  &:hover {
+    opacity: 1;
   }
-
-  &[data-state='open'] { animation: ${slideIn} 150ms cubic-bezier(0.16, 1, 0.3, 1); }
-  &[data-state='closed'] { animation: ${hide} 100ms ease-in; }
-  &[data-swipe='move'] { transform: translateX(var(--radix-toast-swipe-move-x)); }
-  &[data-swipe='cancel'] { transform: translateX(0); transition: transform 200ms ease-out; }
-  &[data-swipe='end'] { animation: ${swipeOut} 100ms ease-out; }
 `;

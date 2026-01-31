@@ -1,9 +1,2 @@
-export { 
-  ToastProvider,
-  ToastViewport,
-  Toast,
-  ToastTitle,
-  ToastDescription,
-  ToastAction,
-  ToastClose
-} from '../Toast/Toast.molecule';
+export * from './Toast.molecule';
+export * from './Toast.types';

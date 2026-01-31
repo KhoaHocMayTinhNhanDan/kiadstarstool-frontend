@@ -66,18 +66,45 @@ export const UserProfileCard = ({
         )}
 
         {/* Actions */}
-        <Box display="flex" gap="sm" width="100%" justifyContent="center">
-          {onFollow && (
-            <Button
-              fullWidth
-              variant={isFollowing ? 'outline' : 'primary'}
-              onClick={onFollow}
+        {(() => {
+          // Tách actions thành mảng các element riêng biệt
+          const actionNodes = React.Children.toArray(actions);
+          const hasFollow = !!onFollow;
+          const totalButtons = (hasFollow ? 1 : 0) + actionNodes.length;
+
+          if (totalButtons === 0) return null;
+
+          return (
+            <Box 
+              display="grid" 
+              gap="sm" 
+              width="100%" 
+              sx={{ 
+                // Layout 2 cột cố định (50% - 50%). Sử dụng minmax(0, 1fr) để tránh vỡ layout khi text quá dài.
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                // Nếu tổng số nút là lẻ, nút cuối cùng sẽ chiếm trọn 2 cột (full width)
+                ...(totalButtons % 2 !== 0 && {
+                  '& > :last-child': {
+                    gridColumn: '1 / -1',
+                  },
+                }),
+              }}
             >
-              {isFollowing ? 'Following' : 'Follow'}
-            </Button>
-          )}
-          {actions}
-        </Box>
+              {hasFollow && (
+                <Button
+                  variant={isFollowing ? 'outline' : 'primary'}
+                  onClick={onFollow}
+                  fullWidth
+                >
+                  {isFollowing ? 'Following' : 'Follow'}
+                </Button>
+              )}
+              {/* Render trực tiếp các nút con để CSS selector hoạt động chính xác.
+                  Các Button được truyền vào đã có prop fullWidth. */}
+              {actionNodes}
+            </Box>
+          );
+        })()}
       </div>
     </Card>
   );

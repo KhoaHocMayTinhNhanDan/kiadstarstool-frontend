@@ -170,28 +170,38 @@ export class FirebaseAuthDriver implements IAuthDriver {
    * ===================== */
 
   onAuthStateChanged(callback: (user: UserAuth | null) => void): () => void {
+    let unsubscribe: (() => void) | undefined;
+    let isUnsubscribed = false;
+
     // FIXED: Dùng dynamic import thay vì require
     import('firebase/auth').then(({ onAuthStateChanged: fbOnAuthStateChanged }) => {
-      return fbOnAuthStateChanged(auth, async (firebaseUser) => {
+      if (isUnsubscribed) return;
+
+      unsubscribe = fbOnAuthStateChanged(auth, async (firebaseUser) => {
+        if (isUnsubscribed) return;
+
         if (firebaseUser) {
           try {
             const userAuth = await this.mapFirebaseUser(firebaseUser);
-            callback(userAuth);
+            if (!isUnsubscribed) callback(userAuth);
           } catch (error) {
             console.error('Error mapping Firebase user:', error);
-            callback(null);
+            if (!isUnsubscribed) callback(null);
           }
         } else {
-          callback(null);
+          if (!isUnsubscribed) callback(null);
         }
       });
     }).catch(error => {
       console.error('Failed to import firebase/auth for onAuthStateChanged:', error);
     });
 
-    // Return dummy unsubscribe function
+    // Return actual unsubscribe wrapper
     return () => {
-      console.log('Unsubscribe from auth state changes');
+      isUnsubscribed = true;
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }
 
@@ -206,7 +216,7 @@ export class FirebaseAuthDriver implements IAuthDriver {
 
     try {
       // Get custom claims
-      const token = await firebaseUser.getIdTokenResult(true); // force refresh
+      const token = await firebaseUser.getIdTokenResult(); // Don't force refresh every time
       const claims = token.claims || {};
       
       // Extract roles (default to teacher)

@@ -7,6 +7,8 @@ export type ButtonVariant =
   | 'secondary'
   | 'outline'
   | 'ghost';
+    'danger';
+  
 
 export type ButtonIntent = 'default' | 'success' | 'danger' | 'warning';
 

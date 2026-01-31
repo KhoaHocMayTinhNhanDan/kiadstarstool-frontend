@@ -4,50 +4,44 @@ import { useState, useEffect } from 'react'
 import { AppContext } from '@/00-core/app-context'
 import { useI18n } from '@/shared/i18n'
 import { SUPPORTED_LOCALES } from '@/shared/i18n/i18n.store'
+import { useToast } from '../../hooks/useToast'
 
 export function LoginPageTest() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
   const [currentUser, setCurrentUser] = useState<any>(null)
 
   const { t, locale, setLocale } = useI18n()
+  const { toast } = useToast()
 
-  // Load current user on mount
+  // CẢI TIẾN: Sử dụng onAuthStateChanged để lắng nghe thay đổi trạng thái (Reactive)
+  // Thay vì gọi loadCurrentUser thủ công, ta để Driver tự đẩy dữ liệu về.
   useEffect(() => {
-    loadCurrentUser()
-  }, [])
-
-  const loadCurrentUser = async () => {
-    try {
-      const authDriver = AppContext.getAuthDriver()
-      const user = await authDriver.getCurrentUser()
+    const authDriver = AppContext.getAuthDriver()
+    const unsubscribe = authDriver.onAuthStateChanged((user) => {
+      console.log('🔄 Auth State Updated (from Driver):', user?.email || 'Logged out')
       setCurrentUser(user)
-    } catch (err) {
-      console.log('No user logged in')
-    }
-  }
+    })
+
+    return () => unsubscribe()
+  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError(null)
-    setSuccess(false)
 
     try {
       const authController = AppContext.getAuthController()
       await authController.login({ email, password })
       
-      // Reload current user after successful login
-      await loadCurrentUser()
-      setSuccess(true)
+      // Không cần load lại thủ công, listener ở trên sẽ tự cập nhật UI
+      toast.success('Login successful!')
       setEmail('')
       setPassword('')
       
     } catch (err: any) {
-      setError(err.message || 'Login failed')
+      toast.error(err.message || 'Login failed')
     } finally {
       setLoading(false)
     }
@@ -57,10 +51,10 @@ export function LoginPageTest() {
     try {
       const authController = AppContext.getAuthController()
       await authController.logout()
-      setCurrentUser(null)
-      setSuccess(false)
+      // Không cần set null thủ công, listener sẽ xử lý
+      toast.success('Logged out successfully')
     } catch (err: any) {
-      setError(err.message || 'Logout failed')
+      toast.error(err.message || 'Logout failed')
     }
   }
 
@@ -69,8 +63,16 @@ export function LoginPageTest() {
     setPassword(testPassword)
   }
 
-  const handleRestoreSession = async () => {
-    await loadCurrentUser()
+  const handleManualCheck = async () => {
+    const authDriver = AppContext.getAuthDriver()
+    const user = await authDriver.getCurrentUser()
+    console.log('🕵️ Manual Check Result:', user)
+    setCurrentUser(user)
+    if (user) {
+      toast.success(`Session active: ${user.email}`)
+    } else {
+      toast.info('No active session found')
+    }
   }
 
   return (
@@ -274,7 +276,7 @@ export function LoginPageTest() {
       {/* Action Buttons */}
       <div style={{ marginTop: 24, display: 'flex', gap: 8 }}>
         <button
-          onClick={handleRestoreSession}
+          onClick={handleManualCheck}
           style={{
             padding: '8px 16px',
             backgroundColor: '#673ab7',
@@ -285,7 +287,7 @@ export function LoginPageTest() {
             flex: 1
           }}
         >
-          Restore Session
+          Manual Check
         </button>
         <button
           onClick={() => console.log('AppContext:', AppContext.debug())}
@@ -302,33 +304,6 @@ export function LoginPageTest() {
           Debug Info
         </button>
       </div>
-
-      {/* Messages */}
-      {error && (
-        <div style={{ 
-          marginTop: 16, 
-          padding: 12, 
-          backgroundColor: '#ffebee',
-          color: '#c62828',
-          borderRadius: 4,
-          borderLeft: '4px solid #f44336'
-        }}>
-          ❌ Error: {error}
-        </div>
-      )}
-
-      {success && (
-        <div style={{ 
-          marginTop: 16, 
-          padding: 12, 
-          backgroundColor: '#e8f5e9',
-          color: '#2e7d32',
-          borderRadius: 4,
-          borderLeft: '4px solid #4caf50'
-        }}>
-          ✅ Login successful!
-        </div>
-      )}
 
       {/* Instructions */}
       <div style={{ 

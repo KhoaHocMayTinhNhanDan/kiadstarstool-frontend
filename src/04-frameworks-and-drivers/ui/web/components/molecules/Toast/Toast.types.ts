@@ -1,16 +1,11 @@
 import type { ReactNode } from 'react';
-import type { CSSObject } from '@emotion/react';
-import * as ToastPrimitive from '@radix-ui/react-toast';
 
-export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
+export type ToastVariant = 'success' | 'info' | 'warning' | 'error';
 
-export interface ToastProps extends ToastPrimitive.ToastProps {
-  variant?: ToastVariant;
+export interface ToastProps {
+  variant: ToastVariant;
   title?: string;
-  description?: string;
-  action?: ReactNode;
-  /**
-   * Custom styles using Emotion CSSObject
-   */
-  sx?: CSSObject;
+  children?: ReactNode;
+  onClose?: () => void;
+  className?: string;
 }

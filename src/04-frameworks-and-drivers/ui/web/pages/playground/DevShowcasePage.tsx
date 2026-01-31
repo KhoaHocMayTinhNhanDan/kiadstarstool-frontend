@@ -49,12 +49,19 @@ import { GaugeChartPlayground } from '../../components/organisms/charts/GaugeCha
 import { HeatmapChartPlayground } from './../../components/organisms/charts/HeatmapChart/HeatmapChart-playground';
 import { StackedBarChartPlayground } from '../../components/organisms/charts/StackedBarChart/StackedBarChart-playground'
 
-import { AdvancedFilterPlayground } from '../../components/organisms/forms/AdvancedFilter/AdvancedFilter.form.playground'
+import { AdvancedFilterPlayground } from '../../components/organisms/forms/AdvancedFilter/AdvancedFilter.form-playground'
 import { MultiStepFormPlayground } from '../../components/organisms/forms/MultiStepForm/MultiStepForm.playground'
 import { SearchFilterFormPlayground } from './../../components/organisms/forms/SearchFilterForm/SearchFilterForm.playground';
 
 import { LoginPageTest } from '../auth/LoginPage-test'
 import { AppContext } from '@/00-core/app-context'
+import { ErrorBoundary } from '../../components/organisms/feedback/system/ErrorBoundary'
+import { ToastProvider } from '../../components/providers/ToastProvider'
+
+
+// feedback
+import { ErrorBoundaryPlayground } from '../../components/organisms/feedback/system/ErrorBoundary/ErrorBoundary.playground'
+import { LoadingOverlayPlayground } from '../../components/organisms/feedback/system/LoadingOverlay/LoadingOverlay.playground'
 
 // Type definitions for the sidebar structure
 type ComponentItem = {
@@ -138,6 +145,10 @@ const categories: Category[] = [
       { id: 'dashboard-card', label: 'DashboardCard', component: <DashboardCardPlayground /> },
       { id: 'stats-card', label: 'StatsCard', component: <StatsCardPlayground /> },
       { id: 'user-profile-card', label: 'UserProfileCard', component: <UserProfileCardPlayground /> },
+
+      { id: 'org-header-feedback', label: 'Feedback', isHeader: true },
+      { id: 'error-boundary', label: 'ErrorBoundary', component: <ErrorBoundaryPlayground /> },
+      { id: 'loading-overlay', label: 'LoadingOverlay', component: <LoadingOverlayPlayground /> },
     
 
     ]
@@ -248,7 +259,7 @@ export function DevShowcasePage() {
       </aside>
 
       {/* Main Content */}
-      <main style={{ flex: 1, overflowY: 'auto', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column' }}>
+      <main style={{ flex: 1, overflow: 'hidden', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column' }}>
         <header style={{ padding: '20px 32px', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ margin: 0, fontSize: '24px', color: '#2d3748' }}>{activeComponent.label}</h2>
           
@@ -278,8 +289,12 @@ export function DevShowcasePage() {
           </button>
         </header>
 
-        <div style={{ padding: '32px', flex: 1 }}>
-          {activeComponent.component}
+        <div key={selectedId} style={{ padding: '32px', flex: 1, overflowY: 'auto', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
+          <ErrorBoundary key={selectedId}>
+            <ToastProvider>
+              {activeComponent.component}
+            </ToastProvider>
+          </ErrorBoundary>
         </div>
       </main>
     </div>

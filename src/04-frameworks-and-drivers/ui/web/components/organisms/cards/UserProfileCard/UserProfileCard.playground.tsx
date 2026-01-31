@@ -61,6 +61,37 @@ export const UserProfileCardPlayground = () => {
             <Button variant="primary" fullWidth>Connect</Button>
           }
         />
+
+        {/* 3 Buttons Case (Equal Width) */}
+        <UserProfileCard
+          name="3 Buttons Layout"
+          role="Team Lead"
+          avatarFallback="3B"
+          stats={[{ label: 'Items', value: '3' }]}
+          onFollow={() => {}}
+          actions={
+            <>
+              <Button variant="secondary" fullWidth>Chat</Button>
+              <Button variant="ghost" fullWidth>More</Button>
+            </>
+          }
+        />
+
+        {/* 4 Buttons Case (Equal Width) */}
+        <UserProfileCard
+          name="4 Buttons Layout"
+          role="Director"
+          avatarFallback="4B"
+          stats={[{ label: 'Items', value: '4' }]}
+          onFollow={() => {}}
+          actions={
+            <>
+              <Button variant="secondary" fullWidth>Chat</Button>
+              <Button variant="outline" fullWidth>Call</Button>
+              <Button variant="ghost" fullWidth>...</Button>
+            </>
+          }
+        />
       </Box>
     </Box>
   );

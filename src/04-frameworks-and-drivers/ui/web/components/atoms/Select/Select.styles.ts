@@ -8,6 +8,12 @@ const heightMap = {
   lg: '48px',
 };
 
+const fontSizeMap = {
+  sm: '0.875rem',  // 14px
+  md: '1rem',  // 16px
+  lg: '1.125rem',     // 18px
+};
+
 /** 🔥 GRID + FLEX SAFE WRAPPER (Giống Input) */
 export const selectWrapper = css`
   display: flex;
@@ -32,7 +38,7 @@ export const getSelectStyles = ({ error, disabled, size = 'md' }: SelectStylePro
   height: ${heightMap[size]};
   padding: 0 ${SPACING.xl} 0 ${SPACING.md}; /* Extra padding-right for arrow */
   
-  font-size: ${FONT_SIZES.sm};
+  font-size: ${fontSizeMap[size] || '0.875rem'};
   color: ${COLORS.TEXT};
   background-color: ${COLORS.WHITE};
   

@@ -78,7 +78,7 @@ const savedFilters: SavedFilter[] = [
 ];
 
 /* ================= Playground ================= */
-const AdvancedFilterPlayground = () => {
+export const AdvancedFilterPlayground = () => {
   const [values, setValues] = useState<Record<string, any>>({});
 
   return (
@@ -128,4 +128,3 @@ const AdvancedFilterPlayground = () => {
     </Box>
   );
 };
-
