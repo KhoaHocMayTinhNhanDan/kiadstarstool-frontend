@@ -1,4 +1,5 @@
-// src/01-entities/business/value-objects/BranchAddress.vo.ts
+import { ValueObject } from '../../shared/base/ValueObject';
+
 export interface Coordinates {
   lat: number;
   lng: number;
@@ -15,43 +16,40 @@ export interface BranchAddressProps {
   coordinates?: Coordinates;
 }
 
-export class BranchAddress {
-  readonly street: string;
-  readonly ward: string;
-  readonly district: string;
-  readonly city: string;
-  readonly province: string;
-  readonly country: string;
-  readonly postalCode: string;
-  readonly coordinates: Coordinates;
-
-  constructor(props: BranchAddressProps = {}) {
-    this.street = props.street?.trim() || '';
-    this.ward = props.ward?.trim() || '';
-    this.district = props.district?.trim() || '';
-    this.city = props.city?.trim() || '';
-    this.province = props.province?.trim() || '';
-    this.country = props.country?.trim() || 'Việt Nam';
-    this.postalCode = props.postalCode?.trim() || '';
-    this.coordinates = props.coordinates ?? { lat: 0, lng: 0 };
+export class BranchAddress extends ValueObject<BranchAddressProps> {
+  private constructor(props: BranchAddressProps) {
+    super(props);
   }
 
-  fullAddress(): string {
+  static create(props: BranchAddressProps = {}): BranchAddress {
+    return new BranchAddress({
+      street: props.street?.trim() || '',
+      ward: props.ward?.trim() || '',
+      district: props.district?.trim() || '',
+      city: props.city?.trim() || '',
+      province: props.province?.trim() || '',
+      country: props.country?.trim() || 'Việt Nam',
+      postalCode: props.postalCode?.trim() || '',
+      coordinates: props.coordinates ?? { lat: 0, lng: 0 }
+    });
+  }
+
+  get fullAddress(): string {
     return [
-      this.street,
-      this.ward,
-      this.district,
-      this.city,
-      this.province,
-      this.country
+      this.props.street,
+      this.props.ward,
+      this.props.district,
+      this.props.city,
+      this.props.province,
+      this.props.country
     ].filter(Boolean).join(', ');
   }
 
-  shortAddress(): string {
-    return [this.district, this.city].filter(Boolean).join(', ');
+  get shortAddress(): string {
+    return [this.props.district, this.props.city].filter(Boolean).join(', ');
   }
 
   isInCity(city: string): boolean {
-    return this.city.toLowerCase() === city.toLowerCase();
+    return this.props.city?.toLowerCase() === city.toLowerCase();
   }
 }

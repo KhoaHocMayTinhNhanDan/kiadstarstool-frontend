@@ -1,13 +1,13 @@
 // src/01-entities/business/Branch.entity.ts
 import { Result } from '../shared/base/result';
-import { AuditedEntity } from '../shared/base/audited.entity';
+import { AuditedEntity, type AuditedProps } from '../shared/base/audited.entity';
 import { BranchId } from './value-objects/BranchId.vo';
 import { BranchAddress } from './value-objects/BranchAddress.vo';
 import { BranchCapacity } from './value-objects/BranchCapacity.vo';
 import { BranchFinancial } from './value-objects/BranchFinancial.vo';
 import { BranchOperatingHours } from './value-objects/BranchOperatingHours.vo';
 
-export interface BranchProps {
+export interface BranchProps extends AuditedProps {
   id?: BranchId;
   name: string;
   code: string;
@@ -49,10 +49,14 @@ export class Branch extends AuditedEntity<BranchId> {
       return Result.fail<Branch>('Branch code is required');
     }
 
+    const now = new Date();
+
     return Result.ok(
       new Branch({
         ...props,
-        id: props.id ?? BranchId.create()
+        id: props.id ?? BranchId.create(),
+        createdAt: props.createdAt ?? now,
+        updatedAt: props.updatedAt ?? now,
       })
     );
   }
@@ -95,7 +99,11 @@ export class Branch extends AuditedEntity<BranchId> {
       capacity: overrides.capacity ?? this.capacity,
       financial: overrides.financial ?? this.financial,
       operatingHours: overrides.operatingHours ?? this.operatingHours,
-      isActive: overrides.isActive ?? this.isActive
+      isActive: overrides.isActive ?? this.isActive,
+      createdAt: overrides.createdAt ?? this.createdAt,
+      updatedAt: overrides.updatedAt ?? this.updatedAt,
+      createdBy: overrides.createdBy ?? this.createdBy,
+      updatedBy: overrides.updatedBy ?? this.updatedBy,
     });
   }
 }

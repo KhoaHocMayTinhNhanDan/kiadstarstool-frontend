@@ -1,38 +1,46 @@
-// src/03-interface-adapters/gateways/repositories/AuthRepository.ts
-
-import type { IAuthRepository } from '@/02-usecases/ports/repositories/IAuthRepository';
-import type { UserAuth } from '@/01-entities/business/users/UserAuth.entity';
-import type { IAuthDriver } from '../device-interfaces/auth/IAuthDriver';
+import { Result } from '@/01-entities/shared/base/result';
+import { Credentials } from '@/01-entities/auth/Credentials.vo';
+import { IAuthRepository, type AuthSession } from '@/02-usecases/ports/repositories/IAuthRepository';
+import { type IAuthDriver } from '../device-interfaces/auth/IAuthDriver';
 
 export class AuthRepository implements IAuthRepository {
-  constructor( authDriver: IAuthDriver) {this.authDriver = authDriver;}  private readonly authDriver: IAuthDriver;
+  private readonly authDriver: IAuthDriver;
 
-  async login(payload: { email: string; password: string }): Promise<UserAuth> {
-    // Delegate to the auth driver
-    return await this.authDriver.signInWithEmailAndPassword(
-      payload.email,
-      payload.password
-    );
+  constructor(authDriver: IAuthDriver) {
+    this.authDriver = authDriver;
+  }
+
+  async authenticate(credentials: Credentials): Promise<Result<AuthSession>> {
+    try {
+      // 1. Gọi Driver để đăng nhập
+      const authIdentity = await this.authDriver.signInWithEmailAndPassword(
+        credentials.username,
+        credentials.password
+      );
+
+      // 2. Lấy Token
+      const token = await this.authDriver.getIdToken();
+      if (!token) {
+        return Result.fail<AuthSession>('Failed to retrieve access token');
+      }
+
+      // 3. Trả về AuthSession (Mapping từ Driver -> Domain)
+      // Lưu ý: userId ở đây lấy từ customClaims.uid hoặc email tùy logic của bạn
+      // Với MockDriver/Firebase, ta có thể lấy uid từ customClaims hoặc gọi getCurrentUser
+      const userId = authIdentity.customClaims['uid'] as string || authIdentity.email;
+
+      return Result.ok<AuthSession>({
+        userId: userId,
+        accessToken: token,
+        refreshToken: 'not-implemented-yet' // Firebase tự quản lý refresh token
+      });
+    } catch (error: any) {
+      // Map lỗi từ Driver sang Domain Error message
+      return Result.fail<AuthSession>(error.message || 'Authentication failed');
+    }
   }
 
   async logout(): Promise<void> {
     await this.authDriver.signOut();
-  }
-
-  async restoreSession(): Promise<UserAuth | null> {
-    return await this.authDriver.getCurrentUser();
-  }
-
-  // Additional repository methods
-  async sendPasswordResetEmail(email: string): Promise<void> {
-    await this.authDriver.sendPasswordResetEmail(email);
-  }
-
-  async updateEmail(currentEmail: string, newEmail: string): Promise<void> {
-    await this.authDriver.updateEmail(currentEmail, newEmail);
-  }
-
-  async updatePassword(email: string, newPassword: string): Promise<void> {
-    await this.authDriver.updatePassword(email, newPassword);
   }
 }

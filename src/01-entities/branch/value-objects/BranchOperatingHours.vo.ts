@@ -1,19 +1,11 @@
-// src/01-entities/business/value-objects/BranchOperatingHours.vo.ts
+import { ValueObject } from '../../shared/base/ValueObject';
 
 export interface OperatingHours {
   open: string;   // HH:mm
   close: string;  // HH:mm
 }
 
-export type DayOfWeek =
-  | 'monday'
-  | 'tuesday'
-  | 'wednesday'
-  | 'thursday'
-  | 'friday'
-  | 'saturday'
-  | 'sunday';
-
+export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
 export type WeeklyOperatingHours = Record<DayOfWeek, OperatingHours>;
 
 const DEFAULT_HOURS: WeeklyOperatingHours = {
@@ -26,11 +18,13 @@ const DEFAULT_HOURS: WeeklyOperatingHours = {
   sunday: { open: '08:00', close: '12:00' }
 };
 
-export class BranchOperatingHours {
-  private readonly hours: WeeklyOperatingHours;
+export class BranchOperatingHours extends ValueObject<WeeklyOperatingHours> {
+  private constructor(props: WeeklyOperatingHours) {
+    super(props);
+  }
 
-  constructor(hours?: Partial<WeeklyOperatingHours>) {
-    this.hours = {
+  static create(hours?: Partial<WeeklyOperatingHours>): BranchOperatingHours {
+    return new BranchOperatingHours({
       monday: hours?.monday ?? DEFAULT_HOURS.monday,
       tuesday: hours?.tuesday ?? DEFAULT_HOURS.tuesday,
       wednesday: hours?.wednesday ?? DEFAULT_HOURS.wednesday,
@@ -38,61 +32,35 @@ export class BranchOperatingHours {
       friday: hours?.friday ?? DEFAULT_HOURS.friday,
       saturday: hours?.saturday ?? DEFAULT_HOURS.saturday,
       sunday: hours?.sunday ?? DEFAULT_HOURS.sunday
-    };
+    });
   }
 
   isOpenAt(date: Date = new Date()): boolean {
     const dayMap: Record<number, DayOfWeek> = {
-      0: 'sunday',
-      1: 'monday',
-      2: 'tuesday',
-      3: 'wednesday',
-      4: 'thursday',
-      5: 'friday',
-      6: 'saturday'
+      0: 'sunday', 1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday', 6: 'saturday'
     };
-
     const day = dayMap[date.getDay()];
-    const { open, close } = this.hours[day];
+    const { open, close } = this.props[day];
 
     const nowMinutes = date.getHours() * 60 + date.getMinutes();
     const [openH, openM] = open.split(':').map(Number);
     const [closeH, closeM] = close.split(':').map(Number);
 
-    const openMinutes = openH * 60 + openM;
-    const closeMinutes = closeH * 60 + closeM;
-
-    return nowMinutes >= openMinutes && nowMinutes <= closeMinutes;
+    return nowMinutes >= (openH * 60 + openM) && nowMinutes <= (closeH * 60 + closeM);
   }
 
   minutesUntilClose(date: Date = new Date()): number {
     if (!this.isOpenAt(date)) return 0;
-
+    
     const dayMap: Record<number, DayOfWeek> = {
-      0: 'sunday',
-      1: 'monday',
-      2: 'tuesday',
-      3: 'wednesday',
-      4: 'thursday',
-      5: 'friday',
-      6: 'saturday'
+      0: 'sunday', 1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday', 6: 'saturday'
     };
-
     const day = dayMap[date.getDay()];
-    const { close } = this.hours[day];
-
+    const { close } = this.props[day];
+    
     const nowMinutes = date.getHours() * 60 + date.getMinutes();
     const [closeH, closeM] = close.split(':').map(Number);
-    const closeMinutes = closeH * 60 + closeM;
-
-    return Math.max(0, closeMinutes - nowMinutes);
-  }
-
-  toJSON(): WeeklyOperatingHours {
-    return { ...this.hours };
-  }
-
-  static fromJSON(data: WeeklyOperatingHours): BranchOperatingHours {
-    return new BranchOperatingHours(data);
+    
+    return Math.max(0, (closeH * 60 + closeM) - nowMinutes);
   }
 }

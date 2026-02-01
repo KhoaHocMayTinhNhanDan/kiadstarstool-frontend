@@ -1,65 +1,48 @@
-// src/01-entities/business/value-objects/BranchCapacity.vo.ts
+import { ValueObject } from '../../shared/base/ValueObject';
+
 export interface BranchCapacityProps {
-  totalRooms?: number;
-  availableRooms?: number;
-  maxStudents?: number;
-  currentStudents?: number;
-  maxTeachers?: number;
-  currentTeachers?: number;
-  maxStaff?: number;
-  currentStaff?: number;
+  totalRooms: number;
+  availableRooms: number;
+  maxStudents: number;
+  currentStudents: number;
+  maxTeachers: number;
+  currentTeachers: number;
+  maxStaff: number;
+  currentStaff: number;
 }
 
-export class BranchCapacity {
-  readonly totalRooms: number;
-  readonly availableRooms: number;
-  readonly maxStudents: number;
-  readonly currentStudents: number;
-  readonly maxTeachers: number;
-  readonly currentTeachers: number;
-  readonly maxStaff: number;
-  readonly currentStaff: number;
+export class BranchCapacity extends ValueObject<BranchCapacityProps> {
+  private constructor(props: BranchCapacityProps) {
+    super(props);
+  }
 
-  constructor(props: BranchCapacityProps = {}) {
-    this.totalRooms = props.totalRooms ?? 0;
-    this.availableRooms = props.availableRooms ?? 0;
-    this.maxStudents = props.maxStudents ?? 100;
-    this.currentStudents = props.currentStudents ?? 0;
-    this.maxTeachers = props.maxTeachers ?? 20;
-    this.currentTeachers = props.currentTeachers ?? 0;
-    this.maxStaff = props.maxStaff ?? 10;
-    this.currentStaff = props.currentStaff ?? 0;
+  static create(props: Partial<BranchCapacityProps> = {}): BranchCapacity {
+    return new BranchCapacity({
+      totalRooms: Math.max(0, props.totalRooms ?? 0),
+      availableRooms: Math.max(0, props.availableRooms ?? 0),
+      maxStudents: Math.max(0, props.maxStudents ?? 100),
+      currentStudents: Math.max(0, props.currentStudents ?? 0),
+      maxTeachers: Math.max(0, props.maxTeachers ?? 20),
+      currentTeachers: Math.max(0, props.currentTeachers ?? 0),
+      maxStaff: Math.max(0, props.maxStaff ?? 10),
+      currentStaff: Math.max(0, props.currentStaff ?? 0),
+    });
   }
 
   hasStudentCapacity(): boolean {
-    return this.currentStudents < this.maxStudents;
-  }
-
-  availableStudentSpots(): number {
-    return Math.max(0, this.maxStudents - this.currentStudents);
-  }
-
-  studentFillRate(): number {
-    return this.maxStudents > 0
-      ? Math.round((this.currentStudents / this.maxStudents) * 100)
-      : 0;
+    return this.props.currentStudents < this.props.maxStudents;
   }
 
   addStudent(): BranchCapacity {
     if (!this.hasStudentCapacity()) return this;
-    return new BranchCapacity({ ...this, currentStudents: this.currentStudents + 1 });
-  }
-
-  removeStudent(): BranchCapacity {
     return new BranchCapacity({
-      ...this,
-      currentStudents: Math.max(0, this.currentStudents - 1)
+      ...this.props,
+      currentStudents: this.props.currentStudents + 1
     });
   }
 
-  updateTeachers(change: number): BranchCapacity {
-    const next = this.currentTeachers + change;
-    if (next < 0 || next > this.maxTeachers) return this;
-    return new BranchCapacity({ ...this, currentTeachers: next });
-  }
+  get currentStudents(): number { return this.props.currentStudents; }
+  get maxStudents(): number { return this.props.maxStudents; }
+  get currentTeachers(): number { return this.props.currentTeachers; }
+  get maxTeachers(): number { return this.props.maxTeachers; }
 }
