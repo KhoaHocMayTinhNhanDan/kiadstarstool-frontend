@@ -1,3 +1,4 @@
+// src/shared/constants/authorization/auth.policy.ts
 /* ==============================
  * 2. POLICY / APPLICATION LAYER
  * Định nghĩa "Luật chơi": Role nào có quyền gì?

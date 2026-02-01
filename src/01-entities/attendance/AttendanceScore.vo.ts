@@ -1,4 +1,4 @@
-import { AttendanceTime } from '../business/attendance/value-objects/AttendanceTime.vo';
+import { AttendanceTime } from './AttendanceTime.vo';
 
 export interface AttendanceScoreJSON {
   value: number;

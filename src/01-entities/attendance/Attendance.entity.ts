@@ -1,5 +1,5 @@
 // 01-entities/business/Attendance/Attendance.entity.ts
-import { BaseEntity } from '../shared/base/base.entity';
+import { BaseEntity } from '../shared/base/base.entity.ts';
 import {
   ATTENDANCE_STATUS,
   type AttendanceStatus

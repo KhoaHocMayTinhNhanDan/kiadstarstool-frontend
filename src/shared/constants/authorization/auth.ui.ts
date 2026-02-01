@@ -1,3 +1,4 @@
+// src/shared/constants/authorization/auth.ui.ts
 /* ==============================
  * 3. UI / PRESENTATION LAYER
  * Định nghĩa cách hiển thị: Label, Emoji, Grouping

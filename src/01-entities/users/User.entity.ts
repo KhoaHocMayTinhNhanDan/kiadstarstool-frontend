@@ -45,9 +45,14 @@ export class User extends AggregateRoot<UserId> {
       isActive: props.isActive ?? true,
     })
   }
-    hasPermission(permission: Permission): boolean {
-        return this.permissions.some(p => p.equals(permission))
-    }
+
+  hasPermission(permission: Permission): boolean {
+    // 1. Admin role always has access
+    if (this.role.toString() === 'admin') return true
+
+    // 2. Check specific permissions (using allows() to support wildcards)
+    return this.permissions.some(p => p.allows(permission))
+  }
 
   grant(permission: Permission): User {
     if (this.hasPermission(permission)) return this

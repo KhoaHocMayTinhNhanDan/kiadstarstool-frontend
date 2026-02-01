@@ -1,3 +1,4 @@
+// src/shared/constants/authorization/auth.domain.ts
 /* ==============================
  * 1. DOMAIN LAYER
  * Định nghĩa các hằng số cốt lõi (Core Constants)

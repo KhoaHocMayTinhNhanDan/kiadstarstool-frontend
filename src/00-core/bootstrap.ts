@@ -10,8 +10,6 @@ import { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.pres
 import { createLoginInteractor } from '@/02-usecases/auth/login/Login.interactor'
 import { createLogoutInteractor } from '@/02-usecases/auth/logout/Logout.interactor'
 import { AuthController } from '@/03-interface-adapters/controllers/Auth.controller'
-import { PingPresenter } from '@/03-interface-adapters/presenters/Ping.presenter'
-import { PingController } from '@/03-interface-adapters/controllers/Ping.controller'
 
 export interface BootstrapOptions {
   useMockAuth?: boolean
@@ -57,11 +55,8 @@ export function bootstrapApp(options: BootstrapOptions = {}): void {
   
   const authController = new AuthController(loginInteractor, logoutInteractor)
 
-  // 2. Initialize Ping (demo feature)
-  const pingPresenter = new PingPresenter()
-  const pingController = new PingController(pingPresenter)
 
-  // 3. Create Application Context
+  // 2. Create Application Context
   const context: AppContextType = {
     config: {
       isMockMode: useMockAuth,
@@ -69,11 +64,7 @@ export function bootstrapApp(options: BootstrapOptions = {}): void {
       authDriverType: useMockAuth ? 'mock' : 'firebase'
     },
     
-    ping: {
-      controller: pingController,
-      presenter: pingPresenter
-    },
-    
+
     auth: {
       driver: authDriver,
       repository: authRepository,
@@ -107,15 +98,9 @@ export function bootstrapApp(options: BootstrapOptions = {}): void {
 export function bootstrap(): void {
   console.log('[bootstrap] Initializing minimal app (ping only)')
 
-  const pingPresenter = new PingPresenter()
-  const pingController = new PingController(pingPresenter)
 
   AppContext.set({
-    ping: {
-      controller: pingController,
-      presenter: pingPresenter
-    },
-    config: {
+      config: {
       isMockMode: true,
       apiBaseUrl: '',
       authDriverType: 'mock'

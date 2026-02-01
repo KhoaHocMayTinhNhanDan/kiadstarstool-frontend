@@ -1,3 +1,4 @@
+// src/shared/constants/roles.constant.ts
 /**
  * @deprecated
  * File này đã được refactor thành 3 phần riêng biệt trong thư mục `src/shared/constants/authorization/`.
