@@ -1,7 +1,8 @@
 // src/04-frameworks-and-drivers/devices/auth/MockAuthDriver.ts
 
 import type { IAuthDriver } from '@/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver';
-import { UserAuth } from '@/01-entities/business/users/UserAuth.entity';
+import { AuthIdentity } from '@/01-entities/auth/AuthIdentity.entity';
+
 
 export class MockAuthDriver implements IAuthDriver {
   private mockUsers: Array<{
@@ -30,14 +31,14 @@ export class MockAuthDriver implements IAuthDriver {
     }
   ];
 
-  private currentUser: UserAuth | null = null;
-  private authStateListeners: Array<(user: UserAuth | null) => void> = [];
+  private currentUser: AuthIdentity | null = null;
+  private authStateListeners: Array<(user: AuthIdentity | null) => void> = [];
 
   /* =====================
    *  IAuthDriver Implementation
    * ===================== */
 
-  async signInWithEmailAndPassword(email: string, password: string): Promise<UserAuth> {
+  async signInWithEmailAndPassword(email: string, password: string): Promise<AuthIdentity> {
     await this.delay(500);
 
     const user = this.mockUsers.find(u => 
@@ -53,7 +54,7 @@ export class MockAuthDriver implements IAuthDriver {
       throw new Error('auth/account-blocked');
     }
 
-    const userAuth = new UserAuth({
+    const userAuth = new AuthIdentity({
       email: user.email,
       roles: user.roles as any,
       emailVerified: user.emailVerified,
@@ -72,7 +73,7 @@ export class MockAuthDriver implements IAuthDriver {
     this.notifyAuthStateChange(null);
   }
 
-  async getCurrentUser(): Promise<UserAuth | null> {
+  async getCurrentUser(): Promise<AuthIdentity | null> {
     await this.delay(100);
     return this.currentUser;
   }
@@ -110,7 +111,7 @@ export class MockAuthDriver implements IAuthDriver {
     console.log('[Mock] Token refreshed');
   }
 
-  async createUserWithEmailAndPassword(email: string, password: string): Promise<UserAuth> {
+  async createUserWithEmailAndPassword(email: string, password: string): Promise<AuthIdentity> {
     await this.delay(500);
 
     const existingUser = this.mockUsers.find(u => u.email === email);
@@ -129,7 +130,7 @@ export class MockAuthDriver implements IAuthDriver {
 
     this.mockUsers.push(newUser);
 
-    const userAuth = new UserAuth({
+    const userAuth = new AuthIdentity({
       email: newUser.email,
       roles: newUser.roles as any,
       emailVerified: newUser.emailVerified,
@@ -154,7 +155,7 @@ export class MockAuthDriver implements IAuthDriver {
     console.log('[Mock] Email verification sent');
   }
 
-  onAuthStateChanged(callback: (user: UserAuth | null) => void): () => void {
+  onAuthStateChanged(callback: (user: AuthIdentity | null) => void): () => void {
     this.authStateListeners.push(callback);
     
     // Immediately call with current state
@@ -217,7 +218,7 @@ export class MockAuthDriver implements IAuthDriver {
     return [...this.mockUsers];
   }
 
-  setCurrentUser(userAuth: UserAuth | null): void {
+  setCurrentUser(userAuth: AuthIdentity | null): void {
     this.currentUser = userAuth;
     this.notifyAuthStateChange(userAuth);
   }
@@ -230,7 +231,7 @@ export class MockAuthDriver implements IAuthDriver {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  private notifyAuthStateChange(user: UserAuth | null): void {
+  private notifyAuthStateChange(user: AuthIdentity | null): void {
     this.authStateListeners.forEach(listener => {
       try {
         listener(user);

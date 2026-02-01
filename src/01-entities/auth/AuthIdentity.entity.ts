@@ -1,154 +1,135 @@
-// src/01-entities/users/UserAuth.entity.ts
-
+import { UserRole } from '../users/base/UserRole.vo';
+import { Permission } from '../users/base/Permission.vo';
 import {
   ROLES,
   PERMISSIONS,
   type RoleCode,
   type PermissionCode,
-  isValidRole,
-  getPermissionsForRole,
-} from '../../shared/constants/roles.constant'
+} from '../../shared/constants/authorization/auth.domain';
+import { getPermissionsForRole } from '../../shared/constants/authorization/auth.policy';
 
-export interface UserAuthProps {
-  email?: string
-  roles?: RoleCode[]
-  permissions?: PermissionCode[]
-  lastLoginAt?: string | null
-  emailVerified?: boolean
-  customClaims?: Record<string, unknown>
+export interface AuthIdentityProps {
+  email?: string;
+  roles?: UserRole[];
+  permissions?: Permission[];
+  lastLoginAt?: string | null;
+  emailVerified?: boolean;
+  customClaims?: Record<string, unknown>;
 }
 
-export interface UserAuthJSON {
-  email: string
-  roles: RoleCode[]
-  permissions: PermissionCode[]
-  lastLoginAt: string | null
-  emailVerified: boolean
-  customClaims: Record<string, unknown>
+export interface AuthIdentityJSON {
+  email: string;
+  roles: RoleCode[];
+  permissions: PermissionCode[];
+  lastLoginAt: string | null;
+  emailVerified: boolean;
+  customClaims: Record<string, unknown>;
 }
 
-export class UserAuth {
-  readonly email: string
-  readonly roles: RoleCode[]
-  readonly permissions: PermissionCode[]
-  readonly lastLoginAt: string | null
-  readonly emailVerified: boolean
-  readonly customClaims: Record<string, unknown>
+export class AuthIdentity {
+  readonly email: string;
+  readonly roles: UserRole[];
+  readonly permissions: Permission[];
+  readonly lastLoginAt: string | null;
+  readonly emailVerified: boolean;
+  readonly customClaims: Record<string, unknown>;
 
-  constructor(data: UserAuthProps = {}) {
-    this.email = (data.email ?? '').toLowerCase().trim()
-    this.roles = this.normalizeRoles(data.roles)
-    this.permissions = data.permissions
+  constructor(data: AuthIdentityProps = {}) {
+    this.email = (data.email ?? '').toLowerCase().trim();
+    this.roles = this.normalizeRoles(data.roles);
+    
+    // Nếu có permissions truyền vào thì dùng, không thì tính toán từ Roles
+    this.permissions = data.permissions && data.permissions.length > 0
       ? this.normalizePermissions(data.permissions)
-      : this.calculatePermissionsFromRoles(this.roles)
+      : this.calculatePermissionsFromRoles(this.roles);
 
-    this.lastLoginAt = data.lastLoginAt ?? null
-    this.emailVerified = Boolean(data.emailVerified)
-    this.customClaims = data.customClaims ?? {}
+    this.lastLoginAt = data.lastLoginAt ?? null;
+    this.emailVerified = Boolean(data.emailVerified);
+    this.customClaims = data.customClaims ?? {};
   }
 
   /* =====================
    *  BEHAVIOR
    * ===================== */
 
-  hasPermission(permission: PermissionCode): boolean {
+  hasPermission(permission: Permission): boolean {
     return (
-      this.permissions.includes(PERMISSIONS.ALL) ||
-      this.permissions.includes(permission)
-    )
+      this.permissions.some(p => p.isWildcard()) ||
+      this.permissions.some(p => p.equals(permission))
+    );
   }
 
-  hasRole(role: RoleCode): boolean {
-    return this.roles.includes(role)
+  hasRole(role: UserRole): boolean {
+    return this.roles.some(r => r.equals(role));
   }
 
-  hasAnyRole(...roles: RoleCode[]): boolean {
-    return roles.some(r => this.roles.includes(r))
-  }
-
-  addRole(role: RoleCode): UserAuth {
-    if (this.roles.includes(role)) return this
-    return new UserAuth({ ...this.toJSON(), roles: [...this.roles, role] })
-  }
-
-  removeRole(role: RoleCode): UserAuth {
-    if (this.roles.length <= 1) return this
-    return new UserAuth({
-      ...this.toJSON(),
-      roles: this.roles.filter(r => r !== role),
-    })
-  }
-
-  updateEmail(email: string): UserAuth {
-    return new UserAuth({ ...this.toJSON(), email })
-  }
-
-  verifyEmail(): UserAuth {
-    return new UserAuth({ ...this.toJSON(), emailVerified: true })
-  }
-
-  recordLogin(): UserAuth {
-    return new UserAuth({
-      ...this.toJSON(),
-      lastLoginAt: new Date().toISOString(),
-    })
+  hasAnyRole(...roles: UserRole[]): boolean {
+    return roles.some(r => this.hasRole(r));
   }
 
   /* =====================
    *  SERIALIZATION
    * ===================== */
 
-  toJSON(): UserAuthJSON {
+  toJSON(): AuthIdentityJSON {
     return {
       email: this.email,
-      roles: [...this.roles],
-      permissions: [...this.permissions],
+      roles: this.roles.map(r => r.value),
+      permissions: this.permissions.map(p => p.value),
       lastLoginAt: this.lastLoginAt,
       emailVerified: this.emailVerified,
       customClaims: { ...this.customClaims },
-    }
-  }
-
-  validate(): string[] {
-    const errors: string[] = []
-
-    if (!this.email) errors.push('Email is required')
-    if (this.roles.length === 0) errors.push('At least one role is required')
-
-    return errors
+    };
   }
 
   /* =====================
    *  INTERNALS
    * ===================== */
 
-  private normalizeRoles(roles?: RoleCode[]): RoleCode[] {
-    const valid = (roles ?? []).filter(isValidRole)
-    return valid.length > 0 ? valid : [ROLES.TEACHER]
+  private normalizeRoles(roles?: UserRole[]): UserRole[] {
+    if (roles && roles.length > 0) {
+      return roles;
+    }
+    // Default role: TEACHER
+    const defaultRole = UserRole.create(ROLES.TEACHER);
+    return defaultRole.isSuccess ? [defaultRole.getValue()] : [];
   }
 
-  private normalizePermissions(perms: PermissionCode[]): PermissionCode[] {
-    return perms.includes(PERMISSIONS.ALL)
-      ? [PERMISSIONS.ALL]
-      : Array.from(new Set(perms))
+  private normalizePermissions(perms: Permission[]): Permission[] {
+    // Nếu có quyền ALL (*), chỉ cần trả về nó
+    if (perms.some(p => p.isWildcard())) {
+      const allPerm = Permission.create(PERMISSIONS.ALL);
+      return allPerm.isSuccess ? [allPerm.getValue()] : perms;
+    }
+    
+    // Unique permissions
+    const unique = new Map<string, Permission>();
+    perms.forEach(p => unique.set(p.value, p));
+    return Array.from(unique.values());
   }
 
-  private calculatePermissionsFromRoles(roles: RoleCode[]): PermissionCode[] {
-    const set = new Set<PermissionCode>()
+  private calculatePermissionsFromRoles(roles: UserRole[]): Permission[] {
+    const codes = new Set<PermissionCode>();
+    
     for (const r of roles) {
-      for (const p of getPermissionsForRole(r)) {
-        if (p === PERMISSIONS.ALL) return [PERMISSIONS.ALL]
-        set.add(p)
+      const rolePerms = getPermissionsForRole(r.value);
+      for (const p of rolePerms) {
+        codes.add(p);
       }
     }
-    return Array.from(set)
+
+    // Convert codes to Permission VOs
+    return Array.from(codes)
+      .map(code => Permission.create(code))
+      .filter(res => res.isSuccess)
+      .map(res => res.getValue());
   }
 
   get isAdmin(): boolean {
-    return this.roles.includes(ROLES.ADMIN)
+    return this.roles.some(r => r.isAdmin());
   }
 
   get isTeacher(): boolean {
-    return this.roles.includes(ROLES.TEACHER)
+    return this.roles.some(r => r.isTeacher());
   }
 }

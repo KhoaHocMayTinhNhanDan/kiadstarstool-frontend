@@ -4,13 +4,14 @@ import { AppContext, type AppContextType } from './app-context'
 import { createMockAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/MockAuthDriver'
 import { createFirebaseAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/FirebaseAuthDriver'
 import { AuthRepository } from '@/03-interface-adapters/gateways/repositories/AuthRepository'
+import { UserRepository } from '@/03-interface-adapters/gateways/repositories/UserRepository'
+import { type IAuthDriver } from '@/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver'
 import { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
-import { createLoginInteractor } from '@/02-usecases/usecases/authentication/Login.interactor'
-import { createLogoutInteractor } from '@/02-usecases/usecases/authentication/Logout.interactor'
+import { createLoginInteractor } from '@/02-usecases/auth/login/Login.interactor'
+import { createLogoutInteractor } from '@/02-usecases/auth/logout/Logout.interactor'
 import { AuthController } from '@/03-interface-adapters/controllers/Auth.controller'
 import { PingPresenter } from '@/03-interface-adapters/presenters/Ping.presenter'
 import { PingController } from '@/03-interface-adapters/controllers/Ping.controller'
-import type { IAuthDriver } from '@/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver'
 
 export interface BootstrapOptions {
   useMockAuth?: boolean
@@ -48,10 +49,11 @@ export function bootstrapApp(options: BootstrapOptions = {}): void {
   }
   
   const authRepository = new AuthRepository(authDriver)
+  const userRepository = new UserRepository()
   const authPresenter = new AuthPresenter()
   
-  const loginInteractor = createLoginInteractor(authRepository, authPresenter)
-  const logoutInteractor = createLogoutInteractor(authRepository, authPresenter)
+  const loginInteractor = createLoginInteractor(authRepository, userRepository)
+  const logoutInteractor = createLogoutInteractor(authRepository)
   
   const authController = new AuthController(loginInteractor, logoutInteractor)
 

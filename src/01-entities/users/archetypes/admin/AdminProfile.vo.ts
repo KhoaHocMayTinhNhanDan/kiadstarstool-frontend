@@ -1,7 +1,7 @@
 // src/01-entities/users/archetypes/admin/AdminProfile.vo.ts
 import { type IUserProfile } from '../../base/IUserProfile.vo'
 import { UserRole } from '../../base/UserRole.vo'
-import { Permission } from '../../permissions/Permission.vo'
+import { Permission } from '../../base/Permission.vo'
 import { PhoneNumber } from '../../../shared/base/PhoneNumber.vo'
 
 interface AdminProfileProps {
@@ -14,7 +14,7 @@ interface AdminProfileProps {
 }
 
 export class AdminProfile implements IUserProfile {
-  readonly kind = 'admin'
+  readonly kind: UserRole
   readonly displayName: string
   readonly photoURL?: string
   readonly phoneNumbers: readonly PhoneNumber[]
@@ -24,6 +24,12 @@ export class AdminProfile implements IUserProfile {
   readonly managedBranches: readonly string[]
 
   constructor(props: AdminProfileProps) {
+    const roleResult = UserRole.create('admin')
+    if (roleResult.isFailure) {
+      throw new Error(roleResult.getErrorValue().toString())
+    }
+
+    this.kind = roleResult.getValue()
     AdminProfile.assertValid(props)
 
     this.displayName = props.displayName.trim()
@@ -37,7 +43,7 @@ export class AdminProfile implements IUserProfile {
   // ========= IUserProfile =========
 
   supportsRole(role: UserRole): boolean {
-    return role.isAdmin()
+    return role.equals(this.kind)
   }
 
   supportsPermission(permission: Permission): boolean {
@@ -45,7 +51,8 @@ export class AdminProfile implements IUserProfile {
   }
 
   equals(other: IUserProfile): boolean {
-    if (other.kind !== this.kind) return false
+    if (!other) return false
+    if (!other.kind.equals(this.kind)) return false
     const o = other as AdminProfile
 
     return (
@@ -59,7 +66,7 @@ export class AdminProfile implements IUserProfile {
 
   toJSON() {
     return {
-      kind: this.kind,
+      kind: this.kind.toString(),
       displayName: this.displayName,
       photoURL: this.photoURL,
       phoneNumbers: this.phoneNumbers.map(p => p.toJSON()),

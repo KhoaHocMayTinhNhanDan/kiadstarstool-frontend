@@ -15,7 +15,7 @@ export abstract class Entity<TId extends Identifier> {
   public readonly id: TId
 
   protected constructor(props: EntityProps) {
-    this.id = (props.id as TId) ?? Identifier.create()
+    this.id = (props.id as TId) ?? (Identifier.create() as unknown as TId)
   }
 
   public equals(object?: Entity<TId>): boolean {

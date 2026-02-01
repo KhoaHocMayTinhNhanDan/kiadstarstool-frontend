@@ -1,7 +1,7 @@
 // src/02-usecases/ports/output/IAuthPresenter.ts
-import type { UserAuth } from '@/01-entities/business/users/UserAuth.entity'
+import type { AuthIdentity } from '@/01-entities/auth/AuthIdentity.entity';
 
 export interface IAuthPresenter {
-  loginSuccess(user: UserAuth): void
+  loginSuccess(user: AuthIdentity): void
   loginFailed(message: string): void
 }

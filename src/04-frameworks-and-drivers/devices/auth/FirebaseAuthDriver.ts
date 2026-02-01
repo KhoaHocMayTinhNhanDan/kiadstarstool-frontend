@@ -1,9 +1,11 @@
 // src/04-frameworks-and-drivers/devices/auth/FirebaseAuthDriver.ts
 
 import type { IAuthDriver } from '@/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver';
-import { UserAuth } from '@/01-entities/business/users/UserAuth.entity';
+import { AuthIdentity } from '@/01-entities/auth/AuthIdentity.entity';
+import { UserRole } from '@/01-entities/users/base/UserRole.vo';
+import { Permission } from '@/01-entities/users/base/Permission.vo';
 import { auth } from '@/shared/config/firebase';
-import { ROLES } from '@/shared/constants/roles.constant';
+import { ROLES } from '@/shared/constants/authorization/auth.domain';
 import type { User } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 
@@ -13,7 +15,7 @@ export class FirebaseAuthDriver implements IAuthDriver {
    *  CORE AUTH
    * ===================== */
 
-  async signInWithEmailAndPassword(email: string, password: string): Promise<UserAuth> {
+  async signInWithEmailAndPassword(email: string, password: string): Promise<AuthIdentity> {
     try {
       const { signInWithEmailAndPassword } = await import('firebase/auth');
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -34,7 +36,7 @@ export class FirebaseAuthDriver implements IAuthDriver {
     }
   }
 
-  async getCurrentUser(): Promise<UserAuth | null> {
+  async getCurrentUser(): Promise<AuthIdentity | null> {
     const user = auth.currentUser;
     return user ? await this.mapFirebaseUser(user).catch(() => null) : null;
   }
@@ -111,7 +113,7 @@ export class FirebaseAuthDriver implements IAuthDriver {
    *  USER MANAGEMENT
    * ===================== */
 
-  async createUserWithEmailAndPassword(email: string, password: string): Promise<UserAuth> {
+  async createUserWithEmailAndPassword(email: string, password: string): Promise<AuthIdentity> {
     try {
       const { createUserWithEmailAndPassword } = await import('firebase/auth');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -146,7 +148,7 @@ export class FirebaseAuthDriver implements IAuthDriver {
     }
   }
 
-  async signInAnonymously(): Promise<UserAuth> {
+  async signInAnonymously(): Promise<AuthIdentity> {
     try {
       const { signInAnonymously } = await import('firebase/auth');
       const userCredential = await signInAnonymously(auth);
@@ -161,7 +163,7 @@ export class FirebaseAuthDriver implements IAuthDriver {
    *  OBSERVERS
    * ===================== */
 
-  onAuthStateChanged(callback: (user: UserAuth | null) => void): () => void {
+  onAuthStateChanged(callback: (user: AuthIdentity | null) => void): () => void {
     let unsubscribe: (() => void) | undefined;
     let isUnsubscribed = false;
     
@@ -203,25 +205,42 @@ export class FirebaseAuthDriver implements IAuthDriver {
    *  PRIVATE HELPERS
    * ===================== */
 
-  private async mapFirebaseUser(firebaseUser: User): Promise<UserAuth> {
+  private async mapFirebaseUser(firebaseUser: User): Promise<AuthIdentity> {
     // Force-refreshing the token should be done explicitly (e.g., via refreshToken).
     // Here we get the cached token result which is more efficient.
     const token = await firebaseUser.getIdTokenResult(false);
     const claims = token.claims || {};
 
     // Ensure roles is always an array, default to TEACHER if not present.
-    let roles: string[] = claims.roles || [ROLES.TEACHER];
-    if (!Array.isArray(roles)) {
-      roles = [roles];
-    }
+    const rawRoles = claims.roles;
+    const roles: string[] = Array.isArray(rawRoles)
+      ? (rawRoles as string[])
+      : typeof rawRoles === 'string'
+        ? [rawRoles]
+        : [ROLES.TEACHER];
 
-    const permissions: string[] = claims.permissions || [];
+    const rawPermissions = claims.permissions;
+    const permissions: string[] = Array.isArray(rawPermissions)
+      ? (rawPermissions as string[])
+      : [];
+
     const metadata = firebaseUser.metadata || {};
 
-    return new UserAuth({
+    // Map Strings -> Value Objects
+    const mappedRoles = roles
+      .map((r) => UserRole.create(r))
+      .filter((res) => res.isSuccess)
+      .map((res) => res.getValue());
+
+    const mappedPermissions = permissions
+      .map((p) => Permission.create(p))
+      .filter((res) => res.isSuccess)
+      .map((res) => res.getValue());
+
+    return new AuthIdentity({
       email: firebaseUser.email || '',
-      roles: roles as any,
-      permissions: permissions as any,
+      roles: mappedRoles,
+      permissions: mappedPermissions,
       emailVerified: firebaseUser.emailVerified || false,
       lastLoginAt: metadata.lastSignInTime || new Date().toISOString(),
       customClaims: {
@@ -289,7 +308,7 @@ export class FirebaseAuthDriver implements IAuthDriver {
   /**
    * Sign up alias for createUserWithEmailAndPassword
    */
-  async signUpWithEmailAndPassword(email: string, password: string): Promise<UserAuth> {
+  async signUpWithEmailAndPassword(email: string, password: string): Promise<AuthIdentity> {
     return this.createUserWithEmailAndPassword(email, password);
   }
 

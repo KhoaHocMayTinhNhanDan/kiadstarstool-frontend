@@ -1,6 +1,6 @@
 // src/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver.ts
 
-import type { UserAuth } from '@/01-entities/auth/AuthIdentity.entity';
+import type { AuthIdentity } from '@/01-entities/auth/AuthIdentity.entity';
 
 
 /**
@@ -19,10 +19,10 @@ export interface IAuthDriver {
    * Sign in with email and password
    * @param email - User email
    * @param password - User password
-   * @returns Authenticated UserAuth entity
+   * @returns Authenticated AuthIdentity entity
    * @throws Error on authentication failure
    */
-  signInWithEmailAndPassword(email: string, password: string): Promise<UserAuth>;
+  signInWithEmailAndPassword(email: string, password: string): Promise<AuthIdentity>;
 
   /**
    * Sign out current user
@@ -31,9 +31,9 @@ export interface IAuthDriver {
 
   /**
    * Get currently authenticated user
-   * @returns UserAuth if authenticated, null otherwise
+   * @returns AuthIdentity if authenticated, null otherwise
    */
-  getCurrentUser(): Promise<UserAuth | null>;
+  getCurrentUser(): Promise<AuthIdentity | null>;
 
   /* =====================
    *  PASSWORD MANAGEMENT
@@ -82,9 +82,9 @@ export interface IAuthDriver {
    * Create new user with email and password
    * @param email - User email
    * @param password - User password
-   * @returns Created UserAuth
+   * @returns Created AuthIdentity
    */
-  createUserWithEmailAndPassword(email: string, password: string): Promise<UserAuth>;
+  createUserWithEmailAndPassword(email: string, password: string): Promise<AuthIdentity>;
 
   /**
    * Delete current user account
@@ -105,5 +105,5 @@ export interface IAuthDriver {
    * @param callback - Called when auth state changes
    * @returns Unsubscribe function
    */
-  onAuthStateChanged(callback: (user: UserAuth | null) => void): () => void;
+  onAuthStateChanged(callback: (user: AuthIdentity | null) => void): () => void;
 }
