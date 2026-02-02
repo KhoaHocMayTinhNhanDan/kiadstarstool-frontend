@@ -1,69 +1,116 @@
-import { UserId } from './base/UserId.vo'
-import { UserRole } from './base/UserRole.vo'
-import { Permission } from './base/Permission.vo'
-import { type IUserProfile } from './base/IUserProfile.vo'
-import { AggregateRoot } from '../shared/base/AggregateRoot'
+import { AggregateRoot } from '../shared/base/AggregateRoot';
+import { UserId } from './base/UserId.vo';
+import { UserRole } from './base/UserRole.vo';
+import { UserPermissions } from './base/UserPermissions.vo';
+import { type IUserProfile } from './base/IUserProfile.vo';
+import { type PermissionCode } from '../../shared/constants/authorization/auth.domain';
+import { Permission } from './base/Permission.vo';
+import { EffectivePermissionService } from './services/EffectivePermission.service';
 
 interface UserProps {
-  readonly id: UserId
-  readonly role: UserRole
-  readonly profile: IUserProfile
-  readonly permissions: readonly Permission[]
-  readonly isActive: boolean
+  readonly id: UserId;
+  readonly role: UserRole;
+  readonly profile: IUserProfile;
+  readonly permissions: UserPermissions; // override permissions
+  readonly isActive: boolean;
 }
 
 export class User extends AggregateRoot<UserId> {
-  public readonly role: UserRole
-  public readonly profile: IUserProfile
-  public readonly permissions: readonly Permission[]
-  public readonly isActive: boolean
+  public readonly role: UserRole;
+  public readonly profile: IUserProfile;
+  public readonly permissions: UserPermissions;
+  public readonly isActive: boolean;
 
   private constructor(props: UserProps) {
-    super({ id: props.id })
-    this.role = props.role
-    this.profile = props.profile
-    this.permissions = props.permissions
-    this.isActive = props.isActive
+    super({ id: props.id });
+    this.role = props.role;
+    this.profile = props.profile;
+    this.permissions = props.permissions;
+    this.isActive = props.isActive;
   }
 
+  /* ==============================
+   * FACTORY
+   * ============================== */
+
   static create(props: {
-    id?: UserId
-    role: UserRole
-    profile: IUserProfile
-    defaultPermissions: readonly Permission[]
-    isActive?: boolean
+    id?: UserId;
+    role: UserRole;
+    profile: IUserProfile;
+    permissions?: UserPermissions; // override
+    isActive?: boolean;
   }): User {
     if (!props.profile.supportsRole(props.role)) {
-      throw new Error('PROFILE_ROLE_MISMATCH')
+      throw new Error('PROFILE_ROLE_MISMATCH');
     }
 
     return new User({
       id: props.id ?? UserId.create(),
       role: props.role,
       profile: props.profile,
-      permissions: User.uniquePermissions(props.defaultPermissions),
+      permissions: props.permissions ?? UserPermissions.empty(),
       isActive: props.isActive ?? true,
-    })
+    });
   }
 
-  hasPermission(permission: Permission): boolean {
-    // 1. Admin role always has access
-    if (this.role.toString() === 'admin') return true
+  /* ==============================
+   * QUERY
+   * ============================== */
 
-    // 2. Check specific permissions (using allows() to support wildcards)
-    return this.permissions.some(p => p.allows(permission))
+  /**
+   * Chỉ check override permission
+   * (Role preset sẽ được xử lý ở Usecase)
+   */
+  hasOverridePermission(code: PermissionCode): boolean {
+    return this.permissions.has(code);
   }
 
-  grant(permission: Permission): User {
-    if (this.hasPermission(permission)) return this
-    this.assertPermissionAllowed(permission)
 
-    return this.clone({
-      permissions: [...this.permissions, permission],
-    })
+  /**
+   * Lấy tất cả các quyền của người dùng (bao gồm cả quyền mặc định từ role và quyền override)
+   */
+  getEffectivePermissions(rolePermissions: Permission[]): string[] {
+    return EffectivePermissionService.resolve(rolePermissions, this.permissions);
   }
 
-  // ===== internal =====
+  /**
+   * Kiểm tra quyền thực tế của User (kết hợp Role Preset + Override)
+   * @param permission Quyền cần kiểm tra
+   * @param rolePermissions Danh sách quyền mặc định của Role (lấy từ Policy)
+   */
+  can(permission: PermissionCode, rolePermissions: Permission[]): boolean {
+    return EffectivePermissionService.can(
+      permission,
+      rolePermissions,
+      this.permissions
+    );
+  }
+
+  isDisabled(): boolean {
+    return !this.isActive;
+  }
+
+  /* ==============================
+   * STATE CHANGE (IMMUTABLE)
+   * ============================== */
+
+  applyPermissions(permissions: UserPermissions): User {
+    return this.clone({ permissions });
+  }
+
+  deactivate(): User {
+    if (!this.isActive) return this;
+    return this.clone({ isActive: false });
+  }
+
+  activate(): User {
+    if (this.isActive) return this;
+    return this.clone({ isActive: true });
+  }
+
+  /* ==============================
+   * INTERNAL
+   * ============================== */
 
   private clone(overrides: Partial<UserProps>): User {
     return new User({
@@ -73,20 +120,6 @@ export class User extends AggregateRoot<UserId> {
       permissions: this.permissions,
       isActive: this.isActive,
       ...overrides,
-    })
-  }
-
-  private assertPermissionAllowed(permission: Permission) {
-    if (!this.profile.supportsPermission(permission)) {
-      throw new Error('PERMISSION_NOT_ALLOWED_FOR_ROLE')
-    }
-  }
-
-  private static uniquePermissions(
-    permissions: readonly Permission[],
-  ): Permission[] {
-    return permissions.filter(
-      (p, i, arr) => arr.findIndex(x => x.equals(p)) === i,
-    )
+    });
   }
 }

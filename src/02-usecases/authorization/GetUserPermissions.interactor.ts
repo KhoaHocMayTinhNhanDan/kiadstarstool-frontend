@@ -1,20 +1,17 @@
-// src/02-usecases/authorization/CheckPermission.interactor.ts
+// src/02-usecases/authorization/GetUserPermissions.interactor.ts
 import { type IUserRepository } from '../ports/repositories/IUserRepository';
 import { Result } from '../../01-entities/shared/base/result';
-import { Permission } from '../../01-entities/users/base/Permission.vo';
-import { type PermissionCode } from '../../shared/constants/authorization/auth.domain';
 import { buildRolePermissions } from '../../shared/constants/authorization/auth.policy';
 
 interface Input {
   userId: string;
-  permission: PermissionCode;
 }
 
 interface Output {
-  allowed: boolean;
+  permissions: string[]; // Trả về danh sách các quyền người dùng có
 }
 
-export class CheckPermissionInteractor {
+export class GetUserPermissionsInteractor {
   private readonly userRepository: IUserRepository;
 
   constructor(userRepository: IUserRepository) {
@@ -23,30 +20,27 @@ export class CheckPermissionInteractor {
 
   async execute(input: Input): Promise<Result<Output>> {
     try {
-      // 1. Validate permission format
-      const permissionOrError = Permission.create(input.permission);
-      if (permissionOrError.isFailure) {
-        return Result.fail<Output>(String(permissionOrError.getErrorValue()));
-      }
-
-      const permission = permissionOrError.getValue();
-
-      // 2. Load user
+      // 1. Tìm user theo userId
       const user = await this.userRepository.getById(input.userId);
       if (!user) {
         return Result.fail<Output>('User not found');
       }
 
+      // ✅ Kiểm tra trạng thái của user
       if (user.isDisabled()) {
-        return Result.ok({ allowed: false });
+        return Result.fail<Output>('User is inactive');
       }
 
-      // 3. Build effective permissions using the service
+      // 2. Xử lý quyền mặc định từ role (Role Preset)
       const rolePermissions = buildRolePermissions(user.role.value);
-      const allowed = user.can(permission.value, rolePermissions);
 
-      return Result.ok({ allowed });
+      // 3. Kết hợp quyền của user (bao gồm cả quyền override)
+      const allPermissions = user.getEffectivePermissions(rolePermissions);
 
+      // 4. Trả về tất cả quyền người dùng có thể thực thi
+      return Result.ok({
+        permissions: allPermissions,
+      });
     } catch (error) {
       return Result.fail<Output>('Internal server error');
     }

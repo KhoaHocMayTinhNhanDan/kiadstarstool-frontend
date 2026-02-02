@@ -1,15 +1,54 @@
-class RevokeUserPermissionInteractor {
-  constructor(private userRepo: IUserRepository) {}
+import { type IUserRepository } from '../ports/repositories/IUserRepository';
+import { Result } from '../../01-entities/shared/base/result';
+import { Permission } from '../../01-entities/users/base/Permission.vo';
+import { type PermissionCode } from '../../shared/constants/authorization/auth.domain';
 
-  async execute(userId: string, permissionCode: string) {
-    const user = await this.userRepo.findById(userId);
-    const permission = Permission.create(permissionCode);
+interface Input {
+  userId: string;
+  permission: PermissionCode;
+}
 
-    if (permission.isFailure) return Result.fail(permission.error);
+export class RevokeUserPermissionInteractor {
+  private readonly userRepository: IUserRepository;
 
-    user.revokePermission(permission.getValue());
-    await this.userRepo.save(user);
+  constructor(userRepository: IUserRepository) {
+    this.userRepository = userRepository;
+  }
 
-    return Result.ok();
+  async execute(input: Input): Promise<Result<void>> {
+    try {
+      // 1. Validate permission format
+      const permissionOrError = Permission.create(input.permission);
+      if (permissionOrError.isFailure) {
+        return Result.fail<void>(String(permissionOrError.getErrorValue()));
+      }
+
+      const permission = permissionOrError.getValue();
+
+      // 2. Load user
+      const user = await this.userRepository.getById(input.userId);
+      if (!user) {
+        return Result.fail<void>('User not found');
+      }
+
+      if (user.isDisabled()) {
+        return Result.fail<void>('User is disabled');
+      }
+
+      // 3. Revoke (idempotent)
+      if (!user.permissions.has(permission.value)) {
+        return Result.ok();
+      }
+
+      const updatedPermissions = user.permissions.revoke(permission.value);
+      const updatedUser = user.applyPermissions(updatedPermissions);
+
+      // 4. Persist
+      await this.userRepository.save(updatedUser);
+
+      return Result.ok();
+    } catch (error) {
+      return Result.fail<void>('Internal server error');
+    }
   }
 }

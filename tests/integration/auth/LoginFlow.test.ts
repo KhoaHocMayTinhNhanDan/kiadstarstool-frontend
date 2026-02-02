@@ -9,6 +9,7 @@ import { User } from '../../../src/01-entities/users/User.entity';
 import { UserId } from '../../../src/01-entities/users/base/UserId.vo';
 import { UserRole } from '../../../src/01-entities/users/base/UserRole.vo';
 import { StaffProfile } from '../../../src/01-entities/users/archetypes/staff/StaffProfile.vo';
+import { UserPermissions } from '../../../src/01-entities/users/base/UserPermissions.vo';
 
 // --- MOCKS ---
 // Chúng ta mock Interface thay vì implementation thật để kiểm soát kịch bản test
@@ -51,7 +52,7 @@ describe('Integration: Login Flow', () => {
       id: UserId.create('user-123'),
       role: UserRole.create('staff').getValue(),
       profile: new StaffProfile({ displayName: 'Staff Member' }),
-      defaultPermissions: [],
+      permissions: UserPermissions.empty(),
       isActive: true
     });
     mockUserRepo.getById.mockResolvedValue(mockUser);

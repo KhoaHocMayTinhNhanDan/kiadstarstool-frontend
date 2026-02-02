@@ -1,10 +1,13 @@
+// src/02-usecases/auth/login/Login.interactor.ts
 import { Result } from '../../../01-entities/shared/base/result';
 import { AuthError } from '../../../01-entities/errors/AuthError';
 import { Credentials } from '../../../01-entities/auth/Credentials.vo';
 import { IAuthRepository } from '../../ports/repositories/IAuthRepository';
-import { IUserRepository } from '../../ports/repositories/IUserRepository';
+import { type IUserRepository } from '../../ports/repositories/IUserRepository';
 import type { LoginInput } from './Login.input';
 import type { LoginOutput } from './Login.output';
+import { buildRolePermissions } from '../../../shared/constants/authorization/auth.policy';
+import { EffectivePermissionService } from '../../../01-entities/users/services/EffectivePermission.service';
 
 export class LoginInteractor {
   private readonly authRepo: IAuthRepository;
@@ -17,7 +20,6 @@ export class LoginInteractor {
     this.authRepo = authRepo;
     this.userRepo = userRepo;
   }
-
 
   async execute(input: LoginInput): Promise<Result<LoginOutput>> {
     const credentialsResult = Credentials.create(
@@ -48,11 +50,18 @@ export class LoginInteractor {
       return Result.fail<LoginOutput>(AuthError.accountBlocked().message);
     }
 
+    // Calculate effective permissions using the new service
+    const rolePermissions = buildRolePermissions(user.role.value);
+    const effectivePermissions = EffectivePermissionService.resolve(
+      rolePermissions,
+      user.permissions
+    );
+
     return Result.ok({
       userId: user.id.value,
       displayName: user.profile.displayName,
       role: user.role.value,
-      permissions: user.permissions.map((p) => p.value),
+      permissions: effectivePermissions, // return effective permissions
       accessToken: auth.accessToken,
       refreshToken: auth.refreshToken,
     });
