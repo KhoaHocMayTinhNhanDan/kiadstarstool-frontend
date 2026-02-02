@@ -5,6 +5,7 @@
  * ============================== */
 
 import { PERMISSIONS, type PermissionCode, type RoleCode } from './auth.domain';
+import { Permission } from '../../../01-entities/users/base/Permission.vo';
 
 export const ROLE_PRESETS: Record<RoleCode, PermissionCode[]> = {
   admin: [
@@ -41,3 +42,11 @@ export const ROLE_PRESETS: Record<RoleCode, PermissionCode[]> = {
  * Helper để lấy danh sách quyền mặc định cho một Role
  */
 export const getPermissionsForRole = (role: RoleCode): PermissionCode[] => ROLE_PRESETS[role] ?? [];
+
+
+export const buildRolePermissions = (role: RoleCode): Permission[] => {
+  return (ROLE_PRESETS[role] ?? [])
+    .map(code => Permission.create(code))
+    .filter(r => r.isSuccess)
+    .map(r => r.getValue());
+};
