@@ -10,6 +10,11 @@ import { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.pres
 import { createLoginInteractor } from '@/02-usecases/auth/login/Login.interactor'
 import { createLogoutInteractor } from '@/02-usecases/auth/logout/Logout.interactor'
 import { AuthController } from '@/03-interface-adapters/controllers/Auth.controller'
+import { CheckPermissionInteractor } from '@/02-usecases/authorization/CheckPermission.interactor'
+import { GetUserPermissionsInteractor } from '@/02-usecases/authorization/GetUserPermissions.interactor'
+import { GrantUserPermissionInteractor } from '@/02-usecases/authorization/GrantUserPermission.interactor'
+import { RevokeUserPermissionInteractor } from '@/02-usecases/authorization/RevokeUserPermission.interactor'
+import { AuthorizationController } from '@/03-interface-adapters/controllers/Authorization.controller'
 
 export interface BootstrapOptions {
   useMockAuth?: boolean
@@ -55,6 +60,18 @@ export function bootstrapApp(options: BootstrapOptions = {}): void {
   
   const authController = new AuthController(loginInteractor, logoutInteractor)
 
+  // 1.1 Initialize Authorization (New)
+  const checkPermissionInteractor = new CheckPermissionInteractor(userRepository)
+  const getUserPermissionsInteractor = new GetUserPermissionsInteractor(userRepository)
+  const grantUserPermissionInteractor = new GrantUserPermissionInteractor(userRepository)
+  const revokeUserPermissionInteractor = new RevokeUserPermissionInteractor(userRepository)
+
+  const authorizationController = new AuthorizationController(
+    checkPermissionInteractor,
+    getUserPermissionsInteractor,
+    grantUserPermissionInteractor,
+    revokeUserPermissionInteractor
+  )
 
   // 2. Create Application Context
   const context: AppContextType = {
@@ -72,6 +89,10 @@ export function bootstrapApp(options: BootstrapOptions = {}): void {
       loginInteractor,
       logoutInteractor,
       controller: authController
+    },
+
+    authorization: {
+      controller: authorizationController
     }
   }
 
@@ -87,7 +108,6 @@ export function bootstrapApp(options: BootstrapOptions = {}): void {
       ...modeInfo,
       apiBaseUrl,
       hasAuth: !!context.auth,
-      hasPing: !!context.ping
     })
   }
 }

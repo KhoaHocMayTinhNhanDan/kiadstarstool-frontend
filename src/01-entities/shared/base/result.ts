@@ -2,10 +2,10 @@
 export class Result<T> {
   public isSuccess: boolean;
   public isFailure: boolean;
-  private error: T | string | undefined;
+  private error: string | undefined;
   private _value: T | undefined;
 
-  private constructor(isSuccess: boolean, error?: T | string, value?: T) {
+  private constructor(isSuccess: boolean, error?: string, value?: T) {
     if (isSuccess && error) {
       throw new Error("InvalidOperation: A result cannot be successful and contain an error");
     }
@@ -28,7 +28,7 @@ export class Result<T> {
     return this._value;
   }
 
-  public getErrorValue(): T | string {
+  public getErrorValue(): string {
     if (this.isSuccess || this.error === undefined) {
       throw new Error("Cannot get the error of a success result.");
     }
@@ -39,7 +39,7 @@ export class Result<T> {
     return new Result<U>(true, undefined, value);
   }
 
-  public static fail<U>(error: U | string): Result<U> {
+  public static fail<U>(error: string): Result<U> {
     return new Result<U>(false, error);
   }
 }

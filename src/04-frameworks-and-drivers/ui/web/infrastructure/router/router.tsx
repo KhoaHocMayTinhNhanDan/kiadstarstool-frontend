@@ -1,6 +1,6 @@
 // src/04-frameworks-and-drivers/ui/web/infrastructure/router/router.tsx
 import { createBrowserRouter, type RouteObject, Navigate } from 'react-router-dom';
-import { RouteGuard } from './RouteGuard';
+import { ProtectedRoute } from './ProtectedRoute';
 import { LoginPageTest } from '../../pages/auth/LoginPage-test';
 import { DashboardPage } from '../../pages/dashboard/DashboardPage';
 import { NotFoundPage } from '../../pages/system/NotFoundPage';
@@ -8,6 +8,7 @@ import { DevShowcasePage } from '../../pages/playground/DevShowcasePage';
 import { RootLayout } from '../../components/organisms/layouts/RootLayout';
 import { AuthLayout } from '../../components/organisms/layouts/AuthLayout';
 import { MainLayout } from '../../components/organisms/layouts/MainLayout';
+import { PERMISSIONS } from '@/shared/constants/authorization/auth.domain';
 /* ==========================================================================
  * Router Configuration
  * ========================================================================== */
@@ -40,19 +41,29 @@ const routes: RouteObject[] = [
 
       // 2. Protected Routes (Dashboard...)
       {
-        element: (
-          <RouteGuard requiredRoles={['admin', 'manager', 'staff']}>
-            <MainLayout />
-          </RouteGuard>
-        ),
+        // Level 1 Guard: User must be authenticated to access any of these routes.
+        // ProtectedRoute không có props sẽ chỉ kiểm tra xác thực.
+        element: <ProtectedRoute />,
         children: [
           {
-            path: ROUTES.DASHBOARD,
-            element: <DashboardPage />,
-          },
-          {
-            path: ROUTES.DEV_UI,
-            element: <DevShowcasePage />,
+            // MainLayout cung cấp UI chung (sidebar, navbar) cho các trang được bảo vệ.
+            element: <MainLayout />,
+            children: [
+              {
+                path: ROUTES.DASHBOARD,
+                element: <DashboardPage />,
+              },
+              {
+                // Level 2 Guard: User phải có quyền cụ thể để truy cập route này.
+                element: <ProtectedRoute requiredPermissions={[PERMISSIONS.USER_MANAGE]} />,
+                children: [
+                  {
+                    path: ROUTES.DEV_UI,
+                    element: <DevShowcasePage />,
+                  },
+                ],
+              },
+            ],
           },
         ],
       },

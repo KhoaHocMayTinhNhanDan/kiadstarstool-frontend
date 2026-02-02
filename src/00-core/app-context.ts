@@ -1,19 +1,16 @@
 // src/00-core/app-context.ts
 
-import type { PingController } from '@/03-interface-adapters/controllers/Ping.controller'
 import type { AuthController } from '@/03-interface-adapters/controllers/Auth.controller'
+import type { AuthorizationController } from '@/03-interface-adapters/controllers/Authorization.controller'
 import type { AuthRepository } from '@/03-interface-adapters/gateways/repositories/AuthRepository'
 import type { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
-import type { LoginInteractor } from '@/02-usecases/usecases/authentication/Login.interactor'
-import type { LogoutInteractor } from '@/02-usecases/usecases/authentication/Logout.interactor'
+import type { LoginInteractor } from '@/02-usecases/auth/login/Login.interactor'
+import type { LogoutInteractor } from '@/02-usecases/auth/logout/Logout.interactor'
 import type { IAuthDriver } from '@/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver'
+import { auth } from '@/shared/config/firebase';
 
 export type AppContextType = {
-  // Ping feature
-  ping?: {
-    controller: PingController
-    presenter?: any // Thêm nếu có PingPresenter
-  }
+  
   
   // Authentication feature
   auth?: {
@@ -23,6 +20,11 @@ export type AppContextType = {
     loginInteractor: LoginInteractor
     logoutInteractor?: LogoutInteractor
     controller: AuthController
+  }
+
+  // Authorization feature
+  authorization?: {
+    controller: AuthorizationController
   }
   
   // Configuration
@@ -45,7 +47,6 @@ class AppContextImpl {
     console.log('[AppContext] Context initialized', {
       mode: ctx.config?.authDriverType || 'unknown',
       hasAuth: !!ctx.auth,
-      hasPing: !!ctx.ping
     })
   }
 
@@ -68,13 +69,15 @@ class AppContextImpl {
     return ctx.auth
   }
 
-  static getPing() {
+  static getAuthorization() {
     const ctx = this.get()
-    if (!ctx.ping) {
-      throw new Error('[AppContext] Ping feature not configured')
+    if (!ctx.authorization) {
+      throw new Error('[AppContext] Authorization feature not configured.')
     }
-    return ctx.ping
+    return ctx.authorization
   }
+
+
 
   static getConfig() {
     const ctx = this.get()
@@ -96,6 +99,10 @@ class AppContextImpl {
     return this.getAuth().controller
   }
 
+  static getAuthorizationController(): AuthorizationController {
+    return this.getAuthorization().controller
+  }
+
   static getLoginInteractor(): LoginInteractor {
     return this.getAuth().loginInteractor
   }
@@ -106,10 +113,6 @@ class AppContextImpl {
 
   static getAuthPresenter(): AuthPresenter {
     return this.getAuth().presenter
-  }
-
-  static getPingController(): PingController {
-    return this.getPing().controller
   }
 
   /* =====================
@@ -164,8 +167,8 @@ class AppContextImpl {
     return {
       mode: ctx.config?.isMockMode ? 'mock' : 'production',
       features: [
-        ...(ctx.ping ? ['ping'] : []),
-        ...(ctx.auth ? ['auth'] : [])
+        ...(ctx.auth ? ['auth'] : []),
+        ...(ctx.authorization ? ['authorization'] : [])
       ],
       config: ctx.config || {},
       auth: ctx.auth ? {

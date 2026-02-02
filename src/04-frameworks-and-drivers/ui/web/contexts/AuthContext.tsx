@@ -1,0 +1,89 @@
+import React, { createContext, useState, useCallback, useEffect, useMemo } from 'react';
+import { AppContext } from '@/00-core/app-context';
+import { type LoginInput } from '@/02-usecases/auth/login/Login.input';
+import { type LoginOutput } from '@/02-usecases/auth/login/Login.output';
+import { useToast } from '../hooks/useToast';
+
+// 1. Định nghĩa "hình dạng" của Context
+interface AuthContextType {
+  user: LoginOutput | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (input: LoginInput) => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+// 2. Tạo Context (export để useAuth.ts có thể dùng)
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// 3. Tạo Provider Component
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<LoginOutput | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // Bắt đầu loading để kiểm tra session
+  const { toast } = useToast();
+
+  // Khi component mount lần đầu, thử tải user từ localStorage để duy trì phiên đăng nhập
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error("Failed to parse user from localStorage", error);
+      localStorage.removeItem('user');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const login = useCallback(
+    async (input: LoginInput) => {
+      setIsLoading(true);
+      try {
+        const controller = AppContext.getAuthController();
+        const result = await controller.login(input);
+
+        if (result.isSuccess) {
+          const userData = result.getValue();
+          setUser(userData);
+          // Lưu session của user
+          localStorage.setItem('user', JSON.stringify(userData));
+          // Lưu userId để các hook khác (như usePermission) tiện sử dụng
+          localStorage.setItem('userId', userData.userId);
+          toast.success('Đăng nhập thành công!');
+        } else {
+          // Ném lỗi để component UI có thể bắt và hiển thị
+          throw new Error(result.getErrorValue());
+        }
+      } catch (error: any) {
+        toast.error(error.message || 'Đăng nhập thất bại.');
+        // Ném lại lỗi để form có thể xử lý state của nó (vd: dừng loading spinner của button)
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [toast]
+  );
+
+  const logout = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const controller = AppContext.getAuthController();
+      await controller.logout();
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      // Luôn xóa state ở frontend
+      setUser(null);
+      localStorage.removeItem('user');
+      localStorage.removeItem('userId');
+      setIsLoading(false);
+    }
+  }, []);
+
+  const value = useMemo(() => ({ user, isAuthenticated: !!user, isLoading, login, logout }), [user, isLoading, login, logout]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
