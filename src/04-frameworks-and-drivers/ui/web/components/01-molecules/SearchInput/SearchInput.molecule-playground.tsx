@@ -1,0 +1,34 @@
+import { Box } from '../../00-atoms/Box';
+import { Text } from '../../00-atoms/Text';
+import { SearchInput } from './SearchInput.molecule';
+
+export const SearchInputPlayground = () => {
+  return (
+    <Box p="lg">
+      <Text as="h2" size="2xl" weight="bold" style={{ marginBottom: 24 }}>
+        🔍 SearchInput Demo
+      </Text>
+
+      <Box display="flex" flexDirection="column" gap="xl" maxW="400px">
+        <section>
+          <Text size="lg" weight="bold" style={{ marginBottom: 16 }}>Default</Text>
+          <SearchInput />
+        </section>
+
+        <section>
+          <Text size="lg" weight="bold" style={{ marginBottom: 16 }}>Sizes</Text>
+          <Box display="flex" flexDirection="column" gap="md">
+            <SearchInput size="sm" placeholder="Small search..." />
+            <SearchInput size="md" placeholder="Medium search..." />
+            <SearchInput size="lg" placeholder="Large search..." />
+          </Box>
+        </section>
+
+        <section>
+          <Text size="lg" weight="bold" style={{ marginBottom: 16 }}>Disabled</Text>
+          <SearchInput disabled placeholder="Cannot search..." />
+        </section>
+      </Box>
+    </Box>
+  );
+};

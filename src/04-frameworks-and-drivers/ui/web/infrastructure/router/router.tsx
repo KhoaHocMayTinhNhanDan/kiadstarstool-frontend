@@ -5,9 +5,9 @@ import { LoginPageTest } from '../../pages/auth/LoginPage-test';
 import { DashboardPage } from '../../pages/dashboard/DashboardPage';
 import { NotFoundPage } from '../../pages/system/NotFoundPage';
 import { DevShowcasePage } from '../../pages/playground/DevShowcasePage';
-import { RootLayout } from '../../components/organisms/layouts/RootLayout';
-import { AuthLayout } from '../../components/organisms/layouts/AuthLayout';
-import { MainLayout } from '../../components/organisms/layouts/MainLayout';
+import { RootLayout } from '../../components/02-organisms/layouts/RootLayout';
+import { AuthLayout } from '../../components/02-organisms/layouts/AuthLayout';
+import { MainLayout } from '../../components/02-organisms/layouts/MainLayout';
 import { PERMISSIONS } from '@/shared/constants/authorization/auth.domain';
 /* ==========================================================================
  * Router Configuration

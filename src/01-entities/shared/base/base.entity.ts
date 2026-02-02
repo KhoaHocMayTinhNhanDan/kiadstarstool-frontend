@@ -1,4 +1,4 @@
-// src/01-entities/shared/base/Base.entity.ts
+
 import { Identifier } from '../Identifier.vo'
 
 export interface EntityProps {
@@ -15,7 +15,7 @@ export abstract class Entity<TId extends Identifier> {
   public readonly id: TId
 
   protected constructor(props: EntityProps) {
-    this.id = (props.id as TId) ?? (Identifier.create() as unknown as TId)
+    this.id = (props.id as TId) ?? Identifier.create()
   }
 
   public equals(object?: Entity<TId>): boolean {

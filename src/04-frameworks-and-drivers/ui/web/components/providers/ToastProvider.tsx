@@ -1,8 +1,8 @@
 /** @jsxImportSource @emotion/react */
 import { createContext, useState, useCallback, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { Toast } from '../molecules/Toast';
-import { Box } from '../atoms/Box';
+import { Toast } from '../01-molecules/Toast';
+import { Box } from '../00-atoms/Box';
 
 export type ToastType = 'success' | 'info' | 'warning' | 'error';
 

@@ -1,67 +1,67 @@
 // src/04-frameworks-and-drivers/ui/web/pages/dev/DevShowcasePage.tsx
 import { useState, useMemo } from 'react'
-import { AvatarPlayground } from '../../components/atoms/Avatar/Avatar-playground'
-import { BadgePlayground } from '../../components/atoms/Badge/Badge-playground'
-import { BoxPlayground } from '../../components/atoms/Box/Box-playground'
-import { ButtonPlayground } from '../../components/atoms/Button/Button-playground'
-import { CardPlayground } from '../../components/atoms/Card/Card-playground'
-import { CheckboxPlayground } from '../../components/atoms/Checkbox/Checkbox-playground'
-import { ChipPlayground } from '../../components/atoms/Chip/Chip-playground'
-import { IconPlayground } from '../../components/atoms/Icon/Icon-playground'
-import { IconButtonPlayground } from '../../components/atoms/IconButton/IconButton-playground'
-import { InputPlayground } from '../../components/atoms/Input/Input-playground'
-import { LoadingSpinnerPlayground } from '../../components/atoms/LoadingSpinner/LoadingSpinner-playground'
-import { LogoPlayground } from '../../components/atoms/Logo/Logo-playground'
-import { ProgressPlayground } from '../../components/atoms/Progress/Progress-playground'
-import { RadioPlayground } from '../../components/atoms/Radio/Radio-playground'
-import { SkeletonPlayground } from '../../components/atoms/Skeleton/Skeleton-playground'
-import { SelectPlayground } from '../../components/atoms/Select/Select-playground'
-import { SliderPlayground } from '../../components/atoms/Slider/Slider-playground'
-import { SwitchPlayground } from '../../components/atoms/Switch/Switch-playground'
-import { TextPlayground } from '../../components/atoms/Text/Text-playground'
-import { TextareaPlayground } from '../../components/atoms/Textarea/Textarea-playground'
-import { DividerPlayground } from '../../components/atoms/Divider/Divider-playground'
+import { AvatarPlayground } from '../../components/00-atoms/Avatar/Avatar-playground'
+import { BadgePlayground } from '../../components/00-atoms/Badge/Badge-playground'
+import { BoxPlayground } from '../../components/00-atoms/Box/Box-playground'
+import { ButtonPlayground } from '../../components/00-atoms/Button/Button-playground'
+import { CardPlayground } from '../../components/00-atoms/Card/Card-playground'
+import { CheckboxPlayground } from '../../components/00-atoms/Checkbox/Checkbox-playground'
+import { ChipPlayground } from '../../components/00-atoms/Chip/Chip-playground'
+import { IconPlayground } from '../../components/00-atoms/Icon/Icon-playground'
+import { IconButtonPlayground } from '../../components/00-atoms/IconButton/IconButton-playground'
+import { InputPlayground } from '../../components/00-atoms/Input/Input-playground'
+import { LoadingSpinnerPlayground } from '../../components/00-atoms/LoadingSpinner/LoadingSpinner-playground'
+import { LogoPlayground } from '../../components/00-atoms/Logo/Logo-playground'
+import { ProgressPlayground } from '../../components/00-atoms/Progress/Progress-playground'
+import { RadioPlayground } from '../../components/00-atoms/Radio/Radio-playground'
+import { SkeletonPlayground } from '../../components/00-atoms/Skeleton/Skeleton-playground'
+import { SelectPlayground } from '../../components/00-atoms/Select/Select-playground'
+import { SliderPlayground } from '../../components/00-atoms/Slider/Slider-playground'
+import { SwitchPlayground } from '../../components/00-atoms/Switch/Switch-playground'
+import { TextPlayground } from '../../components/00-atoms/Text/Text-playground'
+import { TextareaPlayground } from '../../components/00-atoms/Textarea/Textarea-playground'
+import { DividerPlayground } from '../../components/00-atoms/Divider/Divider-playground'
 
-import { FormFieldPlayground } from '../../components/molecules/FormField/FormField.molecule-playground'
-import { ModalPlayground } from '../../components/molecules/Modal/Modal.playground'
-import { UserCardPlayground } from '../../components/molecules/UserCard/UserCard.molecule-playground'
-import { LanguageSelectorPlayground } from '../../components/molecules/LanguageSelector/LanguageSelector.molecule-playground'
-import { SearchInputPlayground } from '../../components/molecules/SearchInput/SearchInput.molecule-playground'
-import { ThemeTogglePlayground } from '../../components/molecules/ThemeToggle/ThemeToggle.molecule-playground'
-import { DropdownMenuPlayground } from '../../components/molecules/DropdownMenu/DropdownMenu.molecule-playground'
-import { ToastPlayground } from '../../components/molecules/Toast/Toast.molecule-playground'
+import { FormFieldPlayground } from '../../components/01-molecules/FormField/FormField.molecule-playground'
+import { ModalPlayground } from '../../components/01-molecules/Modal/Modal.playground'
+import { UserCardPlayground } from '../../components/01-molecules/UserCard/UserCard.molecule-playground'
+import { LanguageSelectorPlayground } from '../../components/01-molecules/LanguageSelector/LanguageSelector.molecule-playground'
+import { SearchInputPlayground } from '../../components/01-molecules/SearchInput/SearchInput.molecule-playground'
+import { ThemeTogglePlayground } from '../../components/01-molecules/ThemeToggle/ThemeToggle.molecule-playground'
+import { DropdownMenuPlayground } from '../../components/01-molecules/DropdownMenu/DropdownMenu.molecule-playground'
+import { ToastPlayground } from '../../components/01-molecules/Toast/Toast.molecule-playground'
 
-import { LoginFormPlayground } from '../../components/organisms/auth/LoginForm/LoginForm.organism-playground'
-import { ForgotPasswordFormPlayground } from '../../components/organisms/auth/ForgotPasswordForm/ForgotPasswordForm.organism-playground'
+import { LoginFormPlayground } from '../../components/02-organisms/auth/LoginForm/LoginForm.organism-playground'
+import { ForgotPasswordFormPlayground } from '../../components/02-organisms/auth/ForgotPasswordForm/ForgotPasswordForm.organism-playground'
 
 // Card
-import { DashboardCardPlayground } from '../../components/organisms/cards/DashboardCard/DashboardCard.playground'
-import { StatsCardPlayground } from '../../components/organisms/cards/StatsCard/StatsCard.playground'
-import { UserProfileCardPlayground } from './../../components/organisms/cards/UserProfileCard/UserProfileCard.playground'
+import { DashboardCardPlayground } from '../../components/02-organisms/cards/DashboardCard/DashboardCard.playground'
+import { StatsCardPlayground } from '../../components/02-organisms/cards/StatsCard/StatsCard.playground'
+import { UserProfileCardPlayground } from '../../components/02-organisms/cards/UserProfileCard/UserProfileCard.playground'
 
 // Modal
-import { ConfirmDialogPlayground } from '../../components/organisms/modals/ConfirmDialog/ConfirmDialog.playground' 
+import { ConfirmDialogPlayground } from '../../components/02-organisms/modals/ConfirmDialog/ConfirmDialog.playground' 
 
-import { DataTablePlayground } from '../../components/organisms/data/DataTable/DataTable.organism-playground'
-import { RadarChartPlayground } from  '../../components/organisms/charts/RadarChart/RadarChart.organism-playground';
-import { BarChartPlayground } from './../../components/organisms/charts/BarChart/BarChart.organism-playground';
-import { GaugeChartPlayground } from '../../components/organisms/charts/GaugeChart/GaugeChart.organism-playground';
-import { HeatmapChartPlayground } from './../../components/organisms/charts/HeatmapChart/HeatmapChart-playground';
-import { StackedBarChartPlayground } from '../../components/organisms/charts/StackedBarChart/StackedBarChart-playground'
+import { DataTablePlayground } from '../../components/02-organisms/data/DataTable/DataTable.organism-playground'
+import { RadarChartPlayground } from  '../../components/02-organisms/charts/RadarChart/RadarChart.organism-playground';
+import { BarChartPlayground } from '../../components/02-organisms/charts/BarChart/BarChart.organism-playground';
+import { GaugeChartPlayground } from '../../components/02-organisms/charts/GaugeChart/GaugeChart.organism-playground';
+import { HeatmapChartPlayground } from '../../components/02-organisms/charts/HeatmapChart/HeatmapChart-playground';
+import { StackedBarChartPlayground } from '../../components/02-organisms/charts/StackedBarChart/StackedBarChart-playground'
 
-import { AdvancedFilterPlayground } from '../../components/organisms/forms/AdvancedFilter/AdvancedFilter.form-playground'
-import { MultiStepFormPlayground } from '../../components/organisms/forms/MultiStepForm/MultiStepForm.playground'
-import { SearchFilterFormPlayground } from './../../components/organisms/forms/SearchFilterForm/SearchFilterForm.playground';
+import { AdvancedFilterPlayground } from '../../components/02-organisms/forms/AdvancedFilter/AdvancedFilter.form-playground'
+import { MultiStepFormPlayground } from '../../components/02-organisms/forms/MultiStepForm/MultiStepForm.playground'
+import { SearchFilterFormPlayground } from '../../components/02-organisms/forms/SearchFilterForm/SearchFilterForm.playground';
 
-import { LoginPageTest } from '../auth/LoginPage-test'
+import { LoginPageTest } from '../auth/LoginPage-test' 
 import { AppContext } from '@/00-core/app-context'
-import { ErrorBoundary } from '../../components/organisms/feedback/system/ErrorBoundary'
+import { ErrorBoundary } from '../../components/02-organisms/feedback/system/ErrorBoundary'
 import { ToastProvider } from '../../components/providers/ToastProvider'
 
 
 // feedback
-import { ErrorBoundaryPlayground } from '../../components/organisms/feedback/system/ErrorBoundary/ErrorBoundary.playground'
-import { LoadingOverlayPlayground } from '../../components/organisms/feedback/system/LoadingOverlay/LoadingOverlay.playground'
+import { ErrorBoundaryPlayground } from '../../components/02-organisms/feedback/system/ErrorBoundary/ErrorBoundary.playground'
+import { LoadingOverlayPlayground } from '../../components/02-organisms/feedback/system/LoadingOverlay/LoadingOverlay.playground'
 
 // Type definitions for the sidebar structure
 type ComponentItem = {

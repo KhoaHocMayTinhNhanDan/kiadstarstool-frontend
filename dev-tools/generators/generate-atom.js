@@ -41,7 +41,7 @@ fs.mkdirSync(atomPath, { recursive: true });
 console.log(`✅ Created folder: ${atomPath}`);
 
 // ===================== CONSTANTS TEMPLATE =====================
-const constantsContent = `// src/04-frameworks-and-drivers/ui/web/components/atoms/${folderName}/${componentName}.constants.ts
+const constantsContent = `// src/04-frameworks-and-drivers/ui/web/components/00-atoms/${folderName}/${componentName}.constants.ts
 
 // ===== VARIANT CONFIGURATION =====
 export const ${componentName.toUpperCase()}_VARIANTS = ['default', 'primary', 'secondary'] as const;
@@ -199,7 +199,7 @@ export const ${componentName.toUpperCase()}_I18N_KEYS = {
 `;
 
 // ===================== TYPES TEMPLATE =====================
-const typesContent = `// src/04-frameworks-and-drivers/ui/web/components/atoms/${folderName}/${componentName}.types.ts
+const typesContent = `// src/04-frameworks-and-drivers/ui/web/components/00-atoms/${folderName}/${componentName}.types.ts
 import type { 
   ${componentName}Variant, 
   ${componentName}Size 
@@ -302,7 +302,7 @@ export interface ${componentName}GroupProps {
 `;
 
 // ===================== STYLES TEMPLATE =====================
-const stylesContent = `// src/04-frameworks-and-drivers/ui/web/components/atoms/${folderName}/${componentName}.styles.ts
+const stylesContent = `// src/04-frameworks-and-drivers/ui/web/components/00-atoms/${folderName}/${componentName}.styles.ts
 import styled, { css } from 'styled-components';
 import type { ${componentName}Variant, ${componentName}Size } from './${componentName}.constants';
 
@@ -469,7 +469,7 @@ export const LoadingSpinner = styled.div<{ $size: ${componentName}Size }>\`
 `;
 
 // ===================== COMPONENT TEMPLATE =====================
-const componentContent = `// src/04-frameworks-and-drivers/ui/web/components/atoms/${folderName}/${componentName}.tsx
+const componentContent = `// src/04-frameworks-and-drivers/ui/web/components/00-atoms/${folderName}/${componentName}.tsx
 import React, { forwardRef } from 'react';
 import { useI18n } from '@/shared/i18n';
 import { 
@@ -683,7 +683,7 @@ export default ${componentName};
 `;
 
 // ===================== TEST FILE TEMPLATE =====================
-const testContent = `// src/04-frameworks-and-drivers/ui/web/components/atoms/${folderName}/${componentName}-test.tsx
+const testContent = `// src/04-frameworks-and-drivers/ui/web/components/00-atoms/${folderName}/${componentName}-test.tsx
 import { useState } from 'react';
 import { ${componentName}, ${componentName}WithStatus, ${componentName}Group } from './${componentName}';
 import { useI18n } from '@/shared/i18n';
@@ -981,7 +981,7 @@ export function ${componentName}Test() {
 `;
 
 // ===================== INDEX FILE =====================
-const indexContent = `// src/04-frameworks-and-drivers/ui/web/components/atoms/${folderName}/index.ts
+const indexContent = `// src/04-frameworks-and-drivers/ui/web/components/00-atoms/${folderName}/index.ts
 export { default as ${componentName} } from './${componentName}';
 export { ${componentName}WithStatus, ${componentName}Group } from './${componentName}';
 export type { 
@@ -1017,7 +1017,7 @@ npm run generate:atom ${componentName}
 
 ## Usage
 \`\`\`tsx
-import { ${componentName}, ${componentName}WithStatus, ${componentName}Group } from './components/atoms/${folderName}';
+import { ${componentName}, ${componentName}WithStatus, ${componentName}Group } from './components/00-atoms/${folderName}';
 
 // Basic usage
 <${componentName} variant="primary" size="md">
@@ -1119,7 +1119,7 @@ Add these keys to your i18n files:
 ## Testing
 Run the test component in App.tsx:
 \`\`\`tsx
-import { ${componentName}Test } from './components/atoms/${folderName}/${componentName}-test';
+import { ${componentName}Test } from './components/00-atoms/${folderName}/${componentName}-test';
 \`\`\`
 
 ## Development
@@ -1184,5 +1184,5 @@ console.log(`1. Add I18N keys from ${folderName}/README.md`);
 console.log(`2. Customize variants/sizes in ${componentName}.constants.ts`);
 console.log(`3. Add ${componentName}Test to App.tsx`);
 console.log(`\n💡 Example usage:`);
-console.log(`import { ${componentName} } from './components/atoms/${folderName}';`);
+console.log(`import { ${componentName} } from './components/00-atoms/${folderName}';`);
 console.log(`<${componentName} variant="primary" size="lg">Click Me</${componentName}>`);

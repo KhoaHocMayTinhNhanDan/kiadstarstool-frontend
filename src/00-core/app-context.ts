@@ -7,7 +7,7 @@ import type { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth
 import type { LoginInteractor } from '@/02-usecases/auth/login/Login.interactor'
 import type { LogoutInteractor } from '@/02-usecases/auth/logout/Logout.interactor'
 import type { IAuthDriver } from '@/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver'
-import { auth } from '@/shared/config/firebase';
+
 
 export type AppContextType = {
   
