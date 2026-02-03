@@ -1,7 +1,7 @@
 // src/04-frameworks-and-drivers/ui/web/components/organisms/data/DataTable/DataTable.organism-playground.tsx
 import { useState } from 'react';
 import { DataTable } from './DataTable.organism';
-import { Box, Chip, Text, Button } from '../../../atoms';
+import { Box, Chip, Text, Button } from '../../../00-atoms';
 import {type Column} from './DataTable.types';
 
 

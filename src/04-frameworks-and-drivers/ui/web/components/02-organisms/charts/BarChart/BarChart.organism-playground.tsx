@@ -1,5 +1,5 @@
 import { BarChart } from './BarChart.organism';
-import { Box, Text } from '../../../atoms';
+import { Box, Text } from '../../../00-atoms';
 
 const MOCK_DATA = [
   { month: 'Jan', revenue: 4000, profit: 2400 },

@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-import { Box, Text, LoadingSpinner } from '../../../atoms';
+import { Box, Text, LoadingSpinner } from '../../../00-atoms';
 import { COLORS } from '../../../00-atoms/00-core/tokens-constants';
 import * as styles from './BarChart.organism.styles';
 import type { BarChartProps } from './BarChart.types';

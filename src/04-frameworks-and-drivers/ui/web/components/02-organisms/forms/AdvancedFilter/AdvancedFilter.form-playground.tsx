@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { useState } from 'react';
-import { Box, Text, Divider, Code } from '../../../atoms';
+import { Box, Text, Divider, Code } from '../../../00-atoms';
 import { AdvancedFilter } from './AdvancedFilter.form';
 import type {
   FilterField,

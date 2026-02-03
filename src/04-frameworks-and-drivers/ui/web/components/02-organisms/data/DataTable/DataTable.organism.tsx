@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import React from 'react';
-import { Button, LoadingSpinner, Checkbox, Text, Box } from '../../../atoms';
+import { Button, LoadingSpinner, Checkbox, Text, Box } from '../../../00-atoms';
 import * as styles from './DataTable.organism.styles';
 import type { DataTableProps } from './DataTable.types';
 

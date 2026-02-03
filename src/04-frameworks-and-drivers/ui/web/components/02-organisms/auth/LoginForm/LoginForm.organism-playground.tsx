@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import LoginForm, { type LoginFormData } from './LoginForm.organism';
-import { Box, Text } from '../../../atoms';
+import { Box, Text } from '../../../00-atoms';
 
 export const LoginFormPlayground = () => {
   // State cho Interactive Demo

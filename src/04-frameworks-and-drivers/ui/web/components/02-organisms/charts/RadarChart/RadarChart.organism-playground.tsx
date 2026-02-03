@@ -1,6 +1,6 @@
 // src/04-frameworks-and-drivers/ui/web/components/organisms/charts/RadarChart/RadarChart.organism-playground.tsx
 import { RadarChart } from './RadarChart.organism';
-import { Box, Text } from '../../../atoms';
+import { Box, Text } from '../../../00-atoms';
 
 const MOCK_DATA = [
   { subject: 'Toán', A: 120, B: 110, fullMark: 150 },

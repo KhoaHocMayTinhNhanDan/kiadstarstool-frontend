@@ -7,7 +7,7 @@ import {
   Text,
   LoadingSpinner,
   Box,
-} from '../../../atoms';
+} from '../../../00-atoms';
 import { FormField } from '../../../01-molecules/FormField';
 import * as styles from './LoginForm.organism.styles';
 import type { LoginFormProps } from './LoginForm.organism.types';

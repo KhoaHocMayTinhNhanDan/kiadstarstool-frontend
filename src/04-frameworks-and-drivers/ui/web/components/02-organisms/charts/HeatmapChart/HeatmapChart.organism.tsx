@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { useMemo, useState } from 'react';
-import { Box, Text, LoadingSpinner } from '../../../atoms';
+import { Box, Text, LoadingSpinner } from '../../../00-atoms';
 import { COLORS } from '../../../00-atoms/00-core/tokens-constants';
 import * as styles from './HeatmapChart.organism.styles';
 import type { HeatmapChartProps, HeatmapItem } from './HeatmapChart.types';

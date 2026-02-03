@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { GaugeChart } from './GaugeChart.organism';
-import { Box, Text, Button, Input } from '../../../atoms';
+import { Box, Text, Button, Input } from '../../../00-atoms';
 
 const clamp = (v: number, min: number, max: number) =>
   Math.min(Math.max(v, min), max);

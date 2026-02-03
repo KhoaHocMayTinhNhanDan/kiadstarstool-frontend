@@ -6,7 +6,7 @@ import {
   Text,
   LoadingSpinner,
   Box,
-} from '../../../atoms';
+} from '../../../00-atoms';
 import * as styles from './ForgotPasswordForm.organism.styles';
 import { useI18n } from '../../../providers/I18nProvider';
 import type { ForgotPasswordFormProps } from './ForgotPasswordForm.organism.types';

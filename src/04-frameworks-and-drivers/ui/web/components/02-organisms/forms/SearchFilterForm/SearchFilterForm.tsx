@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { useState } from 'react';
-import { Box, Button, Text, Chip, Icon } from '../../../atoms';
+import { Box, Button, Text, Chip, Icon } from '../../../00-atoms';
 import { SearchInput } from '../../../01-molecules/SearchInput';
 import { FormField } from '../../../01-molecules/FormField';
 import { Select } from '../../../00-atoms/Select';

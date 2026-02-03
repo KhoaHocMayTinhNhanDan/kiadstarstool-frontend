@@ -18,6 +18,7 @@ export const ROUTES = {
   LOGIN: '/login',
   DASHBOARD: '/dashboard',
   DEV_UI: '/dev-ui', // Đường dẫn dành cho dev
+  FORBIDDEN: '/403',
 } as const;
 
 const routes: RouteObject[] = [
@@ -55,7 +56,7 @@ const routes: RouteObject[] = [
               },
               {
                 // Level 2 Guard: User phải có quyền cụ thể để truy cập route này.
-                element: <RouteGuard requiredPermissions={[PERMISSIONS.USER_MANAGE]} />,
+                element: <RouteGuard requiredPermissions={[PERMISSIONS.USER_MANAGE]} redirectPath={ROUTES.FORBIDDEN} />,
                 children: [
                   {
                     path: ROUTES.DEV_UI,
@@ -68,7 +69,12 @@ const routes: RouteObject[] = [
         ],
       },
 
-      // 3. Catch-all (404) - Nằm ngoài Auth/Main layout để hiển thị full màn hình
+      // 3. System Pages
+      {
+        path: ROUTES.FORBIDDEN,
+        // TODO: Thay thế bằng component ForbiddenPage thực tế của bạn
+        element: <div style={{ padding: '2rem', textAlign: 'center' }}><h1>403 - Forbidden</h1><p>Bạn không có quyền truy cập trang này.</p></div>,
+      },
       {
         path: '*',
         element: <NotFoundPage />,

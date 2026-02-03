@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ForgotPasswordForm, { type ForgotPasswordFormData } from './ForgotPasswordForm.organism';
-import { Box, Text } from '../../../atoms';
+import { Box, Text } from '../../../00-atoms';
 import { I18nProvider } from '../../../providers/I18nProvider';
 import { LanguageSelector } from '../../../01-molecules/LanguageSelector/LanguageSelector.molecule';
 
