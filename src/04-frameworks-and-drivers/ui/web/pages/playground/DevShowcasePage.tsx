@@ -9,6 +9,7 @@ import { CheckboxPlayground } from '../../components/00-atoms/Checkbox/Checkbox-
 import { ChipPlayground } from '../../components/00-atoms/Chip/Chip-playground'
 import { IconPlayground } from '../../components/00-atoms/Icon/Icon-playground'
 import { IconButtonPlayground } from '../../components/00-atoms/IconButton/IconButton-playground'
+import { IconButtonBadgePlayground } from '../../components/00-atoms/IconButtonBadge/IconButtonBadge.playground'
 import { InputPlayground } from '../../components/00-atoms/Input/Input-playground'
 import { LoadingSpinnerPlayground } from '../../components/00-atoms/LoadingSpinner/LoadingSpinner-playground'
 import { LogoPlayground } from '../../components/00-atoms/Logo/Logo-playground'
@@ -98,6 +99,7 @@ const categories: Category[] = [
       { id: 'chip', label: 'Chip', component: <ChipPlayground /> },
       { id: 'icon', label: 'Icon', component: <IconPlayground /> },
       { id: 'icon-button', label: 'IconButton', component: <IconButtonPlayground /> },
+      { id: 'icon-button-badge', label: 'IconButtonBadge', component: <IconButtonBadgePlayground /> },
       { id: 'input', label: 'Input', component: <InputPlayground /> },
       { id: 'loading-spinner', label: 'Loading Spinner', component: <LoadingSpinnerPlayground /> },
       { id: 'logo', label: 'Logo', component: <LogoPlayground /> }, 

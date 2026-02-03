@@ -1,50 +1,66 @@
 // src/04-frameworks-and-drivers/ui/web/components/00-atoms/IconButton/IconButton.tsx
 /** @jsxImportSource @emotion/react */
 import React from 'react';
+import { css } from '@emotion/react';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
 import { SIZES } from '../00-core/tokens-constants';
 import type { IconButtonProps } from './IconButton.types';
 
 /**
- * IconButton – Production ready (FINAL)
- *
- * Rules:
- * - Button controls hit-area
- * - Icon scales from design tokens (SIZES)
- * - No duplicated size map
- * - No magic numbers
+ * IconButton - Production Ready Component
+ * 
+ * Một button chỉ chứa icon, kế thừa tất cả tính năng từ Button.
+ * 
+ * Features:
+ * ✅ Kế thừa tất cả Button variants, intents, states
+ * ✅ Accessibility first (bắt buộc aria-label)
+ * ✅ Perfect square với aspect-ratio
+ * ✅ Icon scales theo design tokens
+ * ✅ Type-safe hoàn toàn
  */
 export const IconButton = React.forwardRef<
   HTMLButtonElement,
   IconButtonProps
->(({ icon, size = 'md', sx, ...props }, ref) => {
+>(({ 
+  icon, 
+  size = 'md', 
+  sx, 
+  className,
+  ...props 
+}, ref) => {
+  const iconButtonStyles = css`
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 0;
+    aspect-ratio: 1 / 1;
+    
+    /* Đảm bảo kích thước tối thiểu cho accessibility */
+    min-width: 32px;
+    min-height: 32px;
+    
+    /* Icon scales with fontSize */
+    font-size: ${SIZES[size]};
+    
+    /* Override Button's default min-width for text buttons */
+    .btn-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  `;
+  
   return (
     <Button
       ref={ref}
       size={size}
-      sx={{
-        padding: 0,
-
-        /* Perfect center */
-        display: 'grid',
-        placeItems: 'center',
-        lineHeight: 0,
-
-        /* Square hit-area */
-        aspectRatio: '1 / 1',
-        minWidth: 40,
-        minHeight: 40,
-
-        /* 🔑 SINGLE SOURCE OF TRUTH
-           Icon uses 1em → fontSize drives scale */
-        fontSize: SIZES[size],
-
-        ...sx,
-      }}
+      css={[iconButtonStyles, sx]}
+      className={`icon-button ${className || ''}`}
       {...props}
     >
-      {/* Icon = 1em × 1em */}
       <Icon size="inherit">
         {icon}
       </Icon>

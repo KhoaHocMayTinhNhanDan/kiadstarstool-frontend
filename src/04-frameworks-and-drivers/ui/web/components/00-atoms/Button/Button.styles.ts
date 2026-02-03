@@ -2,7 +2,7 @@
 import { css } from '@emotion/react';
 import {
   COLORS,
-  FONT_SIZES,
+
   FONT_WEIGHTS,
   RADIUS,
   SPACING,
@@ -66,7 +66,7 @@ const intentStyles: Record<ButtonIntent, ReturnType<typeof css>> = {
   `,
   warning: css`
     background-color: ${COLORS.WARNING};
-    color: ${COLORS.TEXT};
+    color: ${COLORS.TEXT_INVERTED};
     &:hover:not(:disabled) { background-color: ${COLORS.WARNING_DARK}; }
   `,
 };

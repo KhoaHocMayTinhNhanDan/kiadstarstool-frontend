@@ -1,10 +1,12 @@
 // src/04-frameworks-and-drivers/ui/web/components/00-atoms/IconButton/IconButton.styles.ts
 import { css } from '@emotion/react';
 
-/** 🔥 GRID + FLEX SAFE WRAPPER */
-export const iconButtonWrapper = css`
+export const iconButtonBase = css`
+  padding: 0;
   display: inline-flex;
-  flex-shrink: 0; /* Quan trọng: Tránh bị co lại trong flex/grid container */
-  vertical-align: middle;
-  position: relative;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+  aspect-ratio: 1 / 1;
 `;
