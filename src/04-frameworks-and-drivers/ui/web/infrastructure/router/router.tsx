@@ -1,6 +1,6 @@
 // src/04-frameworks-and-drivers/ui/web/infrastructure/router/router.tsx
 import { createBrowserRouter, type RouteObject, Navigate } from 'react-router-dom';
-import { ProtectedRoute } from './ProtectedRoute';
+import { RouteGuard } from './RouteGuard';
 import { LoginPageTest } from '../../pages/auth/LoginPage-test';
 import { DashboardPage } from '../../pages/dashboard/DashboardPage';
 import { NotFoundPage } from '../../pages/system/NotFoundPage';
@@ -42,8 +42,8 @@ const routes: RouteObject[] = [
       // 2. Protected Routes (Dashboard...)
       {
         // Level 1 Guard: User must be authenticated to access any of these routes.
-        // ProtectedRoute không có props sẽ chỉ kiểm tra xác thực.
-        element: <ProtectedRoute />,
+        // RouteGuard không có props sẽ chỉ kiểm tra xác thực.
+        element: <RouteGuard />,
         children: [
           {
             // MainLayout cung cấp UI chung (sidebar, navbar) cho các trang được bảo vệ.
@@ -55,7 +55,7 @@ const routes: RouteObject[] = [
               },
               {
                 // Level 2 Guard: User phải có quyền cụ thể để truy cập route này.
-                element: <ProtectedRoute requiredPermissions={[PERMISSIONS.USER_MANAGE]} />,
+                element: <RouteGuard requiredPermissions={[PERMISSIONS.USER_MANAGE]} />,
                 children: [
                   {
                     path: ROUTES.DEV_UI,

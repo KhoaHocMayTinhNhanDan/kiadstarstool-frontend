@@ -3,12 +3,15 @@ import { AppContext } from '@/00-core/app-context';
 import { type LoginInput } from '@/02-usecases/auth/login/Login.input';
 import { type LoginOutput } from '@/02-usecases/auth/login/Login.output';
 import { useToast } from '../hooks/useToast';
+import { jwtDecode } from 'jwt-decode';
+import { type PermissionCode } from '@/shared/constants/authorization/auth.domain';
 
 // 1. Định nghĩa "hình dạng" của Context
 interface AuthContextType {
   user: LoginOutput | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  permissions: PermissionCode[];
   login: (input: LoginInput) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -83,7 +86,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const value = useMemo(() => ({ user, isAuthenticated: !!user, isLoading, login, logout }), [user, isLoading, login, logout]);
+  const permissions = useMemo(() => {
+    if (!user?.accessToken) return [];
+    try {
+      const decoded: { permissions?: PermissionCode[] } = jwtDecode(user.accessToken);
+      return decoded.permissions || [];
+    } catch (error) {
+      return [];
+    }
+  }, [user]);
+
+  const value = useMemo(() => ({ user, isAuthenticated: !!user, isLoading, permissions, login, logout }), [user, isLoading, permissions, login, logout]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
