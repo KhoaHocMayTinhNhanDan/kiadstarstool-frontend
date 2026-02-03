@@ -57,13 +57,9 @@ function ButtonInner<T extends React.ElementType = 'button'>(
     >
       <span className="btn-content">
         {isLoading && <LoadingSpinner size={spinnerSize} color="currentColor" />}
-        {!isLoading &&
-          leftIcon &&
-          React.cloneElement(leftIcon as React.ReactElement, { size: spinnerSize })}
+        {!isLoading && leftIcon}
         {!isLoading && children}
-        {!isLoading &&
-          rightIcon &&
-          React.cloneElement(rightIcon as React.ReactElement, { size: spinnerSize })}
+        {!isLoading && rightIcon}
       </span>
     </Component>
   );

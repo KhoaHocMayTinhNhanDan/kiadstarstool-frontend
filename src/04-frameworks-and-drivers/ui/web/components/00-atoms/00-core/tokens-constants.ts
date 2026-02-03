@@ -59,8 +59,23 @@ export const COLORS = {
   TEXT_SECONDARY: '#4a5568', // Thêm cho văn bản phụ
   TEXT_MUTED: '#64748b',      // ✅ thêm (disabled, secondary text)
   TEXT_INVERTED: '#ffffff',
+  TEXT_SUCCESS: '#2e7d32',
+  TEXT_DANGER: '#d32f2f',
+  TEXT_WARNING: '#ed6c02',
+  TEXT_INFO: '#0288d1',
 
+  /* ================= BACKGROUND ================= */
+  BACKGROUND_PRIMARY: '#2196f3',
+  BACKGROUND_SECONDARY: '#6c757d',
+  BACKGROUND_SUCCESS: '#2e7d32',
+  BACKGROUND_DANGER: '#d32f2f',
+  BACKGROUND_WARNING: '#ed6c02',
+  BACKGROUND_INFO: '#0288d1',
   BACKGROUND_SUBTLE: '#f0f4f8', // Thêm cho các nền phụ
+  
+
+
+
   /* ================= NEUTRAL ================= */
   NEUTRAL: '#e0e0e0',
   NEUTRAL_LIGHT: '#e2e8f0',

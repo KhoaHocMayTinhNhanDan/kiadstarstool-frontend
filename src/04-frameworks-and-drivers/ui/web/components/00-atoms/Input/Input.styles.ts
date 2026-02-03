@@ -46,7 +46,7 @@ export function inputStyles({
     padding-right: ${hasRightIcon ? '36px' : SPACING.md};
 
     font-size: ${fontSizeMap[size]};
-    color: ${COLORS.TEXT};
+    color: ${COLORS.TEXT_PRIMARY};
     background-color: ${COLORS.WHITE};
 
     border: 1px solid
