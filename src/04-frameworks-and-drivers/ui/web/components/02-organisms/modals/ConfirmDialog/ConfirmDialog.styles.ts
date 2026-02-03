@@ -1,3 +1,4 @@
+// src/04-frameworks-and-drivers/ui/web/components/02-organisms/modals/ConfirmDialog/ConfirmDialog.styles.ts
 import { css } from '@emotion/react';
 import { COLORS, RADIUS, SPACING } from '../../../00-atoms/00-core/tokens-constants';
 

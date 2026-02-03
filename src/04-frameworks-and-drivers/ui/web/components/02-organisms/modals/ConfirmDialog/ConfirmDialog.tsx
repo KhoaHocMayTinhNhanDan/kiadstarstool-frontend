@@ -1,3 +1,4 @@
+// src/04-frameworks-and-drivers/ui/web/components/02-organisms/modals/ConfirmDialog/ConfirmDialog.tsx
 /** @jsxImportSource @emotion/react */
 import React from 'react';
 import { Button } from '../../../00-atoms/Button';

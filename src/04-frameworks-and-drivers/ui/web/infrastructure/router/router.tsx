@@ -5,10 +5,10 @@ import { LoginPageTest } from '../../pages/auth/LoginPage-test';
 import { DashboardPage } from '../../pages/dashboard/DashboardPage';
 import { NotFoundPage } from '../../pages/system/NotFoundPage';
 import { DevShowcasePage } from '../../pages/playground/DevShowcasePage';
-import { RootLayout } from '../../components/02-organisms/layouts/RootLayout';
-import { AuthLayout } from '../../components/02-organisms/layouts/AuthLayout';
-import { MainLayout } from '../../components/02-organisms/layouts/MainLayout';
-import { PERMISSIONS } from '@/shared/constants/authorization/auth.domain';
+import { ForbiddenPage } from '../../pages/system/ForbiddenPage';
+import { RootLayout } from '../../pages/layouts/RootLayout';
+import { AuthLayout } from '../../pages/layouts/AuthLayout';
+import { MainLayout } from '../../pages/layouts/MainLayout';
 /* ==========================================================================
  * Router Configuration
  * ========================================================================== */
@@ -27,17 +27,23 @@ const routes: RouteObject[] = [
     children: [
       // 1. Public Routes (Login, Register...)
       {
-        element: <AuthLayout />,
-        children: [
-          {
-            path: ROUTES.ROOT,
-            element: <Navigate to={ROUTES.LOGIN} replace />,
-          },
-          {
-            path: ROUTES.LOGIN,
-            element: <LoginPageTest />,
-          },
-        ],
+        // element: <AuthLayout />,
+        // children: [
+        //   {
+        //     path: ROUTES.ROOT,
+        //     element: <Navigate to={ROUTES.LOGIN} replace />,
+        //   },
+        //   {
+        //     path: ROUTES.LOGIN,
+        //     element: <LoginPageTest />,
+        //   },
+        // ],
+      },
+
+      // Dev Routes (Public for testing - Không cần login)
+      {
+        path: ROUTES.DEV_UI,
+        element: <DevShowcasePage />,
       },
 
       // 2. Protected Routes (Dashboard...)
@@ -47,24 +53,13 @@ const routes: RouteObject[] = [
         element: <RouteGuard />,
         children: [
           {
-            // MainLayout cung cấp UI chung (sidebar, navbar) cho các trang được bảo vệ.
-            element: <MainLayout />,
-            children: [
-              {
-                path: ROUTES.DASHBOARD,
-                element: <DashboardPage />,
-              },
-              {
-                // Level 2 Guard: User phải có quyền cụ thể để truy cập route này.
-                element: <RouteGuard requiredPermissions={[PERMISSIONS.USER_MANAGE]} redirectPath={ROUTES.FORBIDDEN} />,
-                children: [
-                  {
-                    path: ROUTES.DEV_UI,
-                    element: <DevShowcasePage />,
-                  },
-                ],
-              },
-            ],
+            // element: <MainLayout />,
+            // children: [
+            //   {
+            //     path: ROUTES.DASHBOARD,
+            //     element: <DashboardPage />,
+            //   },
+            // ],
           },
         ],
       },
@@ -72,8 +67,7 @@ const routes: RouteObject[] = [
       // 3. System Pages
       {
         path: ROUTES.FORBIDDEN,
-        // TODO: Thay thế bằng component ForbiddenPage thực tế của bạn
-        element: <div style={{ padding: '2rem', textAlign: 'center' }}><h1>403 - Forbidden</h1><p>Bạn không có quyền truy cập trang này.</p></div>,
+        element: <ForbiddenPage />,
       },
       {
         path: '*',

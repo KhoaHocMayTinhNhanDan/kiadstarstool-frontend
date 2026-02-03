@@ -63,6 +63,8 @@ import { ToastProvider } from '../../components/providers/ToastProvider'
 import { ErrorBoundaryPlayground } from '../../components/02-organisms/feedback/system/ErrorBoundary/ErrorBoundary.playground'
 import { LoadingOverlayPlayground } from '../../components/02-organisms/feedback/system/LoadingOverlay/LoadingOverlay.playground'
 
+// navigation
+import { AppFooterPlayground } from '../../components/02-organisms/navigation/AppFooter/AppFooter.organism-playground'
 // Type definitions for the sidebar structure
 type ComponentItem = {
   id: string;
@@ -173,6 +175,13 @@ const categories: Category[] = [
     label: '📄 Pages',
     items: [
       { id: 'login', label: 'Login Page', component: <LoginPageTest /> },
+    ]
+  },
+  {
+    id: 'navigation',
+    label: '🧭 Navigation',
+    items: [
+      { id: 'app-footer', label: 'AppFooter', component: <AppFooterPlayground /> },
     ]
   }
 ];

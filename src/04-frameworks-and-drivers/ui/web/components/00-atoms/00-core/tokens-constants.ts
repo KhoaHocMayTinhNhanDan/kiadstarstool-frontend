@@ -55,15 +55,27 @@ export const COLORS = {
   BLACK: '#000000',
 
   /* ================= TEXT ================= */
-  TEXT: '#333333',
+  TEXT_PRIMARY: '#333333', // Đổi tên từ TEXT để rõ ràng hơn
+  TEXT_SECONDARY: '#4a5568', // Thêm cho văn bản phụ
   TEXT_MUTED: '#64748b',      // ✅ thêm (disabled, secondary text)
   TEXT_INVERTED: '#ffffff',
 
+  BACKGROUND_SUBTLE: '#f0f4f8', // Thêm cho các nền phụ
   /* ================= NEUTRAL ================= */
   NEUTRAL: '#e0e0e0',
   NEUTRAL_LIGHT: '#e2e8f0',
   NEUTRAL_DARK: '#64748b',
   NEUTRAL_RING: '#cbd5e1',
+
+  BACKGROUND_NEUTRAL: '#f8f9fa',
+
+  /* ================= DISABLED ================= */
+  DISABLED: '#e0e0e0',
+  DISABLED_LIGHT: '#e2e8f0',
+  DISABLED_DARK: '#64748b',
+  DISABLED_RING: '#cbd5e1',
+
+  /* ================= TRANSPARENT ================= */
 
   TRANSPARENT: 'transparent',
 } as const;

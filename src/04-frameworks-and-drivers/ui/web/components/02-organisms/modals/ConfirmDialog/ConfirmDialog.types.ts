@@ -1,3 +1,4 @@
+// src/04-frameworks-and-drivers/ui/web/components/02-organisms/modals/ConfirmDialog/ConfirmDialog.types.ts
 import type { ReactNode } from 'react';
 import type { CSSObject } from '@emotion/react';
 
