@@ -45,7 +45,7 @@ export const getSelectStyles = ({ error, disabled, size = 'md' }: SelectStylePro
   border: 1px solid ${error ? COLORS.DANGER : COLORS.NEUTRAL_LIGHT};
   border-radius: ${RADIUS.md};
   
-  transition: all ${TRANSITIONS.fast};
+  transition: all ${TRANSITIONS.FAST};
   outline: none;
   cursor: pointer;
   

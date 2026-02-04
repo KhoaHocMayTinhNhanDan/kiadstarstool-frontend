@@ -33,7 +33,7 @@ export const getTextareaStyles = ({ error, disabled, readOnly, resize = 'vertica
   border-radius: ${RADIUS.md};
   
   outline: none;
-  transition: all ${TRANSITIONS.fast};
+  transition: all ${TRANSITIONS.FAST};
   resize: ${resize};
   min-height: 80px;
 

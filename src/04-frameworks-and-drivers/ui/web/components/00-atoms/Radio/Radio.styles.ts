@@ -30,7 +30,7 @@ export const getRadioItemStyles = ({ size, error }: RadioStyleProps) => css`
   border-radius: 100%;
   border: 1px solid ${error ? COLORS.DANGER : COLORS.NEUTRAL_LIGHT};
   cursor: pointer;
-  transition: all ${TRANSITIONS.fast};
+  transition: all ${TRANSITIONS.FAST};
 
   &:hover {
     border-color: ${COLORS.PRIMARY};

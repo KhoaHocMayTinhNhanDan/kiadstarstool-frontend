@@ -1,5 +1,4 @@
 // src/04-frameworks-and-drivers/ui/web/components/01-molecules/IconButtonBadge/IconButtonBadge.types.ts
-import type { ReactNode } from 'react';
 import type { IconButtonProps } from '../../00-atoms/IconButton/IconButton.types';
 
 export interface IconButtonBadgeProps extends Omit<IconButtonProps, 'aria-label'> {

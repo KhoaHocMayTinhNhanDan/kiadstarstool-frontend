@@ -46,7 +46,7 @@ export const sliderThumbStyles = css`
   box-shadow: 0 2px 10px ${COLORS.NEUTRAL_LIGHT};
   border-radius: 10px;
   border: 1px solid ${COLORS.NEUTRAL_LIGHT};
-  transition: transform ${TRANSITIONS.fast}, box-shadow ${TRANSITIONS.fast};
+  transition: transform ${TRANSITIONS.FAST}, box-shadow ${TRANSITIONS.FAST};
 
   &:hover {
     background-color: ${COLORS.LIGHT};

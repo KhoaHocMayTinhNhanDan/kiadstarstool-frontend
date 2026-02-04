@@ -68,7 +68,7 @@ export const link = css`
   color: ${COLORS.SECONDARY};
   text-decoration: none;
   cursor: pointer;
-  transition: color ${TRANSITIONS.fast};
+  transition: color ${TRANSITIONS.FAST};
   padding: ${SPACING.xs} ${SPACING.sm};
   border-radius: ${RADIUS.sm};
   

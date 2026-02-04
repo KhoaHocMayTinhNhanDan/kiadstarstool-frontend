@@ -32,7 +32,7 @@ export const getCheckboxStyles = ({ size, error }: CheckboxStyleProps) => css`
   align-items: center;
   justify-content: center;
   border: 1px solid ${error ? COLORS.DANGER : COLORS.NEUTRAL_LIGHT};
-  transition: all ${TRANSITIONS.fast};
+  transition: all ${TRANSITIONS.FAST};
   cursor: pointer;
 
   &:hover {

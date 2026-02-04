@@ -32,7 +32,7 @@ export const getSwitchRootStyles = ({ size, error }: SwitchStyleProps) => css`
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   cursor: pointer;
-  transition: background-color ${TRANSITIONS.fast};
+  transition: background-color ${TRANSITIONS.FAST};
   border: 2px solid ${error ? COLORS.DANGER : 'transparent'};
 
   &:focus {
@@ -56,7 +56,7 @@ export const getSwitchThumbStyles = (size: SwitchSize) => css`
   background-color: white;
   border-radius: 9999px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  transition: transform ${TRANSITIONS.fast};
+  transition: transform ${TRANSITIONS.FAST};
   transform: translateX(2px);
   will-change: transform;
 

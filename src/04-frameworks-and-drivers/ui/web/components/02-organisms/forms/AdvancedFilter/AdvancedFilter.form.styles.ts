@@ -60,7 +60,7 @@ export const select = css`
   border: 1px solid ${COLORS.NEUTRAL_LIGHT};
   border-radius: ${RADIUS.md};
   outline: none;
-  transition: all ${TRANSITIONS.fast};
+  transition: all ${TRANSITIONS.FAST};
 
   &:focus {
     border-color: ${COLORS.PRIMARY};

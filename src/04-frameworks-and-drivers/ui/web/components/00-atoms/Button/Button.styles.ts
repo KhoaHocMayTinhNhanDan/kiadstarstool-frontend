@@ -133,7 +133,7 @@ export const getButtonStyles = (
   border-radius: ${RADIUS.md};
   cursor: pointer;
   user-select: none;
-  transition: all ${TRANSITIONS.fast};
+  transition: all ${TRANSITIONS.FAST};
 
   ${sizeStyles[size]}
   ${variantStyles[variant]}

@@ -54,7 +54,7 @@ export function inputStyles({
     border-radius: ${RADIUS.md};
 
     outline: none;
-    transition: all ${TRANSITIONS.fast};
+    transition: all ${TRANSITIONS.FAST};
 
     &::placeholder {
       color: ${COLORS.SECONDARY};

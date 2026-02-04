@@ -5,6 +5,8 @@ import {
   SHADOWS,
   SPACING,
   TRANSITIONS,
+    Z_INDEX,
+
 } from '../../00-atoms/00-core/tokens-constants';
 
 /* ==========================================================================
@@ -77,8 +79,8 @@ export const itemStyles = css`
   cursor: pointer;
   user-select: none;
 
-  transition: background-color ${TRANSITIONS.fast},
-              color ${TRANSITIONS.fast};
+  transition: background-color ${TRANSITIONS.FAST},
+              color ${TRANSITIONS.FAST};
 
   &[data-disabled] {
     color: ${COLORS.TEXT_MUTED};

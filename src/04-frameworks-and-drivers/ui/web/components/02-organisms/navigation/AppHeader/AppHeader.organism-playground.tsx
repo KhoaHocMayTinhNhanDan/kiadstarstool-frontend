@@ -8,7 +8,7 @@ export const AppHeaderPlayground = () => {
   return (
     <Box p="xl" display="flex" flexDirection="column" gap="xl">
       <Text as="h1" variant="heading-2xl" weight="bold">
-        🎯 AppHeader Demo - Tái cấu trúc
+        🎯 AppHeader Demo
       </Text>
       
       {/* Demo 1: Với user đã login */}
@@ -16,7 +16,7 @@ export const AppHeaderPlayground = () => {
         <Text as="h3" variant="heading-md" weight="semibold">
           1. Admin Dashboard (có search)
         </Text>
-        <Box border="1px solid #e2e8f0" radius="md" overflow="hidden">
+        <Box border="1px solid #e2e8f0" borderRadius="8px" overflow="hidden">
           <AppHeader
             logo={<Text variant="heading-lg">KiadStars Admin</Text>}
             navItems={[
@@ -78,7 +78,7 @@ export const AppHeaderPlayground = () => {
         <Text as="h3" variant="heading-md" weight="semibold">
           2. Custom Actions
         </Text>
-        <Box border="1px solid #e2e8f0" radius="md" overflow="hidden">
+        <Box border="1px solid #e2e8f0" borderRadius="8px" overflow="hidden">
           <AppHeader
             logo={<Text variant="heading-lg">Analytics Platform</Text>}
             actions={
@@ -114,7 +114,7 @@ export const AppHeaderPlayground = () => {
         <Text as="h3" variant="heading-md" weight="semibold">
           3. Public Site (chưa login)
         </Text>
-        <Box border="1px solid #e2e8f0" radius="md" overflow="hidden">
+        <Box border="1px solid #e2e8f0" borderRadius="8px" overflow="hidden">
           <AppHeader
             logo={<Text variant="heading-lg">KiadStars Academy</Text>}
             navItems={[
@@ -135,7 +135,7 @@ export const AppHeaderPlayground = () => {
         <Text as="h3" variant="heading-md" weight="semibold">
           4. Minimal Header
         </Text>
-        <Box border="1px solid #e2e8f0" radius="md" overflow="hidden">
+        <Box border="1px solid #e2e8f0" borderRadius="8px" overflow="hidden">
           <AppHeader
             logo={<Text variant="heading-md">Minimal App</Text>}
             userProfile={{

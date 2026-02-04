@@ -56,7 +56,7 @@ export const getChipStyles = (variant: ChipVariant, color: ChipColor, clickable:
   font-weight: ${FONT_WEIGHTS.medium};
   border-radius: ${RADIUS.full};
   white-space: nowrap;
-  transition: all ${TRANSITIONS.fast};
+  transition: all ${TRANSITIONS.FAST};
   cursor: ${clickable ? 'pointer' : 'default'};
   
   ${getColorStyles(variant, color)}
@@ -72,7 +72,7 @@ export const getDeleteIconStyles = () => css`
   display: flex;
   align-items: center;
   opacity: 0.7;
-  transition: opacity ${TRANSITIONS.fast};
+  transition: opacity ${TRANSITIONS.FAST};
 
   &:hover {
     opacity: 1;

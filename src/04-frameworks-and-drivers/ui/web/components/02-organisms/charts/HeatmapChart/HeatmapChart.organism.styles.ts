@@ -41,7 +41,7 @@ export const cell = (color: string) => css`
   height: 100%;
   min-height: 24px; /* Minimum height for visibility */
   border-radius: ${RADIUS.sm};
-  transition: transform ${TRANSITIONS.fast}, opacity ${TRANSITIONS.fast};
+  transition: transform ${TRANSITIONS.FAST}, opacity ${TRANSITIONS.FAST};
   cursor: pointer;
   position: relative;
 

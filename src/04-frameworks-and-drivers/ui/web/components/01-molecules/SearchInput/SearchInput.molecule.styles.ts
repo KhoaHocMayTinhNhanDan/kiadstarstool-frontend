@@ -21,7 +21,7 @@ export const shortcutHint = css`
   color: ${COLORS.TEXT_MUTED};
   pointer-events: none;
   opacity: 0.7;
-  transition: opacity ${TRANSITIONS.fast};
+  transition: opacity ${TRANSITIONS.FAST};
 
   kbd {
     background: ${COLORS.BACKGROUND_SUBTLE};
@@ -47,7 +47,7 @@ export const clearButton = css`
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all ${TRANSITIONS.fast};
+  transition: all ${TRANSITIONS.FAST};
   opacity: 0.7;
 
   &:hover {

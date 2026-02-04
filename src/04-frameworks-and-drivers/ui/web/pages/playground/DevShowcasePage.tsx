@@ -66,6 +66,10 @@ import { LoadingOverlayPlayground } from '../../components/02-organisms/feedback
 
 // navigation
 import { AppFooterPlayground } from '../../components/02-organisms/navigation/AppFooter/AppFooter.organism-playground'
+import { AppHeaderPlayground } from '../../components/02-organisms/navigation/AppHeader/AppHeader.organism-playground'
+
+
+
 // Type definitions for the sidebar structure
 type ComponentItem = {
   id: string;
@@ -184,6 +188,7 @@ const categories: Category[] = [
     label: '🧭 Navigation',
     items: [
       { id: 'app-footer', label: 'AppFooter', component: <AppFooterPlayground /> },
+      { id: 'app-header', label: 'AppHeader', component: <AppHeaderPlayground /> },
     ]
   }
 ];
