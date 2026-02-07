@@ -34,6 +34,9 @@ import { DropdownBasePlayground } from '../../components/01-molecules/Dropdown/D
 import { DropdownMenuPlayground } from '../../components/01-molecules/Dropdown/DropdownMenu/DropdownMenu.molecule-playground'
 import { DropdownMultiSelectPlayground } from '../../components/01-molecules/Dropdown/DropdownMultiSelect/DropdownMultiSelect.molecule-playground'
 import { DropdownSelectPlayground} from '../../components/01-molecules/Dropdown/DropdownSelect/DropdownSelect.molecule-playground'
+import { BreadcrumbsPlayground } from '../../components/02-organisms/navigation/Breadcrumbs/Breadcrumbs.organism-playground'
+import { PaginationPlayground } from '../../components/02-organisms/navigation/Pagination/Pagination.organism-playground'
+import { TabsPlayground } from '../../components/02-organisms/navigation/Tabs/Tabs.organism-playground'
 
 import { LoginFormPlayground } from '../../components/02-organisms/auth/LoginForm/LoginForm.organism-playground'
 import { ForgotPasswordFormPlayground } from '../../components/02-organisms/auth/ForgotPasswordForm/ForgotPasswordForm.organism-playground'
@@ -70,7 +73,17 @@ import { LoadingOverlayPlayground } from '../../components/02-organisms/feedback
 // navigation
 import { AppFooterPlayground } from '../../components/02-organisms/navigation/AppFooter/AppFooter.organism-playground'
 import { AppHeaderPlayground } from '../../components/02-organisms/navigation/AppHeader/AppHeader.organism-playground'
+import { AppSidebarPlayground } from '../../components/02-organisms/navigation/AppSidebar/AppSidebar.organism-playground'
 
+// previews
+import { FilePreviewPlayground } from '../../components/02-organisms/previews/FilePreview/FilePreview.organism-playground'
+import { CodePreviewPlayground } from '../../components/02-organisms/previews/CodePreview/CodePreview.organism-playground'
+import { ImagePreviewPlayground } from '../../components/02-organisms/previews/ImagePreview/ImagePreview.organism-playground'
+import { PDFPreviewPlayground } from '../../components/02-organisms/previews/PDFPreview/PDFPreview.organism-playground'
+import { VideoPreviewPlayground } from '../../components/02-organisms/previews/VideoPreview/VideoPreview.organism-playground'
+
+// settings
+import { SettingsFormPlayground } from '../../components/02-organisms/settings/SettingsForm/SettingsForm.organism-playground'  
 
 
 // Type definitions for the sidebar structure
@@ -136,7 +149,9 @@ const categories: Category[] = [
       { id: 'dropdown-menu', label: 'DropdownMenu', component: <DropdownMenuPlayground /> },
       { id: 'dropdown-multi-select', label: 'DropdownMultiSelect', component: <DropdownMultiSelectPlayground /> },
       { id: 'dropdown-select', label: 'DropdownSelect', component: <DropdownSelectPlayground /> },
-      
+      { id: 'breadcrumbs', label: 'Breadcrumbs', component: <BreadcrumbsPlayground /> },
+      { id: 'pagination', label: 'Pagination', component: <PaginationPlayground /> },
+      { id: 'tabs', label: 'Tabs', component: <TabsPlayground /> },
     ]
   },
   {
@@ -196,9 +211,25 @@ const categories: Category[] = [
     items: [
       { id: 'app-footer', label: 'AppFooter', component: <AppFooterPlayground /> },
       { id: 'app-header', label: 'AppHeader', component: <AppHeaderPlayground /> },
+      { id: 'app-sidebar', label: 'AppSidebar', component: <AppSidebarPlayground /> },
+    
     ]
   },
-  
+  {id: 'previews', label: '🧩 Previews',
+    items: [
+      { id: 'playground-preview', label: 'PlaygroundPreview', component: <FilePreviewPlayground /> },
+      { id: 'code-preview', label: 'CodePreview', component: <CodePreviewPlayground /> },
+      { id: 'image-preview', label: 'ImagePreview', component: <ImagePreviewPlayground /> },
+      { id: 'pdf-preview', label: 'PDFPreview', component: <PDFPreviewPlayground /> },
+      { id: 'video-preview', label: 'VideoPreview', component: <VideoPreviewPlayground /> },
+    ]
+  },
+  {id: 'settings', label: '🧩 Settings',
+    items: [
+      { id: 'settings-form', label: 'SettingsForm', component: <SettingsFormPlayground /> },
+    ]
+  },
+
 ];
 
 export function DevShowcasePage() {

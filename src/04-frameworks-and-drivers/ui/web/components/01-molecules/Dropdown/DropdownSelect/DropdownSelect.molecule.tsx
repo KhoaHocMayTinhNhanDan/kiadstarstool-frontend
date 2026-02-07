@@ -171,7 +171,7 @@ DropdownSelectSearchInput.displayName = 'DropdownSelectSearchInput';
  * MAIN COMPONENT
  * ========================================================================== */
 
-export const DropdownSelect: React.FC<DropdownSelectProps> = React.memo(({
+export const DropdownSelect: React.FC<DropdownSelectProps & { disabled?: boolean }> = React.memo(({
   options,
   value,
   onChange,
@@ -182,6 +182,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = React.memo(({
   error = false,
   errorMessage,
   trigger: customTrigger,
+  disabled,
   ...baseProps
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -223,10 +224,12 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = React.memo(({
   // Default trigger
   const defaultTrigger = (
     <button
+      disabled={disabled}
       css={[
         selectTrigger,
         error && selectTriggerError,
         isOpen && selectTriggerOpen,
+        disabled && css`opacity: 0.5; cursor: not-allowed;`,
         baseProps.size === 'sm' && css`height: 32px; font-size: ${TYPOGRAPHY.FONT_SIZE.xs};`,
         baseProps.size === 'lg' && css`height: 40px; font-size: ${TYPOGRAPHY.FONT_SIZE.md};`,
       ]}

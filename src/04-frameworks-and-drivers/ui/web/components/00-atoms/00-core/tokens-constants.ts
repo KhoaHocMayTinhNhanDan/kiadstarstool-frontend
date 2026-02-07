@@ -116,6 +116,7 @@ export type ColorKey = keyof typeof COLORS;
 
 export const RADIUS = {
   none: '0px',
+  xs: '2px',
   sm: '4px',
   md: '8px',
   lg: '12px',
