@@ -11,9 +11,9 @@ import { Button } from '../../../00-atoms/Button';
 import { DropdownMenu } from '../../../01-molecules/Dropdown/DropdownMenu';
 import { SearchInput } from '../../../01-molecules/SearchInput';
 import * as styles from './AppHeader.styles';
-import type { AppHeaderProps, NavItem, UserMenuItem } from './AppHeader.types';
+import type { AppHeaderProps, NavItem } from './AppHeader.types';
 
-import { SPACING, COLORS } from '../../../00-atoms/00-core/tokens-constants';
+import { SPACING } from '../../../00-atoms/00-core/tokens-constants';
 
 const NavLink: React.FC<{ item: NavItem }> = ({ item }) => (
   <Link
