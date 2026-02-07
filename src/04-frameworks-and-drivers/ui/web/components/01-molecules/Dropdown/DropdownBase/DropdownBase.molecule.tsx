@@ -13,9 +13,11 @@ import {
   dropdownContent,
   dropdownTrigger as triggerStyles,
 } from './DropdownBase.molecule.styles';
+import { COLORS, SPACING } from '../../../00-atoms/00-core/tokens-constants';
 import type {
   DropdownBaseProps,
   DropdownBaseContextValue,
+  DropdownVariant,
 } from './DropdownBase.types';
 
 /* ==========================================================================
@@ -31,12 +33,34 @@ const DropdownBaseContext = createContext<DropdownBaseContextValue>({
 export const useDropdownBaseContext = () => useContext(DropdownBaseContext);
 
 /* ==========================================================================
+ * STYLE UTILITIES
+ * ========================================================================== */
+
+const getVariantStyles = (variant: DropdownVariant) => {
+  switch (variant) {
+    case 'compact':
+      return css`
+        padding: ${SPACING.xs} 0;
+      `;
+    case 'minimal':
+      return css`
+        border: none;
+        box-shadow: none;
+        background-color: ${COLORS.BACKGROUND_PAPER};
+      `;
+    case 'default':
+    default:
+      return css``;
+  }
+};
+
+/* ==========================================================================
  * MAIN COMPONENT
  * ========================================================================== */
 
 export interface DropdownBaseComponentProps extends DropdownBaseProps {
   /** Content to render inside dropdown */
-  children: ReactNode;
+  children: React.ReactNode;
   /** Whether content should be scrollable */
   scrollable?: boolean;
 }
@@ -53,7 +77,7 @@ export const DropdownBase: React.FC<DropdownBaseComponentProps> = React.memo(({
   collisionPadding = 8,
   
   // Dimensions
-  minWidth = 220,
+  minWidth = 180,
   maxWidth = 320,
   maxHeight,
   variant = 'default',
@@ -73,7 +97,6 @@ export const DropdownBase: React.FC<DropdownBaseComponentProps> = React.memo(({
   // Accessibility
   'aria-label': ariaLabel = 'Dropdown',
   'aria-labelledby': ariaLabelledby,
-  trapFocus = true,
   
   // Events
   onOpen,
@@ -109,11 +132,11 @@ export const DropdownBase: React.FC<DropdownBaseComponentProps> = React.memo(({
   }, [isControlled, onOpenChange, onOpen, onClose]);
   
   const handleEscapeKeyDown = useCallback((event: KeyboardEvent) => {
-    onEscapeKeyDown?.(event);
+    onEscapeKeyDown?.(event as any);
   }, [onEscapeKeyDown]);
   
-  const handleOutsideClick = useCallback((event: MouseEvent) => {
-    onOutsideClick?.(event);
+  const handleOutsideClick = useCallback((event: Event) => {
+    onOutsideClick?.(event as any);
   }, [onOutsideClick]);
   
   // Context value
@@ -133,12 +156,13 @@ export const DropdownBase: React.FC<DropdownBaseComponentProps> = React.memo(({
       ${scrollable && css`overflow-y: auto;`}
       ${sx}
     `,
-  ], [minWidth, maxWidth, maxHeight, scrollable, sx]);
+    getVariantStyles(variant),
+  ], [minWidth, maxWidth, maxHeight, scrollable, sx, variant]);
   
   // Trigger styles
   const triggerWithStyles = useMemo(() => {
     if (React.isValidElement(trigger)) {
-      return React.cloneElement(trigger as React.ReactElement, {
+      return React.cloneElement(trigger as React.ReactElement<any>, {
         'data-state': currentOpen ? 'open' : 'closed',
         'data-testid': triggerTestId || `${testId}-trigger`,
         css: [triggerStyles, (trigger as any).props?.css],
@@ -161,8 +185,8 @@ export const DropdownBase: React.FC<DropdownBaseComponentProps> = React.memo(({
         data-testid={contentTestId || `${testId}-content`}
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledby}
-        trapFocus={trapFocus}
         onCloseAutoFocus={closeOnOutsideClick ? undefined : (e) => e.preventDefault()}
+        data-scrollable={scrollable || undefined}
       >
         {children}
       </DropdownMenuPrimitive.Content>
@@ -180,15 +204,12 @@ export const DropdownBase: React.FC<DropdownBaseComponentProps> = React.memo(({
       );
     }
     
-    return <DropdownMenuPrimitive.Portal>{content}</DropdownMenuPrimitive.Portal>;
+    return (
+      <DropdownMenuPrimitive.Portal>
+        {content}
+      </DropdownMenuPrimitive.Portal>
+    );
   };
-  
-  // Handle initial open state
-  useEffect(() => {
-    if (currentOpen && onOpen) {
-      onOpen();
-    }
-  }, []);
   
   return (
     <DropdownBaseContext.Provider value={contextValue}>
@@ -209,3 +230,18 @@ export const DropdownBase: React.FC<DropdownBaseComponentProps> = React.memo(({
 });
 
 DropdownBase.displayName = 'DropdownBase';
+
+/* ==========================================================================
+ * ADDITIONAL EXPORTS (Radix primitives for advanced usage)
+ * ========================================================================== */
+
+export const DropdownMenu = DropdownMenuPrimitive.Root;
+export const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
+export const DropdownMenuContent = DropdownMenuPrimitive.Content;
+export const DropdownMenuItem = DropdownMenuPrimitive.Item;
+export const DropdownMenuSeparator = DropdownMenuPrimitive.Separator;
+export const DropdownMenuGroup = DropdownMenuPrimitive.Group;
+export const DropdownMenuLabel = DropdownMenuPrimitive.Label;
+export const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
+export const DropdownMenuRadioItem = DropdownMenuPrimitive.RadioItem;
+export const DropdownMenuCheckboxItem = DropdownMenuPrimitive.CheckboxItem;

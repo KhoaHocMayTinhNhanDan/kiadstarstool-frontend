@@ -1,47 +1,54 @@
-/* ==========================================================================
- * Dropdown MultiSelect Types
- * --------------------------------------------------------------------------
- * Types for multi-select dropdown
- * ========================================================================== */
+// src/04-frameworks-and-drivers/ui/web/components/01-molecules/Dropdown/DropdownMultiSelect/DropdownMultiSelect.types.ts
 
 import type { ReactNode } from 'react';
 import type { DropdownBaseProps } from '../DropdownBase/DropdownBase.types';
 
-export interface DropdownMultiSelectOption {
+// Re-export or define specific variants/sizes if needed
+export type DropdownVariant = 'default' | 'compact' | 'minimal';
+export type DropdownSize = 'sm' | 'md' | 'lg';
+
+export interface DropdownItem {
   id: string;
-  label: string;
-  value: string;
-  disabled?: boolean;
+  label?: string;
   icon?: ReactNode;
-  metadata?: Record<string, unknown>;
+  shortcut?: string;
+  disabled?: boolean;
+  danger?: boolean;
+  isDivider?: boolean;
+  onClick?: () => void;
+  'data-testid'?: string;
 }
 
-export interface DropdownMultiSelectProps extends Omit<DropdownBaseProps, 'trigger' | 'children'> {
-  /** Options */
-  options: DropdownMultiSelectOption[];
-  /** Selected values */
-  values?: string[];
-  /** Change handler */
-  onChange?: (values: string[]) => void;
-  /** Placeholder text */
-  placeholder?: string;
-  /** Maximum number of selected items to show */
-  maxVisibleItems?: number;
-  /** Whether to show selected count */
-  showSelectedCount?: boolean;
-  /** Custom trigger element (optional) */
-  trigger?: ReactNode;
-  /** Searchable */
-  searchable?: boolean;
-  /** Loading state */
-  loading?: boolean;
-  /** Error state */
-  error?: boolean;
-  /** Error message */
-  errorMessage?: string;
+export interface DropdownGroup {
+  id: string;
+  label?: string;
+  items: DropdownItem[];
+  disabled?: boolean;
+}
+
+export interface DropdownMultiSelectProps extends Omit<DropdownBaseProps, 'children'> {
+  /** List of items or groups to display */
+  items: (DropdownItem | DropdownGroup)[];
+  
+  /** Whether to show checkmarks next to selected items */
+  showCheckmarks?: boolean;
+  
+  /** Array of selected item IDs */
+  selectedIds?: string[];
+  
+  /** Callback when selection changes */
+  onSelectionChange?: (ids: string[]) => void;
+  
+  /** Spacing between items */
+  itemSpacing?: 'sm' | 'md' | 'lg';
+  
+  /** Custom border color for the dropdown content */
+  borderColor?: string;
 }
 
 export interface DropdownMultiSelectContextValue {
-  selectedValues: string[];
-  onToggle: (value: string) => void;
+  selectedIds?: string[];
+  showCheckmarks: boolean;
+  onItemClick?: (item: DropdownItem) => void;
+  onItemSelect?: (id: string) => void;
 }

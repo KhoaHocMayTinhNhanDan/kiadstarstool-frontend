@@ -4,15 +4,14 @@
  * Styles specific to select-style dropdown
  * ========================================================================== */
 
-import { css } from '@emotion/react';
+import { css, keyframes } from '@emotion/react';
 import {
   COLORS,
   RADIUS,
   SPACING,
   TYPOGRAPHY,
-  TRANSITION,
-  BORDER,
-} from '../../00-atoms/00-core/tokens-constants';
+  TRANSITIONS,
+} from '../../../00-atoms/00-core/tokens-constants';
 
 /* ==========================================================================
  * TRIGGER
@@ -27,43 +26,43 @@ export const selectTrigger = css`
   width: 100%;
   height: 36px;
   padding: 0 ${SPACING.md};
-  background-color: ${COLORS.BACKGROUND.DEFAULT};
-  border: ${BORDER.DEFAULT};
+  background-color: ${COLORS.BACKGROUND_PAPER};
+  border: 1px solid ${COLORS.NEUTRAL_BORDER};
   border-radius: ${RADIUS.md};
-  font-size: ${TYPOGRAPHY.fontSize.sm};
-  color: ${COLORS.TEXT.PRIMARY};
+  font-size: ${TYPOGRAPHY.FONT_SIZE.sm};
+  color: ${COLORS.TEXT_PRIMARY};
   cursor: pointer;
-  transition: all ${TRANSITION.DEFAULT};
+  transition: all ${TRANSITIONS.FAST};
   user-select: none;
 
   &:hover {
-    border-color: ${COLORS.BORDER.STRONG};
-    background-color: ${COLORS.BACKGROUND.SUBTLE};
+    border-color: ${COLORS.NEUTRAL_DARK};
+    background-color: ${COLORS.BACKGROUND_SUBTLE};
   }
 
   &:focus-visible {
-    outline: 2px solid ${COLORS.PRIMARY[500]};
+    outline: 2px solid ${COLORS.PRIMARY};
     outline-offset: 2px;
-    border-color: ${COLORS.PRIMARY[500]};
+    border-color: ${COLORS.PRIMARY};
   }
 `;
 
 export const selectTriggerError = css`
-  border-color: ${COLORS.ERROR[500]};
+  border-color: ${COLORS.DANGER};
   
   &:hover {
-    border-color: ${COLORS.ERROR[600]};
+    border-color: ${COLORS.DANGER_DARK};
   }
   
   &:focus-visible {
-    outline-color: ${COLORS.ERROR[500]};
-    border-color: ${COLORS.ERROR[500]};
+    outline-color: ${COLORS.DANGER};
+    border-color: ${COLORS.DANGER};
   }
 `;
 
 export const selectTriggerOpen = css`
-  border-color: ${COLORS.PRIMARY[500]};
-  background-color: ${COLORS.BACKGROUND.SUBTLE};
+  border-color: ${COLORS.PRIMARY};
+  background-color: ${COLORS.BACKGROUND_SUBTLE};
 `;
 
 export const selectValueContainer = css`
@@ -76,7 +75,7 @@ export const selectValueContainer = css`
 `;
 
 export const selectPlaceholder = css`
-  color: ${COLORS.TEXT.TERTIARY};
+  color: ${COLORS.TEXT_MUTED};
 `;
 
 export const selectClearButton = css`
@@ -88,12 +87,12 @@ export const selectClearButton = css`
   height: 20px;
   border-radius: ${RADIUS.sm};
   cursor: pointer;
-  color: ${COLORS.TEXT.TERTIARY};
-  transition: all ${TRANSITION.FAST};
+  color: ${COLORS.TEXT_MUTED};
+  transition: all ${TRANSITIONS.FAST};
   
   &:hover {
-    background-color: ${COLORS.NEUTRAL[100]};
-    color: ${COLORS.TEXT.SECONDARY};
+    background-color: ${COLORS.NEUTRAL_LIGHT};
+    color: ${COLORS.TEXT_SECONDARY};
   }
 `;
 
@@ -110,7 +109,7 @@ export const selectSearchInput = css`
   align-items: center;
   gap: ${SPACING.sm};
   padding: ${SPACING.sm} ${SPACING.md};
-  border-bottom: 1px solid ${COLORS.BORDER.LIGHT};
+  border-bottom: 1px solid ${COLORS.NEUTRAL_BORDER};
   margin-bottom: ${SPACING.xs};
 `;
 
@@ -124,35 +123,35 @@ export const selectOption = css`
   align-items: center;
   height: 36px;
   padding: 0 ${SPACING.md};
-  font-size: ${TYPOGRAPHY.fontSize.sm};
-  color: ${COLORS.TEXT.PRIMARY};
+  font-size: ${TYPOGRAPHY.FONT_SIZE.sm};
+  color: ${COLORS.TEXT_PRIMARY};
   cursor: pointer;
-  transition: all ${TRANSITION.COLOR};
+  transition: all ${TRANSITIONS.FAST};
   user-select: none;
 
   &:hover,
   &[data-highlighted] {
-    background-color: ${COLORS.NEUTRAL[50]};
+    background-color: ${COLORS.NEUTRAL_HOVER};
   }
 
   &:active {
-    background-color: ${COLORS.NEUTRAL[100]};
+    background-color: ${COLORS.NEUTRAL_ACTIVE};
   }
 `;
 
 export const selectOptionSelected = css`
-  background-color: ${COLORS.PRIMARY[50]};
-  color: ${COLORS.PRIMARY[700]};
-  font-weight: ${TYPOGRAPHY.fontWeight.medium};
+  background-color: ${COLORS.PRIMARY_LIGHT}20; /* 20% opacity */
+  color: ${COLORS.PRIMARY_DARK};
+  font-weight: ${TYPOGRAPHY.FONT_WEIGHT.medium};
 
   &:hover,
   &[data-highlighted] {
-    background-color: ${COLORS.PRIMARY[100]};
+    background-color: ${COLORS.PRIMARY_LIGHT}40;
   }
 `;
 
 export const selectOptionDisabled = css`
-  color: ${COLORS.TEXT.DISABLED};
+  color: ${COLORS.TEXT_DISABLED};
   pointer-events: none;
   cursor: not-allowed;
 `;
@@ -167,23 +166,40 @@ export const selectLoading = css`
   justify-content: center;
   gap: ${SPACING.sm};
   padding: ${SPACING.md};
-  color: ${COLORS.TEXT.SECONDARY};
-  font-size: ${TYPOGRAPHY.fontSize.sm};
+  color: ${COLORS.TEXT_SECONDARY};
+  font-size: ${TYPOGRAPHY.FONT_SIZE.sm};
 `;
 
 export const selectEmpty = css`
   padding: ${SPACING.md};
   text-align: center;
-  color: ${COLORS.TEXT.TERTIARY};
-  font-size: ${TYPOGRAPHY.fontSize.sm};
+  color: ${COLORS.TEXT_MUTED};
+  font-size: ${TYPOGRAPHY.FONT_SIZE.sm};
 `;
 
 export const selectErrorMessage = css`
   padding: ${SPACING.sm} ${SPACING.md};
   margin-top: ${SPACING.xs};
-  border-top: 1px solid ${COLORS.BORDER.LIGHT};
-  color: ${COLORS.ERROR[500]};
-  font-size: ${TYPOGRAPHY.fontSize.xs};
-  background-color: ${COLORS.ERROR[50]};
+  border-top: 1px solid ${COLORS.NEUTRAL_BORDER};
+  color: ${COLORS.DANGER};
+  font-size: ${TYPOGRAPHY.FONT_SIZE.xs};
+  background-color: ${COLORS.DANGER_LIGHT}20;
   border-radius: 0 0 ${RADIUS.md} ${RADIUS.md};
+`;
+
+/* ==========================================================================
+ * ANIMATIONS
+ * ========================================================================== */
+
+const spin = keyframes`
+  to { transform: rotate(360deg); }
+`;
+
+export const spinAnimation = (color: string) => css`
+  width: 20px;
+  height: 20px;
+  border: 2px solid ${color};
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
 `;

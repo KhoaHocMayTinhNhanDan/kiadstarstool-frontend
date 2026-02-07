@@ -13,6 +13,7 @@ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { ChevronDown, X, Search, Check } from 'lucide-react';
 import { DropdownBase } from '../DropdownBase/DropdownBase.molecule';
 import { useDropdownBaseContext } from '../DropdownBase/DropdownBase.molecule';
+import { useDropdown } from '../hooks/useDropdown';
 import {
   selectTrigger,
   selectTriggerError,
@@ -28,8 +29,9 @@ import {
   selectLoading,
   selectEmpty,
   selectErrorMessage,
+  spinAnimation, // Import spin animation
 } from './DropdownSelect.molecule.styles';
-import { SPACING, COLORS, TYPOGRAPHY } from '../../00-atoms/00-core/tokens-constants';
+import { SPACING, COLORS, TYPOGRAPHY } from '../../../00-atoms/00-core/tokens-constants';
 import type {
   DropdownSelectProps,
   DropdownSelectOption,
@@ -60,14 +62,14 @@ interface DropdownSelectOptionComponentProps {
   isSelected: boolean;
 }
 
-const DropdownSelectOptionComponent: React.FC<DropdownSelectOptionComponentProps> = React.memo(({ 
+export const DropdownSelectOptionComponent: React.FC<DropdownSelectOptionComponentProps> = React.memo(({ 
   option,
   isSelected 
 }) => {
   const { onSelect } = useDropdownSelectContext();
   const { size } = useDropdownBaseContext();
   
-  const handleClick = useCallback((e: Event) => {
+  const handleClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     if (!option.disabled) {
       onSelect(option.value);
@@ -78,8 +80,8 @@ const DropdownSelectOptionComponent: React.FC<DropdownSelectOptionComponentProps
     selectOption,
     isSelected && selectOptionSelected,
     option.disabled && selectOptionDisabled,
-    size === 'sm' && css`height: 32px; font-size: ${TYPOGRAPHY.fontSize.xs};`,
-    size === 'lg' && css`height: 40px; font-size: ${TYPOGRAPHY.fontSize.md};`,
+    size === 'sm' && css`height: 32px; font-size: ${TYPOGRAPHY.FONT_SIZE.xs};`,
+    size === 'lg' && css`height: 40px; font-size: ${TYPOGRAPHY.FONT_SIZE.md};`,
   ];
   
   return (
@@ -88,7 +90,7 @@ const DropdownSelectOptionComponent: React.FC<DropdownSelectOptionComponentProps
       onClick={handleClick}
       disabled={option.disabled}
       data-testid={`select-option-${option.id}`}
-      data-state={isSelected ? 'checked' : undefined}
+      data-state={isSelected ? 'selected' : undefined} // Radix uses 'selected' for single select
     >
       {option.icon && (
         <span css={{
@@ -106,7 +108,7 @@ const DropdownSelectOptionComponent: React.FC<DropdownSelectOptionComponentProps
       )}
       <span css={{ flex: 1 }}>{option.label}</span>
       {isSelected && (
-        <Check size={16} css={{ color: COLORS.PRIMARY[500], flexShrink: 0 }} />
+        <Check size={16} css={{ color: COLORS.PRIMARY, flexShrink: 0 }} />
       )}
     </DropdownMenuPrimitive.Item>
   );
@@ -124,7 +126,7 @@ interface DropdownSelectSearchInputProps {
   placeholder?: string;
 }
 
-const DropdownSelectSearchInput: React.FC<DropdownSelectSearchInputProps> = React.memo(({
+export const DropdownSelectSearchInput: React.FC<DropdownSelectSearchInputProps> = React.memo(({
   value,
   onChange,
   placeholder = 'Search...'
@@ -138,8 +140,8 @@ const DropdownSelectSearchInput: React.FC<DropdownSelectSearchInputProps> = Reac
   }, []);
   
   return (
-    <div css={selectSearchInput}>
-      <Search size={16} css={{ color: COLORS.TEXT.TERTIARY, flexShrink: 0 }} />
+    <div css={selectSearchInput} data-testid="select-search-input">
+      <Search size={16} css={{ color: COLORS.TEXT_MUTED, flexShrink: 0 }} />
       <input
         ref={inputRef}
         type="text"
@@ -148,14 +150,14 @@ const DropdownSelectSearchInput: React.FC<DropdownSelectSearchInputProps> = Reac
         placeholder={placeholder}
         css={css`
           flex: 1;
-          border: none;
+          border: none; /* Override default input border */
           outline: none;
           background: transparent;
-          font-size: ${TYPOGRAPHY.fontSize.sm};
-          color: ${COLORS.TEXT.PRIMARY};
+          font-size: ${TYPOGRAPHY.FONT_SIZE.sm};
+          color: ${COLORS.TEXT_PRIMARY};
           
           &::placeholder {
-            color: ${COLORS.TEXT.TERTIARY};
+            color: ${COLORS.TEXT_MUTED};
           }
         `}
       />
@@ -183,7 +185,10 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = React.memo(({
   ...baseProps
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, setIsOpen, close } = useDropdown({
+    defaultOpen: baseProps.open,
+    onOpenChange: baseProps.onOpenChange,
+  });
   
   const selectedOption = useMemo(() => 
     options.find(opt => opt.value === value),
@@ -201,11 +206,11 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = React.memo(({
     onChange?.(selectedValue);
     setSearchQuery('');
     if (baseProps.closeOnSelect !== false) {
-      setIsOpen(false);
+      close();
     }
-  }, [onChange, baseProps.closeOnSelect]);
+  }, [onChange, baseProps.closeOnSelect, close]);
   
-  const handleClear = useCallback((e: React.MouseEvent) => {
+  const handleClear = useCallback((e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
     onChange?.('');
   }, [onChange]);
@@ -222,8 +227,8 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = React.memo(({
         selectTrigger,
         error && selectTriggerError,
         isOpen && selectTriggerOpen,
-        baseProps.size === 'sm' && css`height: 32px; font-size: ${TYPOGRAPHY.fontSize.xs};`,
-        baseProps.size === 'lg' && css`height: 40px; font-size: ${TYPOGRAPHY.fontSize.md};`,
+        baseProps.size === 'sm' && css`height: 32px; font-size: ${TYPOGRAPHY.FONT_SIZE.xs};`,
+        baseProps.size === 'lg' && css`height: 40px; font-size: ${TYPOGRAPHY.FONT_SIZE.md};`,
       ]}
       data-testid="select-trigger"
     >
@@ -243,13 +248,21 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = React.memo(({
       </div>
       <div css={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
         {clearable && value && (
-          <button
+          <span
+            role="button"
+            tabIndex={0}
             css={selectClearButton}
             onClick={handleClear}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleClear(e);
+              }
+            }}
             aria-label="Clear selection"
           >
             <X size={14} />
-          </button>
+          </span>
         )}
         <ChevronDown 
           size={16} 
@@ -283,18 +296,7 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = React.memo(({
           
           {loading ? (
             <div css={selectLoading}>
-              <div css={css`
-                width: 20px;
-                height: 20px;
-                border: 2px solid ${COLORS.PRIMARY[500]};
-                border-top-color: transparent;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-                
-                @keyframes spin {
-                  to { transform: rotate(360deg); }
-                }
-              `} />
+              <div css={spinAnimation(COLORS.PRIMARY)} />
               <span>Loading...</span>
             </div>
           ) : filteredOptions.length === 0 ? (

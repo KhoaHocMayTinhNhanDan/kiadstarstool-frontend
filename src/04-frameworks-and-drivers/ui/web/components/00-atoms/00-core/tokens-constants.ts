@@ -7,6 +7,7 @@
 
 export const SPACING = {
   none: '0px',
+  xxs: '2px',
   xs: '4px',
   sm: '8px',
   md: '12px',
@@ -96,6 +97,19 @@ export const COLORS = {
 
   /* ================= TRANSPARENT ================= */
   TRANSPARENT: 'transparent',
+
+  /* ================= OVERLAY ================= */
+  OVERLAY_DARK: 'rgba(0, 0, 0, 0.5)',
+
+  // BORDER COLORS
+  BORDER_PRIMARY: '#2196f3',
+  BORDER_SECONDARY: '#6c757d',
+  BORDER_SUCCESS: '#2e7d32',
+  BORDER_DANGER: '#d32f2f',
+  BORDER_WARNING: '#ed6c02',
+  BORDER_INFO: '#0288d1',
+  
+
 } as const;
 
 export type ColorKey = keyof typeof COLORS;
@@ -174,6 +188,7 @@ export const Z_INDEX = {
   base: 0,
   dropdown: 1000,
   sticky: 1100,
+  overlay: 1300,
   modal: 1400,
   toast: 1700,
   tooltip: 1800,
@@ -194,4 +209,3 @@ export const ANIMATION = {
     CUBIC_BEZIER: 'cubic-bezier(0.16, 1, 0.3, 1)',
   } as const,
 } as const;
-

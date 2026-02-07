@@ -12,7 +12,7 @@ import {
   SPACING,
   ANIMATION,
   Z_INDEX,
-} from '../../00-atoms/00-core/tokens-constants';
+} from '../../../00-atoms/00-core/tokens-constants';
 
 /* ==========================================================================
  * ANIMATIONS
@@ -62,6 +62,11 @@ export const slideRightAndFade = keyframes`
   }
 `;
 
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
 /* ==========================================================================
  * CONTENT
  * ========================================================================== */
@@ -71,12 +76,12 @@ export const dropdownContent = css`
   min-width: 180px;
   background-color: ${COLORS.BACKGROUND_PAPER};
   border-radius: ${RADIUS.md};
-  border: 1px solid ${COLORS.BORDER.LIGHT};
-  box-shadow: ${SHADOWS.LG};
-  z-index: ${Z_INDEX.DROPDOWN};
+  border: 1px solid ${COLORS.NEUTRAL_BORDER};
+  box-shadow: ${SHADOWS.lg};
+  z-index: ${Z_INDEX.dropdown};
   overflow: hidden;
-  animation-duration: ${ANIMATION.DURATION.FAST}ms;
-  animation-timing-function: ${ANIMATION.EASING.STANDARD};
+  animation-duration: ${ANIMATION.DURATION.FAST};
+  animation-timing-function: ${ANIMATION.TIMING.CUBIC_BEZIER};
   will-change: transform, opacity;
 
   &[data-side='top'] {
@@ -97,7 +102,7 @@ export const dropdownContent = css`
 
   /* Focus styles */
   &:focus {
-    outline: 2px solid ${COLORS.PRIMARY[500]};
+    outline: 2px solid ${COLORS.PRIMARY};
     outline-offset: 2px;
   }
 
@@ -111,15 +116,15 @@ export const dropdownContent = css`
     }
     
     &::-webkit-scrollbar-track {
-      background: ${COLORS.NEUTRAL[50]};
+      background: ${COLORS.BACKGROUND_NEUTRAL};
     }
     
     &::-webkit-scrollbar-thumb {
-      background: ${COLORS.NEUTRAL[300]};
+      background: ${COLORS.NEUTRAL_BORDER};
       border-radius: ${RADIUS.sm};
       
       &:hover {
-        background: ${COLORS.NEUTRAL[400]};
+        background: ${COLORS.NEUTRAL_DARK};
       }
     }
   }
@@ -137,13 +142,13 @@ export const dropdownTrigger = css`
   cursor: pointer;
   
   &:focus-visible {
-    outline: 2px solid ${COLORS.PRIMARY[500]};
+    outline: 2px solid ${COLORS.PRIMARY};
     outline-offset: 2px;
     border-radius: ${RADIUS.sm};
   }
   
   &[data-state='open'] {
-    background-color: ${COLORS.NEUTRAL[100]};
+    background-color: ${COLORS.NEUTRAL_HOVER};
   }
 `;
 
@@ -154,23 +159,23 @@ export const dropdownTrigger = css`
 export const dropdownScrollArea = css`
   max-height: 300px;
   overflow-y: auto;
-  padding: ${SPACING.xs} 0;
+  padding: ${SPACING.xxs} 0;
   
   &::-webkit-scrollbar {
     width: 8px;
   }
   
   &::-webkit-scrollbar-track {
-    background: ${COLORS.NEUTRAL[50]};
+    background: ${COLORS.BACKGROUND_NEUTRAL};
     border-radius: ${RADIUS.sm};
   }
   
   &::-webkit-scrollbar-thumb {
-    background: ${COLORS.NEUTRAL[300]};
+    background: ${COLORS.NEUTRAL_BORDER};
     border-radius: ${RADIUS.sm};
     
     &:hover {
-      background: ${COLORS.NEUTRAL[400]};
+      background: ${COLORS.NEUTRAL_DARK};
     }
   }
 `;
@@ -182,12 +187,7 @@ export const dropdownScrollArea = css`
 export const dropdownOverlay = css`
   position: fixed;
   inset: 0;
-  background-color: ${COLORS.OVERLAY.DARK};
-  z-index: ${Z_INDEX.OVERLAY};
-  animation: fadeIn ${ANIMATION.DURATION.NORMAL}ms ${ANIMATION.EASING.STANDARD};
-`;
-
-const fadeIn = keyframes`
-  from { opacity: 0; }
-  to { opacity: 1; }
+  background-color: ${COLORS.OVERLAY_DARK};
+  z-index: ${Z_INDEX.overlay};
+  animation: ${fadeIn} ${ANIMATION.DURATION.NORMAL} ${ANIMATION.TIMING.EASE};
 `;

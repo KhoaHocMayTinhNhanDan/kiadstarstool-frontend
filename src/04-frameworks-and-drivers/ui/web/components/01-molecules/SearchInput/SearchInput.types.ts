@@ -1,22 +1,38 @@
 // src/04-frameworks-and-drivers/ui/web/components/01-molecules/SearchInput/SearchInput.types.ts
-import type { CSSObject } from '@emotion/react';
-import type { InputProps } from '../../00-atoms/Input/Input.types';
+import type { ChangeEvent } from 'react';
+import type { SerializedStyles } from '@emotion/react';
 
-// Override value type to only accept string for SearchInput
-type StringInputProps = Omit<InputProps, 'value' | 'onChange' | 'leftIcon' | 'rightIcon'> & {
+export interface SearchInputProps {
+  /** Giá trị của input (Controlled mode) */
   value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-};
-
-export interface SearchInputProps extends StringInputProps {
+  
+  /** Giá trị mặc định (Uncontrolled mode) */
+  defaultValue?: string;
+  
   /** Callback khi giá trị thay đổi */
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  
+  /** Callback khi người dùng nhấn Enter hoặc click nút Clear */
   onSearch?: (value: string) => void;
-  /** Hiển thị clear button */
-  showClearButton?: boolean;
-  /** Custom search icon */
-  searchIcon?: React.ReactNode;
-  /** Custom clear icon */
-  clearIcon?: React.ReactNode;
-  /** Custom styles */
-  sx?: CSSObject;
+  
+  /** Placeholder text */
+  placeholder?: string;
+  
+  /** Kích thước input */
+  size?: 'sm' | 'md' | 'lg';
+  
+  /** Trạng thái disabled */
+  disabled?: boolean;
+  
+  /** Tự động focus khi mount */
+  autoFocus?: boolean;
+  
+  /** Custom class name (được Emotion inject) */
+  className?: string;
+  
+  /** Emotion styles override */
+  sx?: SerializedStyles;
+  
+  /** Test ID cho testing */
+  testId?: string;
 }

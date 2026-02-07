@@ -9,7 +9,7 @@ import {
   TYPOGRAPHY,
   ANIMATION,
   Z_INDEX, // ✅ Thêm import này
-} from '../../00-atoms/00-core/tokens-constants';
+} from '../../../00-atoms/00-core/tokens-constants';
 
 /* ==========================================================================
  * ANIMATIONS - Dùng animation constants

@@ -10,7 +10,7 @@ import {
   RADIUS,
   SPACING,
   TYPOGRAPHY,
-  TRANSITION,
+  TRANSITIONS,
 } from '../../../00-atoms/00-core/tokens-constants';
 
 /* ==========================================================================
@@ -24,26 +24,26 @@ export const dropdownItem = css`
   gap: ${SPACING.sm};
   height: 36px;
   padding: 0 ${SPACING.md};
-  font-size: ${TYPOGRAPHY.fontSize.sm};
-  line-height: ${TYPOGRAPHY.lineHeight.normal};
-  color: ${COLORS.TEXT.PRIMARY};
+  font-size: ${TYPOGRAPHY.FONT_SIZE.sm};
+  line-height: ${TYPOGRAPHY.LINE_HEIGHT.NORMAL};
+  color: ${COLORS.TEXT_PRIMARY};
   cursor: pointer;
   user-select: none;
   position: relative;
-  transition: all ${TRANSITION.COLOR};
+  transition: all ${TRANSITIONS.FAST};
 
   &:hover,
   &[data-highlighted] {
-    background-color: ${COLORS.NEUTRAL[50]};
-    color: ${COLORS.TEXT.PRIMARY};
+    background-color: ${COLORS.NEUTRAL_HOVER};
+    color: ${COLORS.TEXT_PRIMARY};
   }
 
   &:active {
-    background-color: ${COLORS.NEUTRAL[100]};
+    background-color: ${COLORS.NEUTRAL_ACTIVE};
   }
 
   &[data-disabled] {
-    color: ${COLORS.TEXT.DISABLED};
+    color: ${COLORS.TEXT_DISABLED};
     pointer-events: none;
     cursor: not-allowed;
   }
@@ -53,33 +53,34 @@ export const dropdownItem = css`
     content: '✓';
     position: absolute;
     right: ${SPACING.md};
-    font-size: ${TYPOGRAPHY.fontSize.sm};
-    color: ${COLORS.PRIMARY[500]};
-    font-weight: ${TYPOGRAPHY.fontWeight.medium};
+    font-size: ${TYPOGRAPHY.FONT_SIZE.sm};
+    color: ${COLORS.PRIMARY};
+    font-weight: ${TYPOGRAPHY.FONT_WEIGHT.medium};
   }
 `;
 
 export const dropdownItemDanger = css`
-  color: ${COLORS.ERROR[500]};
+  color: ${COLORS.ERROR};
 
   &:hover,
   &[data-highlighted] {
-    background-color: ${COLORS.ERROR[50]};
-    color: ${COLORS.ERROR[600]};
+    background-color: ${COLORS.ERROR_LIGHT};
+    color: ${COLORS.ERROR_DARK};
   }
 
   &:active {
-    background-color: ${COLORS.ERROR[100]};
+    background-color: ${COLORS.ERROR_DARK};
+    color: ${COLORS.WHITE};
   }
 `;
 
 export const dropdownItemSuccess = css`
-  color: ${COLORS.SUCCESS[500]};
+  color: ${COLORS.SUCCESS};
 
   &:hover,
   &[data-highlighted] {
-    background-color: ${COLORS.SUCCESS[50]};
-    color: ${COLORS.SUCCESS[600]};
+    background-color: ${COLORS.SUCCESS_LIGHT};
+    color: ${COLORS.SUCCESS_DARK};
   }
 `;
 
@@ -91,17 +92,17 @@ export const dropdownGroup = css`
   &:not(:first-of-type) {
     margin-top: ${SPACING.xs};
     padding-top: ${SPACING.xs};
-    border-top: 1px solid ${COLORS.BORDER.LIGHT};
+    border-top: 1px solid ${COLORS.NEUTRAL_BORDER};
   }
 `;
 
 export const dropdownGroupLabel = css`
-  padding: ${SPACING.xs} ${SPACING.md} ${SPACING['0.5']};
-  font-size: ${TYPOGRAPHY.fontSize.xs};
-  color: ${COLORS.TEXT.SECONDARY};
-  font-weight: ${TYPOGRAPHY.fontWeight.medium};
+  padding: ${SPACING.xs} ${SPACING.md} ${SPACING.xxs};
+  font-size: ${TYPOGRAPHY.FONT_SIZE.xs};
+  color: ${COLORS.TEXT_SECONDARY};
+  font-weight: ${TYPOGRAPHY.FONT_WEIGHT.medium};
   text-transform: uppercase;
-  letter-spacing: ${TYPOGRAPHY.letterSpacing.wide};
+  letter-spacing: ${TYPOGRAPHY.LETTER_SPACING.WIDE};
   user-select: none;
 `;
 
@@ -111,7 +112,7 @@ export const dropdownGroupLabel = css`
 
 export const dropdownSeparator = css`
   height: 1px;
-  background-color: ${COLORS.BORDER.LIGHT};
+  background-color: ${COLORS.NEUTRAL_BORDER};
   margin: ${SPACING.xs} 0;
 `;
 
@@ -140,8 +141,8 @@ export const dropdownIconContainer = css`
 export const dropdownShortcut = css`
   margin-left: auto;
   padding-left: ${SPACING.md};
-  font-size: ${TYPOGRAPHY.fontSize.xs};
-  color: ${COLORS.TEXT.TERTIARY};
-  letter-spacing: ${TYPOGRAPHY.letterSpacing.normal};
+  font-size: ${TYPOGRAPHY.FONT_SIZE.xs};
+  color: ${COLORS.TEXT_MUTED};
+  letter-spacing: ${TYPOGRAPHY.LETTER_SPACING.NORMAL};
   opacity: 0.7;
 `;

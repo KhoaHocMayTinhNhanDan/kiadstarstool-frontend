@@ -29,8 +29,11 @@ import { UserCardPlayground } from '../../components/01-molecules/UserCard/UserC
 import { LanguageSelectorPlayground } from '../../components/01-molecules/LanguageSelector/LanguageSelector.molecule-playground'
 import { SearchInputPlayground } from '../../components/01-molecules/SearchInput/SearchInput.molecule-playground'
 import { ThemeTogglePlayground } from '../../components/01-molecules/ThemeToggle/ThemeToggle.molecule-playground'
-import { DropdownMenuPlayground } from '../../components/01-molecules/DropdownMenu/DropdownMenu.molecule-playground'
 import { ToastPlayground } from '../../components/01-molecules/Toast/Toast.molecule-playground'
+import { DropdownBasePlayground } from '../../components/01-molecules/Dropdown/DropdownBase/DropdownBase.molecule-playground'
+import { DropdownMenuPlayground } from '../../components/01-molecules/Dropdown/DropdownMenu/DropdownMenu.molecule-playground'
+import { DropdownMultiSelectPlayground } from '../../components/01-molecules/Dropdown/DropdownMultiSelect/DropdownMultiSelect.molecule-playground'
+import { DropdownSelectPlayground} from '../../components/01-molecules/Dropdown/DropdownSelect/DropdownSelect.molecule-playground'
 
 import { LoginFormPlayground } from '../../components/02-organisms/auth/LoginForm/LoginForm.organism-playground'
 import { ForgotPasswordFormPlayground } from '../../components/02-organisms/auth/ForgotPasswordForm/ForgotPasswordForm.organism-playground'
@@ -128,8 +131,12 @@ const categories: Category[] = [
       { id: 'language-selector', label: 'LanguageSelector', component: <LanguageSelectorPlayground /> },
       { id: 'search-input', label: 'SearchInput', component: <SearchInputPlayground /> },
       { id: 'theme-toggle', label: 'ThemeToggle', component: <ThemeTogglePlayground /> },
-      { id: 'dropdown-menu', label: 'DropdownMenu', component: <DropdownMenuPlayground /> },
       { id: 'toast', label: 'Toast', component: <ToastPlayground /> },
+      { id: 'dropdown-base', label: 'DropdownBase', component: <DropdownBasePlayground /> },
+      { id: 'dropdown-menu', label: 'DropdownMenu', component: <DropdownMenuPlayground /> },
+      { id: 'dropdown-multi-select', label: 'DropdownMultiSelect', component: <DropdownMultiSelectPlayground /> },
+      { id: 'dropdown-select', label: 'DropdownSelect', component: <DropdownSelectPlayground /> },
+      
     ]
   },
   {
@@ -190,7 +197,8 @@ const categories: Category[] = [
       { id: 'app-footer', label: 'AppFooter', component: <AppFooterPlayground /> },
       { id: 'app-header', label: 'AppHeader', component: <AppHeaderPlayground /> },
     ]
-  }
+  },
+  
 ];
 
 export function DevShowcasePage() {

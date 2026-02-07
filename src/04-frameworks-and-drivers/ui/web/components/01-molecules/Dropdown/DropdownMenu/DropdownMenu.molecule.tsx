@@ -53,7 +53,7 @@ const DropdownMenuItemComponent: React.FC<DropdownMenuItemComponentProps> = Reac
   const { closeOnSelect } = useDropdownBaseContext();
   const { showIcons, showShortcuts, onItemClick } = useDropdownMenuContext();
   
-  const handleClick = useCallback((e: Event) => {
+  const handleClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     item.onClick?.();
     onItemClick?.(item);
