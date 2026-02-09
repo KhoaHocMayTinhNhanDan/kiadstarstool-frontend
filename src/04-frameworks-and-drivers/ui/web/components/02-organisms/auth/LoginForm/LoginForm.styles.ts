@@ -1,22 +1,16 @@
 import { css } from '@emotion/react';
-import { COLORS, SPACING, SHADOWS, RADIUS, FONT_SIZES, FONT_WEIGHTS } from '../../../00-atoms/00-core/tokens-constants';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../../00-atoms/00-core/tokens-constants';
 
 export const formContainer = css`
   display: flex;
   flex-direction: column;
   gap: ${SPACING.lg}; /* 24px */
   width: 100%;
-  max-width: 400px;
-  padding: ${SPACING.xl}; /* 32px */
-  background-color: var(--color-background-primary, ${COLORS.WHITE});
-  border-radius: ${RADIUS.lg};
-  box-shadow: ${SHADOWS.md};
-  border: 1px solid var(--color-border, ${COLORS.NEUTRAL_LIGHT});
 `;
 
 export const title = css`
-  font-size: ${FONT_SIZES['2xl']};
-  font-weight: ${FONT_WEIGHTS.semibold};
+  font-size: ${TYPOGRAPHY.FONT_SIZE['2xl']};
+  font-weight: ${TYPOGRAPHY.FONT_WEIGHT.semibold};
   text-align: center;
   margin-bottom: ${SPACING.sm};
   color: var(--color-text-primary, ${COLORS.NEUTRAL_DARK});
@@ -26,7 +20,7 @@ export const optionsContainer = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: ${FONT_SIZES.sm};
+  font-size: ${TYPOGRAPHY.FONT_SIZE.sm};
 `;
 
 export const rememberMeContainer = css`
@@ -51,7 +45,7 @@ export const forgotPasswordLink = css`
 
 export const errorMessage = css`
   color: ${COLORS.DANGER};
-  font-size: ${FONT_SIZES.sm};
+  font-size: ${TYPOGRAPHY.FONT_SIZE.sm};
   text-align: center;
   min-height: 20px; /* Giữ khoảng trống để tránh xê dịch layout */
 `;
@@ -63,7 +57,7 @@ export const fieldWrapper = css`
 `;
 
 export const label = css`
-  font-size: ${FONT_SIZES.sm};
-  font-weight: ${FONT_WEIGHTS.medium};
+  font-size: ${TYPOGRAPHY.FONT_SIZE.sm};
+  font-weight: ${TYPOGRAPHY.FONT_WEIGHT.medium};
   color: var(--color-text-primary, ${COLORS.NEUTRAL_DARK});
 `;

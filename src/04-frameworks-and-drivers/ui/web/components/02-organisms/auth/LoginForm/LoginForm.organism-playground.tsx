@@ -1,6 +1,10 @@
+/** @jsxImportSource @emotion/react */
 import { useState } from 'react';
-import LoginForm, { type LoginFormData } from './LoginForm.organism';
+import { css } from '@emotion/react';
+import { LoginForm } from './LoginForm.organism';
+import type { LoginFormData } from './LoginForm.types';
 import { Box, Text } from '../../../00-atoms';
+import { COLORS, RADIUS, SHADOWS, SPACING } from '../../../00-atoms/00-core/tokens-constants';
 
 export const LoginFormPlayground = () => {
   // State cho Interactive Demo
@@ -25,59 +29,82 @@ export const LoginFormPlayground = () => {
     }, 1500);
   };
 
-  return (
-    <Box style={{ padding: '40px', backgroundColor: '#f4f4f5', minHeight: '100vh' }}>
-      <Text as="h1" size="3xl" weight="bold" style={{ marginBottom: '40px', textAlign: 'center' }}>
-        🎨 LoginForm Playground
-      </Text>
+  // Style giả lập Card container cho form (vì LoginForm giờ là pure form)
+  const cardStyle = css`
+    background-color: ${COLORS.BACKGROUND_PAPER};
+    border: 1px solid ${COLORS.NEUTRAL_BORDER};
+    border-radius: ${RADIUS.lg};
+    padding: ${SPACING.xl};
+    box-shadow: ${SHADOWS.md};
+  `;
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px', justifyContent: 'center' }}>
+  return (
+    <Box p="xl" css={css`background-color: ${COLORS.BACKGROUND_NEUTRAL}; min-height: 100vh;`}>
+      <Box mb="xl" textAlign="center">
+        <Text as="h1" variant="heading-2xl" weight="bold">
+          🎨 LoginForm Playground
+        </Text>
+      </Box>
+
+      <Box display="flex" flexWrap="wrap" gap="xl" justifyContent="center">
         
         {/* Case 1: Interactive Demo */}
-        <div style={{ width: '100%', maxWidth: '400px' }}>
-          <Text as="h3" size="xl" weight="semibold" style={{ marginBottom: '16px', textAlign: 'center' }}>
-            1. Interactive Demo
-          </Text>
-          <Text size="sm" style={{ marginBottom: '16px', textAlign: 'center', color: '#666' }}>
-            (Nhập "error" vào email để test lỗi)
-          </Text>
-          <LoginForm 
-            onSubmit={handleSubmit}
-            isLoading={loading}
-            errorMessage={error}
-            onForgotPassword={() => alert('Navigate to Forgot Password Page')}
-          />
-        </div>
+        <Box width="100%" maxWidth="400px">
+          <Box mb="md" textAlign="center">
+            <Text as="h3" variant="heading-md" weight="semibold">
+              1. Interactive Demo
+            </Text>
+            <Text variant="body-sm" color="SECONDARY">
+              (Nhập "error" vào email để test lỗi)
+            </Text>
+          </Box>
+          <Box css={cardStyle}>
+            <LoginForm 
+              onSubmit={handleSubmit}
+              isLoading={loading}
+              errorMessage={error}
+              onForgotPassword={() => alert('Navigate to Forgot Password Page')}
+            />
+          </Box>
+        </Box>
 
         {/* Case 2: Loading State */}
-        <div style={{ width: '100%', maxWidth: '400px' }}>
-          <Text as="h3" size="xl" weight="semibold" style={{ marginBottom: '16px', textAlign: 'center' }}>
-            2. Loading State
-          </Text>
-          <Text size="sm" style={{ marginBottom: '16px', textAlign: 'center', color: '#666' }}>
-            (Mô phỏng trạng thái đang gửi dữ liệu)
-          </Text>
-          <LoginForm 
-            onSubmit={() => {}}
-            isLoading={true}
-          />
-        </div>
+        <Box width="100%" maxWidth="400px">
+          <Box mb="md" textAlign="center">
+            <Text as="h3" variant="heading-md" weight="semibold">
+              2. Loading State
+            </Text>
+            <Text variant="body-sm" color="SECONDARY">
+              (Mô phỏng trạng thái đang gửi dữ liệu)
+            </Text>
+          </Box>
+          <Box css={cardStyle}>
+            <LoginForm 
+              onSubmit={() => {}}
+              isLoading={true}
+            />
+          </Box>
+        </Box>
 
         {/* Case 3: Error State */}
-        <div style={{ width: '100%', maxWidth: '400px' }}>
-          <Text as="h3" size="xl" weight="semibold" style={{ marginBottom: '16px', textAlign: 'center' }}>
-            3. Error State
-          </Text>
-          <Text size="sm" style={{ marginBottom: '16px', textAlign: 'center', color: '#666' }}>
-            (Mô phỏng hiển thị lỗi từ server)
-          </Text>
-          <LoginForm 
-            onSubmit={() => {}}
-            errorMessage="Tài khoản của bạn đã bị khóa do đăng nhập sai quá nhiều lần."
-          />
-        </div>
+        <Box width="100%" maxWidth="400px">
+          <Box mb="md" textAlign="center">
+            <Text as="h3" variant="heading-md" weight="semibold">
+              3. Error State
+            </Text>
+            <Text variant="body-sm" color="SECONDARY">
+              (Mô phỏng hiển thị lỗi từ server)
+            </Text>
+          </Box>
+          <Box css={cardStyle}>
+            <LoginForm 
+              onSubmit={() => {}}
+              errorMessage="Tài khoản của bạn đã bị khóa do đăng nhập sai quá nhiều lần."
+            />
+          </Box>
+        </Box>
 
-      </div>
+      </Box>
     </Box>
   );
 };

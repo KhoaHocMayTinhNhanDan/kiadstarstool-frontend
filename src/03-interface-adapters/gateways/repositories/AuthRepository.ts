@@ -1,6 +1,7 @@
+// src/03-interface-adapters/gateways/repositories/AuthRepository.ts
 import { Result } from '@/01-entities/shared/base/result';
 import { Credentials } from '@/01-entities/auth/Credentials.vo';
-import { IAuthRepository, type AuthSession } from '@/02-usecases/ports/repositories/IAuthRepository';
+import { IAuthRepository, type AuthSession } from '@/02-usecases/ports/output/auth/login/IAuthRepository';
 import { type IAuthDriver } from '../device-interfaces/auth/IAuthDriver';
 
 export class AuthRepository implements IAuthRepository {
@@ -8,15 +9,19 @@ export class AuthRepository implements IAuthRepository {
 
   constructor(authDriver: IAuthDriver) {
     this.authDriver = authDriver;
+    console.log('[AuthRepository] Initialized with driver:', authDriver.constructor.name);
   }
 
   async authenticate(credentials: Credentials): Promise<Result<AuthSession>> {
+    console.log('[AuthRepository] authenticate called for:', credentials.username);
     try {
       // 1. Gọi Driver để đăng nhập
+      console.log('[AuthRepository] Calling authDriver.signInWithEmailAndPassword...');
       const authIdentity = await this.authDriver.signInWithEmailAndPassword(
         credentials.username,
         credentials.password
       );
+      console.log('[AuthRepository] Driver login success for:', authIdentity.email);
 
       // 2. Lấy Token
       const token = await this.authDriver.getIdToken();
@@ -36,6 +41,7 @@ export class AuthRepository implements IAuthRepository {
       });
     } catch (error: any) {
       // Map lỗi từ Driver sang Domain Error message
+      console.error('[AuthRepository] Error in authenticate:', error);
       return Result.fail<AuthSession>(error.message || 'Authentication failed');
     }
   }

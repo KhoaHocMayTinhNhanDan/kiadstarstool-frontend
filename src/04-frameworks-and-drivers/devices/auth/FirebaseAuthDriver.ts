@@ -17,6 +17,7 @@ export class FirebaseAuthDriver implements IAuthDriver {
 
   async signInWithEmailAndPassword(email: string, password: string): Promise<AuthIdentity> {
     try {
+      console.log('[FirebaseAuthDriver] Signing in user with email:', email);
       const { signInWithEmailAndPassword } = await import('firebase/auth');
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       return await this.mapFirebaseUser(userCredential.user);

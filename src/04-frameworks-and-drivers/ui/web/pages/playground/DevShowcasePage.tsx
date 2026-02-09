@@ -85,6 +85,8 @@ import { VideoPreviewPlayground } from '../../components/02-organisms/previews/V
 // settings
 import { SettingsFormPlayground } from '../../components/02-organisms/settings/SettingsForm/SettingsForm.organism-playground'  
 
+import { LoginPage } from '../auth/LoginPage'
+
 
 // Type definitions for the sidebar structure
 type ComponentItem = {
@@ -160,6 +162,9 @@ const categories: Category[] = [
     items: [
       { id: 'org-header-auth', label: 'Authentication', isHeader: true },
       { id: 'login-form', label: 'LoginForm', component: <LoginFormPlayground /> },
+      { id: 'login-page', label: 'LoginPage', component: <LoginPage /> },
+
+
       { id: 'forgot-password-form', label: 'ForgotPasswordForm', component: <ForgotPasswordFormPlayground /> },
       
       { id: 'org-header-data', label: 'Data Display', isHeader: true },

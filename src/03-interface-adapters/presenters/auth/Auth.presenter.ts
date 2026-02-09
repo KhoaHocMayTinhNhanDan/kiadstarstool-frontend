@@ -1,4 +1,4 @@
-import { type LoginOutput } from '@/02-usecases/auth/login/Login.output';
+import { type LoginOutput } from '@/02-usecases/ports/output/auth/login/Login.output.dto';
 
 export class AuthPresenter {
   present(output: LoginOutput) {

@@ -1,7 +1,7 @@
 // src/04-frameworks-and-drivers/ui/web/infrastructure/router/router.tsx
 import { createBrowserRouter, type RouteObject, Navigate } from 'react-router-dom';
 import { RouteGuard } from './RouteGuard';
-import { LoginPageTest } from '../../pages/auth/LoginPage-test';
+import { LoginPage } from '../../pages/auth/LoginPage';
 import { DashboardPage } from '../../pages/dashboard/DashboardPage';
 import { NotFoundPage } from '../../pages/system/NotFoundPage';
 import { DevShowcasePage } from '../../pages/playground/DevShowcasePage';
@@ -27,17 +27,17 @@ const routes: RouteObject[] = [
     children: [
       // 1. Public Routes (Login, Register...)
       {
-        // element: <AuthLayout />,
-        // children: [
-        //   {
-        //     path: ROUTES.ROOT,
-        //     element: <Navigate to={ROUTES.LOGIN} replace />,
-        //   },
-        //   {
-        //     path: ROUTES.LOGIN,
-        //     element: <LoginPageTest />,
-        //   },
-        // ],
+        element: <AuthLayout />,
+        children: [
+          {
+            path: ROUTES.ROOT,
+            element: <Navigate to={ROUTES.LOGIN} replace />,
+          },
+          {
+            path: ROUTES.LOGIN,
+            element: <LoginPage />,
+          },
+        ],
       },
 
       // Dev Routes (Public for testing - Không cần login)
@@ -53,13 +53,13 @@ const routes: RouteObject[] = [
         element: <RouteGuard />,
         children: [
           {
-            // element: <MainLayout />,
-            // children: [
-            //   {
-            //     path: ROUTES.DASHBOARD,
-            //     element: <DashboardPage />,
-            //   },
-            // ],
+            element: <MainLayout />,
+            children: [
+              {
+                path: ROUTES.DASHBOARD,
+                element: <DashboardPage />,
+              },
+            ],
           },
         ],
       },

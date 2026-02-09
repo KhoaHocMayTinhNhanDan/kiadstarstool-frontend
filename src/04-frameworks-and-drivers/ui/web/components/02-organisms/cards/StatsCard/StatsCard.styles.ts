@@ -1,46 +1,68 @@
+// src/04-frameworks-and-drivers/ui/web/components/02-organisms/cards/StatsCard/StatsCard.styles.ts
 import { css } from '@emotion/react';
-import { COLORS, RADIUS, SPACING, FONT_SIZES, FONT_WEIGHTS } from '../../../00-atoms/00-core/tokens-constants';
-import type { StatsCardProps } from './StatsCard.types';
+import { COLORS, SPACING, RADIUS, SHADOWS, TRANSITIONS, TYPOGRAPHY } from '../../../00-atoms/00-core/tokens-constants';
 
-const accentColorMap: Record<string, string> = {
-  primary: COLORS.PRIMARY_LIGHT,
-  secondary: COLORS.NEUTRAL_LIGHT,
-  success: COLORS.SUCCESS_LIGHT,
-  warning: COLORS.WARNING_LIGHT,
-  danger: COLORS.DANGER_LIGHT,
-  info: COLORS.INFO_LIGHT,
-};
-
-const accentTextMap: Record<string, string> = {
-  primary: COLORS.PRIMARY,
-  secondary: COLORS.SECONDARY_DARK,
-  success: COLORS.SUCCESS,
-  warning: COLORS.WARNING_DARK,
-  danger: COLORS.DANGER,
-  info: COLORS.INFO,
-};
-
-export const iconBox = (color: string = 'primary') => css`
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
+export const card = css`
+  background-color: ${COLORS.BACKGROUND_PAPER};
+  border: 1px solid ${COLORS.NEUTRAL_BORDER};
   border-radius: ${RADIUS.md};
-  background-color: ${accentColorMap[color] || accentColorMap.primary};
-  color: ${accentTextMap[color] || accentTextMap.primary};
-  flex-shrink: 0;
+  padding: ${SPACING.lg};
+  box-shadow: ${SHADOWS.sm};
+  display: flex;
+  flex-direction: column;
+  gap: ${SPACING.sm};
+  transition: transform ${TRANSITIONS.FAST}, box-shadow ${TRANSITIONS.FAST};
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${SHADOWS.md};
+  }
+`;
+
+export const iconBox = (accent: string = 'primary') => css`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: ${RADIUS.md};
+  background-color: ${COLORS[`${accent.toUpperCase()}_LIGHT` as keyof typeof COLORS] || COLORS.BACKGROUND_NEUTRAL};
+  color: ${COLORS[accent.toUpperCase() as keyof typeof COLORS] || COLORS.PRIMARY};
+  transition: background-color ${TRANSITIONS.FAST};
 `;
 
 export const trendBadge = (isPositive: boolean) => css`
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 6px;
-  border-radius: ${RADIUS.sm};
-  font-size: ${FONT_SIZES.xs};
-  font-weight: ${FONT_WEIGHTS.medium};
-  line-height: 1;
-  
-  background-color: ${isPositive ? COLORS.SUCCESS_LIGHT : COLORS.DANGER_LIGHT};
+  gap: ${SPACING.xs};
+  padding: 2px 8px;
+  border-radius: ${RADIUS.full};
+  background-color: ${isPositive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)'};
   color: ${isPositive ? COLORS.SUCCESS : COLORS.DANGER};
+  font-size: ${TYPOGRAPHY.FONT_SIZE.xs};
+  font-weight: ${TYPOGRAPHY.FONT_WEIGHT.medium};
+`;
+
+// Skeleton Styles
+export const skeletonHeader = css`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: ${SPACING.md};
+`;
+
+export const skeletonContent = css`
+  display: flex;
+  flex-direction: column;
+  gap: ${SPACING.xs};
+  flex: 1;
+`;
+
+export const skeletonFooter = css`
+  display: flex;
+  align-items: center;
+  gap: ${SPACING.sm};
+  margin-top: auto;
+  padding-top: ${SPACING.sm};
 `;

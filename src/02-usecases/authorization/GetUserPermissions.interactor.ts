@@ -1,5 +1,5 @@
 // src/02-usecases/authorization/GetUserPermissions.interactor.ts
-import { type IUserRepository } from '../ports/repositories/IUserRepository';
+import { type IUserProfileRepository } from '../ports/output/repositories/IUserRepository';
 import { Result } from '../../01-entities/shared/base/result';
 import { buildRolePermissions } from '../../shared/constants/authorization/auth.policy';
 
@@ -12,9 +12,9 @@ interface Output {
 }
 
 export class GetUserPermissionsInteractor {
-  private readonly userRepository: IUserRepository;
+  private readonly userRepository: IUserProfileRepository;
 
-  constructor(userRepository: IUserRepository) {
+  constructor(userRepository: IUserProfileRepository) {
     this.userRepository = userRepository;
   }
 

@@ -1,2 +1,2 @@
-export { default as LoginForm } from './LoginForm.organism';
-export type { LoginFormProps, LoginFormData } from './LoginForm.organism.types';
+export { LoginForm } from './LoginForm.organism';
+export type { LoginFormData, LoginFormProps } from './LoginForm.types';

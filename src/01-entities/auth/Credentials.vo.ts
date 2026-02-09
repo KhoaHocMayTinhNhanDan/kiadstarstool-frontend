@@ -1,3 +1,4 @@
+// src/01-entities/auth/Credentials.vo.ts
 import { Result } from '../shared/base/result';
 import { ValueObject } from '../shared/base/ValueObject';
 import { AuthError } from '../errors/AuthError';

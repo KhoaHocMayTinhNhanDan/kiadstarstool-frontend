@@ -1,15 +1,22 @@
+// src/04-frameworks-and-drivers/ui/web/components/02-organisms/cards/StatsCard/StatsCard.types.ts
 import type { ReactNode } from 'react';
-import type { CardProps } from '../../../00-atoms/Card/Card.types';
+import type { SerializedStyles } from '@emotion/react';
 
-export interface StatsCardProps extends Omit<CardProps, 'children'> {
+export type StatsCardAccent = 'primary' | 'success' | 'warning' | 'danger' | 'info';
+
+export interface StatsCardProps {
   title: string;
   value: string | number;
   icon?: ReactNode;
   trend?: {
-    value: number; // e.g., 12.5
-    label?: string; // e.g., "vs last month"
-    direction?: 'up' | 'down' | 'neutral'; // Explicit direction override
+    value: number;
+    label?: string;
+    direction?: 'up' | 'down';
   };
   description?: string;
-  accentColor?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info';
+  accentColor?: StatsCardAccent;
+  isLoading?: boolean;
+  className?: string;
+  sx?: SerializedStyles;
+  testId?: string;
 }

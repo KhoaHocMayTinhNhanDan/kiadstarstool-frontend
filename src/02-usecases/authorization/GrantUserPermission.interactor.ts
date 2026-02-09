@@ -1,4 +1,4 @@
-import { type IUserRepository } from '../ports/repositories/IUserRepository';
+import { type IUserProfileRepository } from '../ports/output/repositories/IUserRepository';
 import { Result } from '../../01-entities/shared/base/result';
 import { Permission } from '../../01-entities/users/base/Permission.vo';
 import { type PermissionCode } from '../../shared/constants/authorization/auth.domain';
@@ -9,9 +9,9 @@ interface Input {
 }
 
 export class GrantUserPermissionInteractor {
-  private readonly userRepository: IUserRepository;
+  private readonly userRepository: IUserProfileRepository;
 
-  constructor(userRepository: IUserRepository) {
+  constructor(userRepository: IUserProfileRepository) {
     this.userRepository = userRepository;
   }
 

@@ -5,7 +5,7 @@ import type { AuthorizationController } from '@/03-interface-adapters/controller
 import type { AuthRepository } from '@/03-interface-adapters/gateways/repositories/AuthRepository'
 import type { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
 import type { LoginInteractor } from '@/02-usecases/auth/login/Login.interactor'
-import type { LogoutInteractor } from '@/02-usecases/auth/logout/Logout.interactor'
+import type { LogoutInteractor } from '@/02-usecases/auth/Logout.interactor'
 import type { IAuthDriver } from '@/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver'
 
 
@@ -132,14 +132,15 @@ class AppContextImpl {
    * ===================== */
 
   static reset(): void {
-    const driver = this.instance?.auth?.driver
-    if (driver && typeof (driver as any).reset === 'function') {
-      // Reset mock driver state
-      ;(driver as any).reset()
+    if (this.instance?.auth?.driver) {
+      const driver = this.instance.auth.driver;
+      if (typeof (driver as any).reset === 'function') {
+        (driver as any).reset();
+      }
     }
     
     this.instance = null
-    console.log('[AppContext] Context reset')
+    console.log('[AppContext] Context has been reset.')
   }
 
   /* =====================
@@ -152,6 +153,7 @@ class AppContextImpl {
     config: Record<string, any>
     auth?: {
       hasDriver: boolean
+      driverName?: string
       hasController: boolean
     }
   } {
@@ -173,6 +175,7 @@ class AppContextImpl {
       config: ctx.config || {},
       auth: ctx.auth ? {
         hasDriver: !!ctx.auth.driver,
+        driverName: ctx.auth.driver.constructor.name,
         hasController: !!ctx.auth.controller
       } : undefined
     }

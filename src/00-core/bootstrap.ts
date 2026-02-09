@@ -4,11 +4,11 @@ import { AppContext, type AppContextType } from './app-context'
 import { createMockAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/MockAuthDriver'
 import { createFirebaseAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/FirebaseAuthDriver'
 import { AuthRepository } from '@/03-interface-adapters/gateways/repositories/AuthRepository'
-import { UserRepository } from '@/03-interface-adapters/gateways/repositories/UserRepository'
+import { UserProfileRepository } from '@/03-interface-adapters/gateways/repositories/UserProfileRepository'
 import { type IAuthDriver } from '@/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver'
 import { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
 import { createLoginInteractor } from '@/02-usecases/auth/login/Login.interactor'
-import { createLogoutInteractor } from '@/02-usecases/auth/logout/Logout.interactor'
+import { createLogoutInteractor } from '@/02-usecases/auth/Logout.interactor'
 import { AuthController } from '@/03-interface-adapters/controllers/Auth.controller'
 import { CheckPermissionInteractor } from '@/02-usecases/authorization/CheckPermission.interactor'
 import { GetUserPermissionsInteractor } from '@/02-usecases/authorization/GetUserPermissions.interactor'
@@ -27,7 +27,7 @@ export interface BootstrapOptions {
  */
 export function bootstrapApp(options: BootstrapOptions = {}): void {
   const {
-    useMockAuth = import.meta.env.VITE_USE_MOCK_AUTH === 'true' || true,
+    useMockAuth = import.meta.env.VITE_USE_MOCK_AUTH === 'true',
     apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
     enableLogging = true
   } = options
@@ -52,7 +52,7 @@ export function bootstrapApp(options: BootstrapOptions = {}): void {
   }
   
   const authRepository = new AuthRepository(authDriver)
-  const userRepository = new UserRepository()
+  const userRepository = new UserProfileRepository()
   const authPresenter = new AuthPresenter()
   
   const loginInteractor = createLoginInteractor(authRepository, userRepository)
@@ -112,9 +112,6 @@ export function bootstrapApp(options: BootstrapOptions = {}): void {
   }
 }
 
-/**
- * Bootstrap đơn giản (chỉ ping - tương thích với code cũ)
- */
 export function bootstrap(): void {
   console.log('[bootstrap] Initializing minimal app (ping only)')
 
@@ -122,7 +119,7 @@ export function bootstrap(): void {
   AppContext.set({
       config: {
       isMockMode: true,
-      apiBaseUrl: '',
+      apiBaseUrl: 'http://localhost:3000/api',
       authDriverType: 'mock'
     }
   })
@@ -161,20 +158,21 @@ export function isAppBootstrapped(): boolean {
  */
 export function toggleAuthMode(useMock: boolean): void {
   try {
-    const currentConfig = AppContext.getConfig();
-    
-    if (currentConfig.isMockMode !== useMock) {
-      console.log(`[bootstrap] Switching auth mode: ${useMock ? 'Mock' : 'Firebase'}`);
-      
-      // Reset and re-bootstrap
-      AppContext.reset();
-      
-      bootstrapApp({
-        useMockAuth: useMock,
-        apiBaseUrl: currentConfig.apiBaseUrl,
-        enableLogging: true
-      });
+    // Lấy config hiện tại nếu có, hoặc dùng default
+    let currentApiUrl = 'http://localhost:3000/api';
+    try {
+      currentApiUrl = AppContext.getConfig().apiBaseUrl;
+    } catch (e) {
+      // Ignore if context not initialized
     }
+    
+    console.log(`[bootstrap] Switching auth mode to: ${useMock ? 'Mock' : 'Firebase'}`);
+    AppContext.reset();
+    bootstrapApp({
+      useMockAuth: useMock,
+      apiBaseUrl: currentApiUrl,
+      enableLogging: true
+    });
   } catch (error) {
     console.error('[bootstrap] Failed to toggle auth mode:', error);
   }

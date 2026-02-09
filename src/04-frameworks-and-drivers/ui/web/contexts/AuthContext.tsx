@@ -1,7 +1,6 @@
 import React, { createContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { AppContext } from '@/00-core/app-context';
-import { type LoginInput } from '@/02-usecases/auth/login/Login.input';
-import { type LoginOutput } from '@/02-usecases/auth/login/Login.output';
+import { type LoginInput, type LoginOutput } from '@/02-usecases/ports/input/auth';
 import { useToast } from '../hooks/useToast';
 import { jwtDecode } from 'jwt-decode';
 import { type PermissionCode } from '@/shared/constants/authorization/auth.domain';
@@ -12,7 +11,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   permissions: PermissionCode[];
-  login: (input: LoginInput) => Promise<void>;
+  login: (input: { email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -41,11 +40,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = useCallback(
-    async (input: LoginInput) => {
+    async (input: { email: string; password: string }) => {
       setIsLoading(true);
       try {
+        // DEBUG: Kiểm tra xem đang dùng Driver nào
+        const debugInfo = AppContext.debug();
+        console.log(`[AuthContext] Login requested. Current Driver: ${debugInfo.auth?.driverName}`);
+
         const controller = AppContext.getAuthController();
-        const result = await controller.login(input);
+        
+        // Map email sang username để đảm bảo tương thích với LoginInput/Credentials
+        const loginInput = {
+          ...input,
+          username: input.email 
+        };
+        const result = await controller.login(loginInput);
 
         if (result.isSuccess) {
           const userData = result.getValue();

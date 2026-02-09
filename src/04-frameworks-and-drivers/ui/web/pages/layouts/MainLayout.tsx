@@ -35,6 +35,7 @@ export const MainLayout = () => {
     <Box css={css`
       display: flex;
       height: 100vh;
+      width: 100vw;
       background-color: ${COLORS.BACKGROUND_NEUTRAL || '#f7fafc'};
     `}>
       <AppSidebar 
@@ -50,11 +51,13 @@ export const MainLayout = () => {
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        position: relative;
       `}>
         <AppHeader showSearch />
         <main css={css`
           flex: 1;
           overflow-y: auto;
+          overflow-x: hidden;
           padding: 24px;
         `}>
           <Outlet />

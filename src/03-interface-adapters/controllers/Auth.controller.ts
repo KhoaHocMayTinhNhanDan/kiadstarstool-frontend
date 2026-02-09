@@ -1,8 +1,7 @@
 import { LoginInteractor } from '@/02-usecases/auth/login/Login.interactor';
-import { LogoutInteractor } from '@/02-usecases/auth/logout/Logout.interactor';
-import { type LoginInput } from '@/02-usecases/auth/login/Login.input';
+import { LogoutInteractor } from '@/02-usecases/auth/Logout.interactor';
 import { Result } from '@/01-entities/shared/base/result';
-import { type LoginOutput } from '@/02-usecases/auth/login/Login.output';
+import { type LoginInput, type LoginOutput } from '@/02-usecases/ports/input/auth';
 
 export class AuthController {
   private readonly loginInteractor: LoginInteractor;

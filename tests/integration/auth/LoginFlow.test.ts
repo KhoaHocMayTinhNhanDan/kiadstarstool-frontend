@@ -1,9 +1,10 @@
 import { jest, describe, beforeEach, it, expect } from '@jest/globals';
 import { AuthController } from '../../../src/03-interface-adapters/controllers/Auth.controller';
 import { LoginInteractor } from '../../../src/02-usecases/auth/login/Login.interactor';
-import { LogoutInteractor } from '../../../src/02-usecases/auth/logout/Logout.interactor';
-import { IAuthRepository, type AuthSession } from '../../../src/02-usecases/ports/repositories/IAuthRepository';
-import { IUserRepository } from '../../../src/02-usecases/ports/repositories/IUserRepository';
+import { LogoutInteractor } from '../../../src/02-usecases/auth/Logout.interactor';
+import { IAuthRepository } from '../../../src/02-usecases/auth/ports/AuthRepository.port';
+import { IUserRepository } from '../../../src/02-usecases/ports/output/repositories/IUserRepository';
+import { AuthSession } from '../../../src/01-entities/auth/AuthSession.vo';
 import { Result } from '../../../src/01-entities/shared/base/result';
 import { User } from '../../../src/01-entities/users/User.entity';
 import { UserId } from '../../../src/01-entities/users/base/UserId.vo';
@@ -41,11 +42,12 @@ describe('Integration: Login Flow', () => {
     const input = { username: 'staff@example.com', password: 'password123' };
     
     // 1. Mock AuthRepo trả về session hợp lệ
-    mockAuthRepo.authenticate.mockResolvedValue(Result.ok({
+    const authSession = AuthSession.create({
       userId: 'user-123',
       accessToken: 'fake-jwt-token',
       refreshToken: 'fake-refresh-token'
-    }));
+    }).getValue();
+    mockAuthRepo.authenticate.mockResolvedValue(Result.ok(authSession));
 
     // 2. Mock UserRepo trả về User Entity hợp lệ
     const mockUser = User.create({
@@ -78,10 +80,11 @@ describe('Integration: Login Flow', () => {
   it('should fail when user is not found in database (Data Integrity Error)', async () => {
     // --- ARRANGE ---
     // Auth thành công
-    mockAuthRepo.authenticate.mockResolvedValue(Result.ok({
+    const authSession = AuthSession.create({
       userId: 'user-123',
       accessToken: 'token',
-    }));
+    }).getValue();
+    mockAuthRepo.authenticate.mockResolvedValue(Result.ok(authSession));
 
     // Nhưng User không tìm thấy (trả về null)
     mockUserRepo.getById.mockResolvedValue(null);

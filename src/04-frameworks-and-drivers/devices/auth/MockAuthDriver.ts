@@ -39,6 +39,7 @@ export class MockAuthDriver implements IAuthDriver {
    * ===================== */
 
   async signInWithEmailAndPassword(email: string, password: string): Promise<AuthIdentity> {
+    console.log('[MockAuthDriver] 🟢 Signing in (MOCK MODE):', email);
     await this.delay(500);
 
     const user = this.mockUsers.find(u => 

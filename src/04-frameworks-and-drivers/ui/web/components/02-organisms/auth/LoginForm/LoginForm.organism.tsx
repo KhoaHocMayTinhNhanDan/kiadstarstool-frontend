@@ -1,107 +1,109 @@
+// src/04-frameworks-and-drivers/ui/web/components/02-organisms/auth/LoginForm/LoginForm.organism.tsx
 /** @jsxImportSource @emotion/react */
-import { useState, useId, type FormEvent } from 'react';
-import {
-  Button,
-  Input,
-  Checkbox,
-  Text,
-  LoadingSpinner,
-  Box,
-} from '../../../00-atoms';
-import { FormField } from '../../../01-molecules/FormField';
-import * as styles from './LoginForm.organism.styles';
-import type { LoginFormProps } from './LoginForm.organism.types';
+import React, { useState } from 'react';
+import { Box, Button, Input, Text, Checkbox } from '../../../00-atoms';
+import * as styles from './LoginForm.styles';
+import type { LoginFormProps, LoginFormData } from './LoginForm.types';
 
-/**
- * Component LoginForm là một "organism" dùng cho việc xác thực người dùng.
- * Nó bao gồm các trường nhập liệu, checkbox và nút bấm.
- */
-const LoginForm = ({ onSubmit, onForgotPassword, isLoading = false, errorMessage }: LoginFormProps) => {
+export const LoginForm: React.FC<LoginFormProps> = ({
+  onSubmit,
+  isLoading = false,
+  onForgotPassword,
+  errorMessage,
+  className,
+  sx,
+}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
-  const validate = () => {
-    const newErrors: { email?: string; password?: string } = {};
-    if (!email.trim()) {
-      newErrors.email = 'Vui lòng nhập email';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Email không hợp lệ';
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    const newErrors: typeof errors = {};
+    if (!email) newErrors.email = 'Email is required';
+    if (!password) newErrors.password = 'Password is required';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
     }
 
-    if (!password) newErrors.password = 'Vui lòng nhập mật khẩu';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (isLoading) return;
-    if (validate()) {
-      onSubmit({ email, password, rememberMe });
-    }
+    // Clear errors and submit
+    setErrors({});
+    onSubmit({ email, password, rememberMe });
   };
 
   return (
-    <Box as="form" css={styles.formContainer} onSubmit={handleSubmit} noValidate>
-      <Text as="h2" css={styles.title}>Đăng nhập</Text>
-
-      <FormField label="Email" error={errors.email} id="login-email" required>
-        <Input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="nhapemail@gmail.com"
-          disabled={isLoading}
-          autoComplete="email"
-          error={!!errors.email}
-        />
-      </FormField>
-
-      <FormField label="Mật khẩu" error={errors.password} id="login-password" required>
-        <Input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
-          disabled={isLoading}
-          autoComplete="current-password"
-          error={!!errors.password}
-        />
-      </FormField>
-
-      <Box css={styles.optionsContainer}>
-        <label css={styles.rememberMeContainer}>
-          <Checkbox
-            id="remember-me"
-            checked={rememberMe}
-            onCheckedChange={(checked) => setRememberMe(Boolean(checked))}
-            disabled={isLoading}
-          />
-          <Text as="span" size="sm" sx={{ cursor: 'pointer' }}>Ghi nhớ tôi</Text>
-        </label>
-        <Text
-          as="a"
-          onClick={onForgotPassword}
-          css={styles.forgotPasswordLink}
-        >
-          Quên mật khẩu?
-        </Text>
-      </Box>
-
+    <form 
+      onSubmit={handleSubmit} 
+      css={[styles.formContainer, sx]} 
+      className={className}
+      noValidate
+    >
       {errorMessage && (
-        <Box css={styles.errorMessage}>
-          <Text size="sm" color="DANGER" align="center">{errorMessage}</Text>
-        </Box>
+        <div css={styles.errorMessage}>{errorMessage}</div>
       )}
 
-      <Button type="submit" variant="primary" fullWidth isLoading={isLoading}>
-        Đăng nhập
+      <Box>
+        <Box mb="xs">
+          <Text variant="body-sm" weight="medium">Email</Text>
+        </Box>
+        <Input 
+          type="email" 
+          placeholder="name@example.com" 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={isLoading}
+          error={!!errors.email}
+          autoFocus
+          autoComplete="email"
+        />
+        {errors.email && <Text variant="caption" color="DANGER">{errors.email}</Text>}
+      </Box>
+
+      <Box>
+        <Box display="flex" justifyContent="space-between" mb="xs">
+          <Text variant="body-sm" weight="medium">Password</Text>
+          {onForgotPassword && (
+            <a onClick={onForgotPassword} css={styles.forgotPasswordLink}>
+              Forgot password?
+            </a>
+          )}
+        </Box>
+        <Input 
+          type="password" 
+          placeholder="Enter your password" 
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={isLoading}
+          error={!!errors.password}
+          autoComplete="current-password"
+        />
+        {errors.password && <Text variant="caption" color="DANGER">{errors.password}</Text>}
+      </Box>
+
+      <Box display="flex" alignItems="center" gap="sm">
+        <Checkbox 
+          id="remember-me" 
+          checked={rememberMe} 
+          onCheckedChange={(checked) => setRememberMe(checked === true)}
+          disabled={isLoading}
+        />
+        <Text as="label" htmlFor="remember-me" variant="body-sm" sx={{ cursor: 'pointer' } as any}>Remember me for 30 days</Text>
+      </Box>
+
+      <Button 
+        type="submit" 
+        fullWidth 
+        size="lg" 
+        isLoading={isLoading}
+        disabled={isLoading}
+      >
+        Sign in
       </Button>
-    </Box>
+    </form>
   );
 };
-
-export default LoginForm;

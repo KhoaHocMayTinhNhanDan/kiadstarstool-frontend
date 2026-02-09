@@ -1,4 +1,4 @@
-import { StatsCard } from './StatsCard';
+import { StatsCard } from './StatsCard.organism';
 import { Box } from '../../../00-atoms/Box/Box';
 import { Text } from '../../../00-atoms/Text/Text';
 
