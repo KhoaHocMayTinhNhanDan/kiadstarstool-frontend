@@ -2,7 +2,7 @@
 import { Result } from '@/01-entities/shared/base/result';
 import { Credentials } from '@/01-entities/auth/Credentials.vo';
 import { IAuthRepository, type AuthSession } from '@/02-usecases/ports/output/auth/login/IAuthRepository';
-import { type IAuthDriver } from '../device-interfaces/auth/IAuthDriver';
+import { type IAuthDriver } from '../../outbound/device_interfaces/auth/IAuthDriver';
 
 export class AuthRepository implements IAuthRepository {
   private readonly authDriver: IAuthDriver;

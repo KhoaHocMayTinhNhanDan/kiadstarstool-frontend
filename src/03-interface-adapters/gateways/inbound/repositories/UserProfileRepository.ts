@@ -1,9 +1,9 @@
-import { type IUserProfileRepository } from '../../../02-usecases/ports/output/repositories/IUserRepository';
-import { User } from '../../../01-entities/users/User.entity';
-import { UserId } from '../../../01-entities/users/base/UserId.vo';
-import { UserRole } from '../../../01-entities/users/base/UserRole.vo';
-import { StaffProfile } from '../../../01-entities/users/archetypes/staff/StaffProfile.vo';
-import { UserPermissions } from '../../../01-entities/users/base/UserPermissions.vo';
+import { type IUserProfileRepository } from '../../../02-usecases/auth/ports/output/repositories/IUserRepository';
+import { User } from '../../../../01-entities/users/User.entity';
+import { UserId } from '../../../../01-entities/users/base/UserId.vo';
+import { UserRole } from '../../../../01-entities/users/base/UserRole.vo';
+import { StaffProfile } from '../../../../01-entities/users/archetypes/staff/StaffProfile.vo';
+import { UserPermissions } from '../../../../01-entities/users/base/UserPermissions.vo';
 
 export class UserProfileRepository implements IUserProfileRepository {
   async getById(userId: string): Promise<User | null> {

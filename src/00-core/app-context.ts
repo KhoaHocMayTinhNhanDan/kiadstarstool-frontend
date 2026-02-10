@@ -2,11 +2,11 @@
 
 import type { AuthController } from '@/03-interface-adapters/controllers/Auth.controller'
 import type { AuthorizationController } from '@/03-interface-adapters/controllers/Authorization.controller'
-import type { AuthRepository } from '@/03-interface-adapters/gateways/repositories/AuthRepository'
+import type { AuthRepository } from '@/03-interface-adapters/gateways/inbound/repositories/AuthRepository'
 import type { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
-import type { LoginInteractor } from '@/02-usecases/auth/login/Login.interactor'
+import type { LoginInteractor } from '@/02-usecases/auth/Login.interactor'
 import type { LogoutInteractor } from '@/02-usecases/auth/Logout.interactor'
-import type { IAuthDriver } from '@/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver'
+import type { IAuthDriver } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthDriver'
 
 
 export type AppContextType = {

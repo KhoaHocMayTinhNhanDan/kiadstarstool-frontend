@@ -1,8 +1,9 @@
+import { type LogoutInput } from './ports/input/ILogoutInput';
+import { type LogoutOutput } from './ports/output/ILogoutOutput';
+import { type IAuthRepository } from './ports/gateways_interface/IAuthRepository';
 import { Result } from '../../01-entities/shared/base/result';
-import { IAuthRepository } from './ports/AuthRepository.port';
-import type { ILogoutUseCase, LogoutInput, LogoutOutput } from '../ports/input/auth';
 
-export class LogoutInteractor implements ILogoutUseCase {
+export class LogoutInteractor {
   private readonly authRepo: IAuthRepository;
 
   constructor(authRepo: IAuthRepository) {
@@ -11,13 +12,16 @@ export class LogoutInteractor implements ILogoutUseCase {
 
   async execute(input?: LogoutInput): Promise<Result<LogoutOutput>> {
     try {
+      // Logic nghiệp vụ: Gọi repository để thực hiện đăng xuất
+      // Có thể mở rộng để xử lý input.revokeAllSessions nếu backend hỗ trợ
       await this.authRepo.logout();
-      return Result.ok({ success: true });
+
+      return Result.ok<LogoutOutput>({
+        success: true
+      });
     } catch (error: any) {
-      return Result.fail(error.message || 'Logout failed');
+      // Log error nếu cần thiết (thường là qua một logger service được inject vào)
+      return Result.fail<LogoutOutput>(error.message || 'Logout failed unexpectedly');
     }
   }
 }
-
-export const createLogoutInteractor = (authRepo: IAuthRepository): LogoutInteractor => 
-  new LogoutInteractor(authRepo);

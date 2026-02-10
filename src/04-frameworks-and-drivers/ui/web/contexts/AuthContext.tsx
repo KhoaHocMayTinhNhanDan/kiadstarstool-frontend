@@ -1,7 +1,9 @@
 import React, { createContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { AppContext } from '@/00-core/app-context';
-import { type LoginInput, type LoginOutput } from '@/02-usecases/ports/input/auth';
-import { useToast } from '../hooks/useToast';
+import { type LoginInput } from '@/02-usecases/auth/ports/input/ILoginInput';
+import { type LoginOutput } from '@/02-usecases/auth/ports/output/ILoginOutput';
+
+import { useToast } from '../hooks/user/useToast';
 import { jwtDecode } from 'jwt-decode';
 import { type PermissionCode } from '@/shared/constants/authorization/auth.domain';
 
@@ -50,9 +52,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const controller = AppContext.getAuthController();
         
         // Map email sang username để đảm bảo tương thích với LoginInput/Credentials
-        const loginInput = {
-          ...input,
-          username: input.email 
+        const loginInput: LoginInput = {
+          username_or_email: input.email,
+          password: input.password
         };
         const result = await controller.login(loginInput);
 
@@ -62,7 +64,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Lưu session của user
           localStorage.setItem('user', JSON.stringify(userData));
           // Lưu userId để các hook khác (như usePermission) tiện sử dụng
-          localStorage.setItem('userId', userData.userId);
+          // FIX: LoginOutput giờ chỉ trả về token, cần decode để lấy userId
+          try {
+            const decoded: any = jwtDecode(userData.token);
+            if (decoded.sub || decoded.user_id) {
+              localStorage.setItem('userId', decoded.sub || decoded.user_id);
+            }
+          } catch (e) { /* ignore */ }
           toast.success('Đăng nhập thành công!');
         } else {
           // Ném lỗi để component UI có thể bắt và hiển thị
@@ -96,9 +104,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const permissions = useMemo(() => {
-    if (!user?.accessToken) return [];
+    if (!user?.token) return [];
     try {
-      const decoded: { permissions?: PermissionCode[] } = jwtDecode(user.accessToken);
+      const decoded: { permissions?: PermissionCode[] } = jwtDecode(user.token);
       return decoded.permissions || [];
     } catch (error) {
       return [];

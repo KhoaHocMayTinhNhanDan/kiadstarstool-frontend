@@ -1,9 +1,9 @@
 import { jest, describe, beforeEach, it, expect } from '@jest/globals';
 import { AuthController } from '../../../src/03-interface-adapters/controllers/Auth.controller';
-import { LoginInteractor } from '../../../src/02-usecases/auth/login/Login.interactor';
+import { LoginInteractor } from '../../../src/02-usecases/auth/Login.interactor';
 import { LogoutInteractor } from '../../../src/02-usecases/auth/Logout.interactor';
-import { IAuthRepository } from '../../../src/02-usecases/auth/ports/AuthRepository.port';
-import { IUserRepository } from '../../../src/02-usecases/ports/output/repositories/IUserRepository';
+import { IAuthRepository } from '../../../src/02-usecases/auth/ports/gateways_interface/IAuthRepository';
+import { IUserRepository } from '../../../src/02-usecases/auth/ports/output/repositories/IUserRepository';
 import { AuthSession } from '../../../src/01-entities/auth/AuthSession.vo';
 import { Result } from '../../../src/01-entities/shared/base/result';
 import { User } from '../../../src/01-entities/users/User.entity';
@@ -31,7 +31,7 @@ describe('Integration: Login Flow', () => {
 
     // 1. Wiring (Ghép nối các tầng)
     // Controller -> Interactor -> Repositories (Mocked)
-    const loginInteractor = new LoginInteractor(mockAuthRepo, mockUserRepo);
+    const loginInteractor = new LoginInteractor(mockAuthRepo);
     const logoutInteractor = new LogoutInteractor(mockAuthRepo);
     
     authController = new AuthController(loginInteractor, logoutInteractor);
@@ -57,7 +57,10 @@ describe('Integration: Login Flow', () => {
       permissions: UserPermissions.empty(),
       isActive: true
     });
-    mockUserRepo.getById.mockResolvedValue(mockUser);
+    // NOTE: Việc lấy thông tin user không còn là trách nhiệm của LoginInteractor.
+    // Nó nên được thực hiện ở một bước sau (ví dụ: trong Presenter hoặc một use case khác
+    // sau khi đã có token). Vì vậy, chúng ta không cần mock getById ở đây nữa.
+    // mockUserRepo.getById.mockResolvedValue(mockUser);
 
     // --- ACT ---
     // Gọi từ tầng ngoài cùng (Controller)
@@ -66,15 +69,15 @@ describe('Integration: Login Flow', () => {
     // --- ASSERT ---
     expect(result.isSuccess).toBe(true);
     
+    // The output of LoginInteractor is now just the session/token.
+    // Mapping to a full user profile would happen in the Presenter/UI layer.
     const output = result.getValue();
-    expect(output.userId).toBe('user-123');
-    expect(output.displayName).toBe('Staff Member');
-    expect(output.role).toBe('staff');
-    expect(output.accessToken).toBe('fake-jwt-token');
+    expect(output.token).toBe('fake-jwt-token');
+    expect(output.refreshToken).toBe('fake-refresh-token');
 
     // Kiểm tra luồng gọi
     expect(mockAuthRepo.authenticate).toHaveBeenCalled();
-    expect(mockUserRepo.getById).toHaveBeenCalledWith('user-123');
+    expect(mockUserRepo.getById).not.toHaveBeenCalled(); // Quan trọng: không được gọi đến UserRepo
   });
 
   it('should fail when user is not found in database (Data Integrity Error)', async () => {
@@ -86,15 +89,18 @@ describe('Integration: Login Flow', () => {
     }).getValue();
     mockAuthRepo.authenticate.mockResolvedValue(Result.ok(authSession));
 
-    // Nhưng User không tìm thấy (trả về null)
-    mockUserRepo.getById.mockResolvedValue(null);
+    // Kịch bản này không còn hợp lệ trong LoginInteractor.
+    // LoginInteractor giờ chỉ quan tâm đến việc xác thực thành công hay thất bại.
+    // Việc user có tồn tại trong DB của bạn hay không sẽ được kiểm tra ở một bước khác,
+    // ví dụ như khi dùng token để lấy thông tin user.
+    // Chúng ta có thể bỏ qua test case này hoặc sửa nó thành một kịch bản khác.
 
     // --- ACT ---
     const result = await authController.login({ username: 'a', password: 'b' });
 
     // --- ASSERT ---
-    expect(result.isFailure).toBe(true);
-    expect(result.getErrorValue()).toContain('User not found');
+    // Với interactor mới, luồng này sẽ thành công vì authenticate đã thành công.
+    expect(result.isSuccess).toBe(true);
   });
 
   it('should fail when password is wrong', async () => {

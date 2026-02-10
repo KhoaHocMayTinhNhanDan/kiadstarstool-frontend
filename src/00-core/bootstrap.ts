@@ -3,12 +3,12 @@
 import { AppContext, type AppContextType } from './app-context'
 import { createMockAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/MockAuthDriver'
 import { createFirebaseAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/FirebaseAuthDriver'
-import { AuthRepository } from '@/03-interface-adapters/gateways/repositories/AuthRepository'
-import { UserProfileRepository } from '@/03-interface-adapters/gateways/repositories/UserProfileRepository'
-import { type IAuthDriver } from '@/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver'
+import { AuthRepository } from '@/03-interface-adapters/gateways/inbound/repositories/AuthRepository'
+import { UserProfileRepository } from '@/03-interface-adapters/gateways/inbound/repositories/UserProfileRepository'
+import { type IAuthDriver } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthDriver'
 import { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
-import { createLoginInteractor } from '@/02-usecases/auth/login/Login.interactor'
-import { createLogoutInteractor } from '@/02-usecases/auth/Logout.interactor'
+import { LoginInteractor } from '@/02-usecases/auth/Login.interactor'
+import { LogoutInteractor } from '@/02-usecases/auth/Logout.interactor'
 import { AuthController } from '@/03-interface-adapters/controllers/Auth.controller'
 import { CheckPermissionInteractor } from '@/02-usecases/authorization/CheckPermission.interactor'
 import { GetUserPermissionsInteractor } from '@/02-usecases/authorization/GetUserPermissions.interactor'
@@ -55,8 +55,8 @@ export function bootstrapApp(options: BootstrapOptions = {}): void {
   const userRepository = new UserProfileRepository()
   const authPresenter = new AuthPresenter()
   
-  const loginInteractor = createLoginInteractor(authRepository, userRepository)
-  const logoutInteractor = createLogoutInteractor(authRepository)
+  const loginInteractor = new LoginInteractor(authRepository)
+  const logoutInteractor = new LogoutInteractor(authRepository)
   
   const authController = new AuthController(loginInteractor, logoutInteractor)
 

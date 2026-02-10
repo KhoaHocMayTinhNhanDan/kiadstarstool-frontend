@@ -1,4 +1,4 @@
-import { type IUserProfileRepository } from '../ports/output/repositories/IUserRepository';
+import { type IUserProfileRepository } from '../auth/ports/output/repositories/IUserRepository';
 import { Result } from '../../01-entities/shared/base/result';
 import { Permission } from '../../01-entities/users/base/Permission.vo';
 import { type PermissionCode } from '../../shared/constants/authorization/auth.domain';

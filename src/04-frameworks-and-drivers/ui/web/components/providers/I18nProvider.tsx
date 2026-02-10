@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { SUPPORTED_LOCALES, type Locale, i18nStore, type I18nKey } from '@/shared/i18n/i18n.store';
+import { SUPPORTED_LOCALES, type Locale, i18nStore, type I18nKey } from '@/04-frameworks-and-drivers/ui/web/hooks/i18n/i18n.store';
 
 // Định nghĩa kiểu dữ liệu cho Context
 interface I18nContextType {

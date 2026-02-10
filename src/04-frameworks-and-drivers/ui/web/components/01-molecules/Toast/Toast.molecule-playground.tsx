@@ -3,7 +3,7 @@ import { Box } from '../../00-atoms/Box';
 import { Button } from '../../00-atoms/Button';
 import { Text } from '../../00-atoms/Text';
 import { Toast } from './Toast.molecule';
-import { useToast } from '../../../hooks/useToast';
+import { useToast } from '../../../hooks/user/useToast';
 
 export const ToastPlayground = () => {
   const { toast } = useToast();

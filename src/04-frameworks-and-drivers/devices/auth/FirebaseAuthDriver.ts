@@ -1,6 +1,6 @@
 // src/04-frameworks-and-drivers/devices/auth/FirebaseAuthDriver.ts
 
-import type { IAuthDriver } from '@/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver';
+import type { IAuthDriver } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthDriver';
 import { AuthIdentity } from '@/01-entities/auth/AuthIdentity.entity';
 import { UserRole } from '@/01-entities/users/base/UserRole.vo';
 import { Permission } from '@/01-entities/users/base/Permission.vo';

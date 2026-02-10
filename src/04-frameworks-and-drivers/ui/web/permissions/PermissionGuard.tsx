@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { type PermissionCode } from '@/shared/constants/authorization/auth.domain';
-import { usePermission } from '../hooks/usePermission';
+import { usePermission } from '../hooks/user/usePermission';
 
 interface PermissionGuardProps {
   required: PermissionCode;

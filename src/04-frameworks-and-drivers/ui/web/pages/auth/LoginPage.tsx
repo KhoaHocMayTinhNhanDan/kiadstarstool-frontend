@@ -5,8 +5,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { css } from '@emotion/react';
 import { Box, Text } from '../../components/00-atoms';
 import { LoginForm, type LoginFormData } from '../../components/02-organisms/auth/LoginForm';
-import { useAuth } from '../../hooks/useAuth';
-import { useToast } from '../../hooks/useToast';
+import { useAuth } from '../../hooks/user/useAuth';
+import { useToast } from '../../hooks/user/useToast';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '../../components/00-atoms/00-core/tokens-constants';
 
 export const LoginPage = () => {

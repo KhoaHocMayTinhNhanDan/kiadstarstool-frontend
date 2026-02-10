@@ -1,5 +1,5 @@
 // src/02-usecases/authorization/GetUserPermissions.interactor.ts
-import { type IUserProfileRepository } from '../ports/output/repositories/IUserRepository';
+import { type IUserProfileRepository } from '../auth/ports/output/repositories/IUserRepository';
 import { Result } from '../../01-entities/shared/base/result';
 import { buildRolePermissions } from '../../shared/constants/authorization/auth.policy';
 

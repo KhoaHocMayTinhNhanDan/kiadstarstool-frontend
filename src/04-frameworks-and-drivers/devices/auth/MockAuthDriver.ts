@@ -1,6 +1,6 @@
 // src/04-frameworks-and-drivers/devices/auth/MockAuthDriver.ts
 
-import type { IAuthDriver } from '@/03-interface-adapters/gateways/device-interfaces/auth/IAuthDriver';
+import type { IAuthDriver } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthDriver';
 import { AuthIdentity } from '@/01-entities/auth/AuthIdentity.entity';
 
 
