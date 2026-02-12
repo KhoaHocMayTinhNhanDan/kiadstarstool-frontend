@@ -3,7 +3,7 @@ import { AuthController } from '../../../src/03-interface-adapters/controllers/A
 import { LoginInteractor } from '../../../src/02-usecases/auth/Login.interactor';
 import { LogoutInteractor } from '../../../src/02-usecases/auth/Logout.interactor';
 import { IAuthRepository } from '../../../src/02-usecases/auth/ports/gateways_interface/IAuthRepository';
-import { IUserRepository } from '../../../src/02-usecases/auth/ports/output/repositories/IUserRepository';
+import { IUserProfileRepository } from '../../../src/02-usecases/users/ports/gateways_interface/IUserProfileRepository';
 import { AuthSession } from '../../../src/01-entities/auth/AuthSession.vo';
 import { Result } from '../../../src/01-entities/shared/base/result';
 import { User } from '../../../src/01-entities/users/User.entity';
@@ -21,7 +21,9 @@ const mockAuthRepo = {
 
 const mockUserRepo = {
   getById: jest.fn(),
-} as unknown as jest.Mocked<IUserRepository>;
+  save: jest.fn(),
+  findAll: jest.fn(),
+} as unknown as jest.Mocked<IUserProfileRepository>;
 
 describe('Integration: Login Flow', () => {
   let authController: AuthController;

@@ -1,18 +1,12 @@
-import { type LoginOutput } from '@/02-usecases/ports/output/auth/login/Login.output.dto';
+import { type LoginOutput } from '@/02-usecases/auth/ports/output/ILoginOutput';
 
 export class AuthPresenter {
   present(output: LoginOutput) {
     return {
-      user: {
-        id: output.userId,
-        displayName: output.displayName,
-        // FIX: LoginOutput chỉ trả về 'role' (string).
-        // Ta bọc nó vào mảng [role] để Frontend nhận được 'roles' (string[])
-        // giúp đồng bộ với cấu trúc AuthIdentity hoặc JWT claims.
-        roles: [output.role],
-        permissions: output.permissions,
-      },
-      accessToken: output.accessToken,
+      // LoginOutput hiện tại chỉ chứa token.
+      // Các thông tin user (id, roles...) sẽ được decode từ token ở tầng UI (AuthContext).
+      // Presenter này hiện tại chỉ đóng vai trò chuyển đổi tên trường (nếu cần).
+      accessToken: output.token,
       refreshToken: output.refreshToken,
     };
   }

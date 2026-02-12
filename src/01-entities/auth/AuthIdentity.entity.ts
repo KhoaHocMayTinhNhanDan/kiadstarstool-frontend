@@ -1,5 +1,6 @@
 // src/01-entities/auth/AuthIdentity.entity.ts
 
+import { Result } from '../shared/base/result';
 import { UserRole } from '../users/base/UserRole.vo';
 import { Permission } from '../users/base/Permission.vo';
 
@@ -44,44 +45,42 @@ export class AuthIdentity {
 
   /* ========= FACTORY ========= */
 
-  static create(props: AuthIdentityProps): AuthIdentity {
-    if (!props.id) {
-      throw new Error('AuthIdentity.id is required');
+  static create(props: AuthIdentityProps): Result<AuthIdentity> {
+    if (!props.id || props.id.trim().length === 0) {
+      return Result.fail<AuthIdentity>('AuthIdentity.id is required');
     }
 
-    if (!props.email.includes('@')) {
-      throw new Error('Invalid email');
+    if (!props.email || !props.email.includes('@')) {
+      return Result.fail<AuthIdentity>('Invalid email for AuthIdentity');
     }
 
-    if (props.roles.length === 0) {
-      throw new Error('User must have at least one role');
+    if (!props.roles || props.roles.length === 0) {
+      return Result.fail<AuthIdentity>('User must have at least one role');
     }
 
-    return new AuthIdentity(props);
+    return Result.ok<AuthIdentity>(new AuthIdentity(props));
   }
 
-  static fromPrimitives(p: AuthIdentityPrimitives): AuthIdentity {
-    const roles = p.roles.map(role => {
-      const result = UserRole.create(role);
-      if (result.isFailure) {
-        throw new Error(result.getErrorValue());
-      }
-      return result.getValue();
-    });
+  static fromPrimitives(p: AuthIdentityPrimitives): Result<AuthIdentity> {
+    const mappedRoles: UserRole[] = [];
+    for (const roleStr of p.roles) {
+      const roleResult = UserRole.create(roleStr);
+      if (roleResult.isFailure) return Result.fail(roleResult.getErrorValue());
+      mappedRoles.push(roleResult.getValue());
+    }
 
-    const permissions = p.permissions.map(perm => {
-      const result = Permission.create(perm);
-      if (result.isFailure) {
-        throw new Error(result.getErrorValue());
-      }
-      return result.getValue();
-    });
+    const mappedPermissions: Permission[] = [];
+    for (const permStr of p.permissions) {
+      const permResult = Permission.create(permStr);
+      if (permResult.isFailure) return Result.fail(permResult.getErrorValue());
+      mappedPermissions.push(permResult.getValue());
+    }
 
     return AuthIdentity.create({
       id: p.id,
       email: p.email,
-      roles,
-      permissions,
+      roles: mappedRoles,
+      permissions: mappedPermissions,
       lastLoginAt: p.lastLoginAt,
       emailVerified: p.emailVerified,
       customClaims: p.customClaims,

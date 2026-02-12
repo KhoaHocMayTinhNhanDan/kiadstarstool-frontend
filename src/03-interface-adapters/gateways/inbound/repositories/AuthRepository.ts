@@ -1,44 +1,44 @@
 // src/03-interface-adapters/gateways/repositories/AuthRepository.ts
 import { Result } from '@/01-entities/shared/base/result';
 import { Credentials } from '@/01-entities/auth/Credentials.vo';
-import { IAuthRepository, type AuthSession } from '@/02-usecases/ports/output/auth/login/IAuthRepository';
-import { type IAuthDriver } from '../../outbound/device_interfaces/auth/IAuthDriver';
+import { AuthSession } from '@/01-entities/auth/AuthSession.vo';
+import { type IAuthRepository } from '@/02-usecases/auth/ports/gateways_interface/IAuthRepository';
+import { type IAuthAuthentication } from '../../outbound/device_interfaces/auth/IAuthAuthentication';
+import { type IAuthSession } from '../../outbound/device_interfaces/auth/IAuthSession';
 
 export class AuthRepository implements IAuthRepository {
-  private readonly authDriver: IAuthDriver;
+  private readonly driver: IAuthAuthentication & IAuthSession;
 
-  constructor(authDriver: IAuthDriver) {
-    this.authDriver = authDriver;
-    console.log('[AuthRepository] Initialized with driver:', authDriver.constructor.name);
+  constructor(driver: IAuthAuthentication & IAuthSession) {
+    this.driver = driver;
   }
 
   async authenticate(credentials: Credentials): Promise<Result<AuthSession>> {
-    console.log('[AuthRepository] authenticate called for:', credentials.username);
     try {
       // 1. Gọi Driver để đăng nhập
-      console.log('[AuthRepository] Calling authDriver.signInWithEmailAndPassword...');
-      const authIdentity = await this.authDriver.signInWithEmailAndPassword(
+      const authIdentity = await this.driver.signInWithEmailAndPassword(
         credentials.username,
         credentials.password
       );
-      console.log('[AuthRepository] Driver login success for:', authIdentity.email);
 
       // 2. Lấy Token
-      const token = await this.authDriver.getIdToken();
+      const token = await this.driver.getIdToken();
       if (!token) {
         return Result.fail<AuthSession>('Failed to retrieve access token');
       }
 
       // 3. Trả về AuthSession (Mapping từ Driver -> Domain)
-      // Lưu ý: userId ở đây lấy từ customClaims.uid hoặc email tùy logic của bạn
-      // Với MockDriver/Firebase, ta có thể lấy uid từ customClaims hoặc gọi getCurrentUser
-      const userId = authIdentity.customClaims['uid'] as string || authIdentity.email;
+      // Ưu tiên lấy ID từ AuthIdentity (thường là uid của Firebase)
+      const userId = authIdentity.id;
 
-      return Result.ok<AuthSession>({
+      // QUAN TRỌNG: Sử dụng Factory method để tạo Value Object và validate dữ liệu
+      const sessionResult = AuthSession.create({
         userId: userId,
         accessToken: token,
-        refreshToken: 'not-implemented-yet' // Firebase tự quản lý refresh token
+        refreshToken: undefined // Firebase SDK tự quản lý refresh token ngầm
       });
+
+      return sessionResult;
     } catch (error: any) {
       // Map lỗi từ Driver sang Domain Error message
       console.error('[AuthRepository] Error in authenticate:', error);
@@ -47,6 +47,11 @@ export class AuthRepository implements IAuthRepository {
   }
 
   async logout(): Promise<void> {
-    await this.authDriver.signOut();
+    try {
+      await this.driver.signOut();
+    } catch (error) {
+      console.error('[AuthRepository] Logout warning:', error);
+      // Không throw lỗi ở đây để đảm bảo trải nghiệm người dùng (UI vẫn clear state)
+    }
   }
 }

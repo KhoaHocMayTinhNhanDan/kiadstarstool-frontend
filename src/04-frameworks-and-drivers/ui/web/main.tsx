@@ -3,7 +3,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { bootstrapApp } from '../../../00-core/bootstrap'
-import { router } from './infrastructure/router/router'
+import { router } from './app/infrastructure/router/router'
 
 // Determine which mode to use
 function getAuthMode(): boolean {

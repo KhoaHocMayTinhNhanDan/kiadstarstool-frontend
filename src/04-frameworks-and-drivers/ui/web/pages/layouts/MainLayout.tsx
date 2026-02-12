@@ -1,67 +1,149 @@
 // src/04-frameworks-and-drivers/ui/web/pages/layouts/MainLayout.tsx
 /** @jsxImportSource @emotion/react */
-import { Outlet } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { css } from '@emotion/react';
-import { LayoutDashboard, Users, Settings } from 'lucide-react';
-import { AppHeader } from '../../components/02-organisms/navigation/AppHeader';
-import { AppSidebar } from '../../components/02-organisms/navigation/AppSidebar';
-import { Box, Text, Icon } from '../../components/00-atoms';
-import { COLORS } from '../../components/00-atoms/00-core/tokens-constants';
+import { Box, Text, Icon } from '../../00-design-system/00-atoms';
+import { AppHeader } from '../../00-design-system/02-organisms/navigation/AppHeader/AppHeader.organism';
+import { AppSidebar } from '../../00-design-system/02-organisms/navigation/AppSidebar';
+import { useAuth } from '../../app/hooks/user/useAuth';
+import { useI18n } from '@/shared/i18n/useI18n';
+import { LanguageSelector } from '../../00-design-system/01-molecules/LanguageSelector/LanguageSelector.molecule';
+import { useResponsive } from '../../utils/responsive';
+import { useToast } from '../../app/hooks/user/useToast';
+import { COLORS } from '../../00-design-system/00-atoms/00-core/tokens-constants';
+import { LayoutDashboard, Users, Settings, LogOut, Menu } from 'lucide-react';
 
-const SIDEBAR_ITEMS = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    href: '/dashboard',
-    icon: <Icon size="sm"><LayoutDashboard /></Icon>,
-    isActive: true,
-  },
-  {
-    id: 'users',
-    label: 'Users',
-    href: '/users',
-    icon: <Icon size="sm"><Users /></Icon>,
-  },
-  {
-    id: 'settings',
-    label: 'Settings',
-    href: '/settings',
-    icon: <Icon size="sm"><Settings /></Icon>,
-  },
-];
-
+/**
+ * MainLayout (Page Layer)
+ * Layout chính cho phần Dashboard (sau khi đăng nhập).
+ * Bao gồm: Sidebar, Header, và Content Area.
+ */
 export const MainLayout = () => {
+  const { user, logout } = useAuth();
+  const { t } = useI18n();
+  const { toast } = useToast();
+  const location = useLocation();
+  const { isMobile } = useResponsive();
+  const [isSidebarOpen, setSidebarOpen] = useState(!isMobile);
+  const hasShownWelcomeToast = useRef(false);
+
+  // Tự động đóng sidebar khi chuyển sang chế độ mobile
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  }, [isMobile]);
+
+  // Kiểm tra nếu user chưa có displayName (Profile trống) thì nhắc nhở
+  useEffect(() => {
+    if (user && !user.displayName && !hasShownWelcomeToast.current) {
+      toast.warning('Chào mừng bạn mới! Vui lòng cập nhật hồ sơ để có trải nghiệm tốt nhất.', 'Cập nhật hồ sơ');
+      hasShownWelcomeToast.current = true;
+    }
+  }, [user, toast]);
+
+  // Mock navigation items (nên lấy từ config hoặc permission)
+  const navItems = [
+    { id: 'dashboard', label: t('sidebar.dashboard'), href: '/dashboard', icon: <Icon size="sm"><LayoutDashboard /></Icon> },
+    { id: 'users', label: t('sidebar.users'), href: '/users', icon: <Icon size="sm"><Users /></Icon>},
+    { id: 'settings', label: t('sidebar.settings'), href: '/settings', icon: <Icon size="sm"><Settings /></Icon>},
+  ];
+
   return (
     <Box css={css`
       display: flex;
       height: 100vh;
-      width: 100vw;
       background-color: ${COLORS.BACKGROUND_NEUTRAL || '#f7fafc'};
+      overflow: hidden; // Ngăn scroll body
     `}>
-      <AppSidebar 
-        logo={
-          <Box display="flex" alignItems="center" gap="sm" px="md">
-            <Text variant="heading-md" weight="bold">KiadStars</Text>
-          </Box>
-        }
-        items={SIDEBAR_ITEMS}
-      />
+      {/* OVERLAY cho Mobile: Bấm ra ngoài để đóng menu */}
+      {isMobile && isSidebarOpen && (
+        <Box
+          onClick={() => setSidebarOpen(false)}
+          css={css`
+            position: fixed; inset: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 40; // Thấp hơn Sidebar (50) nhưng cao hơn Content
+          `}
+        />
+      )}
+
+      {/* 1. SIDEBAR AREA (Placeholder cho AppSidebar) */}
+      <Box
+        as="aside"
+        css={css`
+          width: ${isSidebarOpen ? '260px' : (isMobile ? '0px' : '72px')};
+          transition: width 0.3s ease;
+          overflow: hidden;
+          flex-shrink: 0;
+          ${isMobile ? `
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 50;
+            box-shadow: ${isSidebarOpen ? '4px 0 24px rgba(0,0,0,0.15)' : 'none'};
+          ` : ''}
+        `}
+      >
+        <AppSidebar
+          logo={<Text variant="heading-md" weight="bold" color="PRIMARY">KiadStars</Text>}
+          items={navItems.map(item => ({
+            ...item,
+            isActive: location.pathname.startsWith(item.href),
+            onClick: () => isMobile && setSidebarOpen(false)
+          }))}
+          collapsed={!isMobile && !isSidebarOpen}
+          onCollapseChange={(collapsed) => setSidebarOpen(!collapsed)}
+        />
+      </Box>
+
+      {/* 2. MAIN CONTENT AREA */}
       <Box css={css`
         flex: 1;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
-        position: relative;
+        min-width: 0; // Fix flex child overflow issue
       `}>
-        <AppHeader showSearch />
-        <main css={css`
+        {/* 2.1 HEADER */}
+        <Box css={css`
+          height: 64px;
+          background-color: white;
+          border-bottom: 1px solid #e2e8f0;
+          display: flex;
+          align-items: center;
+          padding: 0 24px;
+        `}>
+           {/* Toggle Sidebar Button */}
+           <Box mr="md" css={css`cursor: pointer;`} onClick={() => setSidebarOpen(!isSidebarOpen)}>
+             <Icon><Menu /></Icon>
+           </Box>
+           
+           {/* AppHeader Component tái sử dụng */}
+           <Box flex="1">
+             <AppHeader 
+               actions={
+                 <LanguageSelector />
+               }
+               userProfile={{
+                 name: user?.displayName || 'User',
+                 role: user?.role || 'Member',
+                 avatarUrl: 'https://i.pravatar.cc/150?u=' + (user?.id || 'default'),
+               }}
+               userMenuItems={[
+                 { id: 'logout', label: 'Logout', icon: <Icon size="sm"><LogOut /></Icon>, danger: true, onClick: logout }
+               ]}
+             />
+           </Box>
+        </Box>
+
+        {/* 2.2 PAGE CONTENT (Scrollable) */}
+        <Box css={css`
           flex: 1;
           overflow-y: auto;
-          overflow-x: hidden;
           padding: 24px;
         `}>
           <Outlet />
-        </main>
+        </Box>
       </Box>
     </Box>
   );

@@ -3,18 +3,20 @@
 import type { AuthController } from '@/03-interface-adapters/controllers/Auth.controller'
 import type { AuthorizationController } from '@/03-interface-adapters/controllers/Authorization.controller'
 import type { AuthRepository } from '@/03-interface-adapters/gateways/inbound/repositories/AuthRepository'
+import type { UsersController } from '@/03-interface-adapters/controllers/Users.controller';
 import type { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
 import type { LoginInteractor } from '@/02-usecases/auth/Login.interactor'
 import type { LogoutInteractor } from '@/02-usecases/auth/Logout.interactor'
-import type { IAuthDriver } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthDriver'
-
+import type { IAuthAccountManagement } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAccountManagement'
+import type { IAuthAuthentication } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAuthentication'
+import type { IAuthSession } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthSession'
 
 export type AppContextType = {
   
   
   // Authentication feature
   auth?: {
-    driver: IAuthDriver
+    driver: IAuthAuthentication & IAuthAccountManagement & IAuthSession
     repository: AuthRepository
     presenter: AuthPresenter
     loginInteractor: LoginInteractor
@@ -25,6 +27,11 @@ export type AppContextType = {
   // Authorization feature
   authorization?: {
     controller: AuthorizationController
+  }
+
+  // Users feature
+  users?: {
+    controller: UsersController;
   }
   
   // Configuration
@@ -77,6 +84,14 @@ class AppContextImpl {
     return ctx.authorization
   }
 
+  static getUsers() {
+    const ctx = this.get();
+    if (!ctx.users) {
+      throw new Error('[AppContext] Users feature not configured.');
+    }
+    return ctx.users;
+  }
+
 
 
   static getConfig() {
@@ -91,7 +106,7 @@ class AppContextImpl {
    *  CONVENIENCE GETTERS
    * ===================== */
 
-  static getAuthDriver(): IAuthDriver {
+  static getAuthDriver(): IAuthAuthentication & IAuthAccountManagement & IAuthSession {
     return this.getAuth().driver
   }
 
@@ -101,6 +116,10 @@ class AppContextImpl {
 
   static getAuthorizationController(): AuthorizationController {
     return this.getAuthorization().controller
+  }
+
+  static getUsersController(): UsersController {
+    return this.getUsers().controller;
   }
 
   static getLoginInteractor(): LoginInteractor {
@@ -161,7 +180,7 @@ class AppContextImpl {
     if (!ctx) {
       return { 
         mode: 'not-initialized', 
-        features: [], 
+        features: [],
         config: {} 
       }
     }
@@ -170,7 +189,8 @@ class AppContextImpl {
       mode: ctx.config?.isMockMode ? 'mock' : 'production',
       features: [
         ...(ctx.auth ? ['auth'] : []),
-        ...(ctx.authorization ? ['authorization'] : [])
+        ...(ctx.authorization ? ['authorization'] : []),
+        ...(ctx.users ? ['users'] : []),
       ],
       config: ctx.config || {},
       auth: ctx.auth ? {

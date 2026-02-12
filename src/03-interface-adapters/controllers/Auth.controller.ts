@@ -1,9 +1,12 @@
+// src/03-interface-adapters/controllers/Auth.controller.ts
 import { LoginInteractor } from '@/02-usecases/auth/Login.interactor';
 import { LogoutInteractor } from '@/02-usecases/auth/Logout.interactor';
 import { Result } from '@/01-entities/shared/base/result';
 
 import { type LoginInput } from '@/02-usecases/auth/ports/input/ILoginInput';
 import { type LoginOutput } from '@/02-usecases/auth/ports/output/ILoginOutput';
+import { type LogoutInput } from '@/02-usecases/auth/ports/input/ILogoutInput';
+import { type LogoutOutput } from '@/02-usecases/auth/ports/output/ILogoutOutput';
 
 export class AuthController {
   private readonly loginInteractor: LoginInteractor;
@@ -34,12 +37,12 @@ export class AuthController {
   /**
    * Xử lý yêu cầu đăng xuất
    */
-  async logout(): Promise<Result<void>> {
+  async logout(input?: LogoutInput): Promise<Result<LogoutOutput>> {
     try {
-      return await this.logoutInteractor.execute();
+      return await this.logoutInteractor.execute(input);
     } catch (error: any) {
       console.error('[AuthController] Logout unexpected error:', error);
-      return Result.fail<void>('An unexpected error occurred during logout');
+      return Result.fail<LogoutOutput>('An unexpected error occurred during logout');
     }
   }
 }

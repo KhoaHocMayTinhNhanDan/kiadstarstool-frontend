@@ -2,9 +2,11 @@
 /** @jsxImportSource @emotion/react */
 import { Outlet } from 'react-router-dom';
 import { css } from '@emotion/react';
-import { AuthProvider } from '../../contexts/AuthContext';
-import { ToastProvider } from '../../components/providers/ToastProvider';
-import { Box } from '../../components/00-atoms';
+import { AuthProvider } from '../../app/contexts/AuthContext';
+import { ToastProvider } from '../../app/providers/ToastProvider';
+import { ThemeProvider } from '../../app/providers/ThemeProvider';
+import { I18nProvider } from '../../app/providers/I18nProvider';
+import { Box } from '../../00-design-system/00-atoms';
 
 /**
  * RootLayout (Page Layer)
@@ -12,16 +14,20 @@ import { Box } from '../../components/00-atoms';
  */
 export const RootLayout = () => {
   return (
-    <ToastProvider>
-      <AuthProvider>
-        <Box css={css`
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-        `}>
-          <Outlet />
-        </Box>
-      </AuthProvider>
-    </ToastProvider>
+    <ThemeProvider>
+      <I18nProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <Box css={css`
+              min-height: 100vh;
+              display: flex;
+              flex-direction: column;
+            `}>
+              <Outlet />
+            </Box>
+          </AuthProvider>
+        </ToastProvider>
+      </I18nProvider>
+    </ThemeProvider>
   );
 };

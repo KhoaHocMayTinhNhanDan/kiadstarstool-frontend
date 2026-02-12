@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { AppContext } from '@/00-core/app-context'
-import { useI18n } from '@/04-frameworks-and-drivers/ui/web/hooks/i18n'
-import { SUPPORTED_LOCALES } from '@/04-frameworks-and-drivers/ui/web/hooks/i18n/i18n.store'
-import { useToast } from '../../hooks/user/useToast'
+import { useI18n } from '@/shared/i18n/useI18n'
+import { useToast } from '../../app/hooks/user/useToast'
 
 export function LoginPageTest() {
   const [email, setEmail] = useState('')

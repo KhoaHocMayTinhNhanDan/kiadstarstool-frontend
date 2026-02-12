@@ -5,7 +5,9 @@ import { createMockAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/M
 import { createFirebaseAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/FirebaseAuthDriver'
 import { AuthRepository } from '@/03-interface-adapters/gateways/inbound/repositories/AuthRepository'
 import { UserProfileRepository } from '@/03-interface-adapters/gateways/inbound/repositories/UserProfileRepository'
-import { type IAuthDriver } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthDriver'
+import type { IAuthAuthentication } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAuthentication';
+import type { IAuthAccountManagement } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAccountManagement';
+import type { IAuthSession } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthSession';
 import { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
 import { LoginInteractor } from '@/02-usecases/auth/Login.interactor'
 import { LogoutInteractor } from '@/02-usecases/auth/Logout.interactor'
@@ -15,27 +17,33 @@ import { GetUserPermissionsInteractor } from '@/02-usecases/authorization/GetUse
 import { GrantUserPermissionInteractor } from '@/02-usecases/authorization/GrantUserPermission.interactor'
 import { RevokeUserPermissionInteractor } from '@/02-usecases/authorization/RevokeUserPermission.interactor'
 import { AuthorizationController } from '@/03-interface-adapters/controllers/Authorization.controller'
+import { GetUserInteractor } from '@/02-usecases/users/GetUser.interactor';
+import { ListUsersInteractor } from '@/02-usecases/users/ListUsers.interactor';
+import { UsersController } from '@/03-interface-adapters/controllers/Users.controller';
 
 export interface BootstrapOptions {
-  useMockAuth?: boolean
-  apiBaseUrl?: string
-  enableLogging?: boolean
+  useMockAuth?: boolean;
+  apiBaseUrl?: string;
+  enableLogging?: boolean;
+  // New option for testing: pre-authenticate a mock user
+  preAuthenticateAs?: 'admin' | 'teacher' | 'none';
 }
 
 /**
  * Bootstrap với authentication đầy đủ
  */
-export function bootstrapApp(options: BootstrapOptions = {}): void {
+export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void> {
   const {
     useMockAuth = import.meta.env.VITE_USE_MOCK_AUTH === 'true',
     apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
-    enableLogging = true
+    enableLogging = true,
+    preAuthenticateAs = (import.meta.env.VITE_PRE_AUTHENTICATE_AS as 'admin' | 'teacher' | 'none') || 'none'
   } = options
 
   console.log('[bootstrap] Initializing application...', { useMockAuth })
 
   // 1. Initialize Authentication Driver
-  let authDriver: IAuthDriver;
+  let authDriver: IAuthAuthentication & IAuthAccountManagement & IAuthSession;
   
   if (useMockAuth) {
     authDriver = createMockAuthDriver();
@@ -49,6 +57,32 @@ export function bootstrapApp(options: BootstrapOptions = {}): void {
       authDriver = createMockAuthDriver();
       console.log('[bootstrap] Fallback to MockAuthDriver');
     }
+  }
+
+  // For testing: Pre-authenticate a mock user if requested
+  if (useMockAuth && preAuthenticateAs !== 'none') {
+    const mockDriver = authDriver as MockAuthDriver; // Cast to MockAuthDriver
+    let mockUserEmail = '';
+    let mockUserPassword = 'password123';
+    let mockUserRoles: string[] = [];
+
+    if (preAuthenticateAs === 'admin') {
+      mockUserEmail = 'admin@example.com';
+      mockUserRoles = ['admin'];
+    } else if (preAuthenticateAs === 'teacher') {
+      mockUserEmail = 'teacher@example.com';
+      mockUserRoles = ['teacher'];
+    }
+
+    // Ensure the user exists in the mock driver's internal list (idempotent for mock)
+    mockDriver.addMockUser({
+      email: mockUserEmail,
+      password: mockUserPassword,
+      roles: mockUserRoles,
+      emailVerified: true,
+    });
+    // Set this user as the current authenticated user
+    await mockDriver.signInWithEmailAndPassword(mockUserEmail, mockUserPassword); // Await to ensure state is set before app renders
   }
   
   const authRepository = new AuthRepository(authDriver)
@@ -73,6 +107,14 @@ export function bootstrapApp(options: BootstrapOptions = {}): void {
     revokeUserPermissionInteractor
   )
 
+  // 1.2 Initialize Users
+  const getUserInteractor = new GetUserInteractor(userRepository);
+  const listUsersInteractor = new ListUsersInteractor(userRepository);
+  const usersController = new UsersController(
+    getUserInteractor,
+    listUsersInteractor
+  );
+
   // 2. Create Application Context
   const context: AppContextType = {
     config: {
@@ -93,6 +135,10 @@ export function bootstrapApp(options: BootstrapOptions = {}): void {
 
     authorization: {
       controller: authorizationController
+    },
+
+    users: {
+      controller: usersController
     }
   }
 

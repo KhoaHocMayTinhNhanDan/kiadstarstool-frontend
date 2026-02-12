@@ -1,89 +1,89 @@
 // src/04-frameworks-and-drivers/ui/web/pages/dev/DevShowcasePage.tsx
 import { useState, useMemo } from 'react'
-import { AvatarPlayground } from '../../components/00-atoms/Avatar/Avatar-playground'
-import { BadgePlayground } from '../../components/00-atoms/Badge/Badge-playground'
-import { BoxPlayground } from '../../components/00-atoms/Box/Box-playground'
-import { ButtonPlayground } from '../../components/00-atoms/Button/Button-playground'
-import { CardPlayground } from '../../components/00-atoms/Card/Card-playground'
-import { CheckboxPlayground } from '../../components/00-atoms/Checkbox/Checkbox-playground'
-import { ChipPlayground } from '../../components/00-atoms/Chip/Chip-playground'
-import { IconPlayground } from '../../components/00-atoms/Icon/Icon-playground'
-import { IconButtonPlayground } from '../../components/00-atoms/IconButton/IconButton-playground'
-import { IconButtonBadgePlayground } from '../../components/00-atoms/IconButtonBadge/IconButtonBadge.playground'
-import { InputPlayground } from '../../components/00-atoms/Input/Input-playground'
-import { LoadingSpinnerPlayground } from '../../components/00-atoms/LoadingSpinner/LoadingSpinner-playground'
-import { LogoPlayground } from '../../components/00-atoms/Logo/Logo-playground'
-import { ProgressPlayground } from '../../components/00-atoms/Progress/Progress-playground'
-import { RadioPlayground } from '../../components/00-atoms/Radio/Radio-playground'
-import { SkeletonPlayground } from '../../components/00-atoms/Skeleton/Skeleton-playground'
-import { SelectPlayground } from '../../components/00-atoms/Select/Select-playground'
-import { SliderPlayground } from '../../components/00-atoms/Slider/Slider-playground'
-import { SwitchPlayground } from '../../components/00-atoms/Switch/Switch-playground'
-import { TextPlayground } from '../../components/00-atoms/Text/Text-playground'
-import { TextareaPlayground } from '../../components/00-atoms/Textarea/Textarea-playground'
-import { DividerPlayground } from '../../components/00-atoms/Divider/Divider-playground'
+import { AvatarPlayground } from '../../00-design-system/00-atoms/Avatar/Avatar-playground'
+import { BadgePlayground } from '../../00-design-system/00-atoms/Badge/Badge-playground'
+import { BoxPlayground } from '../../00-design-system/00-atoms/Box/Box-playground'
+import { ButtonPlayground } from '../../00-design-system/00-atoms/Button/Button-playground'
+import { CardPlayground } from '../../00-design-system/00-atoms/Card/Card-playground'
+import { CheckboxPlayground } from '../../00-design-system/00-atoms/Checkbox/Checkbox-playground'
+import { ChipPlayground } from '../../00-design-system/00-atoms/Chip/Chip-playground'
+import { IconPlayground } from '../../00-design-system/00-atoms/Icon/Icon-playground'
+import { IconButtonPlayground } from '../../00-design-system/00-atoms/IconButton/IconButton-playground'
+import { IconButtonBadgePlayground } from '../../00-design-system/00-atoms/IconButtonBadge/IconButtonBadge.playground'
+import { InputPlayground } from '../../00-design-system/00-atoms/Input/Input-playground'
+import { LoadingSpinnerPlayground } from '../../00-design-system/00-atoms/LoadingSpinner/LoadingSpinner-playground'
+import { LogoPlayground } from '../../00-design-system/00-atoms/Logo/Logo-playground'
+import { ProgressPlayground } from '../../00-design-system/00-atoms/Progress/Progress-playground'
+import { RadioPlayground } from '../../00-design-system/00-atoms/Radio/Radio-playground'
+import { SkeletonPlayground } from '../../00-design-system/00-atoms/Skeleton/Skeleton-playground'
+import { SelectPlayground } from '../../00-design-system/00-atoms/Select/Select-playground'
+import { SliderPlayground } from '../../00-design-system/00-atoms/Slider/Slider-playground'
+import { SwitchPlayground } from '../../00-design-system/00-atoms/Switch/Switch-playground'
+import { TextPlayground } from '../../00-design-system/00-atoms/Text/Text-playground'
+import { TextareaPlayground } from '../../00-design-system/00-atoms/Textarea/Textarea-playground'
+import { DividerPlayground } from '../../00-design-system/00-atoms/Divider/Divider-playground'
 
-import { FormFieldPlayground } from '../../components/01-molecules/FormField/FormField.molecule-playground'
-import { ModalPlayground } from '../../components/01-molecules/Modal/Modal.playground'
-import { UserCardPlayground } from '../../components/01-molecules/UserCard/UserCard.molecule-playground'
-import { LanguageSelectorPlayground } from '../../components/01-molecules/LanguageSelector/LanguageSelector.molecule-playground'
-import { SearchInputPlayground } from '../../components/01-molecules/SearchInput/SearchInput.molecule-playground'
-import { ThemeTogglePlayground } from '../../components/01-molecules/ThemeToggle/ThemeToggle.molecule-playground'
-import { ToastPlayground } from '../../components/01-molecules/Toast/Toast.molecule-playground'
-import { DropdownBasePlayground } from '../../components/01-molecules/Dropdown/DropdownBase/DropdownBase.molecule-playground'
-import { DropdownMenuPlayground } from '../../components/01-molecules/Dropdown/DropdownMenu/DropdownMenu.molecule-playground'
-import { DropdownMultiSelectPlayground } from '../../components/01-molecules/Dropdown/DropdownMultiSelect/DropdownMultiSelect.molecule-playground'
-import { DropdownSelectPlayground} from '../../components/01-molecules/Dropdown/DropdownSelect/DropdownSelect.molecule-playground'
-import { BreadcrumbsPlayground } from '../../components/02-organisms/navigation/Breadcrumbs/Breadcrumbs.organism-playground'
-import { PaginationPlayground } from '../../components/02-organisms/navigation/Pagination/Pagination.organism-playground'
-import { TabsPlayground } from '../../components/02-organisms/navigation/Tabs/Tabs.organism-playground'
+import { FormFieldPlayground } from '../../00-design-system/01-molecules/FormField/FormField.molecule-playground'
+import { ModalPlayground } from '../../00-design-system/01-molecules/Modal/Modal.playground'
+import { UserCardPlayground } from '../../00-design-system/01-molecules/UserCard/UserCard.molecule-playground'
+import { LanguageSelectorPlayground } from '../../00-design-system/01-molecules/LanguageSelector/LanguageSelector.molecule-playground'
+import { SearchInputPlayground } from '../../00-design-system/01-molecules/SearchInput/SearchInput.molecule-playground'
+import { ThemeTogglePlayground } from '../../00-design-system/01-molecules/ThemeToggle/ThemeToggle.molecule-playground'
+import { ToastPlayground } from '../../00-design-system/01-molecules/Toast/Toast.molecule-playground'
+import { DropdownBasePlayground } from '../../00-design-system/01-molecules/Dropdown/DropdownBase/DropdownBase.molecule-playground'
+import { DropdownMenuPlayground } from '../../00-design-system/01-molecules/Dropdown/DropdownMenu/DropdownMenu.molecule-playground'
+import { DropdownMultiSelectPlayground } from '../../00-design-system/01-molecules/Dropdown/DropdownMultiSelect/DropdownMultiSelect.molecule-playground'
+import { DropdownSelectPlayground} from '../../00-design-system/01-molecules/Dropdown/DropdownSelect/DropdownSelect.molecule-playground'
+import { BreadcrumbsPlayground } from '../../00-design-system/02-organisms/navigation/Breadcrumbs/Breadcrumbs.organism-playground'
+import { PaginationPlayground } from '../../00-design-system/02-organisms/navigation/Pagination/Pagination.organism-playground'
+import { TabsPlayground } from '../../00-design-system/02-organisms/navigation/Tabs/Tabs.organism-playground'
 
-import { LoginFormPlayground } from '../../components/02-organisms/auth/LoginForm/LoginForm.organism-playground'
-import { ForgotPasswordFormPlayground } from '../../components/02-organisms/auth/ForgotPasswordForm/ForgotPasswordForm.organism-playground'
+import { LoginFormPlayground } from '../../00-design-system/02-organisms/auth/LoginForm/LoginForm.organism-playground'
+import { ForgotPasswordFormPlayground } from '../../00-design-system/02-organisms/auth/ForgotPasswordForm/ForgotPasswordForm.organism-playground'
 
 // Card
-import { DashboardCardPlayground } from '../../components/02-organisms/cards/DashboardCard/DashboardCard.playground'
-import { StatsCardPlayground } from '../../components/02-organisms/cards/StatsCard/StatsCard.playground'
-import { UserProfileCardPlayground } from '../../components/02-organisms/cards/UserProfileCard/UserProfileCard.playground'
+import { DashboardCardPlayground } from '../../00-design-system/02-organisms/cards/DashboardCard/DashboardCard.playground'
+import { StatsCardPlayground } from '../../00-design-system/02-organisms/cards/StatsCard/StatsCard.playground'
+import { UserProfileCardPlayground } from '../../00-design-system/02-organisms/cards/UserProfileCard/UserProfileCard.playground'
 
 // Modal
-import { ConfirmDialogPlayground } from '../../components/02-organisms/modals/ConfirmDialog/ConfirmDialog.playground' 
+import { ConfirmDialogPlayground } from '../../00-design-system/02-organisms/modals/ConfirmDialog/ConfirmDialog.playground' 
 
-import { DataTablePlayground } from '../../components/02-organisms/data/DataTable/DataTable.organism-playground'
-import { RadarChartPlayground } from  '../../components/02-organisms/charts/RadarChart/RadarChart.organism-playground';
-import { BarChartPlayground } from '../../components/02-organisms/charts/BarChart/BarChart.organism-playground';
-import { GaugeChartPlayground } from '../../components/02-organisms/charts/GaugeChart/GaugeChart.organism-playground';
-import { HeatmapChartPlayground } from '../../components/02-organisms/charts/HeatmapChart/HeatmapChart-playground';
-import { StackedBarChartPlayground } from '../../components/02-organisms/charts/StackedBarChart/StackedBarChart-playground'
+import { DataTablePlayground } from '../../00-design-system/02-organisms/data/DataTable/DataTable.organism-playground'
+import { RadarChartPlayground } from  '../../00-design-system/02-organisms/charts/RadarChart/RadarChart.organism-playground';
+import { BarChartPlayground } from '../../00-design-system/02-organisms/charts/BarChart/BarChart.organism-playground';
+import { GaugeChartPlayground } from '../../00-design-system/02-organisms/charts/GaugeChart/GaugeChart.organism-playground';
+import { HeatmapChartPlayground } from '../../00-design-system/02-organisms/charts/HeatmapChart/HeatmapChart-playground';
+import { StackedBarChartPlayground } from '../../00-design-system/02-organisms/charts/StackedBarChart/StackedBarChart-playground'
 
-import { AdvancedFilterPlayground } from '../../components/02-organisms/forms/AdvancedFilter/AdvancedFilter.form-playground'
-import { MultiStepFormPlayground } from '../../components/02-organisms/forms/MultiStepForm/MultiStepForm.playground'
-import { SearchFilterFormPlayground } from '../../components/02-organisms/forms/SearchFilterForm/SearchFilterForm.playground';
+import { AdvancedFilterPlayground } from '../../00-design-system/02-organisms/forms/AdvancedFilter/AdvancedFilter.form-playground'
+import { MultiStepFormPlayground } from '../../00-design-system/02-organisms/forms/MultiStepForm/MultiStepForm.playground'
+import { SearchFilterFormPlayground } from '../../00-design-system/02-organisms/forms/SearchFilterForm/SearchFilterForm.playground';
 
 import { LoginPageTest } from '../auth/LoginPage-test' 
 import { AppContext } from '@/00-core/app-context'
-import { ErrorBoundary } from '../../components/02-organisms/feedback/system/ErrorBoundary'
-import { ToastProvider } from '../../components/providers/ToastProvider'
+import { ErrorBoundary } from '../../00-design-system/02-organisms/feedback/system/ErrorBoundary'
+import { ToastProvider } from '../../app/providers/ToastProvider'
 
 
 // feedback
-import { ErrorBoundaryPlayground } from '../../components/02-organisms/feedback/system/ErrorBoundary/ErrorBoundary.playground'
-import { LoadingOverlayPlayground } from '../../components/02-organisms/feedback/system/LoadingOverlay/LoadingOverlay.playground'
+import { ErrorBoundaryPlayground } from '../../00-design-system/02-organisms/feedback/system/ErrorBoundary/ErrorBoundary.playground'
+import { LoadingOverlayPlayground } from '../../00-design-system/02-organisms/feedback/system/LoadingOverlay/LoadingOverlay.playground'
 
 // navigation
-import { AppFooterPlayground } from '../../components/02-organisms/navigation/AppFooter/AppFooter.organism-playground'
-import { AppHeaderPlayground } from '../../components/02-organisms/navigation/AppHeader/AppHeader.organism-playground'
-import { AppSidebarPlayground } from '../../components/02-organisms/navigation/AppSidebar/AppSidebar.organism-playground'
+import { AppFooterPlayground } from '../../00-design-system/02-organisms/navigation/AppFooter/AppFooter.organism-playground'
+import { AppHeaderPlayground } from '../../00-design-system/02-organisms/navigation/AppHeader/AppHeader.organism-playground'
+import { AppSidebarPlayground } from '../../00-design-system/02-organisms/navigation/AppSidebar/AppSidebar.organism-playground'
 
 // previews
-import { FilePreviewPlayground } from '../../components/02-organisms/previews/FilePreview/FilePreview.organism-playground'
-import { CodePreviewPlayground } from '../../components/02-organisms/previews/CodePreview/CodePreview.organism-playground'
-import { ImagePreviewPlayground } from '../../components/02-organisms/previews/ImagePreview/ImagePreview.organism-playground'
-import { PDFPreviewPlayground } from '../../components/02-organisms/previews/PDFPreview/PDFPreview.organism-playground'
-import { VideoPreviewPlayground } from '../../components/02-organisms/previews/VideoPreview/VideoPreview.organism-playground'
+import { FilePreviewPlayground } from '../../00-design-system/02-organisms/previews/FilePreview/FilePreview.organism-playground'
+import { CodePreviewPlayground } from '../../00-design-system/02-organisms/previews/CodePreview/CodePreview.organism-playground'
+import { ImagePreviewPlayground } from '../../00-design-system/02-organisms/previews/ImagePreview/ImagePreview.organism-playground'
+import { PDFPreviewPlayground } from '../../00-design-system/02-organisms/previews/PDFPreview/PDFPreview.organism-playground'
+import { VideoPreviewPlayground } from '../../00-design-system/02-organisms/previews/VideoPreview/VideoPreview.organism-playground'
 
 // settings
-import { SettingsFormPlayground } from '../../components/02-organisms/settings/SettingsForm/SettingsForm.organism-playground'  
+import { SettingsFormPlayground } from '../../00-design-system/02-organisms/settings/SettingsForm/SettingsForm.organism-playground'  
 
 import { LoginPage } from '../auth/LoginPage'
 

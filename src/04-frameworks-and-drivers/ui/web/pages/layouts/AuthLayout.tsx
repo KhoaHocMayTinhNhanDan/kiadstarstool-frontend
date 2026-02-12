@@ -2,8 +2,8 @@
 /** @jsxImportSource @emotion/react */
 import { Outlet } from 'react-router-dom';
 import { css } from '@emotion/react';
-import { Box } from '../../components/00-atoms';
-import { COLORS } from '../../components/00-atoms/00-core/tokens-constants';
+import { Box } from '../../00-design-system/00-atoms';
+import { COLORS } from '../../00-design-system/00-atoms/00-core/tokens-constants';
 
 /**
  * AuthLayout (Page Layer)
@@ -17,6 +17,7 @@ export const AuthLayout = () => {
       justify-content: center;
       min-height: 100vh;
       background-color: ${COLORS.BACKGROUND_NEUTRAL || '#f7fafc'};
+      padding: 16px; // Thêm padding để form không dính vào cạnh màn hình trên mobile
     `}>
       <Outlet />
     </Box>

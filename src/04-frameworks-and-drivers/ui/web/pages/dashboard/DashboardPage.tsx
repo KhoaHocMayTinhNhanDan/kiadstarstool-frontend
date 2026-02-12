@@ -1,5 +1,6 @@
 // src/04-frameworks-and-drivers/ui/web/pages/dashboard/DashboardPage.tsx
 /** @jsxImportSource @emotion/react */
+import { useState, useEffect } from 'react';
 import { css } from '@emotion/react';
 import { 
   Users, 
@@ -7,54 +8,106 @@ import {
   ShoppingCart, 
   Activity 
 } from 'lucide-react';
-import { Box, Text } from '../../components/00-atoms';
-import { COLORS, SPACING, RADIUS } from '../../components/00-atoms/00-core/tokens-constants';
-import { StatsCard } from '../../components/02-organisms/cards/StatsCard';
+import { Box, Text, Icon } from '../../00-design-system/00-atoms';
+import { COLORS, SPACING, RADIUS } from '../../00-design-system/00-atoms/00-core/tokens-constants';
+import { StatsCard, StatsCardSkeleton } from '../../00-design-system/02-organisms/cards/StatsCard';
+import { useAuth } from '@/04-frameworks-and-drivers/ui/web/app/hooks/user/useAuth';
+import { useI18n } from '@/shared/i18n/useI18n';
+
+// Định nghĩa kiểu dữ liệu cho một card thống kê để dễ quản lý
+type StatData = {
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+  accentColor: 'success' | 'primary' | 'info' | 'warning';
+  trend?: { value: number; label: string };
+  description?: string;
+};
 
 export const DashboardPage = () => {
-  // Dữ liệu mẫu (sau này có thể thay thế bằng API call)
-  const stats = [
+  const { t } = useI18n();
+  const { user } = useAuth();
+  const [stats, setStats] = useState<StatData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const mockStats: StatData[] = [
     {
-      title: "Total Revenue",
+      title: t('dashboard.total_revenue'),
       value: "$45,231.89",
-      trendValue: "+20.1%",
-      trendLabel: "from last month",
-      trend: "up" as const,
-      icon: <DollarSign />
+      icon: <DollarSign />,
+      accentColor: 'success' as const,
+      trend: { value: 20.1, label: t('dashboard.from_last_month') },
     },
     {
-      title: "Subscriptions",
+      title: t('dashboard.subscriptions'),
       value: "+2350",
-      trendValue: "+180.1%",
-      trendLabel: "from last month",
-      trend: "up" as const,
-      icon: <Users />
+      icon: <Users />,
+      accentColor: 'primary' as const,
+      trend: { value: 180.1, label: t('dashboard.from_last_month') },
     },
     {
-      title: "Sales",
+      title: t('dashboard.sales'),
       value: "+12,234",
-      trendValue: "+19%",
-      trendLabel: "from last month",
-      trend: "up" as const,
-      icon: <ShoppingCart />
+      icon: <ShoppingCart />,
+      accentColor: 'info' as const,
+      trend: { value: 19, label: t('dashboard.from_last_month') },
     },
     {
-      title: "Active Now",
+      title: t('dashboard.active_now'),
       value: "+573",
-      trendValue: "+201",
-      trendLabel: "since last hour",
-      trend: "up" as const,
-      icon: <Activity />
+      icon: <Activity />,
+      accentColor: 'warning' as const,
+      description: t('dashboard.users_on_platform'),
     }
   ];
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // Giả lập API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Giả lập lỗi có thể xảy ra
+        if (Math.random() > 0.9) { // 10% khả năng lỗi
+          throw new Error("Không thể tải dữ liệu dashboard. Vui lòng thử lại sau.");
+        }
+
+        // Nếu thành công, gán dữ liệu mẫu
+        setStats(mockStats);
+
+      } catch (e: any) {
+        setError(e.message || "Đã có lỗi không xác định xảy ra.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [t]); // Thêm t vào dependency để reload khi đổi ngôn ngữ
+
+  const welcomeMessage = user?.displayName ? t('common.welcome_back', { name: user.displayName }) : t('dashboard.title');
 
   return (
     <Box display="flex" flexDirection="column" gap="xl">
       {/* Header */}
       <Box>
-        <Text variant="heading-xl" weight="bold">Dashboard</Text>
-        <Text color="SECONDARY">Overview of your system performance.</Text>
+        <Text as="h1" variant="heading-xl" weight="bold">{welcomeMessage}</Text>
+        <Text color="SECONDARY">{t('dashboard.subtitle')}</Text>
       </Box>
+
+      {/* Error State */}
+      {error && !isLoading && (
+        <Box p="lg" bg="DANGER_LIGHT" radius="md" border="1px solid" borderColor="DANGER" display="flex" alignItems="center" gap="md">
+          <Icon color="DANGER"><Activity /></Icon>
+          <Box>
+            <Text color="DANGER" weight="bold">Tải dữ liệu thất bại</Text>
+            <Text color="DANGER" size="sm">{error}</Text>
+          </Box>
+        </Box>
+      )}
 
       {/* Stats Grid */}
       <Box 
@@ -64,9 +117,12 @@ export const DashboardPage = () => {
           gap: ${SPACING.lg};
         `}
       >
-        {stats.map((stat, index) => (
-          <StatsCard key={index} {...stat} />
-        ))}
+        {isLoading 
+          ? Array.from({ length: 4 }).map((_, index) => <StatsCardSkeleton key={index} />)
+          : stats.map((stat) => (
+              <StatsCard key={stat.title} {...stat} />
+            ))
+        }
       </Box>
 
       {/* Recent Activity Section (Placeholder) */}

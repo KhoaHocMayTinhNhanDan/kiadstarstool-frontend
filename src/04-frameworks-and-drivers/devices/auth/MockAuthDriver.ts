@@ -1,10 +1,16 @@
 // src/04-frameworks-and-drivers/devices/auth/MockAuthDriver.ts
 
-import type { IAuthDriver } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthDriver';
+import type { IAuthAccountManagement } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAccountManagement';
+import type { IAuthAuthentication } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAuthentication';
+import type { IAuthSession } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthSession';
 import { AuthIdentity } from '@/01-entities/auth/AuthIdentity.entity';
+import { UserRole } from '@/01-entities/users/base/UserRole.vo';
+import { Permission } from '@/01-entities/users/base/Permission.vo';
 
 
-export class MockAuthDriver implements IAuthDriver {
+export class MockAuthDriver
+  implements IAuthAuthentication, IAuthAccountManagement, IAuthSession
+{
   private mockUsers: Array<{
     email: string;
     password: string;
@@ -55,17 +61,27 @@ export class MockAuthDriver implements IAuthDriver {
       throw new Error('auth/account-blocked');
     }
 
-    const userAuth = new AuthIdentity({
+    const roles = user.roles.map(r => UserRole.create(r).getValue());
+
+    const userAuthResult = AuthIdentity.create({
+      id: `mock-id-${user.email}`,
       email: user.email,
-      roles: user.roles as any,
+      roles: roles,
+      permissions: [], // Mock permissions if needed
       emailVerified: user.emailVerified,
       customClaims: user.customClaims,
       lastLoginAt: new Date().toISOString()
     });
 
-    this.currentUser = userAuth;
-    this.notifyAuthStateChange(userAuth);
-    return userAuth;
+    if (userAuthResult.isFailure) {
+      // This should not happen with mock data, but it's good practice
+      console.error('[MockAuthDriver] Failed to create mock AuthIdentity:', userAuthResult.getErrorValue());
+      throw new Error('auth/internal-mock-error');
+    }
+
+    this.currentUser = userAuthResult.getValue();
+    this.notifyAuthStateChange(this.currentUser);
+    return this.currentUser;
   }
 
   async signOut(): Promise<void> {
@@ -131,14 +147,24 @@ export class MockAuthDriver implements IAuthDriver {
 
     this.mockUsers.push(newUser);
 
-    const userAuth = new AuthIdentity({
+    const roles = newUser.roles.map(r => UserRole.create(r).getValue());
+
+    const userAuthResult = AuthIdentity.create({
+      id: `mock-id-${newUser.email}`,
       email: newUser.email,
-      roles: newUser.roles as any,
+      roles: roles,
+      permissions: [],
       emailVerified: newUser.emailVerified,
-      customClaims: newUser.customClaims
+      customClaims: newUser.customClaims,
+      lastLoginAt: new Date().toISOString()
     });
 
-    return userAuth;
+    if (userAuthResult.isFailure) {
+      console.error('[MockAuthDriver] Failed to create new mock AuthIdentity:', userAuthResult.getErrorValue());
+      throw new Error('auth/internal-mock-error');
+    }
+
+    return userAuthResult.getValue();
   }
 
   async deleteUser(): Promise<void> {

@@ -30,5 +30,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "src/04-frameworks-and-drivers/ui/web/components/02-organisms/navigation/AppSidebar/AppSidebar.organism-playground.tsx"]
+  "include": ["src", "src/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/navigation/AppSidebar/AppSidebar.organism-playground.tsx"]
 }

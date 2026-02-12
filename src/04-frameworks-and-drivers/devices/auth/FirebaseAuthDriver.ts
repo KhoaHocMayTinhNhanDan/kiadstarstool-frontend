@@ -1,6 +1,8 @@
 // src/04-frameworks-and-drivers/devices/auth/FirebaseAuthDriver.ts
 
-import type { IAuthDriver } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthDriver';
+import type { IAuthAuthentication } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAuthentication';
+import type { IAuthAccountManagement } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAccountManagement';
+import type { IAuthSession } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthSession';
 import { AuthIdentity } from '@/01-entities/auth/AuthIdentity.entity';
 import { UserRole } from '@/01-entities/users/base/UserRole.vo';
 import { Permission } from '@/01-entities/users/base/Permission.vo';
@@ -9,7 +11,9 @@ import { ROLES } from '@/shared/constants/authorization/auth.domain';
 import type { User } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 
-export class FirebaseAuthDriver implements IAuthDriver {
+export class FirebaseAuthDriver
+  implements IAuthAuthentication, IAuthAccountManagement, IAuthSession
+{
   
   /* =====================
    *  CORE AUTH
@@ -238,23 +242,25 @@ export class FirebaseAuthDriver implements IAuthDriver {
       .filter((res) => res.isSuccess)
       .map((res) => res.getValue());
 
-    return new AuthIdentity({
+    const authIdentityResult = AuthIdentity.create({
+      id: firebaseUser.uid,
       email: firebaseUser.email || '',
       roles: mappedRoles,
       permissions: mappedPermissions,
       emailVerified: firebaseUser.emailVerified || false,
       lastLoginAt: metadata.lastSignInTime || new Date().toISOString(),
-      customClaims: {
-        ...claims,
-        uid: firebaseUser.uid,
-        displayName: firebaseUser.displayName || '',
-        photoURL: firebaseUser.photoURL || '',
-        phoneNumber: firebaseUser.phoneNumber || '',
-        isBlocked: claims.isBlocked || false,
-        creationTime: metadata.creationTime,
-        lastSignInTime: metadata.lastSignInTime,
-      },
+      customClaims: claims,
     });
+
+    if (authIdentityResult.isFailure) {
+      // This indicates a data integrity issue between Firebase and the domain model.
+      // For example, if a user in Firebase somehow has no roles.
+      console.error('[FirebaseAuthDriver] Failed to create AuthIdentity:', authIdentityResult.getErrorValue());
+      // Throwing here is appropriate because the driver's contract is to return a valid AuthIdentity or throw.
+      throw new Error(`Failed to map Firebase user: ${authIdentityResult.getErrorValue()}`);
+    }
+
+    return authIdentityResult.getValue();
   }
 
   private mapFirebaseError(error: unknown): string {
