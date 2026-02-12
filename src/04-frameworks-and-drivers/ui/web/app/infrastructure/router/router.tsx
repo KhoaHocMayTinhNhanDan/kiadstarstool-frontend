@@ -3,9 +3,13 @@ import { createBrowserRouter, type RouteObject, Navigate } from 'react-router-do
 import { RouteGuard } from './RouteGuard';
 import { LoginPage } from '../../../pages/auth/LoginPage';
 import { DashboardPage } from '../../../pages/dashboard/DashboardPage';
+import { CreateBranchPage } from '../../../pages/branch/CreateBranchPage';
+import { BranchDetailPage } from '../../../pages/branch/BranchDetailPage';
+import { EditBranchPage } from '../../../pages/branch/EditBranchPage';
 import { NotFoundPage } from '../../../pages/system/NotFoundPage';
 import { DevShowcasePage } from '../../../pages/playground/DevShowcasePage';
 import { ForbiddenPage } from '../../../pages/system/ForbiddenPage';
+import { BranchListPage } from '../../../pages/branch/BranchListPage';
 import { RootLayout } from '../../../pages/layouts/RootLayout';
 import { AuthLayout } from '../../../pages/layouts/AuthLayout';
 import { MainLayout } from '../../../pages/layouts/MainLayout';
@@ -58,6 +62,22 @@ const routes: RouteObject[] = [
               {
                 path: ROUTES.DASHBOARD,
                 element: <DashboardPage />,
+              },
+              {
+                path: 'branches',
+                element: <BranchListPage />,
+              },
+              {
+                path: 'branches/new',
+                element: <CreateBranchPage />,
+              },
+              {
+                path: 'branches/:branchId',
+                element: <BranchDetailPage />,
+              },
+              {
+                path: 'branches/:branchId/edit',
+                element: <EditBranchPage />,
               },
             ],
           },

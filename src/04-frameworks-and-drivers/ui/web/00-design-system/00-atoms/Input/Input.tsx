@@ -5,13 +5,16 @@ import {
   inputStyles,
   errorText,
   inputWrapper,
+  inputContainer,
   iconWrapper,
+  labelText,
 } from './Input.styles';
 import type { InputProps } from './Input.types';
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
     {
+      label,
       size = 'md',
       error,
       disabled,
@@ -29,29 +32,37 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div css={inputWrapper} className={className}>
-        {leftIcon && <div css={iconWrapper('left')}>{leftIcon}</div>}
+        {label && (
+          <label css={labelText} htmlFor={props.id}>
+            {label}
+          </label>
+        )}
 
-        <input
-          ref={ref}
-          css={[
-            inputStyles({
-              size,
-              error: hasError,
-              disabled,
-              readOnly,
-              hasLeftIcon: !!leftIcon,
-              hasRightIcon: !!rightIcon,
-            }),
-            sx,
-          ]}
-          aria-invalid={hasError}
-          aria-readonly={readOnly}
-          disabled={disabled}
-          readOnly={readOnly}
-          {...props}
-        />
+        <div css={inputContainer}>
+          {leftIcon && <div css={iconWrapper('left')}>{leftIcon}</div>}
 
-        {rightIcon && <div css={iconWrapper('right')}>{rightIcon}</div>}
+          <input
+            ref={ref}
+            css={[
+              inputStyles({
+                size,
+                error: hasError,
+                disabled,
+                readOnly,
+                hasLeftIcon: !!leftIcon,
+                hasRightIcon: !!rightIcon,
+              }),
+              sx,
+            ]}
+            aria-invalid={hasError}
+            aria-readonly={readOnly}
+            disabled={disabled}
+            readOnly={readOnly}
+            {...props}
+          />
+
+          {rightIcon && <div css={iconWrapper('right')}>{rightIcon}</div>}
+        </div>
 
         {typeof error === 'string' && (
           <div css={errorText} role="alert">

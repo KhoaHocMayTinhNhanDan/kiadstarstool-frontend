@@ -1,14 +1,17 @@
 // src/04-frameworks-and-drivers/ui/web/pages/dashboard/DashboardPage.tsx
 /** @jsxImportSource @emotion/react */
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
 import { 
   Users, 
   DollarSign, 
   ShoppingCart, 
-  Activity 
+  Activity,
+  Building,
+  Plus
 } from 'lucide-react';
-import { Box, Text, Icon } from '../../00-design-system/00-atoms';
+import { Box, Text, Icon, Button } from '../../00-design-system/00-atoms';
 import { COLORS, SPACING, RADIUS } from '../../00-design-system/00-atoms/00-core/tokens-constants';
 import { StatsCard, StatsCardSkeleton } from '../../00-design-system/02-organisms/cards/StatsCard';
 import { useAuth } from '@/04-frameworks-and-drivers/ui/web/app/hooks/user/useAuth';
@@ -22,10 +25,13 @@ type StatData = {
   accentColor: 'success' | 'primary' | 'info' | 'warning';
   trend?: { value: number; label: string };
   description?: string;
+  onClick?: () => void;
+  className?: string;
 };
 
 export const DashboardPage = () => {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [stats, setStats] = useState<StatData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,6 +65,14 @@ export const DashboardPage = () => {
       icon: <Activity />,
       accentColor: 'warning' as const,
       description: t('dashboard.users_on_platform'),
+    },
+    {
+      title: t('dashboard.branches'),
+      value: "12", // Mock value
+      icon: <Building />,
+      accentColor: 'info' as const,
+      description: t('dashboard.manage_branches'),
+      onClick: () => navigate('/branches'),
     }
   ];
 
@@ -93,9 +107,18 @@ export const DashboardPage = () => {
   return (
     <Box display="flex" flexDirection="column" gap="xl">
       {/* Header */}
-      <Box>
-        <Text as="h1" variant="heading-xl" weight="bold">{welcomeMessage}</Text>
-        <Text color="SECONDARY">{t('dashboard.subtitle')}</Text>
+      <Box display="flex" justifyContent="space-between" alignItems="flex-end">
+        <Box>
+          <Text as="h1" variant="heading-xl" weight="bold">{welcomeMessage}</Text>
+          <Text color="SECONDARY">{t('dashboard.subtitle')}</Text>
+        </Box>
+        <Button 
+          leftIcon={<Icon><Plus /></Icon>} 
+          onClick={() => navigate('/branches/new')}
+          size="md"
+        >
+          Create Branch
+        </Button>
       </Box>
 
       {/* Error State */}
@@ -120,7 +143,14 @@ export const DashboardPage = () => {
         {isLoading 
           ? Array.from({ length: 4 }).map((_, index) => <StatsCardSkeleton key={index} />)
           : stats.map((stat) => (
-              <StatsCard key={stat.title} {...stat} />
+              <div 
+                key={stat.title} 
+                onClick={stat.onClick} 
+                style={{ cursor: stat.onClick ? 'pointer' : 'default' }}
+                role={stat.onClick ? "button" : undefined}
+              >
+                <StatsCard {...stat} />
+              </div>
             ))
         }
       </Box>

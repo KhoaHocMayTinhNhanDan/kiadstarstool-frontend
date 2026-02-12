@@ -79,6 +79,33 @@ export class Branch extends AuditedEntity<BranchId> {
     return this.financial.monthlyProfit();
   }
 
+  updateInfo(name: string, code: string): Result<Branch> {
+    if (!name?.trim()) return Result.fail('Branch name is required');
+    if (!code?.trim()) return Result.fail('Branch code is required');
+    
+    return Result.ok(this.clone({ name, code }));
+  }
+
+  relocate(newAddress: BranchAddress): Result<Branch> {
+    // Có thể thêm logic kiểm tra địa chỉ mới ở đây nếu cần
+    return Result.ok(this.clone({ address: newAddress }));
+  }
+
+  updateCapacity(newCapacity: BranchCapacity): Result<Branch> {
+    // Logic nghiệp vụ: không cho phép giảm sức chứa nếu số học viên hiện tại vượt quá
+    if (newCapacity.maxStudents < this.capacity.currentStudents) {
+      return Result.fail('New capacity cannot be less than current student count');
+    }
+    return Result.ok(this.clone({ capacity: newCapacity }));
+  }
+
+  updateOperatingHours(newHours: BranchOperatingHours): Result<Branch> {
+    return Result.ok(this.clone({ operatingHours: newHours }));
+  }
+
+  activate(): Branch { return this.clone({ isActive: true }); }
+  deactivate(): Branch { return this.clone({ isActive: false }); }
+
   isOpenNow(date: Date = new Date()): boolean {
     if (!this.isActive) return false;
     return this.operatingHours.isOpenAt(date);
@@ -90,7 +117,7 @@ export class Branch extends AuditedEntity<BranchId> {
 
   // ===== Clone (SAFE) =====
 
-  clone(overrides: Partial<BranchProps> = {}): Branch {
+  private clone(overrides: Partial<BranchProps> = {}): Branch {
     return new Branch({
       id: overrides.id ?? this.id,
       name: overrides.name ?? this.name,

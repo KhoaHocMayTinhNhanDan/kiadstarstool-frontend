@@ -4,6 +4,7 @@ import type { AuthController } from '@/03-interface-adapters/controllers/Auth.co
 import type { AuthorizationController } from '@/03-interface-adapters/controllers/Authorization.controller'
 import type { AuthRepository } from '@/03-interface-adapters/gateways/inbound/repositories/AuthRepository'
 import type { UsersController } from '@/03-interface-adapters/controllers/Users.controller';
+import type { BranchController } from '@/03-interface-adapters/controllers/Branch.controller';
 import type { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
 import type { LoginInteractor } from '@/02-usecases/auth/Login.interactor'
 import type { LogoutInteractor } from '@/02-usecases/auth/Logout.interactor'
@@ -32,6 +33,11 @@ export type AppContextType = {
   // Users feature
   users?: {
     controller: UsersController;
+  }
+
+  // Branch feature
+  branch?: {
+    controller: BranchController;
   }
   
   // Configuration
@@ -92,6 +98,13 @@ class AppContextImpl {
     return ctx.users;
   }
 
+  static getBranch() {
+    const ctx = this.get();
+    if (!ctx.branch) {
+      throw new Error('[AppContext] Branch feature not configured.');
+    }
+    return ctx.branch;
+  }
 
 
   static getConfig() {
@@ -120,6 +133,10 @@ class AppContextImpl {
 
   static getUsersController(): UsersController {
     return this.getUsers().controller;
+  }
+
+  static getBranchController(): BranchController {
+    return this.getBranch().controller;
   }
 
   static getLoginInteractor(): LoginInteractor {
@@ -191,6 +208,7 @@ class AppContextImpl {
         ...(ctx.auth ? ['auth'] : []),
         ...(ctx.authorization ? ['authorization'] : []),
         ...(ctx.users ? ['users'] : []),
+        ...(ctx.branch ? ['branch'] : []),
       ],
       config: ctx.config || {},
       auth: ctx.auth ? {

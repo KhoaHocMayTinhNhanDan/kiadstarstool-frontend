@@ -117,3 +117,17 @@ export const iconWrapper = (position: 'left' | 'right') => css`
     height: 16px;
   }
 `;
+
+export const inputContainer = css`
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+`;
+
+export const labelText = css`
+  font-size: ${FONT_SIZES.sm};
+  font-weight: 500;
+  color: ${COLORS.TEXT_PRIMARY};
+  margin-bottom: ${SPACING.xs};
+`;

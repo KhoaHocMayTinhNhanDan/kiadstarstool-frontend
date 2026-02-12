@@ -5,6 +5,7 @@ import { createMockAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/M
 import { createFirebaseAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/FirebaseAuthDriver'
 import { AuthRepository } from '@/03-interface-adapters/gateways/inbound/repositories/AuthRepository'
 import { UserProfileRepository } from '@/03-interface-adapters/gateways/inbound/repositories/UserProfileRepository'
+import { BranchRepository } from '@/03-interface-adapters/gateways/inbound/repositories/BranchRepository'
 import type { IAuthAuthentication } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAuthentication';
 import type { IAuthAccountManagement } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAccountManagement';
 import type { IAuthSession } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthSession';
@@ -20,6 +21,13 @@ import { AuthorizationController } from '@/03-interface-adapters/controllers/Aut
 import { GetUserInteractor } from '@/02-usecases/users/GetUser.interactor';
 import { ListUsersInteractor } from '@/02-usecases/users/ListUsers.interactor';
 import { UsersController } from '@/03-interface-adapters/controllers/Users.controller';
+import { MockBranchDataSource } from '@/04-frameworks-and-drivers/devices/branch/MockBranchDataSource';
+import { CreateBranchInteractor } from '@/02-usecases/branch/CreateBranch.interactor';
+import { UpdateBranchInfoInteractor } from '@/02-usecases/branch/UpdateBranchInfo.interactor';
+import { GetBranchDetailsInteractor } from '@/02-usecases/branch/GetBranchDetails.interactor';
+import { ListBranchesInteractor } from '@/02-usecases/branch/ListBranches.interactor';
+import { DeleteBranchInteractor } from '@/02-usecases/branch/DeleteBranch.interactor';
+import { BranchController } from '@/03-interface-adapters/controllers/Branch.controller';
 
 export interface BootstrapOptions {
   useMockAuth?: boolean;
@@ -115,6 +123,25 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
     listUsersInteractor
   );
 
+  // 1.3 Initialize Branch
+  // TODO: Switch to FirebaseBranchDataSource when ready
+  const branchDataSource = new MockBranchDataSource();
+  const branchRepository = new BranchRepository(branchDataSource);
+  
+  const createBranchInteractor = new CreateBranchInteractor(branchRepository);
+  const updateBranchInfoInteractor = new UpdateBranchInfoInteractor(branchRepository);
+  const getBranchDetailsInteractor = new GetBranchDetailsInteractor(branchRepository);
+  const listBranchesInteractor = new ListBranchesInteractor(branchRepository);
+  const deleteBranchInteractor = new DeleteBranchInteractor(branchRepository);
+
+  const branchController = new BranchController(
+    createBranchInteractor,
+    updateBranchInfoInteractor,
+    getBranchDetailsInteractor,
+    listBranchesInteractor,
+    deleteBranchInteractor
+  );
+
   // 2. Create Application Context
   const context: AppContextType = {
     config: {
@@ -139,6 +166,10 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
 
     users: {
       controller: usersController
+    },
+
+    branch: {
+      controller: branchController
     }
   }
 

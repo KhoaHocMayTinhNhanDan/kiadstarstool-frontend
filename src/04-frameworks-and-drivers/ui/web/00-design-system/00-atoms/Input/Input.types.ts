@@ -1,16 +1,15 @@
-// src/04-frameworks-and-drivers/ui/web/components/00-atoms/Input/Input.types.ts
-import type { CSSObject } from '@emotion/react';
 import type { InputHTMLAttributes, ReactNode } from 'react';
+import type { SerializedStyles } from '@emotion/react';
 
 export type InputSize = 'sm' | 'md' | 'lg';
 
-export interface InputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+  label?: string;
   size?: InputSize;
-  error?: boolean | string;
-  fullWidth?: boolean; // vẫn giữ để backward-compatible
+  error?: string | boolean;
+  fullWidth?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
-  /** Custom styles using Emotion CSSObject */
-  sx?: CSSObject;
+  sx?: SerializedStyles;
+  className?: string;
 }
