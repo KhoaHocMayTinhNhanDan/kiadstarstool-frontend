@@ -5,15 +5,17 @@ import { Box, Text, Button, Card, Icon } from '../../00-design-system/00-atoms';
 import { AppContext } from '@/00-core/app-context';
 import { type GetBranchDetailsOutput } from '@/02-usecases/branch/ports/output/GetBranchDetails.output';
 import { useToast } from '../../app/hooks/user/useToast';
-import { ArrowLeft, MapPin, Users, Clock, Edit } from 'lucide-react';
+import { ArrowLeft, MapPin, Users, Clock, Edit, Trash2, Calendar } from 'lucide-react';
 import { SPACING } from '../../00-design-system/00-atoms/00-core/tokens-constants';
 import { useI18n } from '@/shared/i18n/useI18n';
+import { useBranch } from '../../app/hooks/branch/useBranch';
 
 export const BranchDetailPage = () => {
   const { branchId } = useParams<{ branchId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useI18n();
+  const { deleteBranch, isLoading: isDeleting } = useBranch();
   const [branch, setBranch] = useState<GetBranchDetailsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,6 +43,17 @@ export const BranchDetailPage = () => {
 
     fetchBranch();
   }, [branchId]);
+
+  const handleDelete = async () => {
+    if (!branchId) return;
+
+    if (window.confirm(t('branch.delete_confirm_message'))) {
+      const success = await deleteBranch({ branchId });
+      if (success) {
+        navigate('/branches');
+      }
+    }
+  };
 
   if (isLoading) {
     return <Box p="xl"><Text>{t('branch.loading_detail')}</Text></Box>;
@@ -82,6 +95,15 @@ export const BranchDetailPage = () => {
           >
             {t('branch.edit_button')}
           </Button>
+          <Button 
+            variant="outline" 
+            intent="danger"
+            leftIcon={<Icon><Trash2 /></Icon>}
+            onClick={handleDelete}
+            isLoading={isDeleting}
+          >
+            {t('branch.delete_button')}
+          </Button>
         </Box>
       </Box>
 
@@ -110,6 +132,16 @@ export const BranchDetailPage = () => {
               <Text color="SECONDARY">{branch.operatingHours.open} - {branch.operatingHours.close}</Text>
             </Box>
           </Box>
+
+          {branch.updatedAt && (
+            <Box display="flex" gap="md" alignItems="flex-start">
+              <Icon color="PRIMARY"><Calendar /></Icon>
+              <Box>
+                <Text weight="semibold">{t('branch.detail_last_updated_label')}</Text>
+                <Text color="SECONDARY">{new Date(branch.updatedAt).toLocaleString()}</Text>
+              </Box>
+            </Box>
+          )}
         </Box>
       </Card>
     </Box>

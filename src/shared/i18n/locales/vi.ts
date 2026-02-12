@@ -55,5 +55,9 @@ export const vi = {
     edit_button: "Chỉnh sửa",
     edit_title: "Chỉnh sửa Chi Nhánh",
     save_button: "Lưu thay đổi",
+    delete_button: "Xóa",
+    delete_confirm_message: "Bạn có chắc chắn muốn xóa chi nhánh này không? Hành động này không thể hoàn tác.",
+    delete_success: "Đã xóa chi nhánh thành công!",
+    detail_last_updated_label: "Cập nhật lần cuối",
   },
 };

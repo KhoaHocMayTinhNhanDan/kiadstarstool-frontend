@@ -7,12 +7,35 @@ import { BranchOperatingHours } from '@/01-entities/branch/value-objects/BranchO
 import { type IBranchDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/branch/IBranchDataSource';
 
 // Mock in-memory storage
-const branchStore = new Map<string, Branch>();
+let branchStore = new Map<string, Branch>();
+const STORAGE_KEY = 'mock_branches_db';
+
+// Helper để lấy dữ liệu thô từ Value Object (xử lý trường hợp VO bọc trong 'props')
+const getVOProps = (vo: any) => (vo && vo.props) ? vo.props : vo;
 
 export class MockBranchDataSource implements IBranchDataSource {
   constructor() {
-    // Seed data for testing
+    this.initialize();
+  }
+
+  private initialize() {
+    // 1. Try to load from localStorage
+    const storedData = localStorage.getItem(STORAGE_KEY);
+    
+    if (storedData) {
+      try {
+        const parsedData = JSON.parse(storedData);
+        // Re-hydrate entities from JSON
+        branchStore = new Map(parsedData.map((item: any) => [item.id, this.hydrateBranch(item)]));
+        console.log('[MockBranchDataSource] Loaded data from localStorage', branchStore.size);
+      } catch (e) {
+        console.error('[MockBranchDataSource] Failed to parse localStorage data', e);
+      }
+    }
+
+    // 2. If empty, seed data
     if (branchStore.size === 0) {
+      console.log('[MockBranchDataSource] Seeding initial data...');
       const branches = [
         {
           id: 'mock-branch-1',
@@ -107,13 +130,56 @@ export class MockBranchDataSource implements IBranchDataSource {
         
         branchStore.set(branch.id.toString(), branch);
       });
+      
+      this.persist();
     }
+  }
+
+  private persist() {
+    try {
+      // Convert Map to Array for JSON serialization
+      // We need to serialize the internal state of entities, or use a toJSON method if available.
+      // For simplicity here, we'll map to a plain object structure that matches what we need to re-hydrate.
+      // Ideally, entities should have a toDTO() or similar method.
+      const dataToSave = Array.from(branchStore.values()).map(branch => ({
+        ...branch, // This spreads public readonly properties
+        // Ensure nested VOs are serialized correctly if they don't auto-serialize well
+        id: branch.id.toString(),
+        createdAt: branch.createdAt, // Explicitly save audit fields
+        updatedAt: branch.updatedAt,
+        address: getVOProps(branch.address),
+        capacity: getVOProps(branch.capacity),
+        financial: getVOProps(branch.financial),
+        operatingHours: getVOProps(branch.operatingHours)
+      }));
+      
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+    } catch (e) {
+      console.error('[MockBranchDataSource] Failed to save to localStorage', e);
+    }
+  }
+
+  private hydrateBranch(data: any): Branch {
+    // Re-create Branch entity from plain object
+    return Branch.create({
+      id: BranchId.create(data.id),
+      name: data.name,
+      code: data.code,
+      address: BranchAddress.create(data.address),
+      capacity: BranchCapacity.create(data.capacity),
+      financial: BranchFinancial.create(data.financial),
+      operatingHours: BranchOperatingHours.create(data.operatingHours),
+      isActive: data.isActive,
+      createdAt: data.createdAt ? new Date(data.createdAt) : undefined,
+      updatedAt: data.updatedAt ? new Date(data.updatedAt) : undefined,
+    }).getValue();
   }
 
   async save(branch: Branch): Promise<void> {
     console.log('[MockBranchDataSource] Saving branch:', branch);
     await new Promise(resolve => setTimeout(resolve, 500));
     branchStore.set(branch.id.toString(), branch);
+    this.persist();
   }
 
   async getById(id: string): Promise<Branch | null> {
@@ -127,6 +193,7 @@ export class MockBranchDataSource implements IBranchDataSource {
     console.log('[MockBranchDataSource] Deleting branch:', id);
     await new Promise(resolve => setTimeout(resolve, 500));
     branchStore.delete(id);
+    this.persist();
   }
 
   async findAll(): Promise<Branch[]> {

@@ -70,7 +70,8 @@ export class Branch extends AuditedEntity<BranchId> {
 
     return Result.ok(
       this.clone({
-        capacity: this.capacity.addStudent()
+        capacity: this.capacity.addStudent(),
+        updatedAt: new Date()
       })
     );
   }
@@ -83,12 +84,12 @@ export class Branch extends AuditedEntity<BranchId> {
     if (!name?.trim()) return Result.fail('Branch name is required');
     if (!code?.trim()) return Result.fail('Branch code is required');
     
-    return Result.ok(this.clone({ name, code }));
+    return Result.ok(this.clone({ name, code, updatedAt: new Date() }));
   }
 
   relocate(newAddress: BranchAddress): Result<Branch> {
     // Có thể thêm logic kiểm tra địa chỉ mới ở đây nếu cần
-    return Result.ok(this.clone({ address: newAddress }));
+    return Result.ok(this.clone({ address: newAddress, updatedAt: new Date() }));
   }
 
   updateCapacity(newCapacity: BranchCapacity): Result<Branch> {
@@ -96,15 +97,15 @@ export class Branch extends AuditedEntity<BranchId> {
     if (newCapacity.maxStudents < this.capacity.currentStudents) {
       return Result.fail('New capacity cannot be less than current student count');
     }
-    return Result.ok(this.clone({ capacity: newCapacity }));
+    return Result.ok(this.clone({ capacity: newCapacity, updatedAt: new Date() }));
   }
 
   updateOperatingHours(newHours: BranchOperatingHours): Result<Branch> {
-    return Result.ok(this.clone({ operatingHours: newHours }));
+    return Result.ok(this.clone({ operatingHours: newHours, updatedAt: new Date() }));
   }
 
-  activate(): Branch { return this.clone({ isActive: true }); }
-  deactivate(): Branch { return this.clone({ isActive: false }); }
+  activate(): Branch { return this.clone({ isActive: true, updatedAt: new Date() }); }
+  deactivate(): Branch { return this.clone({ isActive: false, updatedAt: new Date() }); }
 
   isOpenNow(date: Date = new Date()): boolean {
     if (!this.isActive) return false;

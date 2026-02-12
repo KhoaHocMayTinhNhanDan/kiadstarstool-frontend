@@ -36,14 +36,14 @@ export const EditBranchPage = () => {
         if (result.isSuccess) {
           const branch = result.getValue();
           // Reset form with fetched data
-          // Note: Address parsing might be needed if address is stored as a single string in some contexts,
-          // but here we assume we can get parts or we might need to adjust the GetBranchDetailsOutput to return structured address.
-          // For now, let's assume we only edit name and code as per previous implementation, or we mock address parts.
-          // In a real app, GetBranchDetailsOutput should return structured address.
           reset({
             name: branch.name,
             code: branch.code,
-            // TODO: Add address fields when API supports structured address return
+            street: branch.street,
+            ward: branch.ward,
+            district: branch.district,
+            city: branch.city,
+            maxStudents: branch.capacity.max,
           });
         } else {
           toast.error(result.getErrorValue() as string);
@@ -57,7 +57,7 @@ export const EditBranchPage = () => {
     };
 
     fetchBranch();
-  }, [branchId, navigate, toast, reset]);
+  }, [branchId]);
 
   const onSubmit = async (data: BranchFormData) => {
     if (!branchId) return;
@@ -66,6 +66,13 @@ export const EditBranchPage = () => {
       branchId,
       name: data.name,
       code: data.code,
+      address: {
+        street: data.street,
+        ward: data.ward,
+        district: data.district,
+        city: data.city
+      },
+      maxStudents: data.maxStudents
     });
 
     if (success) {
@@ -97,8 +104,6 @@ export const EditBranchPage = () => {
               error={errors.code?.message}
             />
 
-            {/* Address Fields - Currently disabled/hidden or need structured data from API */}
-            {/* 
             <Text weight="semibold" sx={{ marginTop: SPACING.sm }}>{t('branch.address_section')}</Text>
             <Input 
               label={t('branch.street_label')} 
@@ -121,8 +126,15 @@ export const EditBranchPage = () => {
                 {...register('city')}
                 error={errors.city?.message}
               />
-            </Box> 
-            */}
+            </Box>
+
+            <Text weight="semibold" sx={{ marginTop: SPACING.sm }}>{t('branch.capacity_section')}</Text>
+            <Input 
+              label={t('branch.max_students_label')}
+              type="number" 
+              {...register('maxStudents', { valueAsNumber: true })}
+              error={errors.maxStudents?.message}
+            />
 
             <Box mt="lg" display="flex" justifyContent="flex-end" gap="sm">
               <Button variant="ghost" onClick={() => navigate(-1)} type="button">{t('branch.cancel_button')}</Button>

@@ -3,6 +3,11 @@ export interface GetBranchDetailsOutput {
   name: string;
   code: string;
   address: string; // Formatted address string
+  // Structured address for editing
+  street: string;
+  ward: string;
+  district: string;
+  city: string;
   isActive: boolean;
   capacity: {
     current: number;
@@ -12,4 +17,5 @@ export interface GetBranchDetailsOutput {
     open: string;
     close: string;
   };
+  updatedAt?: Date;
 }

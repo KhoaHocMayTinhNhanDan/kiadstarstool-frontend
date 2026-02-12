@@ -55,5 +55,9 @@ export const zh = {
     edit_button: "编辑",
     edit_title: "编辑分校",
     save_button: "保存更改",
+    delete_button: "删除",
+    delete_confirm_message: "您确定要删除此分校吗？此操作无法撤销。",
+    delete_success: "分校已成功删除！",
+    detail_last_updated_label: "最后更新",
   },
 };

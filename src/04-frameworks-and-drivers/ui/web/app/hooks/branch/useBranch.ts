@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { AppContext } from '@/00-core/app-context';
 import { type CreateBranchInput } from '@/02-usecases/branch/ports/input/CreateBranch.input';
 import { type UpdateBranchInfoInput } from '@/02-usecases/branch/ports/input/UpdateBranchInfo.input';
+import { type DeleteBranchInput } from '@/02-usecases/branch/ports/input/DeleteBranch.input';
 import { useToast } from '../user/useToast';
 
 export const useBranch = () => {
@@ -50,9 +51,31 @@ export const useBranch = () => {
     }
   }, [toast]);
 
+  const deleteBranch = useCallback(async (input: DeleteBranchInput) => {
+    setIsLoading(true);
+    try {
+      const controller = AppContext.getBranchController();
+      const result = await controller.deleteBranch(input);
+
+      if (result.isSuccess) {
+        toast.success('Branch deleted successfully!');
+        return true;
+      } else {
+        toast.error(result.getErrorValue() as string);
+        return false;
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
+
   return {
     createBranch,
     updateBranchInfo,
+    deleteBranch,
     isLoading
   };
 };

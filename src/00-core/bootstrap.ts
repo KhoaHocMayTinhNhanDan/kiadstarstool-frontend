@@ -1,7 +1,7 @@
 // src/00-core/bootstrap.ts
 
 import { AppContext, type AppContextType } from './app-context'
-import { createMockAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/MockAuthDriver'
+import { createMockAuthDriver, MockAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/MockAuthDriver'
 import { createFirebaseAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/FirebaseAuthDriver'
 import { AuthRepository } from '@/03-interface-adapters/gateways/inbound/repositories/AuthRepository'
 import { UserProfileRepository } from '@/03-interface-adapters/gateways/inbound/repositories/UserProfileRepository'

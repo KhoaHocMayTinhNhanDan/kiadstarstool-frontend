@@ -55,5 +55,9 @@ export const en = {
     edit_button: "Edit Branch",
     edit_title: "Edit Branch",
     save_button: "Save Changes",
+    delete_button: "Delete",
+    delete_confirm_message: "Are you sure you want to delete this branch? This action cannot be undone.",
+    delete_success: "Branch deleted successfully!",
+    detail_last_updated_label: "Last Updated",
   },
 };

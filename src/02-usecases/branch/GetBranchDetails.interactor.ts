@@ -25,6 +25,10 @@ export class GetBranchDetailsInteractor {
       name: branch.name,
       code: branch.code,
       address: branch.address.fullAddress, // Sử dụng getter để có địa chỉ đầy đủ
+      street: branch.address.props.street || '',
+      ward: branch.address.props.ward || '',
+      district: branch.address.props.district || '',
+      city: branch.address.props.city || '',
       isActive: branch.isActive,
       capacity: {
         current: branch.capacity.currentStudents,
@@ -36,6 +40,7 @@ export class GetBranchDetailsInteractor {
         open: branch.operatingHours.props.monday.open,
         close: branch.operatingHours.props.monday.close,
       },
+      updatedAt: branch.updatedAt,
     };
 
     return Result.ok(output);

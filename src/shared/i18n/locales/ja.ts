@@ -55,5 +55,9 @@ export const ja = {
     edit_button: "編集",
     edit_title: "支店を編集",
     save_button: "変更を保存",
+    delete_button: "削除",
+    delete_confirm_message: "本当にこの支店を削除しますか？この操作は取り消せません。",
+    delete_success: "支店が正常に削除されました！",
+    detail_last_updated_label: "最終更新",
   },
 };
