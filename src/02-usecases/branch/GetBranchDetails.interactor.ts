@@ -2,7 +2,7 @@ import { Result } from '@/01-entities/shared/base/result';
 import { BranchId } from '@/01-entities/branch/value-objects/BranchId.vo';
 import { type IBranchRepository } from './ports/gateways_interface/IBranchRepository';
 import { type GetBranchDetailsInput } from './ports/input/GetBranchDetails.input';
-import { type GetBranchDetailsOutput } from './ports/output/GetBranchDetails.output';
+import { type GetBranchDetailsOutput, type WeeklyOperatingHours } from './ports/output/GetBranchDetails.output';
 
 export class GetBranchDetailsInteractor {
   private readonly branchRepo: IBranchRepository;
@@ -34,12 +34,8 @@ export class GetBranchDetailsInteractor {
         current: branch.capacity.currentStudents,
         max: branch.capacity.maxStudents,
       },
-      // Lấy giờ hoạt động của ngày thứ 2 làm đại diện.
-      // Trong thực tế, DTO có thể cần trả về giờ của tất cả các ngày.
-      operatingHours: {
-        open: branch.operatingHours.props.monday.open,
-        close: branch.operatingHours.props.monday.close,
-      },
+      // Pass the entire operating hours object
+      operatingHours: branch.operatingHours.props as WeeklyOperatingHours,
       updatedAt: branch.updatedAt,
     };
 

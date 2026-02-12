@@ -49,7 +49,7 @@ export const ja = {
     detail_address_label: "住所",
     detail_capacity_label: "収容人数",
     detail_capacity_unit: "生徒",
-    detail_operating_hours_label: "営業時間（月）",
+    detail_operating_hours_label: "営業時間",
     loading_detail: "支店の詳細を読み込み中...",
     not_found: "支店が見つかりません",
     edit_button: "編集",
@@ -59,5 +59,14 @@ export const ja = {
     delete_confirm_message: "本当にこの支店を削除しますか？この操作は取り消せません。",
     delete_success: "支店が正常に削除されました！",
     detail_last_updated_label: "最終更新",
+    days: {
+      monday: "月曜日",
+      tuesday: "火曜日",
+      wednesday: "水曜日",
+      thursday: "木曜日",
+      friday: "金曜日",
+      saturday: "土曜日",
+      sunday: "日曜日",
+    },
   },
 };

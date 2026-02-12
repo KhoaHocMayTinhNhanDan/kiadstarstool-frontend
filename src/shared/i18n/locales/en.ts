@@ -49,7 +49,7 @@ export const en = {
     detail_address_label: "Address",
     detail_capacity_label: "Capacity",
     detail_capacity_unit: "Students",
-    detail_operating_hours_label: "Operating Hours (Mon)",
+    detail_operating_hours_label: "Operating Hours",
     loading_detail: "Loading branch details...",
     not_found: "Branch not found",
     edit_button: "Edit Branch",
@@ -59,5 +59,14 @@ export const en = {
     delete_confirm_message: "Are you sure you want to delete this branch? This action cannot be undone.",
     delete_success: "Branch deleted successfully!",
     detail_last_updated_label: "Last Updated",
+    days: {
+      monday: "Monday",
+      tuesday: "Tuesday",
+      wednesday: "Wednesday",
+      thursday: "Thursday",
+      friday: "Friday",
+      saturday: "Saturday",
+      sunday: "Sunday",
+    },
   },
 };

@@ -49,7 +49,7 @@ export const zh = {
     detail_address_label: "地址",
     detail_capacity_label: "容量",
     detail_capacity_unit: "学生",
-    detail_operating_hours_label: "营业时间（周一）",
+    detail_operating_hours_label: "营业时间",
     loading_detail: "正在加载分校详情...",
     not_found: "未找到分校",
     edit_button: "编辑",
@@ -59,5 +59,14 @@ export const zh = {
     delete_confirm_message: "您确定要删除此分校吗？此操作无法撤销。",
     delete_success: "分校已成功删除！",
     detail_last_updated_label: "最后更新",
+    days: {
+      monday: "星期一",
+      tuesday: "星期二",
+      wednesday: "星期三",
+      thursday: "星期四",
+      friday: "星期五",
+      saturday: "星期六",
+      sunday: "星期日",
+    },
   },
 };

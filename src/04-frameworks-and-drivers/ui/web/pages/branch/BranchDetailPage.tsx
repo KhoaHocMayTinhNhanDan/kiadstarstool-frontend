@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Text, Button, Card, Icon } from '../../00-design-system/00-atoms';
 import { AppContext } from '@/00-core/app-context';
-import { type GetBranchDetailsOutput } from '@/02-usecases/branch/ports/output/GetBranchDetails.output';
+import { type GetBranchDetailsOutput, type DayOfWeek } from '@/02-usecases/branch/ports/output/GetBranchDetails.output';
 import { useToast } from '../../app/hooks/user/useToast';
 import { ArrowLeft, MapPin, Users, Clock, Edit, Trash2, Calendar } from 'lucide-react';
 import { SPACING } from '../../00-design-system/00-atoms/00-core/tokens-constants';
@@ -129,7 +129,15 @@ export const BranchDetailPage = () => {
             <Icon color="PRIMARY"><Clock /></Icon>
             <Box>
               <Text weight="semibold">{t('branch.detail_operating_hours_label')}</Text>
-              <Text color="SECONDARY">{branch.operatingHours.open} - {branch.operatingHours.close}</Text>
+              <Box as="ul" sx={{ listStyle: 'none', padding: 0, margin: 0, marginTop: SPACING.xs }}>
+                {(Object.keys(branch.operatingHours) as DayOfWeek[]).map((day) => {
+                  const hours = branch.operatingHours[day];
+                  return (<Box as="li" key={day} display="grid" gridTemplateColumns="100px 1fr" sx={{ '&:not(:last-child)': { marginBottom: SPACING.xxs } }}>
+                    <Text color="SECONDARY" size="sm">{t(`branch.days.${day}`)}:</Text>
+                    <Text color="SECONDARY" size="sm" weight="medium">{hours.open} - {hours.close}</Text>
+                  </Box>);
+                })}
+              </Box>
             </Box>
           </Box>
 

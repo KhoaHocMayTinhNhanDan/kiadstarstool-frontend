@@ -1,3 +1,10 @@
+export interface OperatingHours {
+  open: string;
+  close: string;
+}
+export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+export type WeeklyOperatingHours = Record<DayOfWeek, OperatingHours>;
+
 export interface GetBranchDetailsOutput {
   id: string;
   name: string;
@@ -13,9 +20,6 @@ export interface GetBranchDetailsOutput {
     current: number;
     max: number;
   };
-  operatingHours: {
-    open: string;
-    close: string;
-  };
+  operatingHours: WeeklyOperatingHours;
   updatedAt?: Date;
 }

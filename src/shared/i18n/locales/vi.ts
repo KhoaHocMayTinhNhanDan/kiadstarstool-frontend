@@ -49,7 +49,7 @@ export const vi = {
     detail_address_label: "Địa chỉ",
     detail_capacity_label: "Sức chứa",
     detail_capacity_unit: "Học viên",
-    detail_operating_hours_label: "Giờ hoạt động (Thứ 2)",
+    detail_operating_hours_label: "Giờ hoạt động",
     loading_detail: "Đang tải chi tiết chi nhánh...",
     not_found: "Không tìm thấy chi nhánh",
     edit_button: "Chỉnh sửa",
@@ -59,5 +59,14 @@ export const vi = {
     delete_confirm_message: "Bạn có chắc chắn muốn xóa chi nhánh này không? Hành động này không thể hoàn tác.",
     delete_success: "Đã xóa chi nhánh thành công!",
     detail_last_updated_label: "Cập nhật lần cuối",
+    days: {
+      monday: "Thứ Hai",
+      tuesday: "Thứ Ba",
+      wednesday: "Thứ Tư",
+      thursday: "Thứ Năm",
+      friday: "Thứ Sáu",
+      saturday: "Thứ Bảy",
+      sunday: "Chủ Nhật",
+    },
   },
 };

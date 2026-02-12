@@ -3,15 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Text, Button, Input, Card } from '../../00-design-system/00-atoms';
 import { useBranch } from '../../app/hooks/branch/useBranch';
 import { useBranchForm, type BranchFormData } from '../../app/hooks/branch/useBranchForm';
-import { SPACING } from '../../00-design-system/00-atoms/00-core/tokens-constants';
 import { useI18n } from '@/shared/i18n/useI18n';
+import { SPACING } from '../../00-design-system/00-atoms/00-core/tokens-constants';
 
 export const CreateBranchPage = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
   const { createBranch, isLoading } = useBranch();
   
-  // 2. Setup Form using Custom Hook
   const { 
     register, 
     handleSubmit, 
@@ -32,8 +31,7 @@ export const CreateBranchPage = () => {
     });
 
     if (success) {
-      // Navigate back to list or dashboard
-      navigate('/dashboard');
+      navigate('/branches');
     }
   };
 
@@ -47,23 +45,19 @@ export const CreateBranchPage = () => {
       <Card>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Box display="flex" flexDirection="column" gap="md">
-            {/* Basic Info */}
-            <Box display="grid" gridTemplateColumns="1fr 1fr" gap="md">
-              <Input 
-                label={t('branch.name_label')}
-                placeholder={t('branch.name_placeholder')}
-                {...register('name')}
-                error={errors.name?.message}
-              />
-              <Input 
-                label={t('branch.code_label')}
-                placeholder={t('branch.code_placeholder')}
-                {...register('code')}
-                error={errors.code?.message}
-              />
-            </Box>
+            <Input 
+              label={t('branch.name_label')}
+              placeholder={t('branch.name_placeholder')}
+              {...register('name')}
+              error={errors.name?.message}
+            />
+            <Input 
+              label={t('branch.code_label')}
+              placeholder={t('branch.code_placeholder')}
+              {...register('code')}
+              error={errors.code?.message}
+            />
 
-            {/* Address */}
             <Text weight="semibold" sx={{ marginTop: SPACING.sm }}>{t('branch.address_section')}</Text>
             <Input 
               label={t('branch.street_label')} 
@@ -88,7 +82,6 @@ export const CreateBranchPage = () => {
               />
             </Box>
 
-            {/* Capacity */}
             <Text weight="semibold" sx={{ marginTop: SPACING.sm }}>{t('branch.capacity_section')}</Text>
             <Input 
               label={t('branch.max_students_label')}
