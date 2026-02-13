@@ -104,6 +104,14 @@ const variantStyles: Record<ButtonVariant, ReturnType<typeof css>> = {
       background-color: ${COLORS.PRIMARY_LIGHT}20;
     }
   `,
+  danger: css`
+    background-color: ${COLORS.DANGER};
+    color: ${COLORS.WHITE};
+    border: 1px solid transparent;
+    &:hover:not(:disabled) {
+      background-color: ${COLORS.DANGER_DARK};
+    }
+  `,
 };
 
 /* ================= MAIN ================= */
@@ -138,9 +146,20 @@ export const getButtonStyles = (
   ${sizeStyles[size]}
   ${variantStyles[variant]}
 
-  /* Intent overrides variant color for filled buttons */
-  ${variant === 'primary' && intent !== 'default' && css`
+  /* Intent overrides variant color */
+  ${(variant === 'primary' || variant === 'secondary' || variant === 'danger') && intent !== 'default' && css`
     ${intentStyles[intent]}
+  `}
+
+  ${(variant === 'outline' || variant === 'ghost') && intent !== 'default' && css`
+    & { /* Increase specificity to override variant styles */
+      color: ${intent === 'success' ? COLORS.SUCCESS : intent === 'danger' ? COLORS.DANGER : COLORS.WARNING};
+      border-color: ${variant === 'outline' ? (intent === 'success' ? COLORS.SUCCESS : intent === 'danger' ? COLORS.DANGER : COLORS.WARNING) : 'transparent'};
+      
+      &:hover:not(:disabled) {
+        background-color: ${intent === 'success' ? `rgba(var(--success-rgb), 0.1)` : intent === 'danger' ? `rgba(var(--danger-rgb), 0.1)` : `rgba(var(--warning-rgb), 0.1)`};
+      }
+    }
   `}
 
   /* 🔑 CONTENT CONTRACT */

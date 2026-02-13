@@ -5,6 +5,8 @@ import type { AuthorizationController } from '@/03-interface-adapters/controller
 import type { AuthRepository } from '@/03-interface-adapters/gateways/inbound/repositories/AuthRepository'
 import type { UsersController } from '@/03-interface-adapters/controllers/Users.controller';
 import type { BranchController } from '@/03-interface-adapters/controllers/Branch.controller';
+import type { ClassesController } from '@/03-interface-adapters/controllers/Classes.controller';
+import type { StudentsController } from '@/03-interface-adapters/controllers/Students.controller';
 import type { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
 import type { LoginInteractor } from '@/02-usecases/auth/Login.interactor'
 import type { LogoutInteractor } from '@/02-usecases/auth/Logout.interactor'
@@ -38,6 +40,16 @@ export type AppContextType = {
   // Branch feature
   branch?: {
     controller: BranchController;
+  }
+
+  // Classes feature
+  classes?: {
+    controller: ClassesController;
+  }
+
+  // Students feature
+  students?: {
+    controller: StudentsController;
   }
   
   // Configuration
@@ -106,6 +118,21 @@ class AppContextImpl {
     return ctx.branch;
   }
 
+  static getClasses() {
+    const ctx = this.get();
+    if (!ctx.classes) {
+      throw new Error('[AppContext] Classes feature not configured.');
+    }
+    return ctx.classes;
+  }
+
+  static getStudents() {
+    const ctx = this.get();
+    if (!ctx.students) {
+      throw new Error('[AppContext] Students feature not configured.');
+    }
+    return ctx.students;
+  }
 
   static getConfig() {
     const ctx = this.get()
@@ -137,6 +164,14 @@ class AppContextImpl {
 
   static getBranchController(): BranchController {
     return this.getBranch().controller;
+  }
+
+  static getClassesController(): ClassesController {
+    return this.getClasses().controller;
+  }
+
+  static getStudentsController(): StudentsController {
+    return this.getStudents().controller;
   }
 
   static getLoginInteractor(): LoginInteractor {
@@ -209,6 +244,8 @@ class AppContextImpl {
         ...(ctx.authorization ? ['authorization'] : []),
         ...(ctx.users ? ['users'] : []),
         ...(ctx.branch ? ['branch'] : []),
+        ...(ctx.classes ? ['classes'] : []),
+        ...(ctx.students ? ['students'] : []),
       ],
       config: ctx.config || {},
       auth: ctx.auth ? {

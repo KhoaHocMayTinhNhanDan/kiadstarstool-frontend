@@ -28,6 +28,15 @@ import { GetBranchDetailsInteractor } from '@/02-usecases/branch/GetBranchDetail
 import { ListBranchesInteractor } from '@/02-usecases/branch/ListBranches.interactor';
 import { DeleteBranchInteractor } from '@/02-usecases/branch/DeleteBranch.interactor';
 import { BranchController } from '@/03-interface-adapters/controllers/Branch.controller';
+import { MockClassDataSource } from '@/04-frameworks-and-drivers/devices/class/MockClassDataSource';
+import { ClassRepository } from '@/03-interface-adapters/gateways/inbound/repositories/ClassRepository';
+import { ListClassesByBranchInteractor } from '@/02-usecases/class/ListClassesByBranch.interactor';
+import { CreateClassInteractor } from '@/02-usecases/class/CreateClass.interactor';
+import { ClassesController } from '@/03-interface-adapters/controllers/Classes.controller';
+import { MockStudentDataSource } from '@/04-frameworks-and-drivers/devices/students/MockStudentDataSource';
+import { StudentRepository } from '@/03-interface-adapters/gateways/inbound/repositories/StudentRepository';
+import { ListStudentsByBranchInteractor } from '@/02-usecases/students/ListStudentsByBranch.interactor';
+import { StudentsController } from '@/03-interface-adapters/controllers/Students.controller';
 
 export interface BootstrapOptions {
   useMockAuth?: boolean;
@@ -142,6 +151,21 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
     deleteBranchInteractor
   );
 
+  // 1.4 Initialize Classes
+  const classDataSource = new MockClassDataSource();
+  const classRepository = new ClassRepository(classDataSource);
+  const listClassesByBranchInteractor = new ListClassesByBranchInteractor(classRepository);
+  const createClassInteractor = new CreateClassInteractor(classRepository);
+  
+  const classesController = new ClassesController(listClassesByBranchInteractor, createClassInteractor);
+
+  // 1.5 Initialize Students
+  const studentDataSource = new MockStudentDataSource();
+  const studentRepository = new StudentRepository(studentDataSource);
+  const listStudentsByBranchInteractor = new ListStudentsByBranchInteractor(studentRepository);
+
+  const studentsController = new StudentsController(listStudentsByBranchInteractor);
+
   // 2. Create Application Context
   const context: AppContextType = {
     config: {
@@ -170,6 +194,14 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
 
     branch: {
       controller: branchController
+    },
+
+    classes: {
+      controller: classesController
+    },
+
+    students: {
+      controller: studentsController
     }
   }
 

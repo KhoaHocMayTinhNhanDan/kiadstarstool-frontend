@@ -10,7 +10,8 @@ import {
   Activity,
   Building,
   Filter,
-  Check
+  Check,
+  Calendar
 } from 'lucide-react';
 import { Box, Text, Icon, Button } from '../../00-design-system/00-atoms';
 import { COLORS, SPACING, RADIUS } from '../../00-design-system/00-atoms/00-core/tokens-constants';
@@ -61,6 +62,42 @@ const MOCK_REVENUE_HISTORY: Record<string, Array<{ name: string; value: number }
   ]
 };
 
+// Dữ liệu giả lập theo Tuần (Mon-Sun)
+const MOCK_WEEKLY_DATA: Record<string, Array<{ name: string; value: number }>> = {
+  'mock-branch-1': [
+    { name: 'Mon', value: 500 }, { name: 'Tue', value: 600 }, { name: 'Wed', value: 450 },
+    { name: 'Thu', value: 700 }, { name: 'Fri', value: 800 }, { name: 'Sat', value: 900 }, { name: 'Sun', value: 300 }
+  ],
+  'mock-branch-2': [
+    { name: 'Mon', value: 300 }, { name: 'Tue', value: 400 }, { name: 'Wed', value: 350 },
+    { name: 'Thu', value: 500 }, { name: 'Fri', value: 600 }, { name: 'Sat', value: 700 }, { name: 'Sun', value: 200 }
+  ],
+  'mock-branch-3': [
+    { name: 'Mon', value: 200 }, { name: 'Tue', value: 300 }, { name: 'Wed', value: 250 },
+    { name: 'Thu', value: 400 }, { name: 'Fri', value: 500 }, { name: 'Sat', value: 600 }, { name: 'Sun', value: 100 }
+  ],
+  'default': [
+    { name: 'Mon', value: 100 }, { name: 'Tue', value: 150 }, { name: 'Wed', value: 120 },
+    { name: 'Thu', value: 180 }, { name: 'Fri', value: 200 }, { name: 'Sat', value: 250 }, { name: 'Sun', value: 50 }
+  ]
+};
+
+// Dữ liệu giả lập theo Tháng (Week 1-4)
+const MOCK_MONTHLY_DATA: Record<string, Array<{ name: string; value: number }>> = {
+  'mock-branch-1': [
+    { name: 'Week 1', value: 3500 }, { name: 'Week 2', value: 4200 }, { name: 'Week 3', value: 3800 }, { name: 'Week 4', value: 4500 }
+  ],
+  'mock-branch-2': [
+    { name: 'Week 1', value: 2500 }, { name: 'Week 2', value: 3200 }, { name: 'Week 3', value: 2800 }, { name: 'Week 4', value: 3500 }
+  ],
+  'mock-branch-3': [
+    { name: 'Week 1', value: 1500 }, { name: 'Week 2', value: 2200 }, { name: 'Week 3', value: 1800 }, { name: 'Week 4', value: 2500 }
+  ],
+  'default': [
+    { name: 'Week 1', value: 500 }, { name: 'Week 2', value: 600 }, { name: 'Week 3', value: 700 }, { name: 'Week 4', value: 800 }
+  ]
+};
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
 
 export const DashboardPage = () => {
@@ -71,6 +108,7 @@ export const DashboardPage = () => {
   const [chartData, setChartData] = useState<Array<{ name: string; value: number }>>([]);
   const [branches, setBranches] = useState<ListBranchesOutput>([]);
   const [selectedBranchIds, setSelectedBranchIds] = useState<string[]>([]); // Empty array = All Branches
+  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('year');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -121,40 +159,58 @@ export const DashboardPage = () => {
       : branches.filter(b => selectedBranchIds.includes(b.id));
 
     // 2. Cộng dồn số liệu (Giả lập)
-    let totalRevenue = 0;
+    // Lưu ý: totalRevenue sẽ được tính lại dựa trên Chart Data để khớp với biểu đồ
     let totalSubs = 0;
     let totalSales = 0;
     let totalActive = 0;
 
     if (targetBranches.length > 0) {
       targetBranches.forEach(b => {
+        // Dữ liệu tĩnh cho các chỉ số khác (Subs, Sales, Active)
+        // Trong thực tế, các chỉ số này cũng nên thay đổi theo timeRange
         const data = MOCK_BRANCH_DATA[b.id] || MOCK_BRANCH_DATA['default'];
-        totalRevenue += data.revenue;
         totalSubs += data.subs;
         totalSales += data.sales;
         totalActive += data.active;
       });
     } else {
       // Fallback nếu chưa load xong branches
-      totalRevenue = 45231.89;
       totalSubs = 2350;
       totalSales = 12234;
       totalActive = 573;
     }
 
-    // 3. Tính toán dữ liệu biểu đồ (Cộng gộp theo tháng)
-    const newChartData = MONTHS.map(month => {
-      let totalMonthRevenue = 0;
+    // 3. Xác định nguồn dữ liệu dựa trên Time Range
+    let dataSource: Record<string, Array<{ name: string; value: number }>>;
+    let labels: string[];
+
+    if (timeRange === 'week') {
+      dataSource = MOCK_WEEKLY_DATA;
+      labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    } else if (timeRange === 'month') {
+      dataSource = MOCK_MONTHLY_DATA;
+      labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+    } else {
+      dataSource = MOCK_REVENUE_HISTORY; // Year (6 months)
+      labels = MONTHS;
+    }
+
+    // 4. Tính toán dữ liệu biểu đồ (Cộng gộp)
+    const newChartData = labels.map(label => {
+      let totalValue = 0;
       const branchesToCalc = targetBranches.length > 0 ? targetBranches : []; // Nếu rỗng (chưa load) thì chart = 0
       
       branchesToCalc.forEach(b => {
-        const history = MOCK_REVENUE_HISTORY[b.id] || MOCK_REVENUE_HISTORY['default'];
-        const monthRecord = history.find(h => h.name === month);
-        if (monthRecord) totalMonthRevenue += monthRecord.value;
+        const history = dataSource[b.id] || dataSource['default'];
+        const record = history.find(h => h.name === label);
+        if (record) totalValue += record.value;
       });
-      return { name: month, value: totalMonthRevenue };
+      return { name: label, value: totalValue };
     });
     setChartData(newChartData);
+
+    // 5. Tính tổng doanh thu từ dữ liệu biểu đồ hiện tại
+    const totalRevenue = newChartData.reduce((acc, curr) => acc + curr.value, 0);
 
     const calculatedStats: StatData[] = [
       {
@@ -196,7 +252,7 @@ export const DashboardPage = () => {
     ];
 
     setStats(calculatedStats);
-  }, [selectedBranchIds, branches, t, isLoading]);
+  }, [selectedBranchIds, branches, t, isLoading, timeRange]);
 
   const toggleBranch = (branchId: string) => {
     setSelectedBranchIds(prev => {
@@ -220,11 +276,12 @@ export const DashboardPage = () => {
         </Box>
       </Box>
 
-      {/* Branch Filter Bar */}
-      <Box>
+      {/* Filters Section */}
+      <Box display="flex" flexDirection="column" gap="md">
+        {/* Branch Filter */}
         <Box display="flex" alignItems="center" gap="sm" mb="sm">
           <Icon size="sm" color="SECONDARY"><Filter /></Icon>
-          <Text size="sm" weight="semibold" color="SECONDARY">Filter by Branch:</Text>
+          <Text size="sm" weight="semibold" color="SECONDARY">{t('dashboard.filter_by_branch')}:</Text>
         </Box>
         <Box display="flex" gap="sm" flexWrap="wrap">
           {/* All Branches Button */}
@@ -234,7 +291,7 @@ export const DashboardPage = () => {
             onClick={() => setSelectedBranchIds([])}
             leftIcon={selectedBranchIds.length === 0 ? <Icon><Check /></Icon> : undefined}
           >
-            All Branches
+            {t('dashboard.all_branches')}
           </Button>
 
           {/* Individual Branch Buttons */}
@@ -253,6 +310,47 @@ export const DashboardPage = () => {
             );
           })}
         </Box>
+
+        {/* Time Range Filter */}
+        <Box display="flex" alignItems="center" gap="sm" mt="xs">
+          <Icon size="sm" color="SECONDARY"><Calendar /></Icon>
+          <Text size="sm" weight="semibold" color="SECONDARY">{t('dashboard.time_period')}:</Text>
+          <Box display="flex" gap="xs" bg="NEUTRAL_LIGHT" p="xxs" borderRadius="md">
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={() => setTimeRange('week')}
+              sx={{ 
+                backgroundColor: timeRange === 'week' ? 'white' : undefined,
+                boxShadow: timeRange === 'week' ? 'sm' : 'none' 
+              }}
+            >
+              {t('dashboard.this_week')}
+            </Button>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={() => setTimeRange('month')}
+              sx={{ 
+                backgroundColor: timeRange === 'month' ? 'white' : undefined,
+                boxShadow: timeRange === 'month' ? 'sm' : 'none' 
+              }}
+            >
+              {t('dashboard.this_month')}
+            </Button>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={() => setTimeRange('year')}
+              sx={{ 
+                backgroundColor: timeRange === 'year' ? 'white' : undefined,
+                boxShadow: timeRange === 'year' ? 'sm' : 'none' 
+              }}
+            >
+              {t('dashboard.this_year')}
+            </Button>
+          </Box>
+        </Box>
       </Box>
 
       {/* Error State */}
@@ -260,7 +358,7 @@ export const DashboardPage = () => {
         <Box p="lg" bg="DANGER_LIGHT" radius="md" border="1px solid" borderColor="DANGER" display="flex" alignItems="center" gap="md">
           <Icon color="DANGER"><Activity /></Icon>
           <Box>
-            <Text color="DANGER" weight="bold">Tải dữ liệu thất bại</Text>
+            <Text color="DANGER" weight="bold">{t('dashboard.error_loading_title')}</Text>
             <Text color="DANGER" size="sm">{error}</Text>
           </Box>
         </Box>
@@ -300,7 +398,12 @@ export const DashboardPage = () => {
         `}
       >
         <Box mb="lg">
-          <Text as="h3" size="lg" weight="bold">{t('dashboard.total_revenue')} (Last 6 Months)</Text>
+          <Text as="h3" size="lg" weight="bold">
+            {t('dashboard.revenue_chart_title')} 
+            {timeRange === 'week' && ` ${t('dashboard.revenue_chart_subtitle_week')}`}
+            {timeRange === 'month' && ` ${t('dashboard.revenue_chart_subtitle_month')}`}
+            {timeRange === 'year' && ` ${t('dashboard.revenue_chart_subtitle_year')}`}
+          </Text>
         </Box>
         
         <Box height="90%" width="100%">
