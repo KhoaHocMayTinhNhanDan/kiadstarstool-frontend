@@ -1,32 +1,47 @@
 import { Result } from '@/01-entities/shared/base/result';
 import { type IBranchRepository } from './ports/gateways_interface/IBranchRepository';
-import { type ListBranchesInput } from './ports/input/ListBranches.input';
+import { type IStudentRepository } from '@/02-usecases/students/ports/gateways_interface/IStudentRepository';
 import { type ListBranchesOutput } from './ports/output/ListBranches.output';
 
 export class ListBranchesInteractor {
+  private readonly branchRepo: IBranchRepository;
+  private readonly studentRepo: IStudentRepository;
 
-    private readonly branchRepo: IBranchRepository;
-
-  constructor(branchRepo: IBranchRepository) {
+  constructor(branchRepo: IBranchRepository, studentRepo: IStudentRepository) {
     this.branchRepo = branchRepo;
+    this.studentRepo = studentRepo;
   }
 
-  
-
-  async execute(input: ListBranchesInput): Promise<Result<ListBranchesOutput>> {
+  async execute(input: any): Promise<Result<ListBranchesOutput>> {
+    // 1. Lấy tất cả chi nhánh
     const branches = await this.branchRepo.findAll();
 
-    // Map Entity sang DTO
-    const output: ListBranchesOutput = branches.map(branch => ({
-      id: branch.id.toString(),
-      name: branch.name,
-      code: branch.code,
-      address: branch.address.fullAddress,
-      isActive: branch.isActive,
-      studentCount: branch.capacity.currentStudents,
-    }));
+    // 2. Map sang DTO và tính toán số lượng học viên thực tế
+    const output = await Promise.all(branches.map(async (branch) => {
+      const branchId = branch.id.toString();
+      
+      // Lấy danh sách học viên thuộc chi nhánh này từ StudentRepo
+      // (Repo này sẽ gọi xuống MockStudentDataSource để lấy dữ liệu thật)
+      const students = await this.studentRepo.getByBranchId(branchId);
+      
+      // Đếm số học viên đang hoạt động (Active)
+      const activeStudentCount = students.filter(s => s.status === 'active').length;
 
-    // TODO: Implement filtering logic here if needed (or in repository)
+      return {
+        id: branchId,
+        name: branch.name,
+        code: branch.code,
+        address: branch.address.toString(),
+        isActive: branch.isActive,
+        studentCount: activeStudentCount, // Dữ liệu thực tế đã được tính toán
+        capacity: {
+          current: activeStudentCount,
+          max: branch.capacity.maxStudents
+        },
+        operatingHours: branch.operatingHours,
+        updatedAt: branch.updatedAt
+      };
+    }));
 
     return Result.ok(output);
   }

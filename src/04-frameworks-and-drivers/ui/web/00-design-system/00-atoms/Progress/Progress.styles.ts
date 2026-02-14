@@ -1,6 +1,6 @@
 import { css, keyframes } from '@emotion/react';
 import { COLORS, RADIUS, TRANSITIONS } from '../00-core/tokens-constants';
-import { type ProgressSize, type ProgressVariant } from './Progress';
+import { type ProgressSize, type ProgressVariant } from './Progress.types';
 
 const SIZES = {
   sm: { height: '4px' },
@@ -34,7 +34,7 @@ export const getProgressIndicatorStyles = (variant: ProgressVariant, isIndetermi
   background-color: ${VARIANTS[variant]};
   width: 100%;
   height: 100%;
-  transition: transform ${TRANSITIONS.normal};
+  transition: transform ${TRANSITIONS.NORMAL};
   border-radius: ${RADIUS.full};
   
   /* Trạng thái loading không xác định */

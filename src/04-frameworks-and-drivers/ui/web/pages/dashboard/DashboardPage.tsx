@@ -188,9 +188,9 @@ export const DashboardPage = () => {
 
   // Mock data cho PieChart (Tỷ lệ học viên theo chi nhánh)
   // Sử dụng useMemo để tránh random lại dữ liệu mỗi khi component re-render
-  const studentDistributionData = useMemo(() => branches.map((branch) => ({
+  const studentDistributionData = useMemo(() => branches.map((branch: any) => ({
     name: branch.name,
-    value: Math.floor(Math.random() * 50) + 10, // Random số lượng học viên
+    value: branch.studentCount || 0, // Lấy dữ liệu thật từ Branch Entity/DTO
   })), [branches]);
 
   return (

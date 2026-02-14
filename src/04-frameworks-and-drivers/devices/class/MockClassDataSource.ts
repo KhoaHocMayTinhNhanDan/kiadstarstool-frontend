@@ -6,7 +6,7 @@ import { type IClassDataSource } from '@/03-interface-adapters/gateways/outbound
 import { type ClassSession, DAY_MAP } from '@/01-entities/classes/ClassSession';
 
 let classStore = new Map<string, Class>();
-const STORAGE_KEY = 'mock_classes_db_v7';
+const STORAGE_KEY = 'mock_classes_db_v9';
 
 export class MockClassDataSource implements IClassDataSource {
   constructor() {
@@ -41,7 +41,7 @@ export class MockClassDataSource implements IClassDataSource {
           code: 'ENG-K1-001',
           status: ClassStatus.ACTIVE,
           maxStudents: 20,
-          currentStudents: 0, // Reset về 0 để kiểm chứng logic tính toán
+          currentStudents: 0, // Để Use Case tự tính toán dựa trên dữ liệu điểm danh/đăng ký
           startDate: new Date('2023-09-01'),
           sessions: [
             { day: 'Mon', startTime: '18:00', endTime: '19:30' },

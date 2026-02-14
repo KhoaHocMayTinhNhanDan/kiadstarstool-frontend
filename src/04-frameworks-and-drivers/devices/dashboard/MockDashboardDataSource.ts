@@ -81,14 +81,45 @@ export class MockDashboardDataSource implements IDashboardDataSource {
     // 2. Aggregate Stats
     let totalSubs = 0;
     let totalSales = 0;
-    let totalActive = 0;
 
     targetBranchIds.forEach(id => {
       const data = MOCK_BRANCH_DATA[id] || MOCK_BRANCH_DATA['default'];
       totalSubs += data.subs;
       totalSales += data.sales;
-      totalActive += data.active;
     });
+
+    // --- FIX: Calculate Real Active Students from Shared Storage ---
+    // Đọc dữ liệu từ cùng key mà MockStudentDataSource đang sử dụng
+    let totalActive = 0;
+    try {
+      const STUDENT_STORAGE_KEY = 'mock_students_db_v5';
+      const storedStudents = localStorage.getItem(STUDENT_STORAGE_KEY);
+      
+      if (storedStudents) {
+        const students = JSON.parse(storedStudents);
+        
+        // Lọc học viên active
+        const activeStudents = students.filter((s: any) => s.status === 'active');
+
+        if (branchIds.length === 0) {
+          // Nếu không lọc theo branch, lấy tổng số active
+          totalActive = activeStudents.length;
+        } else {
+          // Nếu có lọc, chỉ đếm học viên có enrollment active trong các branch đó
+          totalActive = activeStudents.filter((s: any) => 
+            s.enrollments.some((e: any) => branchIds.includes(e.branchId) && e.status === 'active')
+          ).length;
+        }
+      }
+    } catch (e) {
+      console.error('[MockDashboardDataSource] Failed to calculate real active students', e);
+      // Fallback to mock data if error
+      targetBranchIds.forEach(id => {
+        const data = MOCK_BRANCH_DATA[id] || MOCK_BRANCH_DATA['default'];
+        totalActive += data.active;
+      });
+    }
+    // ---------------------------------------------------------------
 
     // 3. Aggregate Chart Data
     const dataSource = timeRange === 'week' ? MOCK_WEEKLY_DATA : timeRange === 'month' ? MOCK_MONTHLY_DATA : MOCK_REVENUE_HISTORY;

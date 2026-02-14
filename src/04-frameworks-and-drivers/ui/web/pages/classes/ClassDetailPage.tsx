@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
 import { ArrowLeft, Edit, Calendar, Users, BookOpen } from 'lucide-react';
@@ -9,6 +9,7 @@ import { AppContext } from '@/00-core/app-context';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { useToast } from '@/04-frameworks-and-drivers/ui/web/app/hooks/user/useToast';
 import { ClassAttendanceList } from './components/ClassAttendanceList';
+import { useClassAttendance } from '@/04-frameworks-and-drivers/ui/web/app/hooks/class/useClassAttendance';
 
 export const ClassDetailPage = () => {
   const { classId } = useParams<{ classId: string }>();
@@ -18,6 +19,17 @@ export const ClassDetailPage = () => {
 
   const [classData, setClassData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Sử dụng hook để lấy dữ liệu điểm danh cho việc tính toán sĩ số
+  const { attendanceList } = useClassAttendance(classId || '');
+
+  // Tính toán sĩ số thực tế: Đếm số học viên Có mặt (present) hoặc Đi muộn (late)
+  const currentStudentsCount = useMemo(() => {
+    if (!attendanceList || attendanceList.length === 0) return 0;
+    return attendanceList.filter((record: any) => 
+      record.status === 'present' || record.status === 'late'
+    ).length;
+  }, [attendanceList]);
 
   useEffect(() => {
     const fetchClassDetails = async () => {
@@ -108,7 +120,7 @@ export const ClassDetailPage = () => {
           <DetailItem 
             icon={<Users />} 
             label="Sĩ số" 
-            value={`${classData.currentStudents} / ${classData.maxStudents} Học viên`} 
+            value={`${currentStudentsCount} / ${classData.maxStudents} Học viên`} 
           />
           <DetailItem 
             icon={<Calendar />} 

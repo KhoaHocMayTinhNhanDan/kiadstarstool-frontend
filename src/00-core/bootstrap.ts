@@ -148,6 +148,10 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
     listUsersInteractor
   );
 
+  // --- Pre-initialize Student Repo for Branch dependency ---
+  const studentDataSource = new MockStudentDataSource();
+  const studentRepository = new StudentRepository(studentDataSource);
+
   // 1.3 Initialize Branch
   // TODO: Switch to FirebaseBranchDataSource when ready
   const branchDataSource = new MockBranchDataSource();
@@ -156,7 +160,7 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
   const createBranchInteractor = new CreateBranchInteractor(branchRepository);
   const updateBranchInfoInteractor = new UpdateBranchInfoInteractor(branchRepository);
   const getBranchDetailsInteractor = new GetBranchDetailsInteractor(branchRepository);
-  const listBranchesInteractor = new ListBranchesInteractor(branchRepository);
+  const listBranchesInteractor = new ListBranchesInteractor(branchRepository, studentRepository);
   const deleteBranchInteractor = new DeleteBranchInteractor(branchRepository);
 
   const branchController = new BranchController(
@@ -170,8 +174,6 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
   // --- Repositories (Initialize all data-related repositories first) ---
   const classDataSource = new MockClassDataSource();
   const classRepository = new ClassRepository(classDataSource);
-  const studentDataSource = new MockStudentDataSource();
-  const studentRepository = new StudentRepository(studentDataSource);
   const attendanceDataSource = new MockAttendanceDataSource();
   const attendanceRepository = new AttendanceRepository(attendanceDataSource);
   const dashboardDataSource = new MockDashboardDataSource();
@@ -200,8 +202,8 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
 
   // 1.7 Initialize Attendance
   const listAttendanceInteractor = new ListAttendanceByClassInteractor(attendanceRepository, studentRepository, classRepository);
-  const markAttendanceInteractor = new MarkAttendanceInteractor(attendanceRepository);
-  const markBatchAttendanceInteractor = new MarkBatchAttendanceInteractor(attendanceRepository);
+  const markAttendanceInteractor = new MarkAttendanceInteractor(attendanceRepository, classRepository);
+  const markBatchAttendanceInteractor = new MarkBatchAttendanceInteractor(attendanceRepository, classRepository);
   const attendanceController = new AttendanceController(listAttendanceInteractor, markAttendanceInteractor, markBatchAttendanceInteractor);
 
   // 2. Create Application Context
