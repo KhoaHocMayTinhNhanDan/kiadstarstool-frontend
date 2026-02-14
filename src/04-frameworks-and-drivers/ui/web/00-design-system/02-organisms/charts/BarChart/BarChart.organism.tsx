@@ -67,7 +67,7 @@ export const BarChart = ({
   showXAxis = true,
   showYAxis = true,
   layout = 'horizontal',
-}: BarChartProps) => {
+}: Omit<BarChartProps, 'height'> & { height?: string | number }) => {
   /* ================= Loading ================= */
   if (isLoading) {
     return (
@@ -102,11 +102,7 @@ export const BarChart = ({
 
   /* ================= Chart ================= */
   return (
-    <Box w={width}>
-      <div
-        css={styles.chartContainer}
-        style={{ width: '100%', height }}
-      >
+    <Box w={width} h={height} sx={{ minWidth: 0, minHeight: 0 }}>
         <ResponsiveContainer width="100%" height="100%">
           <RechartsBarChart
             data={data}
@@ -157,7 +153,6 @@ export const BarChart = ({
             ))}
           </RechartsBarChart>
         </ResponsiveContainer>
-      </div>
     </Box>
   );
 };

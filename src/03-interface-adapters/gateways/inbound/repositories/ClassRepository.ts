@@ -14,7 +14,19 @@ export class ClassRepository implements IClassRepository {
     return this.dataSource.getByBranchId(branchId.toString());
   }
 
+  async getById(id: string): Promise<Class | null> {
+    return this.dataSource.getById(id);
+  }
+
   async save(classEntity: Class): Promise<void> {
     return this.dataSource.save(classEntity);
+  }
+
+  async update(classEntity: Class): Promise<void> {
+    return this.dataSource.update(classEntity);
+  }
+
+  async delete(id: string): Promise<void> {
+    return this.dataSource.delete(id);
   }
 }

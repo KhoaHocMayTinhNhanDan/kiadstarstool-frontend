@@ -74,6 +74,8 @@ export const COLORS = {
   BACKGROUND_DANGER: '#d32f2f',
   BACKGROUND_WARNING: '#ed6c02',
   BACKGROUND_INFO: '#0288d1',
+  BACKGROUND_light: '#f1f5f9', // Thêm cho hover state
+  BACKGROUND_dark: '#e2e8f0',  // Thêm cho active state
 
   /* ================= NEUTRAL ================= */
   NEUTRAL: '#e0e0e0',

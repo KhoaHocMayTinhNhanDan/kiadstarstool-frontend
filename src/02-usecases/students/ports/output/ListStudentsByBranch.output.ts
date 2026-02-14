@@ -3,7 +3,7 @@ export interface StudentListItem {
   name: string;
   email: string;
   phone?: string;
-  status: 'active' | 'inactive';
+  status: string;
   joinedDate: Date;
 }
 

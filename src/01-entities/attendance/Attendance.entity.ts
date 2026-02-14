@@ -1,17 +1,17 @@
 // 01-entities/business/Attendance/Attendance.entity.ts
-import { BaseEntity } from '../shared/base/base.entity.ts';
+import { AuditedEntity, type AuditedProps } from '../shared/base/audited.entity';
 import {
   ATTENDANCE_STATUS,
   type AttendanceStatus
 } from '../../shared/constants/classes.constant';
 
-import { AttendanceTime } from './AttendanceTime.vo';
-import { AttendanceScore } from './AttendanceScore.vo';
-import { AttendanceFlags } from './AttendanceFlags.vo';
-import { AttendanceMetadata } from './AttendanceMetadata.vo';
+import { AttendanceTime } from './value-objects/AttendanceTime.vo.ts';
+import { AttendanceScore } from './value-objects/AttendanceScore.vo.ts';
+import { AttendanceFlags } from './value-objects/AttendanceFlags.vo.ts';
+import { AttendanceMetadata } from './value-objects/AttendanceMetadata.vo.ts';
+import { Identifier } from '../shared/Identifier.vo';
 
-export interface AttendanceProps {
-  id?: string;
+export interface AttendanceProps extends AuditedProps {
   courseId: string;
   studentId: string;
   session: string;
@@ -41,32 +41,45 @@ export interface AttendanceJSON {
   updatedBy: string;
 }
 
-export class Attendance extends BaseEntity<AttendanceJSON> {
+export class Attendance extends AuditedEntity<Identifier> {
   readonly courseId: string;
   readonly studentId: string;
   readonly session: string;
   readonly date: string;
 
-  time: AttendanceTime;
-  score: AttendanceScore;
-  attendanceStatus: AttendanceStatus;
-  flags: AttendanceFlags;
-  metadata: AttendanceMetadata;
+  // Use private fields for mutable properties and expose getters
+  private _time: AttendanceTime;
+  private _score: AttendanceScore;
+  private _attendanceStatus: AttendanceStatus;
+  private _flags: AttendanceFlags;
+  private _metadata: AttendanceMetadata;
+
+  // Public getters
+  get time(): AttendanceTime { return this._time; }
+  get score(): AttendanceScore { return this._score; }
+  get attendanceStatus(): AttendanceStatus { return this._attendanceStatus; }
+  get flags(): AttendanceFlags { return this._flags; }
+  get metadata(): AttendanceMetadata { return this._metadata; }
 
   constructor(props: AttendanceProps) {
-    super({ id: props.id });
+    // Pass all props to the base constructor, including audit fields
+    super({
+      ...props,
+      createdAt: props.createdAt ?? new Date(),
+      updatedAt: props.updatedAt ?? new Date(),
+    });
 
     this.courseId = props.courseId;
     this.studentId = props.studentId;
     this.session = props.session;
     this.date = props.date;
 
-    this.time = props.time ?? AttendanceTime.createDefault();
-    this.score = props.score ?? AttendanceScore.zero();
-    this.flags = props.flags ?? AttendanceFlags.initial();
-    this.metadata = props.metadata ?? AttendanceMetadata.empty();
-
-    this.attendanceStatus = props.attendanceStatus ?? ATTENDANCE_STATUS.PRESENT;
+    // Initialize internal state
+    this._time = props.time ?? AttendanceTime.createDefault();
+    this._score = props.score ?? AttendanceScore.zero();
+    this._flags = props.flags ?? AttendanceFlags.initial();
+    this._metadata = props.metadata ?? AttendanceMetadata.empty();
+    this._attendanceStatus = props.attendanceStatus ?? ATTENDANCE_STATUS.PRESENT;
   }
 
   // ===== Factory methods =====
@@ -77,7 +90,7 @@ export class Attendance extends BaseEntity<AttendanceJSON> {
 
   static createFromJSON(data: AttendanceJSON): Attendance {
     return new Attendance({
-      id: data.id,
+      id: Identifier.create(data.id),
       courseId: data.courseId,
       studentId: data.studentId,
       session: data.session,
@@ -86,49 +99,53 @@ export class Attendance extends BaseEntity<AttendanceJSON> {
       time: AttendanceTime.fromJSON(data.time),
       score: AttendanceScore.fromJSON(data.score),
       flags: AttendanceFlags.fromJSON(data.flags),
-      metadata: AttendanceMetadata.fromJSON(data.metadata)
+      metadata: AttendanceMetadata.fromJSON(data.metadata),
+      createdAt: new Date(data.createdAt),
+      updatedAt: new Date(data.updatedAt),
+      createdBy: data.createdBy ? Identifier.create(data.createdBy) : undefined,
+      updatedBy: data.updatedBy ? Identifier.create(data.updatedBy) : undefined,
     });
   }
 
   // ===== Domain behaviors =====
 
   checkIn(at: string = new Date().toISOString()): this {
-    this.time = this.time.checkIn(at);
+    this._time = this._time.checkIn(at);
 
-    if (this.time.isLate()) {
-      this.attendanceStatus = ATTENDANCE_STATUS.LATE;
-      this.flags = this.flags.markLate();
+    if (this._time.isLate()) {
+      this._attendanceStatus = ATTENDANCE_STATUS.LATE;
+      this._flags = this._flags.markLate();
     } else {
-      this.attendanceStatus = ATTENDANCE_STATUS.PRESENT;
+      this._attendanceStatus = ATTENDANCE_STATUS.PRESENT;
     }
 
     return this;
   }
 
   checkOut(at: string = new Date().toISOString()): this {
-    this.time = this.time.checkOut(at);
+    this._time = this._time.checkOut(at);
 
-    if (this.time.isEarlyLeave()) {
-      this.flags = this.flags.markEarlyLeave();
+    if (this._time.isEarlyLeave()) {
+      this._flags = this._flags.markEarlyLeave();
     }
 
     return this;
   }
 
   markAbsent(reason = '', excused = false): this {
-    this.attendanceStatus = excused
+    this._attendanceStatus = excused
       ? ATTENDANCE_STATUS.EXCUSED
       : ATTENDANCE_STATUS.ABSENT;
 
-    this.flags = this.flags.markExcused(excused);
-    this.metadata = this.metadata.withAbsentReason(reason);
-    this.score = AttendanceScore.zero();
+    this._flags = this._flags.markExcused(excused);
+    this._metadata = this._metadata.withAbsentReason(reason);
+    this._score = AttendanceScore.zero();
 
     return this;
   }
 
   updateScore(rawScore: number): this {
-    this.score = AttendanceScore.fromRaw(rawScore, this.time);
+    this._score = AttendanceScore.fromRaw(rawScore, this._time);
     return this;
   }
 
@@ -136,40 +153,40 @@ export class Attendance extends BaseEntity<AttendanceJSON> {
 
   isPresent(): boolean {
     return (
-      this.attendanceStatus === ATTENDANCE_STATUS.PRESENT ||
-      this.attendanceStatus === ATTENDANCE_STATUS.LATE
+      this._attendanceStatus === ATTENDANCE_STATUS.PRESENT ||
+      this._attendanceStatus === ATTENDANCE_STATUS.LATE
     );
   }
 
   isLate(): boolean {
-    return this.attendanceStatus === ATTENDANCE_STATUS.LATE;
+    return this._attendanceStatus === ATTENDANCE_STATUS.LATE;
   }
 
   isAbsent(): boolean {
     return (
-      this.attendanceStatus === ATTENDANCE_STATUS.ABSENT ||
-      this.attendanceStatus === ATTENDANCE_STATUS.EXCUSED
+      this._attendanceStatus === ATTENDANCE_STATUS.ABSENT ||
+      this._attendanceStatus === ATTENDANCE_STATUS.EXCUSED
     );
   }
 
   getScore(): number {
-    return this.score.value;
+    return this._score.value;
   }
 
   // ===== Builder pattern =====
 
   withTime(time: AttendanceTime): this {
-    this.time = time;
+    this._time = time;
     return this;
   }
 
   withScore(score: AttendanceScore): this {
-    this.score = score;
+    this._score = score;
     return this;
   }
 
   withStatus(status: AttendanceStatus): this {
-    this.attendanceStatus = status;
+    this._attendanceStatus = status;
     return this;
   }
 
@@ -177,16 +194,20 @@ export class Attendance extends BaseEntity<AttendanceJSON> {
 
   toJSON(): AttendanceJSON {
     return {
-      ...super.baseToJSON(),
+      id: this.id.toString(),
       courseId: this.courseId,
       studentId: this.studentId,
       session: this.session,
       date: this.date,
-      attendanceStatus: this.attendanceStatus,
-      time: this.time.toJSON(),
-      score: this.score.toJSON(),
-      flags: this.flags.toJSON(),
-      metadata: this.metadata.toJSON()
+      attendanceStatus: this._attendanceStatus,
+      time: this._time.toJSON(),
+      score: this._score.toJSON(),
+      flags: this._flags.toJSON(),
+      metadata: this._metadata.toJSON(),
+      createdAt: this.createdAt.toISOString(),
+      updatedAt: this.updatedAt.toISOString(),
+      createdBy: this.createdBy?.toString() ?? '',
+      updatedBy: this.updatedBy?.toString() ?? ''
     };
   }
 
@@ -197,18 +218,16 @@ export class Attendance extends BaseEntity<AttendanceJSON> {
       studentId: this.studentId,
       session: this.session,
       date: this.date,
-      attendanceStatus: this.attendanceStatus,
-      time: this.time.clone(),
-      score: this.score.clone(),
-      flags: this.flags.clone(),
-      metadata: this.metadata.clone()
+      attendanceStatus: this._attendanceStatus,
+      time: this._time.clone(),
+      score: this._score.clone(),
+      flags: this._flags.clone(),
+      metadata: this._metadata.clone(),
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      createdBy: this.createdBy,
+      updatedBy: this.updatedBy
     });
-
-    // Copy BaseEntity properties
-    (clone as any).createdAt = this.createdAt;
-    (clone as any).updatedAt = this.updatedAt;
-    (clone as any).createdBy = this.createdBy;
-    (clone as any).updatedBy = this.updatedBy;
 
     return clone;
   }
@@ -221,35 +240,28 @@ export class Attendance extends BaseEntity<AttendanceJSON> {
       !!this.studentId &&
       !!this.session &&
       !!this.date &&
-      !!this.attendanceStatus
+      !!this._attendanceStatus
     );
   }
 
   // ===== Comparison =====
 
-  equals(other: Attendance): boolean {
-    return (
-      this.id === other.id &&
-      this.courseId === other.courseId &&
-      this.studentId === other.studentId &&
-      this.session === other.session &&
-      this.date === other.date
-    );
-  }
+  // The `equals` method from the base `Entity` class is sufficient, which compares by ID.
+  // If more complex equality is needed, it can be overridden.
 
   // ===== Utilities =====
 
   toString(): string {
-    return `Attendance(${this.id}) - ${this.studentId} at ${this.date} ${this.session}: ${this.attendanceStatus}`;
+    return `Attendance(${this.id.toString()}) - ${this.studentId} at ${this.date} ${this.session}: ${this._attendanceStatus}`;
   }
 
   toSummary(): Record<string, any> {
     return {
-      id: this.id,
+      id: this.id.toString(),
       studentId: this.studentId,
       date: this.date,
       session: this.session,
-      status: this.attendanceStatus,
+      status: this._attendanceStatus,
       score: this.getScore(),
       isLate: this.isLate(),
       isAbsent: this.isAbsent()

@@ -38,56 +38,32 @@ export class MockBranchDataSource implements IBranchDataSource {
       console.log('[MockBranchDataSource] Seeding initial data...');
       const branches = [
         {
-          id: 'mock-branch-1',
-          name: 'KiadStars Center A',
-          code: 'BR-001',
-          street: '123 Main St',
-          ward: 'Ward 1',
-          district: 'District 1',
-          city: 'Ho Chi Minh City',
-          maxStudents: 200,
+          id: 'branch-01', // Cơ sở A
+          name: 'KiadStars Hội Sở (Hà Nội)',
+          code: 'BR-HN-01',
+          street: '18 Hoàng Quốc Việt',
+          ward: 'Nghĩa Đô',
+          district: 'Cầu Giấy',
+          city: 'Hà Nội',
+          maxStudents: 500,
+          currentStudents: 320,
+          isActive: true
+        },
+        {
+          id: 'branch-02', // Cơ sở B
+          name: 'KiadStars Chi Nhánh HCM',
+          code: 'BR-HCM-01',
+          street: '202 Võ Văn Tần',
+          ward: 'Phường 5',
+          district: 'Quận 3',
+          city: 'Hồ Chí Minh',
+          maxStudents: 300,
           currentStudents: 150,
           isActive: true
         },
         {
-          id: 'mock-branch-2',
-          name: 'KiadStars Center B',
-          code: 'BR-002',
-          street: '456 Le Loi',
-          ward: 'Ward 4',
-          district: 'District 3',
-          city: 'Ho Chi Minh City',
-          maxStudents: 150,
-          currentStudents: 120,
-          isActive: true
-        },
-        {
-          id: 'mock-branch-3',
-          name: 'KiadStars Hanoi Hub',
-          code: 'BR-HN-01',
-          street: '789 Kim Ma',
-          ward: 'Ngoc Khanh',
-          district: 'Ba Dinh',
-          city: 'Hanoi',
-          maxStudents: 300,
-          currentStudents: 280,
-          isActive: true
-        },
-        {
-          id: 'mock-branch-4',
-          name: 'KiadStars Da Nang',
-          code: 'BR-DN-01',
-          street: '101 Nguyen Van Linh',
-          ward: 'Nam Duong',
-          district: 'Hai Chau',
-          city: 'Da Nang',
-          maxStudents: 100,
-          currentStudents: 45,
-          isActive: true
-        },
-        {
-          id: 'mock-branch-5',
-          name: 'KiadStars Can Tho (Coming Soon)',
+          id: 'branch-03',
+          name: 'KiadStars Cần Thơ (Sắp khai trương)',
           code: 'BR-CT-01',
           street: '202 30/4 Street',
           ward: 'Xuan Khanh',
@@ -96,18 +72,6 @@ export class MockBranchDataSource implements IBranchDataSource {
           maxStudents: 120,
           currentStudents: 0,
           isActive: false // Inactive branch
-        },
-        {
-          id: 'mock-branch-6',
-          name: 'KiadStars Online HQ',
-          code: 'BR-ONLINE',
-          street: 'Virtual Office',
-          ward: '-',
-          district: '-',
-          city: 'Global',
-          maxStudents: 1000,
-          currentStudents: 850,
-          isActive: true
         }
       ];
 

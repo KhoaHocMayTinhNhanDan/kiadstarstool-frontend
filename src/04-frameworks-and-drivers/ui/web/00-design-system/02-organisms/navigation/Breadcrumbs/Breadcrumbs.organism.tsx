@@ -1,135 +1,92 @@
-// src/04-frameworks-and-drivers/ui/web/components/02-organisms/navigation/Breadcrumbs/Breadcrumbs.organism.tsx
 /** @jsxImportSource @emotion/react */
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronRight, MoreHorizontal } from 'lucide-react';
-import { Box } from '../../../00-atoms';
-import { Button } from '../../../00-atoms/Button';
-import { DropdownMenu } from '../../../01-molecules/Dropdown/DropdownMenu';
+import { useLocation, Link } from 'react-router-dom';
+import { ChevronRight, Home } from 'lucide-react';
+import { Icon } from '../../../00-atoms';
+import { useI18n } from '@/shared/i18n/useI18n';
 import * as styles from './Breadcrumbs.styles';
 import type { BreadcrumbsProps, BreadcrumbItem } from './Breadcrumbs.types';
 
-const BreadcrumbSeparator: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
-  <li aria-hidden="true" css={styles.separator}>
-    {children || <ChevronRight size={16} />}
-  </li>
-);
-
-const BreadcrumbLink: React.FC<{ item: BreadcrumbItem; isLast: boolean }> = ({ item, isLast }) => {
-  const Component = item.href && !isLast ? Link : 'span';
-  const isInteractive = !!item.href || !!item.onClick;
-
-  return (
-    <Component
-      to={item.href as string}
-      css={styles.itemContent(isLast, isInteractive && !isLast)}
-      onClick={!isLast ? item.onClick : undefined}
-      aria-current={isLast ? 'page' : undefined}
-    >
-      {item.icon && <span css={{ display: 'flex' }}>{item.icon}</span>}
-      <span>{item.label}</span>
-    </Component>
-  );
+// Map các segment của URL sang key trong file ngôn ngữ
+const breadcrumbNameMap: Record<string, string> = {
+  dashboard: 'sidebar.dashboard',
+  branches: 'sidebar.branches',
+  classes: 'sidebar.classes',
+  new: 'common.create_new',
+  edit: 'common.edit',
+  users: 'sidebar.users',
+  settings: 'sidebar.settings',
 };
 
-export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
-  items,
-  maxItems = 4,
-  itemsBeforeCollapse = 1,
-  itemsAfterCollapse = 1,
-  separator,
-  sx,
-  className,
-}) => {
-  // Logic thu gọn items
-  const renderItems = () => {
-    // Trường hợp ít items, hiển thị hết
-    if (items.length <= maxItems) {
-      return items.map((item, index) => {
-        const isLast = index === items.length - 1;
-        return (
-          <React.Fragment key={item.id}>
-            <li css={styles.listItem}>
-              <BreadcrumbLink item={item} isLast={isLast} />
-            </li>
-            {!isLast && <BreadcrumbSeparator>{separator}</BreadcrumbSeparator>}
-          </React.Fragment>
-        );
-      });
+export const Breadcrumbs = ({ items }: Partial<BreadcrumbsProps>) => {
+  const location = useLocation();
+  const { t } = useI18n();
+
+  // Logic xác định danh sách items:
+  // 1. Nếu props `items` được truyền vào -> Sử dụng nó (Chế độ Dumb Component)
+  // 2. Nếu không -> Tự động generate từ URL hiện tại (Chế độ Smart Component)
+  const displayItems: BreadcrumbItem[] = items || (() => {
+    const pathnames = location.pathname.split('/').filter((x) => x);
+    
+    // Không hiển thị nếu đang ở Dashboard root
+    if (pathnames.length === 0 || (pathnames.length === 1 && pathnames[0] === 'dashboard')) {
+      return [];
     }
 
-    // Trường hợp nhiều items, cần thu gọn
-    const startItems = items.slice(0, itemsBeforeCollapse);
-    const endItems = items.slice(-itemsAfterCollapse);
-    const collapsedItems = items.slice(itemsBeforeCollapse, items.length - itemsAfterCollapse);
+    return pathnames.map((value, index) => {
+      const to = `/${pathnames.slice(0, index + 1).join('/')}`;
+      let label = value;
 
-    return (
-      <>
-        {/* Render phần đầu */}
-        {startItems.map((item) => (
-          <React.Fragment key={item.id}>
-            <li css={styles.listItem}>
-              <BreadcrumbLink item={item} isLast={false} />
-            </li>
-            <BreadcrumbSeparator>{separator}</BreadcrumbSeparator>
-          </React.Fragment>
-        ))}
+      // Xử lý nhãn hiển thị
+      if (breadcrumbNameMap[value]) {
+        label = t(breadcrumbNameMap[value]);
+      } else if (value.length > 8 || /\d/.test(value)) {
+        // Nếu là ID (chuỗi dài hoặc chứa số), hiển thị "Chi tiết"
+        label = t('common.detail');
+      }
 
-        {/* Render phần thu gọn (Dropdown) */}
-        <li css={styles.listItem}>
-          <DropdownMenu
-            trigger={
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                css={styles.ellipsisButton}
-                aria-label="Show more breadcrumbs"
-              >
-                <MoreHorizontal size={16} />
-              </Button>
-            }
-            items={collapsedItems.map(item => ({
-              id: item.id,
-              label: item.label,
-              icon: item.icon,
-              // Nếu có href thì dùng onClick để navigate (hoặc DropdownMenu hỗ trợ href)
-              // Ở đây giả định DropdownMenu xử lý onClick
-              onClick: () => {
-                if (item.onClick) item.onClick();
-                // Nếu dùng react-router, cần xử lý navigate ở đây nếu DropdownMenu không hỗ trợ Link
-                if (item.href) window.location.href = item.href; // Fallback đơn giản
-              }
-            }))}
-          />
-        </li>
-        <BreadcrumbSeparator>{separator}</BreadcrumbSeparator>
+      return {
+        id: to,
+        label,
+        href: to
+      };
+    });
+  })();
 
-        {/* Render phần cuối */}
-        {endItems.map((item, index) => {
-          const isLast = index === endItems.length - 1;
-          return (
-            <React.Fragment key={item.id}>
-              <li css={styles.listItem}>
-                <BreadcrumbLink item={item} isLast={isLast} />
-              </li>
-              {!isLast && <BreadcrumbSeparator>{separator}</BreadcrumbSeparator>}
-            </React.Fragment>
-          );
-        })}
-      </>
-    );
-  };
+  if (displayItems.length === 0) return null;
 
   return (
-    <Box 
-      as="nav" 
-      aria-label="Breadcrumb" 
-      css={[styles.nav, sx]} 
-      className={className}
-    >
+    <nav css={styles.nav} aria-label="Breadcrumb">
       <ol css={styles.list}>
-        {renderItems()}
+        {/* Home Icon luôn hiển thị đầu tiên */}
+        <li css={styles.listItem}>
+          <Link to="/dashboard" css={styles.itemContent(false, true)}>
+            <Icon size="sm"><Home size={16} /></Icon>
+          </Link>
+          <span css={styles.separator}><ChevronRight size={16} /></span>
+        </li>
+
+        {displayItems.map((item, index) => {
+          const isLast = index === displayItems.length - 1;
+          
+          return (
+            <li key={item.id} css={styles.listItem}>
+              {isLast ? (
+                <span css={styles.itemContent(true, false)}>
+                  {item.label}
+                </span>
+              ) : (
+                <Link to={item.href || '#'} css={styles.itemContent(false, true)}>
+                  {item.label}
+                </Link>
+              )}
+              
+              {!isLast && (
+                <span css={styles.separator}><ChevronRight size={16} /></span>
+              )}
+            </li>
+          );
+        })}
       </ol>
-    </Box>
+    </nav>
   );
 };

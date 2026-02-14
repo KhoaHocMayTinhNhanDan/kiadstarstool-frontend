@@ -1,5 +1,6 @@
+// src/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/Text/Text.types.ts
 import type { CSSObject } from '@emotion/react';
-import { FONT_SIZES, FONT_WEIGHTS, COLORS } from '../00-core/tokens-constants';
+import { FONT_SIZES, FONT_WEIGHTS, COLORS, SPACING } from '../00-core/tokens-constants';
 
 type TextSize = keyof typeof FONT_SIZES;
 type TextWeight = keyof typeof FONT_WEIGHTS;
@@ -27,6 +28,7 @@ type CommonTextProps = {
   align?: TextAlign;
   truncate?: boolean;
   lineHeight?: string | number;
+  mb?: keyof typeof SPACING | string | number;
   sx?: CSSObject;
 };
 

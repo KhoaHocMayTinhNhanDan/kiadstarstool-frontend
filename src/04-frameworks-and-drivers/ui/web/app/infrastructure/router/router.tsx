@@ -13,6 +13,12 @@ import { BranchListPage } from '../../../pages/branch/BranchListPage';
 import { RootLayout } from '../../../pages/layouts/RootLayout';
 import { AuthLayout } from '../../../pages/layouts/AuthLayout';
 import { MainLayout } from '../../../pages/layouts/MainLayout';
+import { ClassesListPage } from '../../../pages/classes/ClassesListPage';
+import { ClassDetailPage } from '../../../pages/classes/ClassDetailPage';
+import { CreateClassPage } from '../../../pages/classes/CreateClassPage';
+import { EditClassPage } from '../../../pages/classes/EditClassPage';
+import { StudentListPage } from '../../../pages/students/StudentListPage';
+import { StudentDetailPage } from '../../../pages/students/StudentDetailPage';
 /* ==========================================================================
  * Router Configuration
  * ========================================================================== */
@@ -78,6 +84,30 @@ const routes: RouteObject[] = [
               {
                 path: 'branches/:branchId/edit',
                 element: <EditBranchPage />,
+              },
+              {
+                path: 'classes',
+                element: <ClassesListPage />,
+              },
+              {
+                path: 'classes/new',
+                element: <CreateClassPage />,
+              },
+              {
+                path: 'classes/:classId',
+                element: <ClassDetailPage />,
+              },
+              {
+                path: 'classes/:classId/edit',
+                element: <EditClassPage />,
+              },
+              {
+                path: 'students',
+                element: <StudentListPage />,
+              },
+              {
+                path: 'students/:studentId',
+                element: <StudentDetailPage />,
               },
             ],
           },

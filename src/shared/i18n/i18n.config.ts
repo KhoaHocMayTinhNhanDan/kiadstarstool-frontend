@@ -21,8 +21,9 @@ i18n
   .use(initReactI18next) // Kết nối i18next với React
   .init({
     resources,
+    lng: 'vi', // <--- THÊM DÒNG NÀY: Ép buộc sử dụng tiếng Việt
     supportedLngs: SUPPORTED_LOCALES,
-    fallbackLng: 'en', // Ngôn ngữ mặc định nếu không tìm thấy
+    fallbackLng: 'vi', // <--- SỬA DÒNG NÀY: Fallback về tiếng Việt thay vì tiếng Anh
     debug: import.meta.env.DEV, // Bật debug mode ở môi trường dev
     interpolation: {
       escapeValue: false, // React đã tự chống XSS

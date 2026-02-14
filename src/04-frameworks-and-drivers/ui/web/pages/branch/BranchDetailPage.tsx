@@ -34,6 +34,12 @@ export const BranchDetailPage = () => {
   const [newClassMaxStudents, setNewClassMaxStudents] = useState(20);
   const [isCreatingClass, setIsCreatingClass] = useState(false);
 
+  // State for Create Student Modal
+  const [isCreateStudentModalOpen, setIsCreateStudentModalOpen] = useState(false);
+  const [newStudentName, setNewStudentName] = useState('');
+  const [newStudentEmail, setNewStudentEmail] = useState('');
+  const [isCreatingStudent, setIsCreatingStudent] = useState(false);
+
   useEffect(() => {
     const fetchBranch = async () => {
       if (!branchId) return;
@@ -135,6 +141,35 @@ export const BranchDetailPage = () => {
       toast.error('Failed to create class');
     } finally {
       setIsCreatingClass(false);
+    }
+  };
+
+  const handleCreateStudent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!branchId) return;
+
+    setIsCreatingStudent(true);
+    try {
+      const controller = AppContext.getStudentsController();
+      const result = await controller.createStudent({
+        branchId,
+        name: newStudentName,
+        email: newStudentEmail,
+      });
+
+      if (result.isSuccess) {
+        toast.success('Student added successfully');
+        setIsCreateStudentModalOpen(false);
+        setNewStudentName('');
+        setNewStudentEmail('');
+        fetchStudents(); // Reload list
+      } else {
+        toast.error(result.getErrorValue() as string);
+      }
+    } catch (error) {
+      toast.error('Failed to add student');
+    } finally {
+      setIsCreatingStudent(false);
     }
   };
 
@@ -327,12 +362,21 @@ export const BranchDetailPage = () => {
 
       {activeTab === 'students' && (
         <Box p="xl" textAlign="center" bg="NEUTRAL_LIGHT" borderRadius="md">
+          <Box display="flex" justifyContent="flex-end" mb="md">
+            <Button 
+              leftIcon={<Icon><Plus /></Icon>} 
+              onClick={() => setIsCreateStudentModalOpen(true)}
+              size="sm"
+            >
+              Add Student
+            </Button>
+          </Box>
           {isLoadingStudents ? (
             <Text>{t('common.loading')}</Text>
           ) : students.length === 0 ? (
             <Box>
               <Icon size="lg" color="SECONDARY"><GraduationCap /></Icon>
-              <Text mt="md" color="SECONDARY">No students found for this branch.</Text>
+              <Text color="SECONDARY">No students found for this branch.</Text>
             </Box>
           ) : (
             <Box display="flex" flexDirection="column" gap="md">
@@ -406,6 +450,54 @@ export const BranchDetailPage = () => {
                   </Button>
                   <Button type="submit" isLoading={isCreatingClass}>
                     Create Class
+                  </Button>
+                </Box>
+              </Box>
+            </form>
+          </Card>
+        </Box>
+      )}
+
+      {/* Simple Modal for Create Student */}
+      {isCreateStudentModalOpen && (
+        <Box 
+          position="fixed" top="0" left="0" right="0" bottom="0" 
+          bg="rgba(0,0,0,0.5)" 
+          display="flex" alignItems="center" justifyContent="center" 
+          zIndex={1000}
+        >
+          <Card sx={{ width: '100%', maxWidth: '500px', margin: SPACING.md }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb="lg">
+              <Text variant="heading-md" weight="bold">Add New Student</Text>
+              <Button variant="ghost" size="sm" onClick={() => setIsCreateStudentModalOpen(false)}>
+                <Icon><X /></Icon>
+              </Button>
+            </Box>
+            
+            <form onSubmit={handleCreateStudent}>
+              <Box display="flex" flexDirection="column" gap="md">
+                <Input 
+                  label="Full Name" 
+                  placeholder="e.g. Nguyen Van A"
+                  value={newStudentName}
+                  onChange={(e) => setNewStudentName(e.target.value)}
+                  required
+                />
+                <Input 
+                  label="Email" 
+                  type="email"
+                  placeholder="e.g. student@example.com"
+                  value={newStudentEmail}
+                  onChange={(e) => setNewStudentEmail(e.target.value)}
+                  required
+                />
+                
+                <Box display="flex" justifyContent="flex-end" gap="sm" mt="md">
+                  <Button variant="ghost" onClick={() => setIsCreateStudentModalOpen(false)} type="button">
+                    Cancel
+                  </Button>
+                  <Button type="submit" isLoading={isCreatingStudent}>
+                    Add Student
                   </Button>
                 </Box>
               </Box>

@@ -12,16 +12,17 @@ export class MockClassDataSource implements IClassDataSource {
   }
 
   private initialize() {
-    if (classStore.size > 0) return;
+    // Reset store để đảm bảo dữ liệu luôn đồng bộ khi code thay đổi (HMR)
+    classStore.clear();
 
     console.log('[MockClassDataSource] Seeding initial class data...');
     
     const classes = [
-      // Classes for Branch 1 (Center A)
+      // --- Classes for Branch 01 (Hà Nội) ---
       {
-        id: 'mock-class-1',
-        branchId: 'mock-branch-1',
-        name: 'English for Kids (K1)',
+        id: 'class-01',
+        branchId: 'branch-01',
+        name: 'Tiếng Anh Giao Tiếp (K12)',
         code: 'ENG-K1-001',
         status: ClassStatus.ACTIVE,
         maxStudents: 20,
@@ -29,20 +30,31 @@ export class MockClassDataSource implements IClassDataSource {
         startDate: new Date('2023-09-01'),
       },
       {
-        id: 'mock-class-2',
-        branchId: 'mock-branch-1',
-        name: 'IELTS Prep (I1)',
+        id: 'class-02',
+        branchId: 'branch-01',
+        name: 'Luyện thi IELTS Intensive',
         code: 'IELTS-001',
-        status: ClassStatus.PLANNED,
+        status: ClassStatus.ACTIVE,
         maxStudents: 15,
-        currentStudents: 5,
+        currentStudents: 10,
         startDate: new Date('2023-11-01'),
       },
-      // Classes for Branch 2 (Center B)
       {
-        id: 'mock-class-3',
-        branchId: 'mock-branch-2',
-        name: 'TOEIC Basic',
+        id: 'class-05', // Lớp thứ 3 tại HN
+        branchId: 'branch-01',
+        name: 'Tiếng Anh Thiếu Nhi (Starters)',
+        code: 'KID-ST-01',
+        status: ClassStatus.ACTIVE,
+        maxStudents: 20,
+        currentStudents: 18,
+        startDate: new Date('2023-10-05'),
+      },
+      
+      // --- Classes for Branch 02 (HCM) ---
+      {
+        id: 'class-03',
+        branchId: 'branch-02',
+        name: 'TOEIC Căn Bản',
         code: 'TOEIC-B-01',
         status: ClassStatus.ACTIVE,
         maxStudents: 30,
@@ -50,9 +62,9 @@ export class MockClassDataSource implements IClassDataSource {
         startDate: new Date('2023-08-15'),
       },
       {
-        id: 'mock-class-4',
-        branchId: 'mock-branch-2',
-        name: 'Communication Skill',
+        id: 'class-04',
+        branchId: 'branch-02',
+        name: 'Kỹ Năng Giao Tiếp Nâng Cao',
         code: 'COM-002',
         status: ClassStatus.COMPLETED,
         maxStudents: 20,
@@ -81,10 +93,26 @@ export class MockClassDataSource implements IClassDataSource {
 
   async getByBranchId(branchId: string): Promise<Class[]> {
     await new Promise(resolve => setTimeout(resolve, 400)); // Simulate network delay
-    return Array.from(classStore.values()).filter(c => c.branchId.toString() === branchId);
+    const all = Array.from(classStore.values());
+    if (!branchId) return all; // Trả về tất cả nếu không lọc theo chi nhánh
+    return all.filter(c => c.branchId.toString() === branchId);
   }
 
   async save(classEntity: Class): Promise<void> {
     classStore.set(classEntity.id.toString(), classEntity);
+  }
+
+  async getById(id: string): Promise<Class | null> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return classStore.get(id) || null;
+  }
+
+  async update(classEntity: Class): Promise<void> {
+    await this.save(classEntity);
+  }
+
+  async delete(id: string): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    classStore.delete(id);
   }
 }

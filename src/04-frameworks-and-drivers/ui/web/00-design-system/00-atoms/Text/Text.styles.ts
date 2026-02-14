@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, FONT_SIZES, FONT_WEIGHTS } from '../00-core/tokens-constants';
+import { COLORS, FONT_SIZES, FONT_WEIGHTS, SPACING } from '../00-core/tokens-constants';
 import type { TextProps, TextVariant } from './Text.types';
 
 const variantStyles: Record<TextVariant, ReturnType<typeof css>> = {
@@ -57,12 +57,17 @@ export const getTextStyles = ({
   align = 'left',
   truncate = false,
   lineHeight,
+  mb,
 }: Partial<TextProps<'p'>>) => { // Use a default element for styling props
   // Xử lý màu: Nếu là key trong COLORS thì lấy giá trị, không thì dùng nguyên chuỗi (hex/rgb)
   const colorValue = color && color in COLORS ? COLORS[color as keyof typeof COLORS] : color;
 
+  // Xử lý margin-bottom: Nếu là key trong SPACING thì lấy giá trị
+  const marginBottom = mb && mb in SPACING ? SPACING[mb as keyof typeof SPACING] : mb;
+
   return css`
     margin: 0;
+    margin-bottom: ${marginBottom};
     font-family: inherit;
     color: ${colorValue};
     text-align: ${align};
