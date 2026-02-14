@@ -6,6 +6,8 @@ import { type ListAttendanceByClassInput } from '@/02-usecases/attendance/ports/
 import { type ListAttendanceByClassOutput } from '@/02-usecases/attendance/ports/output/ListAttendanceByClass.output';
 import { type MarkAttendanceInput } from '@/02-usecases/attendance/ports/input/MarkAttendance.input';
 import { type MarkAttendanceOutput } from '@/02-usecases/attendance/ports/output/MarkAttendance.output';
+import { type MarkBatchAttendanceInput } from '@/02-usecases/attendance/ports/input/MarkBatchAttendance.input';
+import { type MarkBatchAttendanceOutput } from '@/02-usecases/attendance/ports/output/MarkBatchAttendance.output';
 
 export class AttendanceController {
   private readonly listAttendanceInteractor: ListAttendanceByClassInteractor;
@@ -28,5 +30,9 @@ export class AttendanceController {
 
   async markAttendance(input: MarkAttendanceInput): Promise<Result<MarkAttendanceOutput>> {
     return this.markAttendanceInteractor.execute(input);
+  }
+
+  async markBatchAttendance(input: MarkBatchAttendanceInput): Promise<Result<MarkBatchAttendanceOutput>> {
+    return this.markBatchAttendanceInteractor.execute(input);
   }
 }

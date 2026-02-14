@@ -5,15 +5,6 @@ import { ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 import { type IClassDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/class/IClassDataSource';
 import { type ClassSession, DAY_MAP } from '@/01-entities/classes/ClassSession';
 
-// Helper: Chuyển đổi cấu trúc dữ liệu sang chuỗi hiển thị (View Model)
-const formatSchedule = (sessions: ClassSession[]): string => {
-  if (!sessions || sessions.length === 0) return 'Chưa có lịch';
-  // Logic đơn giản: Gom nhóm các ngày có cùng giờ học (MVP)
-  const days = sessions.map(s => DAY_MAP[s.day]).join('-');
-  const time = `${sessions[0].startTime}-${sessions[0].endTime}`;
-  return `${days} (${time})`;
-};
-
 let classStore = new Map<string, Class>();
 const STORAGE_KEY = 'mock_classes_db_v7';
 
@@ -137,13 +128,10 @@ export class MockClassDataSource implements IClassDataSource {
           maxStudents: data.maxStudents,
           currentStudents: data.currentStudents,
           startDate: data.startDate,
-          endDate: data.endDate
+          endDate: data.endDate,
+          sessions: data.sessions, // Pass directly to create
+          teacherName: data.teacherName
         }).getValue();
-
-        // Attach extra props to entity (simulating extended entity)
-        (classEntity as any).sessions = data.sessions;
-        (classEntity as any).schedule = formatSchedule(data.sessions); // Computed property for UI
-        (classEntity as any).teacherName = data.teacherName;
 
         classStore.set(classEntity.id.toString(), classEntity);
       });
@@ -165,7 +153,7 @@ export class MockClassDataSource implements IClassDataSource {
         startDate: c.startDate,
         endDate: c.endDate,
         sessions: (c as any).sessions, // Persist structured data
-        teacherName: (c as any).teacherName
+        teacherName: c.teacherName
       }));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
     } catch (e) {
@@ -183,11 +171,11 @@ export class MockClassDataSource implements IClassDataSource {
       maxStudents: data.maxStudents,
       currentStudents: data.currentStudents,
       startDate: new Date(data.startDate),
-      endDate: data.endDate ? new Date(data.endDate) : undefined
+      endDate: data.endDate ? new Date(data.endDate) : undefined,
+      sessions: data.sessions || [],
+      teacherName: data.teacherName
     }).getValue();
 
-    (cls as any).sessions = data.sessions;
-    (cls as any).teacherName = data.teacherName;
     return cls;
   }
 

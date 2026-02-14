@@ -15,17 +15,16 @@ export class MarkBatchAttendanceInteractor {
     try {
       let count = 0;
 
-      // Xử lý tuần tự (hoặc song song tùy DB support)
-      for (const studentId of input.studentIds) {
-        // 1. Kiểm tra xem đã có chưa để tránh duplicate
-        const existing = await this.attendanceRepo.getByStudentAndDate(
-          studentId,
-          input.classId,
-          input.date
-        );
+      // 1. Tối ưu: Lấy tất cả điểm danh hiện có của lớp trong ngày này (1 Query thay vì N Query)
+      const existingAttendances = await this.attendanceRepo.getByClassAndDate(input.classId, input.date);
+      
+      // Tạo Set các studentId đã có điểm danh để tra cứu nhanh O(1)
+      const existingStudentIds = new Set(existingAttendances.map(a => a.studentId));
 
-        if (!existing) {
-          // 2. Tạo mới
+      for (const studentId of input.studentIds) {
+        // 2. Chỉ tạo mới nếu chưa tồn tại (Logic hiện tại: Không ghi đè)
+        // Nếu muốn ghi đè (Update), cần sửa logic ở đây để lấy entity từ existingAttendances và update
+        if (!existingStudentIds.has(studentId)) {
           const attendance = Attendance.create({
             courseId: input.classId,
             studentId: studentId,
