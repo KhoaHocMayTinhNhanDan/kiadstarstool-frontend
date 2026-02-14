@@ -6,8 +6,6 @@ import { type ListAttendanceByClassInput } from '@/02-usecases/attendance/ports/
 import { type ListAttendanceByClassOutput } from '@/02-usecases/attendance/ports/output/ListAttendanceByClass.output';
 import { type MarkAttendanceInput } from '@/02-usecases/attendance/ports/input/MarkAttendance.input';
 import { type MarkAttendanceOutput } from '@/02-usecases/attendance/ports/output/MarkAttendance.output';
-import { type MarkBatchAttendanceInput } from '@/02-usecases/attendance/ports/input/MarkBatchAttendance.input';
-import { type MarkBatchAttendanceOutput } from '@/02-usecases/attendance/ports/output/MarkBatchAttendance.output';
 
 export class AttendanceController {
   private readonly listAttendanceInteractor: ListAttendanceByClassInteractor;
@@ -15,7 +13,7 @@ export class AttendanceController {
   private readonly markBatchAttendanceInteractor: MarkBatchAttendanceInteractor;
 
   constructor(
-    listAttendanceInteractor: ListAttendanceByClassInteractor, 
+    listAttendanceInteractor: ListAttendanceByClassInteractor,
     markAttendanceInteractor: MarkAttendanceInteractor,
     markBatchAttendanceInteractor: MarkBatchAttendanceInteractor
   ) {
@@ -23,22 +21,12 @@ export class AttendanceController {
     this.markAttendanceInteractor = markAttendanceInteractor;
     this.markBatchAttendanceInteractor = markBatchAttendanceInteractor;
   }
-  async listByClass(input: ListAttendanceByClassInput): Promise<Result<ListAttendanceByClassOutput>> {
-    // Validate input basic
-    if (!input.classId) return Result.fail('Class ID is required');
-    
+
+  async listAttendanceByClass(input: ListAttendanceByClassInput): Promise<Result<ListAttendanceByClassOutput>> {
     return this.listAttendanceInteractor.execute(input);
   }
 
   async markAttendance(input: MarkAttendanceInput): Promise<Result<MarkAttendanceOutput>> {
-    if (!input.classId || !input.studentId) return Result.fail('Class ID and Student ID are required');
-    
     return this.markAttendanceInteractor.execute(input);
-  }
-
-  async markBatch(input: MarkBatchAttendanceInput): Promise<Result<MarkBatchAttendanceOutput>> {
-    if (!input.classId || input.studentIds.length === 0) return Result.fail('Invalid input');
-    
-    return this.markBatchAttendanceInteractor.execute(input);
   }
 }

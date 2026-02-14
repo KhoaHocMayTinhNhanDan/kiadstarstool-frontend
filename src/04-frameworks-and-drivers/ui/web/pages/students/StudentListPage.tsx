@@ -5,6 +5,7 @@ import { Plus, Filter, Search, Mail, Phone, MoreHorizontal } from 'lucide-react'
 import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SPACING, RADIUS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
 import { AppContext } from '@/00-core/app-context';
+import { Pagination } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/navigation/Pagination';
 
 export const StudentListPage = () => {
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ export const StudentListPage = () => {
   const [selectedBranchId, setSelectedBranchId] = useState<string>('');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
 
   // Fetch Data
   useEffect(() => {
@@ -46,6 +49,16 @@ export const StudentListPage = () => {
   const filteredStudents = students.filter(s => 
     s.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
     s.email.toLowerCase().includes(searchKeyword.toLowerCase())
+  );
+
+  // Reset về trang 1 khi thay đổi bộ lọc
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchKeyword, selectedBranchId]);
+
+  const paginatedStudents = filteredStudents.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
   );
 
   return (
@@ -126,7 +139,7 @@ export const StudentListPage = () => {
             ) : filteredStudents.length === 0 ? (
               <tr><td colSpan={5} style={{ padding: SPACING.xl, textAlign: 'center' }}><Text color="SECONDARY">Không tìm thấy học viên nào.</Text></td></tr>
             ) : (
-              filteredStudents.map(student => (
+              paginatedStudents.map(student => (
                 <tr key={student.id} style={{ borderBottom: `1px solid ${COLORS.NEUTRAL_BORDER}`, cursor: 'pointer' }} onClick={() => navigate(`/students/${student.id}`)}>
                   <td style={{ padding: SPACING.md }}>
                     <Text weight="medium">{student.name}</Text>
@@ -147,6 +160,17 @@ export const StudentListPage = () => {
           </tbody>
         </table>
       </Box>
+
+      {/* Pagination */}
+      {!isLoading && filteredStudents.length > ITEMS_PER_PAGE && (
+        <Box display="flex" justifyContent="center" mt="md">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(filteredStudents.length / ITEMS_PER_PAGE)}
+            onPageChange={setCurrentPage}
+          />
+        </Box>
+      )}
     </Box>
   );
 };

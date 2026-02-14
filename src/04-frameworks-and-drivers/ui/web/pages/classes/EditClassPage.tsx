@@ -9,6 +9,7 @@ import { AppContext } from '@/00-core/app-context';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { useToast } from '@/04-frameworks-and-drivers/ui/web/app/hooks/user/useToast';
 import { ConfirmDialog } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/modals/ConfirmDialog';
+import { type DayOfWeek, DAY_MAP, type ClassSession } from '@/01-entities/classes/ClassSession';
 
 export const EditClassPage = () => {
   const { classId } = useParams<{ classId: string }>();
@@ -27,11 +28,13 @@ export const EditClassPage = () => {
     id: '',
     name: '',
     branchId: '',
-    schedule: '',
-    teacherName: '',
     maxStudents: 20,
     status: 'active'
   });
+
+  // Schedule State
+  const [sessions, setSessions] = useState<{ id: string; day: DayOfWeek; startTime: string; endTime: string }[]>([]);
+  const [teacherName, setTeacherName] = useState('');
 
   // 1. Load Data
   useEffect(() => {
@@ -56,11 +59,18 @@ export const EditClassPage = () => {
             id: data.id,
             name: data.name,
             branchId: data.branchId,
-            schedule: data.schedule || '',
-            teacherName: data.teacherName || '',
             maxStudents: data.maxStudents,
             status: data.status
           });
+          setTeacherName(data.teacherName || '');
+
+          // Populate sessions from structured data
+          if (data.sessions && Array.isArray(data.sessions)) {
+            setSessions(data.sessions.map((s: ClassSession) => ({
+              ...s,
+              id: Math.random().toString() // Add a temporary unique ID for UI keys
+            })));
+          }
         } else {
           toast.error(t('classes.not_found'));
           navigate('/classes');
@@ -79,16 +89,36 @@ export const EditClassPage = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const addSession = () => {
+    setSessions(prev => [...prev, { id: Date.now().toString(), day: 'Mon', startTime: '', endTime: '' }]);
+  };
+
+  const removeSession = (id: string) => {
+    setSessions(prev => prev.filter(s => s.id !== id));
+  };
+
+  const handleSessionChange = (id: string, field: 'day' | 'startTime' | 'endTime', value: string) => {
+    setSessions(prev =>
+      prev.map(s => (s.id === id ? { ...s, [field]: value } : s))
+    );
+  };
+
   const handleSubmit = async () => {
     if (!formData.name || !formData.branchId) {
       toast.error('Vui lòng nhập tên lớp và chọn chi nhánh.');
+      return;
+    }
+    
+    const finalSessions = sessions.map(({ id, ...rest }) => rest);
+    if (finalSessions.some(s => !s.day || !s.startTime || !s.endTime)) {
+      toast.error('Vui lòng điền đầy đủ thông tin cho tất cả các buổi học.');
       return;
     }
 
     setIsLoading(true);
     try {
       const controller = AppContext.getClassesController();
-      const result = await controller.updateClass(formData);
+      const result = await controller.updateClass({ ...formData, sessions: finalSessions, teacherName });
 
       if (result.isSuccess) {
         toast.success('Cập nhật lớp học thành công!');
@@ -176,6 +206,66 @@ export const EditClassPage = () => {
             value={formData.name}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('name', e.target.value)}
           />
+        </Box>
+
+        {/* Schedule & Teacher */}
+        <Box>
+          <Text weight="semibold" mb="xs">{t('classes.schedule_label')} <Text as="span" color="DANGER">*</Text></Text>
+          <Box p="md" border={`1px solid ${COLORS.NEUTRAL_BORDER}`} borderRadius="md" display="flex" flexDirection="column" gap="md">
+            {sessions.map((session) => (
+              <Box key={session.id} display="flex" gap="md" alignItems="center">
+                <select
+                  value={session.day}
+                  onChange={(e) => handleSessionChange(session.id, 'day', e.target.value)}
+                  style={{ padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
+                >
+                  {(Object.keys(DAY_MAP) as DayOfWeek[]).map(dayKey => (
+                    <option key={dayKey} value={dayKey}>{DAY_MAP[dayKey]}</option>
+                  ))}
+                </select>
+                <Input 
+                  type="time" 
+                  value={session.startTime}
+                  onChange={(e) => handleSessionChange(session.id, 'startTime', e.target.value)}
+                  style={{ padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
+                />
+                <Text>-</Text>
+                <Input 
+                  type="time" 
+                  value={session.endTime}
+                  onChange={(e) => handleSessionChange(session.id, 'endTime', e.target.value)}
+                  style={{ padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
+                />
+                {sessions.length > 1 && (
+                  <Button variant="ghost" intent="danger" size="sm" onClick={() => removeSession(session.id)} type="button">
+                    <Icon><X size={16} /></Icon>
+                  </Button>
+                )}
+              </Box>
+            ))}
+            <Button variant="outline" size="sm" onClick={addSession} type="button" sx={{ alignSelf: 'flex-start' }}>
+              Thêm buổi học
+            </Button>
+          </Box>
+        </Box>
+
+        <Box display="grid" gridTemplateColumns="1fr 1fr" gap="lg">
+          <Box>
+            <Text weight="semibold" mb="xs">{t('classes.teacher_label')}</Text>
+            <Input 
+              placeholder={t('classes.teacher_placeholder')} 
+              value={teacherName}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTeacherName(e.target.value)}
+            />
+          </Box>
+          <Box>
+            <Text weight="semibold" mb="xs">{t('classes.max_students_label')}</Text>
+            <Input 
+              type="number"
+              value={formData.maxStudents}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('maxStudents', Number(e.target.value))}
+            />
+          </Box>
         </Box>
 
         {/* ... (Các phần khác của form) ... */}

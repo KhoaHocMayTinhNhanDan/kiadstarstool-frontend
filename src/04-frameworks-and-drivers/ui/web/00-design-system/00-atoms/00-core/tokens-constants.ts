@@ -5,6 +5,8 @@
  * Định nghĩa các giá trị cơ bản cho hệ thống UI (Spacing, Colors, Typography...)
  * ========================================================================== */
 
+import { Modal } from "../../01-molecules";
+
 export const SPACING = {
   none: '0px',
   xxs: '2px',
@@ -195,6 +197,7 @@ export const Z_INDEX = {
   modal: 1400,
   toast: 1700,
   tooltip: 1800,
+  
 } as const;
 
 // Animation constants

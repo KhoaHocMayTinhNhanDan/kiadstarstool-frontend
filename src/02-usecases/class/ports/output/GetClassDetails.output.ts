@@ -1,11 +1,15 @@
+import { type ClassSession } from '@/01-entities/classes/ClassSession';
+
 export interface GetClassDetailsOutput {
   id: string;
   name: string;
-  branchId: string;
   code: string;
-  schedule?: string;
-  teacherName?: string;
+  branchId: string;
+  status: string;
   maxStudents: number;
   currentStudents: number;
-  status: string;
+  startDate: Date;
+  schedule: string; // Chuỗi hiển thị
+  sessions: ClassSession[]; // Dữ liệu cấu trúc
+  teacherName?: string;
 }

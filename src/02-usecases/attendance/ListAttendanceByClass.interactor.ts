@@ -51,8 +51,8 @@ export class ListAttendanceByClassInteractor {
             studentId: att.studentId,
             studentName: student.name,
             status: att.attendanceStatus,
-            checkInTime: (att.time as any).checkIn,
-            checkOutTime: (att.time as any).checkOut,
+            checkInTime: (att.time as any).checkInTime,
+            checkOutTime: (att.time as any).checkOutTime,
             score: att.getScore(),
             notes: att.metadata.absentReason
           };

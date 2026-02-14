@@ -12,6 +12,7 @@ import { ArrowLeft, MapPin, Users, Clock, Edit, Trash2, Calendar, BookOpen, Grad
 import { SPACING } from '../../00-design-system/00-atoms/00-core/tokens-constants';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { useBranch } from '../../app/hooks/branch/useBranch';
+import { Pagination } from '../../00-design-system/02-organisms/navigation/Pagination';
 
 export const BranchDetailPage = () => {
   const { branchId } = useParams<{ branchId: string }>();
@@ -26,6 +27,8 @@ export const BranchDetailPage = () => {
   const [students, setStudents] = useState<StudentListItem[]>([]);
   const [isLoadingStudents, setIsLoadingStudents] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'classes' | 'students'>('overview');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
   
   // State for Create Class Modal
   const [isCreateClassModalOpen, setIsCreateClassModalOpen] = useState(false);
@@ -71,7 +74,7 @@ export const BranchDetailPage = () => {
     setIsLoadingClasses(true);
     try {
       const controller = AppContext.getClassesController();
-      const result = await controller.listClassesByBranch({ branchId });
+      const result = await controller.listClassesByBranch(branchId);
       if (result.isSuccess) {
         setClasses(result.getValue());
       }
@@ -89,6 +92,7 @@ export const BranchDetailPage = () => {
       const result = await controller.listStudentsByBranch({ branchId });
       if (result.isSuccess) {
         setStudents(result.getValue());
+        setCurrentPage(1); // Reset về trang 1 khi tải lại dữ liệu
       }
     } finally {
       setIsLoadingStudents(false);
@@ -380,25 +384,38 @@ export const BranchDetailPage = () => {
             </Box>
           ) : (
             <Box display="flex" flexDirection="column" gap="md">
-              {students.map(student => (
-                <Card key={student.id}>
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Box textAlign="left">
-                      <Text weight="bold" size="lg">{student.name}</Text>
-                      <Text color="SECONDARY" size="sm">{student.email}</Text>
-                      {student.phone && <Text color="SECONDARY" size="sm">{student.phone}</Text>}
-                    </Box>
-                    <Box textAlign="right">
-                      <Box px="sm" py="xxs" bg={student.status === 'active' ? 'SUCCESS_LIGHT' : 'NEUTRAL_LIGHT'} borderRadius="sm" display="inline-block" mb="xs">
-                        <Text size="xs" weight="bold" color={student.status === 'active' ? 'SUCCESS_DARK' : 'TEXT_SECONDARY'}>
-                          {student.status.toUpperCase()}
-                        </Text>
+              {students
+                .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                .map(student => (
+                  <Card key={student.id}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <Box textAlign="left">
+                        <Text weight="bold" size="lg">{student.name}</Text>
+                        <Text color="SECONDARY" size="sm">{student.email}</Text>
+                        {student.phone && <Text color="SECONDARY" size="sm">{student.phone}</Text>}
                       </Box>
-                      <Text size="sm" color="SECONDARY">Joined: {student.joinedDate.toLocaleDateString()}</Text>
+                      <Box textAlign="right">
+                        <Box px="sm" py="xxs" bg={student.status === 'active' ? 'SUCCESS_LIGHT' : 'NEUTRAL_LIGHT'} borderRadius="sm" display="inline-block" mb="xs">
+                          <Text size="xs" weight="bold" color={student.status === 'active' ? 'SUCCESS_DARK' : 'TEXT_SECONDARY'}>
+                            {student.status.toUpperCase()}
+                          </Text>
+                        </Box>
+                        <Text size="sm" color="SECONDARY">Joined: {student.joinedDate.toLocaleDateString()}</Text>
+                      </Box>
                     </Box>
-                  </Box>
-                </Card>
-              ))}
+                  </Card>
+                ))}
+              
+              {Math.ceil(students.length / ITEMS_PER_PAGE) > 1 && (
+                <Box mt="md" display="flex" justifyContent="center">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={Math.ceil(students.length / ITEMS_PER_PAGE)}
+                    onPageChange={setCurrentPage}
+                    siblingCount={1}
+                  />
+                </Box>
+              )}
             </Box>
           )}
         </Box>

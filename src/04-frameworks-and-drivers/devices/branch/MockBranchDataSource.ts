@@ -8,7 +8,7 @@ import { type IBranchDataSource } from '@/03-interface-adapters/gateways/outboun
 
 // Mock in-memory storage
 let branchStore = new Map<string, Branch>();
-const STORAGE_KEY = 'mock_branches_db';
+const STORAGE_KEY = 'mock_branches_db_v5';
 
 // Helper để lấy dữ liệu thô từ Value Object (xử lý trường hợp VO bọc trong 'props')
 const getVOProps = (vo: any) => (vo && vo.props) ? vo.props : vo;

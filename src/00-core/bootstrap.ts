@@ -180,7 +180,7 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
   // --- Interactors & Controllers (Now can be initialized in any order as repos are ready) ---
 
   // 1.4 Initialize Classes
-  const listClassesByBranchInteractor = new ListClassesByBranchInteractor(classRepository);
+  const listClassesByBranchInteractor = new ListClassesByBranchInteractor(classRepository, studentRepository);
   const createClassInteractor = new CreateClassInteractor(classRepository);
   const getClassDetailsInteractor = new GetClassDetailsInteractor(classRepository);
   const updateClassInfoInteractor = new UpdateClassInfoInteractor(classRepository);

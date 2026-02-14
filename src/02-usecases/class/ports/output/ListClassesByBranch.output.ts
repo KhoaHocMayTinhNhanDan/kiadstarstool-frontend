@@ -9,6 +9,8 @@ export interface ClassListItem {
   maxStudents: number;
   startDate?: Date;
   endDate?: Date;
+  schedule: string;
+  teacherName: string;
 }
 
 export type ListClassesByBranchOutput = ClassListItem[];

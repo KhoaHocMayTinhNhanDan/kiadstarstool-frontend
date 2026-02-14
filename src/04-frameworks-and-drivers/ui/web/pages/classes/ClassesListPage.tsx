@@ -62,22 +62,25 @@ export const ClassesListPage = () => {
         if (result.isSuccess) {
           const data = result.getValue();
           // Map Entity -> View Model
-          const mappedData = data.map((c: any) => ({
-            id: String(c.id),
-            name: c.name,
-            students: c.currentStudents || 0,
-            schedule: c.schedule || 'Chưa có lịch',
-            branchName: branches.find(b => String(b.id) === String(c.branchId))?.name || 'Unknown Branch',
-            teacherName: c.teacherName || 'Chưa phân công'
-          }));
+          const mappedData = data.map((c: any) => {
+            return {
+              id: c.id, // Interactor đã trả về string
+              name: c.name,
+              students: c.currentStudents || 0,
+              schedule: c.schedule || 'Chưa có lịch',
+              branchName: branches.find(b => b.id === c.branchId)?.name || 'Unknown Branch',
+              teacherName: c.teacherName || 'Chưa phân công'
+            };
+          });
           setClasses(mappedData);
         } else {
-           // Fallback mock data nếu API chưa trả về dữ liệu hoặc lỗi
-           setClasses(MOCK_CLASSES);
+           // Nếu lỗi, log ra console và set danh sách rỗng
+           console.error('Error fetching classes:', result.getErrorValue());
+           setClasses([]);
         }
       } catch (error) {
         console.error('Failed to fetch classes', error);
-        setClasses(MOCK_CLASSES);
+        setClasses([]);
       } finally {
         setIsLoading(false);
       }
@@ -211,7 +214,16 @@ const ClassCard = ({ data, onClick }: { data: ClassListItem, onClick: () => void
 
       <Box pt="sm" borderTop={`1px solid ${COLORS.NEUTRAL_BORDER}`} display="flex" justifyContent="space-between" alignItems="center">
         <Text size="sm" color="SECONDARY">GV: {data.teacherName || 'Chưa phân công'}</Text>
-        <Button size="sm" variant="ghost">Chi tiết</Button>
+        <Button 
+          size="sm" 
+          variant="ghost"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick();
+          }}
+        >
+          Chi tiết
+        </Button>
       </Box>
     </Box>
   );
@@ -223,10 +235,3 @@ const InfoRow = ({ icon, text }: { icon: React.ReactNode, text: string }) => (
     <Text size="sm" color="SECONDARY">{text}</Text>
   </Box>
 );
-
-// Mock Data for fallback
-const MOCK_CLASSES = [
-  { id: 'mock-class-1', name: 'Tiếng Anh Giao Tiếp K12', students: 12, schedule: 'T2-T4-T6 (18:00-19:30)', branchName: 'Cơ sở A', teacherName: 'Nguyễn Văn A' },
-  { id: 'mock-class-2', name: 'IELTS Intensive 6.5+', students: 8, schedule: 'T3-T5-T7 (19:30-21:00)', branchName: 'Cơ sở B', teacherName: 'Trần Thị B' },
-  { id: 'mock-class-3', name: 'Tiếng Anh Thiếu Nhi - Starters', students: 15, schedule: 'T7-CN (08:00-10:00)', branchName: 'Cơ sở A', teacherName: 'Lê Văn C' },
-];

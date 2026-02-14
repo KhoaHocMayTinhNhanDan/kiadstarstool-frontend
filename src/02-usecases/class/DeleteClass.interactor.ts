@@ -4,10 +4,13 @@ import { type IAttendanceRepository } from '@/02-usecases/attendance/ports/gatew
 import { type DeleteClassInput } from './ports/input/DeleteClass.input';
 
 export class DeleteClassInteractor {
-  constructor(
-    private readonly classRepo: IClassRepository,
-    private readonly attendanceRepo: IAttendanceRepository
-  ) {}
+  private readonly classRepo: IClassRepository;
+  private readonly attendanceRepo: IAttendanceRepository;
+
+  constructor(classRepo: IClassRepository, attendanceRepo: IAttendanceRepository) {
+    this.classRepo = classRepo;
+    this.attendanceRepo = attendanceRepo;
+  }
 
   async execute(input: DeleteClassInput): Promise<Result<void>> {
     const classEntity = await this.classRepo.getById(input.classId);

@@ -52,6 +52,7 @@ export const DashboardPage = () => {
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('year');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [ongoingClasses, setOngoingClasses] = useState<Array<{ id: string; name: string; students: number; time: string }>>([]);
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -110,6 +111,29 @@ export const DashboardPage = () => {
     fetchStats();
   }, [selectedBranchIds, timeRange]); // Chỉ gọi lại API khi filter thay đổi, không phụ thuộc vào 't' hay 'branches'
 
+  // Fetch Ongoing Classes (Lớp học đang diễn ra)
+  useEffect(() => {
+    const fetchOngoingClasses = async () => {
+      try {
+        const controller = AppContext.getClassesController();
+        const result = await controller.listClassesByBranch(''); // Lấy tất cả lớp
+        
+        if (result.isSuccess) {
+          const classes = result.getValue();
+          // Filter lớp đang active và map sang format của Dashboard
+          const mappedClasses = classes
+            .filter((c: any) => c.status === 'active')
+            .slice(0, 4) // Lấy 4 lớp đầu tiên
+            .map((c: any) => ({ id: c.id, name: c.name, students: c.currentStudents, time: c.schedule }));
+          setOngoingClasses(mappedClasses);
+        }
+      } catch (e) {
+        console.error("Failed to fetch ongoing classes", e);
+      }
+    };
+    fetchOngoingClasses();
+  }, []);
+
   // Tính toán dữ liệu hiển thị (Derived State) - Tự động cập nhật khi dashboardStats hoặc t thay đổi
   const stats: StatData[] = dashboardStats ? [
     {
@@ -161,12 +185,6 @@ export const DashboardPage = () => {
   };
 
   const welcomeMessage = user?.displayName ? t('common.welcome_back', { name: user.displayName }) : t('dashboard.title');
-
-  // Mock data cho lớp học đang diễn ra (Trong thực tế sẽ fetch từ API dựa trên giờ hiện tại)
-  const ongoingClasses = [
-    { id: 'mock-class-1', name: 'English for Kids (K1)', students: 15, time: '08:00 - 10:00' },
-    { id: 'mock-class-2', name: 'IELTS Prep (I1)', students: 5, time: '14:00 - 16:00' },
-  ];
 
   // Mock data cho PieChart (Tỷ lệ học viên theo chi nhánh)
   // Sử dụng useMemo để tránh random lại dữ liệu mỗi khi component re-render

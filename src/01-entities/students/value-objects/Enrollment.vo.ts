@@ -27,6 +27,10 @@ export class Enrollment extends ValueObject<EnrollmentProps> {
     return this.props.joinedDate;
   }
 
+  get endDate(): Date | undefined {
+    return this.props.endDate;
+  }
+
   private constructor(props: EnrollmentProps) {
     super(props);
   }
