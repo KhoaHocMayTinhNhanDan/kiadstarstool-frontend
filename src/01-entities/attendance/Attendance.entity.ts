@@ -5,10 +5,10 @@ import {
   type AttendanceStatus
 } from '../../shared/constants/classes.constant';
 
-import { AttendanceTime } from './value-objects/AttendanceTime.vo.ts';
-import { AttendanceScore } from './value-objects/AttendanceScore.vo.ts';
-import { AttendanceFlags } from './value-objects/AttendanceFlags.vo.ts';
-import { AttendanceMetadata } from './value-objects/AttendanceMetadata.vo.ts';
+import { AttendanceTime } from './value-objects/AttendanceTime.vo';
+import { AttendanceScore } from './value-objects/AttendanceScore.vo';
+import { AttendanceFlags } from './value-objects/AttendanceFlags.vo';
+import { AttendanceMetadata } from './value-objects/AttendanceMetadata.vo';
 import { Identifier } from '../shared/Identifier.vo';
 
 export interface AttendanceProps extends AuditedProps {

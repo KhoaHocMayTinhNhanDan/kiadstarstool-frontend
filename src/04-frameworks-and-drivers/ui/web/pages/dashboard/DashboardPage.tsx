@@ -1,6 +1,6 @@
 // src/04-frameworks-and-drivers/ui/web/pages/dashboard/DashboardPage.tsx
 /** @jsxImportSource @emotion/react */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
 import { 
@@ -14,15 +14,15 @@ import {
   Calendar,
   Clock
 } from 'lucide-react';
-import { Box, Text, Icon, Button } from '../../00-design-system/00-atoms';
-import { COLORS, SPACING, RADIUS, SHADOWS } from '../../00-design-system/00-atoms/00-core/tokens-constants';
-import { StatsCard, StatsCardSkeleton } from '../../00-design-system/02-organisms/cards/StatsCard';
+import { Box, Text, Icon, Button } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { COLORS, SPACING, RADIUS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
+import { StatsCard, StatsCardSkeleton } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/cards/StatsCard';
 import { useAuth } from '@/04-frameworks-and-drivers/ui/web/app/hooks/user/useAuth';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { AppContext } from '@/00-core/app-context';
 import { type ListBranchesOutput } from '@/02-usecases/branch/ports/output/ListBranches.output';
-import { BarChart } from '../../00-design-system/02-organisms/charts/BarChart';
-import { PieChart } from '../../00-design-system/02-organisms/charts/PieChart';
+import { BarChart } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/charts/BarChart';
+import { PieChart } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/charts/PieChart';
 
 // Định nghĩa kiểu dữ liệu cho một card thống kê để dễ quản lý
 type StatData = {
@@ -40,7 +40,12 @@ export const DashboardPage = () => {
   const { t } = useI18n();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [stats, setStats] = useState<StatData[]>([]);
+  const [dashboardStats, setDashboardStats] = useState<{
+    totalRevenue: number;
+    totalSubs: number;
+    totalSales: number;
+    totalActive: number;
+  } | null>(null);
   const [chartData, setChartData] = useState<Array<{ name: string; value: number }>>([]);
   const [branches, setBranches] = useState<ListBranchesOutput>([]);
   const [selectedBranchIds, setSelectedBranchIds] = useState<string[]>([]); // Empty array = All Branches
@@ -86,46 +91,12 @@ export const DashboardPage = () => {
         if (result.isSuccess) {
           const data = result.getValue();
           setChartData(data.chartData);
-
-          const calculatedStats: StatData[] = [
-            {
-              title: t('dashboard.total_revenue'),
-              value: `$${data.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-              icon: <DollarSign />,
-              accentColor: 'success' as const,
-              trend: { value: 20.1, label: t('dashboard.from_last_month') },
-            },
-            {
-              title: t('dashboard.subscriptions'),
-              value: `+${data.totalSubs.toLocaleString()}`,
-              icon: <Users />,
-              accentColor: 'primary' as const,
-              trend: { value: 180.1, label: t('dashboard.from_last_month') },
-            },
-            {
-              title: t('dashboard.sales'),
-              value: `+${data.totalSales.toLocaleString()}`,
-              icon: <ShoppingCart />,
-              accentColor: 'info' as const,
-              trend: { value: 19, label: t('dashboard.from_last_month') },
-            },
-            {
-              title: t('dashboard.active_now'),
-              value: `+${data.totalActive.toLocaleString()}`,
-              icon: <Activity />,
-              accentColor: 'warning' as const,
-              description: t('dashboard.users_on_platform'),
-            },
-            {
-              title: t('dashboard.branches'),
-              value: branches.length.toString(),
-              icon: <Building />,
-              accentColor: 'info' as const,
-              description: t('dashboard.manage_branches'),
-              onClick: () => navigate('/branches'),
-            }
-          ];
-          setStats(calculatedStats);
+          setDashboardStats({
+            totalRevenue: data.totalRevenue,
+            totalSubs: data.totalSubs,
+            totalSales: data.totalSales,
+            totalActive: data.totalActive
+          });
         } else {
           setError(result.getErrorValue() as string);
         }
@@ -137,7 +108,47 @@ export const DashboardPage = () => {
     };
 
     fetchStats();
-  }, [selectedBranchIds, timeRange, t, branches.length]); // Re-fetch khi filter thay đổi
+  }, [selectedBranchIds, timeRange]); // Chỉ gọi lại API khi filter thay đổi, không phụ thuộc vào 't' hay 'branches'
+
+  // Tính toán dữ liệu hiển thị (Derived State) - Tự động cập nhật khi dashboardStats hoặc t thay đổi
+  const stats: StatData[] = dashboardStats ? [
+    {
+      title: t('dashboard.total_revenue'),
+      value: `$${dashboardStats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      icon: <DollarSign />,
+      accentColor: 'success' as const,
+      trend: { value: 20.1, label: t('dashboard.from_last_month') },
+    },
+    {
+      title: t('dashboard.subscriptions'),
+      value: `+${dashboardStats.totalSubs.toLocaleString()}`,
+      icon: <Users />,
+      accentColor: 'primary' as const,
+      trend: { value: 180.1, label: t('dashboard.from_last_month') },
+    },
+    {
+      title: t('dashboard.sales'),
+      value: `+${dashboardStats.totalSales.toLocaleString()}`,
+      icon: <ShoppingCart />,
+      accentColor: 'info' as const,
+      trend: { value: 19, label: t('dashboard.from_last_month') },
+    },
+    {
+      title: t('dashboard.active_now'),
+      value: `+${dashboardStats.totalActive.toLocaleString()}`,
+      icon: <Activity />,
+      accentColor: 'warning' as const,
+      description: t('dashboard.users_on_platform'),
+    },
+    {
+      title: t('dashboard.branches'),
+      value: branches.length.toString(),
+      icon: <Building />,
+      accentColor: 'info' as const,
+      description: t('dashboard.manage_branches'),
+      onClick: () => navigate('/branches'),
+    }
+  ] : [];
 
   const toggleBranch = (branchId: string) => {
     setSelectedBranchIds(prev => {
@@ -158,10 +169,11 @@ export const DashboardPage = () => {
   ];
 
   // Mock data cho PieChart (Tỷ lệ học viên theo chi nhánh)
-  const studentDistributionData = branches.map((branch, index) => ({
+  // Sử dụng useMemo để tránh random lại dữ liệu mỗi khi component re-render
+  const studentDistributionData = useMemo(() => branches.map((branch) => ({
     name: branch.name,
     value: Math.floor(Math.random() * 50) + 10, // Random số lượng học viên
-  }));
+  })), [branches]);
 
   return (
     <Box display="flex" flexDirection="column" gap="xl">

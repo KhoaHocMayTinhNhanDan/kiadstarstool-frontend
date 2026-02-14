@@ -63,12 +63,12 @@ export const ClassesListPage = () => {
           const data = result.getValue();
           // Map Entity -> View Model
           const mappedData = data.map((c: any) => ({
-            id: c.id.toString(),
+            id: String(c.id),
             name: c.name,
             students: c.currentStudents || 0,
-            schedule: 'T2-T4-T6 (18:00-19:30)', // Mock schedule vì Entity chưa có
-            branchName: branches.find(b => b.id === c.branchId.toString())?.name || 'Unknown Branch',
-            teacherName: 'Nguyễn Văn A' // Mock teacher
+            schedule: c.schedule || 'Chưa có lịch',
+            branchName: branches.find(b => String(b.id) === String(c.branchId))?.name || 'Unknown Branch',
+            teacherName: c.teacherName || 'Chưa phân công'
           }));
           setClasses(mappedData);
         } else {

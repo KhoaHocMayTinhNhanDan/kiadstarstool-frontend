@@ -55,7 +55,9 @@ export class AttendanceTime {
 
   isEarlyLeave(): boolean {
     if (!this.checkOutTime) return false;
-    return this.minutesDiff(this.checkOutTime, this.endTime) > 0;
+    // Kiểm tra nếu checkOutTime nhỏ hơn endTime (về trước giờ)
+    // minutesDiff(endTime, checkOutTime) trả về (checkOutTime - endTime)
+    return this.minutesDiff(this.endTime, this.checkOutTime) < 0;
   }
 
   actualDurationMinutes(): number {
