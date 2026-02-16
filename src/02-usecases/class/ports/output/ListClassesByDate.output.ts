@@ -1,10 +1,13 @@
+// src/02-usecases/class/ports/output/ListClassesByDate.output.ts
 import { type ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 import { type ClassSession } from '@/01-entities/classes/ClassSession';
 
 /**
- * Item structure for ListClassesByBranch output
+ * ListClassesByDateOutput
+ * 
+ * Output data for the ListClassesByDate use case
  */
-export interface ListClassesByBranchOutputItem {
+export interface ListClassesByDateOutputItem {
   id: string;
   name: string;
   code: string;
@@ -17,7 +20,4 @@ export interface ListClassesByBranchOutputItem {
   sessions: ClassSession[];
 }
 
-/**
- * ListClassesByBranchOutput - Array of class DTOs
- */
-export type ListClassesByBranchOutput = ListClassesByBranchOutputItem[];
+export type ListClassesByDateOutput = ListClassesByDateOutputItem[];

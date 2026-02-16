@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Text, Button, Card, Icon, Input } from '../../00-design-system/00-atoms';
 import { AppContext } from '@/00-core/app-context';
 import { type GetBranchDetailsOutput, type DayOfWeek } from '@/02-usecases/branch/ports/output/GetBranchDetails.output';
-import { type ClassListItem } from '@/02-usecases/class/ports/output/ListClassesByBranch.output';
+import { type ListClassesByBranchOutput } from '@/02-usecases/class/ports/output/ListClassesByBranch.output';
 import { type StudentListItem } from '@/02-usecases/students/ports/output/ListStudentsByBranch.output';
 import { ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 import { useToast } from '../../app/hooks/user/useToast';
@@ -22,7 +22,7 @@ export const BranchDetailPage = () => {
   const { deleteBranch, isLoading: isDeleting } = useBranch();
   const [branch, setBranch] = useState<GetBranchDetailsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [classes, setClasses] = useState<ClassListItem[]>([]);
+  const [classes, setClasses] = useState<ListClassesByBranchOutput>([]);
   const [isLoadingClasses, setIsLoadingClasses] = useState(false);
   const [students, setStudents] = useState<StudentListItem[]>([]);
   const [isLoadingStudents, setIsLoadingStudents] = useState(false);

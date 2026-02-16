@@ -8,7 +8,7 @@ import { type IBranchDataSource } from '@/03-interface-adapters/gateways/outboun
 
 // Mock in-memory storage
 let branchStore = new Map<string, Branch>();
-const STORAGE_KEY = 'mock_branches_db_v5';
+const STORAGE_KEY = 'mock_branches_db_v7';
 
 // Helper để lấy dữ liệu thô từ Value Object (xử lý trường hợp VO bọc trong 'props')
 const getVOProps = (vo: any) => (vo && vo.props) ? vo.props : vo;
@@ -139,6 +139,23 @@ export class MockBranchDataSource implements IBranchDataSource {
     }).getValue();
   }
 
+  // Helper: Tính toán sĩ số thực tế từ MockStudentDataSource
+  private getRealStudentCount(branchId: string): number {
+    try {
+      const studentsJson = localStorage.getItem('mock_students_db_v6');
+      if (!studentsJson) return 0;
+      const students = JSON.parse(studentsJson);
+      
+      // Đếm học viên thuộc branchId này và status là active
+      return students.filter((s: any) => 
+        s.status === 'active' && 
+        s.enrollments.some((e: any) => e.branchId === branchId && e.status === 'active')
+      ).length;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   async save(branch: Branch): Promise<void> {
     console.log('[MockBranchDataSource] Saving branch:', branch);
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -150,6 +167,14 @@ export class MockBranchDataSource implements IBranchDataSource {
     console.log('[MockBranchDataSource] Finding branch by ID:', id);
     await new Promise(resolve => setTimeout(resolve, 300));
     const branch = branchStore.get(id);
+    
+    if (branch) {
+      // Cập nhật sĩ số thực tế (Mock logic: update trực tiếp vào entity trong memory)
+      const realCount = this.getRealStudentCount(id);
+      // Lưu ý: Branch entity cần method updateCapacity hoặc ta tạo lại Capacity VO
+      // Vì Mock nên ta có thể "cheat" một chút để UI đúng. Cần check isSuccess để tránh crash.
+      (branch as any)._capacity = BranchCapacity.create({ maxStudents: branch.capacity.maxStudents, currentStudents: realCount });
+    }
     return branch || null;
   }
 
@@ -163,7 +188,13 @@ export class MockBranchDataSource implements IBranchDataSource {
   async findAll(): Promise<Branch[]> {
     console.log('[MockBranchDataSource] Finding all branches');
     await new Promise(resolve => setTimeout(resolve, 300));
-    return Array.from(branchStore.values());
+    
+    const branches = Array.from(branchStore.values());
+    return branches.map(b => {
+      const realCount = this.getRealStudentCount(b.id.toString());
+      (b as any)._capacity = BranchCapacity.create({ maxStudents: b.capacity.maxStudents, currentStudents: realCount });
+      return b;
+    });
   }
 
   async exists(code: string): Promise<boolean> {

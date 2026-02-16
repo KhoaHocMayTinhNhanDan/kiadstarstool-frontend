@@ -110,11 +110,11 @@ export const StudentDetailPage = () => {
         >
           <InfoItem icon={<Mail />} label="Email" value={student.email} />
           <InfoItem icon={<Phone />} label="Điện thoại" value={student.phone || 'N/A'} />
-          <InfoItem icon={<MapPin />} label="Chi nhánh" value={student.branchName} />
+          <InfoItem icon={<MapPin />} label="Chi nhánh" value={student.branchName || 'Chưa phân lớp'} />
           <InfoItem 
             icon={<Calendar />} 
             label="Ngày tham gia" 
-            value={new Date(student.joinedDate).toLocaleDateString('vi-VN')} 
+            value={student.joinedDate ? new Date(student.joinedDate).toLocaleDateString('vi-VN') : 'N/A'} 
           />
         </Box>
       </Box>

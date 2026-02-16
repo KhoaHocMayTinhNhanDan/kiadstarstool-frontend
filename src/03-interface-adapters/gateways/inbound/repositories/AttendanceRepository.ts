@@ -9,6 +9,10 @@ export class AttendanceRepository implements IAttendanceRepository {
     this.dataSource = dataSource;
   }
 
+  async getByClassId(classId: string): Promise<Attendance[]> {
+    return this.dataSource.getByClassId(classId);
+  }
+
   async getByClassAndDate(classId: string, date: string): Promise<Attendance[]> {
     return this.dataSource.getByClassAndDate(classId, date);
   }

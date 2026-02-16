@@ -1,10 +1,9 @@
-import { type ClassSession } from '@/01-entities/classes/ClassSession';
+import { type ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 
 export interface CreateClassInput {
   branchId: string;
   name: string;
-  code?: string;
-  maxStudents: number;
-  sessions: ClassSession[];
-  teacherName?: string;
+  code: string;
+  maxStudents?: number;
+  status: ClassStatus;
 }

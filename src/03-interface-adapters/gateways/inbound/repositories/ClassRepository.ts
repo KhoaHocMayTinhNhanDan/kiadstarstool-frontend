@@ -15,15 +15,21 @@ export class ClassRepository implements IClassRepository {
     return this.dataSource.getById(id);
   }
 
+
+    async getAll(): Promise<Class[]> {
+    
+    return this.dataSource.getByBranchId(''); // Assuming getByBranchId with empty string returns all
+  }
+
   async getByBranchId(branchId: string): Promise<Class[]> {
     return this.dataSource.getByBranchId(branchId);
   }
 
-  async save(classEntity: Class): Promise<void> {
-    // DataSource mong đợi entity, và MockDataSource sẽ tự xử lý việc lưu trữ
-    // Tuy nhiên, nếu DataSource mong đợi DTO, ta cần map ngược lại ở đây.
-    // Với MockClassDataSource hiện tại, nó nhận vào Class entity.
-    return this.dataSource.save(classEntity);
+  async create(classEntity: Class): Promise<Class> {
+    // Gọi dataSource để lưu
+    await this.dataSource.save(classEntity);
+    // Trả về entity (giả định dataSource đã cập nhật ID vào object này nếu cần)
+    return classEntity;
   }
 
   async update(classEntity: Class): Promise<void> {

@@ -1,37 +1,52 @@
 import { Result } from '@/01-entities/shared/base/result';
 import { Class } from '@/01-entities/classes/Class.entity';
-import { ClassId } from '@/01-entities/classes/value-objects/ClassId.vo';
 import { BranchId } from '@/01-entities/branch/value-objects/BranchId.vo';
-import { ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 import { type IClassRepository } from './ports/gateways_interface/IClassRepository';
 import { type CreateClassInput } from './ports/input/CreateClass.input';
+import { type CreateClassOutput } from './ports/output/CreateClass.output';
 
 export class CreateClassInteractor {
   private readonly classRepo: IClassRepository;
+
   constructor(classRepo: IClassRepository) {
     this.classRepo = classRepo;
   }
-  async execute(input: CreateClassInput): Promise<Result<void>> {
-    // Generate ID & Code if not provided
-    const id = new Date().getTime().toString(); // Simple ID gen
-    const code = input.code || `CLS-${id.slice(-4)}`;
 
-    const classOrError = Class.create({
-      id: ClassId.create(id),
-      branchId: BranchId.create(input.branchId),
-      name: input.name,
-      code: code,
-      status: ClassStatus.PLANNED,
-      maxStudents: input.maxStudents,
-      currentStudents: 0,
-      startDate: new Date(),
-      sessions: input.sessions || [],
-      teacherName: input.teacherName
-    });
+  async execute(input: CreateClassInput): Promise<Result<CreateClassOutput>> {
+    try {
+      // Validation cơ bản
+      if (!input.branchId || !input.name || !input.code) {
+        return Result.fail('Branch ID, Name, and Code are required.');
+      }
 
-    if (classOrError.isFailure) return Result.fail(classOrError.getErrorValue());
+      // 1. Tạo Value Object cho BranchId
+      const branchIdVO = BranchId.create(input.branchId);
 
-    await this.classRepo.save(classOrError.getValue());
-    return Result.ok();
+      // 2. Sử dụng Factory Method của Entity để tạo Class hợp lệ
+      const classOrError = Class.create({
+        branchId: branchIdVO,
+        name: input.name,
+        code: input.code,
+        maxStudents: input.maxStudents || 20,
+        status: input.status,
+        currentStudents: 0,
+        sessions: [],
+        startDate: new Date() // Mặc định ngày bắt đầu là hôm nay (hoặc thêm vào Input nếu cần)
+      });
+
+      if (classOrError.isFailure) {
+        return Result.fail<CreateClassOutput>(classOrError.getErrorValue() as string);
+      }
+
+      const classEntity = classOrError.getValue();
+
+      // 3. Lưu Entity vào Repository
+      const createdClass = await this.classRepo.create(classEntity);
+
+      return Result.ok({ id: createdClass.id.toString() });
+    } catch (error: any) {
+      console.error('Error in CreateClassInteractor:', error);
+      return Result.fail(`Failed to create class: ${error.message}`);
+    }
   }
 }

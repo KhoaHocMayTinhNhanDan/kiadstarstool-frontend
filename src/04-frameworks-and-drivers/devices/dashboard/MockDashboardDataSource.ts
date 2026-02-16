@@ -92,7 +92,7 @@ export class MockDashboardDataSource implements IDashboardDataSource {
     // Đọc dữ liệu từ cùng key mà MockStudentDataSource đang sử dụng
     let totalActive = 0;
     try {
-      const STUDENT_STORAGE_KEY = 'mock_students_db_v5';
+      const STUDENT_STORAGE_KEY = 'mock_students_db_v6';
       const storedStudents = localStorage.getItem(STUDENT_STORAGE_KEY);
       
       if (storedStudents) {

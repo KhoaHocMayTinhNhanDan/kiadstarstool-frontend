@@ -1,3 +1,4 @@
+import { type ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 import { type ClassSession } from '@/01-entities/classes/ClassSession';
 
 export interface GetClassDetailsOutput {
@@ -5,11 +6,9 @@ export interface GetClassDetailsOutput {
   name: string;
   code: string;
   branchId: string;
-  status: string;
   maxStudents: number;
   currentStudents: number;
-  startDate: Date;
-  schedule: string; // Chuỗi hiển thị
-  sessions: ClassSession[]; // Dữ liệu cấu trúc
-  teacherName?: string;
+  status: ClassStatus;
+  schedule: string;
+  sessions: ClassSession[];
 }

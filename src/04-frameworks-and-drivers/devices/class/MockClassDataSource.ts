@@ -3,7 +3,7 @@ import { ClassId } from '@/01-entities/classes/value-objects/ClassId.vo';
 import { BranchId } from '@/01-entities/branch/value-objects/BranchId.vo';
 import { ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 import { type IClassDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/class/IClassDataSource';
-import { type ClassSession, DAY_MAP } from '@/01-entities/classes/ClassSession';
+import { type ClassSession } from '@/01-entities/classes/ClassSession';
 
 let classStore = new Map<string, Class>();
 const STORAGE_KEY = 'mock_classes_db_v9';
@@ -152,7 +152,7 @@ export class MockClassDataSource implements IClassDataSource {
         currentStudents: c.currentStudents,
         startDate: c.startDate,
         endDate: c.endDate,
-        sessions: (c as any).sessions, // Persist structured data
+        sessions: c.sessions, // Getter is public, no need for 'as any'
         teacherName: c.teacherName
       }));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
@@ -162,7 +162,7 @@ export class MockClassDataSource implements IClassDataSource {
   }
 
   private hydrateClass(data: any): Class {
-    const cls = Class.create({
+    const result = Class.create({
       id: ClassId.create(data.id),
       branchId: BranchId.create(data.branchId),
       name: data.name,
@@ -174,18 +174,46 @@ export class MockClassDataSource implements IClassDataSource {
       endDate: data.endDate ? new Date(data.endDate) : undefined,
       sessions: data.sessions || [],
       teacherName: data.teacherName
-    }).getValue();
+    });
 
-    return cls;
+    if (result.isFailure) {
+      throw new Error(`Failed to hydrate class ${data.id}: ${result.getErrorValue()}`);
+    }
+
+    return result.getValue();
+  }
+
+  // Helper: Tính toán sĩ số thực tế từ MockStudentDataSource
+  private getRealStudentCount(classId: string): number {
+    try {
+      const studentsJson = localStorage.getItem('mock_students_db_v6');
+      if (!studentsJson) return 0;
+      const students = JSON.parse(studentsJson);
+      
+      // Đếm học viên có enrollment vào classId này và status là active
+      return students.filter((s: any) => 
+        s.status === 'active' && 
+        s.enrollments.some((e: any) => e.classId === classId && e.status === 'active')
+      ).length;
+    } catch (e) {
+      return 0;
+    }
   }
 
   async getByBranchId(branchId: string): Promise<Class[]> {
     await new Promise(resolve => setTimeout(resolve, 400)); // Simulate network delay
     const all = Array.from(classStore.values());
-    if (!branchId) return all; // Trả về tất cả nếu không lọc theo chi nhánh
     
-    const filtered = all.filter(c => c.branchId.toString() === branchId);
-    console.log(`[MockClassDataSource] getByBranchId('${branchId}'): Found ${filtered.length} classes.`);
+    let filtered = branchId 
+      ? all.filter(c => c.branchId.toString() === branchId)
+      : all;
+
+    // Cập nhật sĩ số thực tế trước khi trả về
+    filtered = filtered.map(c => {
+      const realCount = this.getRealStudentCount(c.id.toString());
+      return c.updateInfo({ currentStudents: realCount }).isSuccess ? c : c;
+    });
+
     return filtered;
   }
 
@@ -196,9 +224,27 @@ export class MockClassDataSource implements IClassDataSource {
 
   async getById(id: string): Promise<Class | null> {
     await new Promise(resolve => setTimeout(resolve, 200));
-    return classStore.get(id) || null;
+    const cls = classStore.get(id);
+    if (!cls) return null;
+
+    // Cập nhật sĩ số thực tế
+    const realCount = this.getRealStudentCount(id);
+    cls.updateInfo({ currentStudents: realCount });
+    
+    return cls;
   }
 
+   
+   async getAll(): Promise<Class[]> {
+    await new Promise(resolve => setTimeout(resolve, 400));
+    const all = Array.from(classStore.values());
+    // Cập nhật sĩ số thực tế
+    return all.map(c => {
+      const realCount = this.getRealStudentCount(c.id.toString());
+      c.updateInfo({ currentStudents: realCount });
+      return c;
+    });
+  }
   async update(classEntity: Class): Promise<void> {
     await this.save(classEntity);
   }

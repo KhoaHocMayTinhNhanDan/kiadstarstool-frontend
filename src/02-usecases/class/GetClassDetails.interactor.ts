@@ -1,32 +1,42 @@
 import { Result } from '@/01-entities/shared/base/result';
 import { type IClassRepository } from './ports/gateways_interface/IClassRepository';
+import { type GetClassDetailsInput } from './ports/input/GetClassDetails.input';
 import { type GetClassDetailsOutput } from './ports/output/GetClassDetails.output';
 
 export class GetClassDetailsInteractor {
   private readonly classRepo: IClassRepository;
+
   constructor(classRepo: IClassRepository) {
     this.classRepo = classRepo;
   }
 
-  async execute(id: string): Promise<Result<GetClassDetailsOutput>> {
-    const classEntity = await this.classRepo.getById(id);
-    if (!classEntity) {
-      return Result.fail('Class not found');
-    }
+  async execute(input: GetClassDetailsInput): Promise<Result<GetClassDetailsOutput>> {
+    try {
+      if (!input.classId) {
+        return Result.fail('Class ID is required.');
+      }
 
-    return Result.ok({
-      id: classEntity.id.toString(),
-      name: classEntity.name,
-      code: classEntity.code,
-      branchId: classEntity.branchId.toString(),
-      status: classEntity.status,
-      maxStudents: classEntity.maxStudents,
-      currentStudents: classEntity.currentStudents,
-      startDate: classEntity.startDate,
-      // Sử dụng getter từ Entity
-      schedule: classEntity.schedule,
-      sessions: classEntity.sessions,
-      teacherName: classEntity.teacherName
-    });
+      const classItem = await this.classRepo.getById(input.classId);
+
+      if (!classItem) {
+        return Result.fail('Class not found.');
+      }
+
+      // Map Entity sang Output DTO
+      return Result.ok({
+        id: classItem.id.toString(),
+        name: classItem.name,
+        code: classItem.code,
+        branchId: classItem.branchId.toString(),
+        maxStudents: classItem.maxStudents,
+        currentStudents: classItem.currentStudents,
+        status: classItem.status,
+        schedule: classItem.schedule,
+        sessions: classItem.sessions
+      });
+    } catch (error: any) {
+      console.error('Error in GetClassDetailsInteractor:', error);
+      return Result.fail(`Failed to get class details: ${error.message}`);
+    }
   }
 }

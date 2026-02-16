@@ -33,6 +33,7 @@ import { ClassRepository } from '@/03-interface-adapters/gateways/inbound/reposi
 import { ListClassesByBranchInteractor } from '@/02-usecases/class/ListClassesByBranch.interactor';
 import { CreateClassInteractor } from '@/02-usecases/class/CreateClass.interactor';
 import { GetClassDetailsInteractor } from '@/02-usecases/class/GetClassDetails.interactor';
+import { ListClassesByDateInteractor } from '@/02-usecases/class/ListClassesByDate.interactor';
 import { UpdateClassInfoInteractor } from '@/02-usecases/class/UpdateClassInfo.interactor';
 import { DeleteClassInteractor } from '@/02-usecases/class/DeleteClass.interactor';
 import { ClassesController } from '@/03-interface-adapters/controllers/Classes.controller';
@@ -170,6 +171,7 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
     listBranchesInteractor,
     deleteBranchInteractor
   );
+
   
   // --- Repositories (Initialize all data-related repositories first) ---
   const classDataSource = new MockClassDataSource();
@@ -182,18 +184,29 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
   // --- Interactors & Controllers (Now can be initialized in any order as repos are ready) ---
 
   // 1.4 Initialize Classes
-  const listClassesByBranchInteractor = new ListClassesByBranchInteractor(classRepository, studentRepository);
+  const listClassesByBranchInteractor = new ListClassesByBranchInteractor(classRepository);
   const createClassInteractor = new CreateClassInteractor(classRepository);
-  const getClassDetailsInteractor = new GetClassDetailsInteractor(classRepository);
+ const getClassDetailsInteractor = new GetClassDetailsInteractor(classRepository);
+  const listClassesByDateInteractor = new ListClassesByDateInteractor(classRepository);
   const updateClassInfoInteractor = new UpdateClassInfoInteractor(classRepository);
   const deleteClassInteractor = new DeleteClassInteractor(classRepository, attendanceRepository);
-  const classesController = new ClassesController(listClassesByBranchInteractor, createClassInteractor, getClassDetailsInteractor, updateClassInfoInteractor, deleteClassInteractor);
+  
+  const classesController = new ClassesController(
+    listClassesByBranchInteractor, 
+    createClassInteractor, 
+    getClassDetailsInteractor, 
+    listClassesByDateInteractor, // Thêm interactor này vào
+    updateClassInfoInteractor, 
+    deleteClassInteractor
+  );
+
 
   // 1.5 Initialize Students
   const listStudentsByBranchInteractor = new ListStudentsByBranchInteractor(studentRepository);
   const createStudentInteractor = new CreateStudentInteractor(studentRepository);
+
   const getStudentDetailsInteractor = new GetStudentDetailsInteractor(studentRepository, branchRepository, attendanceRepository, classRepository);
-  const transferStudentInteractor = new TransferStudentInteractor(studentRepository, classRepository);
+    const transferStudentInteractor = new TransferStudentInteractor(studentRepository, classRepository);
   const studentsController = new StudentsController(listStudentsByBranchInteractor, createStudentInteractor, getStudentDetailsInteractor, transferStudentInteractor);
 
   // 1.6 Initialize Dashboard
@@ -203,7 +216,7 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
   // 1.7 Initialize Attendance
   const listAttendanceInteractor = new ListAttendanceByClassInteractor(attendanceRepository, studentRepository, classRepository);
   const markAttendanceInteractor = new MarkAttendanceInteractor(attendanceRepository, classRepository);
-  const markBatchAttendanceInteractor = new MarkBatchAttendanceInteractor(attendanceRepository, classRepository);
+    const markBatchAttendanceInteractor = new MarkBatchAttendanceInteractor(attendanceRepository, classRepository);
   const attendanceController = new AttendanceController(listAttendanceInteractor, markAttendanceInteractor, markBatchAttendanceInteractor);
 
   // 2. Create Application Context

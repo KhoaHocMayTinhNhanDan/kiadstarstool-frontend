@@ -58,6 +58,7 @@ export class BranchController {
     try {
       return await this.listBranchesInteractor.execute(input);
     } catch (error: any) {
+      console.error('[BranchController] ListBranches unexpected error:', error);
       return Result.fail('An unexpected error occurred');
     }
   }

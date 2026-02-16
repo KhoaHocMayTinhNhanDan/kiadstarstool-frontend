@@ -1,23 +1,26 @@
 import { type IStudentDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/students/IStudentDataSource';
 import { Student } from '@/01-entities/students/Student.entity';
 
-interface StudentStoreItem {
+// --- DTO Definitions (Schema for Database/LocalStorage) ---
+export interface EnrollmentDTO {
+  branchId: string;
+  classId?: string;
+  status: string;
+  joinedDate: string; // ISO String
+  endDate?: string;   // ISO String
+}
+
+export interface StudentDTO {
   id: string;
   name: string;
   email: string;
   phone?: string;
   status: string;
-  enrollments: {
-    branchId: string;
-    classId?: string;
-    status: string;
-    joinedDate: string;
-    endDate?: string;
-  }[];
+  enrollments: EnrollmentDTO[];
 }
 
-let studentStore: StudentStoreItem[] = [];
-const STORAGE_KEY = 'mock_students_db_v5';
+let studentStore: StudentDTO[] = [];
+const STORAGE_KEY = 'mock_students_db_v6';
 
 export class MockStudentDataSource implements IStudentDataSource {
   constructor() {
@@ -28,7 +31,7 @@ export class MockStudentDataSource implements IStudentDataSource {
     const storedData = localStorage.getItem(STORAGE_KEY);
     if (storedData) {
       try {
-        studentStore = JSON.parse(storedData) as StudentStoreItem[];
+        studentStore = JSON.parse(storedData) as StudentDTO[];
       } catch (e) {
         console.error('Failed to parse students', e);
       }
@@ -163,17 +166,17 @@ export class MockStudentDataSource implements IStudentDataSource {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(studentStore));
   }
 
-  async getByBranchId(branchId: string): Promise<any[]> {
+  async getByBranchId(branchId: string): Promise<StudentDTO[]> {
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
     if (!branchId) return studentStore; // Trả về tất cả nếu không có branchId
     
     // Lọc học viên có enrollment active tại branchId
     return studentStore.filter(s => 
-      s.enrollments.some((e: any) => e.branchId === branchId && e.status === 'active')
+      s.enrollments.some(e => e.branchId === branchId && e.status === 'active')
     );
   }
 
-  async getById(id: string): Promise<any | null> {
+  async getById(id: string): Promise<StudentDTO | null> {
     await new Promise(resolve => setTimeout(resolve, 200));
     return studentStore.find(s => s.id === id) || null;
   }
@@ -181,7 +184,7 @@ export class MockStudentDataSource implements IStudentDataSource {
   async save(student: Student): Promise<void> {
     // Check if exists to update or push new
     const index = studentStore.findIndex(s => s.id === student.id.toString());
-    const data = {
+    const data: StudentDTO = {
       id: student.id.toString(),
       name: student.name,
       email: student.email,

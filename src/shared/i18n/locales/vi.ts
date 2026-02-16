@@ -43,6 +43,7 @@ export const vi = {
     settings: "Cài đặt",
     branches: "Chi nhánh",
     classes: "Lớp học",
+    attendance: "Điểm danh",
   },
   classes: {
     create_title: "Tạo Lớp Học Mới",
@@ -108,5 +109,14 @@ export const vi = {
       saturday: "Thứ Bảy",
       sunday: "Chủ Nhật",
     },
+  },
+  attendance: {
+    title: "Quản lý Điểm danh",
+    subtitle: "Theo dõi lịch học và trạng thái điểm danh hàng ngày.",
+    today_schedule: "Lịch học hôm nay",
+    history: "Lịch sử & Báo cáo",
+    status_marked: "Đã điểm danh",
+    status_pending: "Chưa điểm danh",
+    mark_action: "Chấm công",
   },
 };

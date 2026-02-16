@@ -32,7 +32,14 @@ export class GetStudentDetailsInteractor {
     }
 
     // 2. Get Branch Info
-    const branch = await this.branchRepo.getById(BranchId.create(student.branchId));
+    // FIX: Lấy branchId từ danh sách enrollments (ưu tiên active) thay vì student.branchId
+    const activeEnrollment = student.enrollments.find((e: any) => e.status === 'active') || student.enrollments[0];
+    let branchName = 'N/A';
+
+    if (activeEnrollment) {
+      const branch = await this.branchRepo.getById(BranchId.create(activeEnrollment.branchId.toString()));
+      if (branch) branchName = branch.name;
+    }
 
     // 3. Get Attendance History
     const attendanceRecords = await this.attendanceRepo.getByStudentId(input.studentId);
@@ -49,8 +56,8 @@ export class GetStudentDetailsInteractor {
       email: student.email,
       phone: student.phone,
       status: student.status,
-      joinedDate: student.joinedDate,
-      branchName: branch?.name || 'N/A',
+      joinedDate: activeEnrollment ? activeEnrollment.joinedDate : new Date(),
+      branchName: branchName,
       attendanceHistory: attendanceRecords.map(att => ({
         classId: att.courseId,
         className: classNameMap.get(att.courseId) || 'Unknown Class',

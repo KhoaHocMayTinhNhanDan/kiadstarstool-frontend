@@ -1,10 +1,10 @@
-import { type ClassSession } from '@/01-entities/classes/ClassSession';
+import { type ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 
 export interface UpdateClassInfoInput {
-  id: string;
+  classId: string;
   name?: string;
+  code?: string;
   maxStudents?: number;
-  status?: string;
-  sessions?: ClassSession[];
-  teacherName?: string;
+  status?: ClassStatus;
+  schedule?: string;
 }

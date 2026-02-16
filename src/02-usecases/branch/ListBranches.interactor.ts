@@ -27,11 +27,16 @@ export class ListBranchesInteractor {
       // Đếm số học viên đang hoạt động (Active)
       const activeStudentCount = students.filter(s => s.status === 'active').length;
 
+      // Format địa chỉ từ Value Object thành chuỗi
+      // Lưu ý: Cần đảm bảo BranchAddress có các getter public: street, ward, district, city
+      const addr: any = branch.address; 
+      const p = (addr && addr.props) ? addr.props : addr;
+
       return {
         id: branchId,
         name: branch.name,
         code: branch.code,
-        address: branch.address.toString(),
+        address: `${p.street}, ${p.ward}, ${p.district}, ${p.city}`,
         isActive: branch.isActive,
         studentCount: activeStudentCount, // Dữ liệu thực tế đã được tính toán
         capacity: {

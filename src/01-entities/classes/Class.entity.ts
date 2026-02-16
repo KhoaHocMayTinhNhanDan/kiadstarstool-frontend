@@ -82,7 +82,9 @@ export class Class extends Entity<ClassId> {
 
   public updateInfo(props: Partial<ClassProps>): Result<void> {
     if (props.name !== undefined) this._name = props.name;
+    if (props.code !== undefined) this._code = props.code;
     if (props.maxStudents !== undefined) this._maxStudents = props.maxStudents;
+    if (props.currentStudents !== undefined) this._currentStudents = props.currentStudents;
     if (props.status !== undefined) this._status = props.status;
     if (props.sessions !== undefined) this._sessions = props.sessions;
     if (props.teacherName !== undefined) this._teacherName = props.teacherName;
