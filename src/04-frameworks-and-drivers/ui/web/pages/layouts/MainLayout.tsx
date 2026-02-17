@@ -12,7 +12,7 @@ import { LanguageSelector } from '../../00-design-system/01-molecules/LanguageSe
 import { useResponsive } from '../../utils/responsive';
 import { useToast } from '../../app/hooks/user/useToast';
 import { COLORS, SPACING, SHADOWS, Z_INDEX } from '../../00-design-system/00-atoms/00-core/tokens-constants';
-import { LayoutDashboard, Users, Settings, LogOut, Menu, BookOpen, GraduationCap, Building } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, Menu, BookOpen, GraduationCap, Building, ClipboardCheck } from 'lucide-react';
 import { Breadcrumbs } from '../../00-design-system/02-organisms/navigation/Breadcrumbs/index';
 
 /**
@@ -54,6 +54,7 @@ export const MainLayout = () => {
     { id: 'branches', label: t('sidebar.branches'), href: '/branches', icon: <Icon size="sm"><Building /></Icon> },
     { id: 'classes', label: t('sidebar.classes'), href: '/classes', icon: <Icon size="sm"><BookOpen /></Icon> },
     { id: 'students', label: 'Học viên', href: '/students', icon: <Icon size="sm"><GraduationCap /></Icon> }, // TODO: Add translation key
+    { id: 'attendance', label: 'Điểm danh', href: '/attendance', icon: <Icon size="sm"><ClipboardCheck /></Icon> },
     { id: 'users', label: t('sidebar.users'), href: '/users', icon: <Icon size="sm"><Users /></Icon>},
     { id: 'settings', label: t('sidebar.settings'), href: '/settings', icon: <Icon size="sm"><Settings /></Icon>},
   ], [t]);

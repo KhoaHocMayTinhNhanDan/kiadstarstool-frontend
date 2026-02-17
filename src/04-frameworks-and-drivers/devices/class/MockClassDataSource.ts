@@ -6,7 +6,7 @@ import { type IClassDataSource } from '@/03-interface-adapters/gateways/outbound
 import { type ClassSession } from '@/01-entities/classes/ClassSession';
 
 let classStore = new Map<string, Class>();
-const STORAGE_KEY = 'mock_classes_db_v9';
+const STORAGE_KEY = 'mock_classes_db_v12';
 
 export class MockClassDataSource implements IClassDataSource {
   constructor() {
@@ -42,7 +42,7 @@ export class MockClassDataSource implements IClassDataSource {
           status: ClassStatus.ACTIVE,
           maxStudents: 20,
           currentStudents: 0, // Để Use Case tự tính toán dựa trên dữ liệu điểm danh/đăng ký
-          startDate: new Date('2023-09-01'),
+          startDate: new Date('2025-11-15'), // Bắt đầu trong quá khứ, vẫn đang active
           sessions: [
             { day: 'Mon', startTime: '18:00', endTime: '19:30' },
             { day: 'Wed', startTime: '18:00', endTime: '19:30' },
@@ -58,7 +58,7 @@ export class MockClassDataSource implements IClassDataSource {
           status: ClassStatus.ACTIVE,
           maxStudents: 15,
           currentStudents: 0,
-          startDate: new Date('2023-11-01'),
+          startDate: new Date('2026-01-15'), // Bắt đầu trong quá khứ, vẫn đang active
           sessions: [
             { day: 'Tue', startTime: '19:30', endTime: '21:00' },
             { day: 'Thu', startTime: '19:30', endTime: '21:00' },
@@ -74,7 +74,7 @@ export class MockClassDataSource implements IClassDataSource {
           status: ClassStatus.ACTIVE,
           maxStudents: 20,
           currentStudents: 0,
-          startDate: new Date('2023-10-05'),
+          startDate: new Date('2025-12-15'), // Bắt đầu trong quá khứ, vẫn đang active
           sessions: [
             { day: 'Sat', startTime: '08:00', endTime: '10:00' },
             { day: 'Sun', startTime: '08:00', endTime: '10:00' }
@@ -91,7 +91,7 @@ export class MockClassDataSource implements IClassDataSource {
           status: ClassStatus.ACTIVE,
           maxStudents: 30,
           currentStudents: 0,
-          startDate: new Date('2023-08-15'),
+          startDate: new Date('2025-11-20'), // Bắt đầu trong quá khứ, vẫn đang active
           sessions: [
             { day: 'Mon', startTime: '09:00', endTime: '10:30' },
             { day: 'Wed', startTime: '09:00', endTime: '10:30' },
@@ -106,15 +106,30 @@ export class MockClassDataSource implements IClassDataSource {
           code: 'COM-002',
           status: ClassStatus.COMPLETED,
           maxStudents: 20,
-          currentStudents: 0,
-          startDate: new Date('2023-01-10'),
-          endDate: new Date('2023-04-10'),
+          currentStudents: 18, // Lớp đã kết thúc vẫn có sĩ số
+          startDate: new Date('2025-01-10'), // Đã bắt đầu trong quá khứ
+          endDate: new Date('2025-04-10'),   // Đã kết thúc trong quá khứ
           sessions: [
             { day: 'Tue', startTime: '14:00', endTime: '16:00' },
             { day: 'Thu', startTime: '14:00', endTime: '16:00' },
             { day: 'Sat', startTime: '14:00', endTime: '16:00' }
           ] as ClassSession[],
           teacherName: 'Hoàng Thị E'
+        },
+        // --- Lớp học tương lai (Test Logic Entity) ---
+        {
+          id: 'class-future',
+          branchId: 'branch-01',
+          name: 'Lớp Tiếng Anh Sắp Khai Giảng',
+          code: 'FUTURE-01',
+          status: ClassStatus.PLANNED,
+          maxStudents: 25,
+          currentStudents: 0,
+          startDate: new Date('2026-04-01'), // Ngày bắt đầu trong tương lai
+          sessions: [
+            { day: 'Mon', startTime: '18:00', endTime: '19:30' }
+          ] as ClassSession[],
+          teacherName: 'Giáo viên Mới'
         }
       ];
 
@@ -186,7 +201,7 @@ export class MockClassDataSource implements IClassDataSource {
   // Helper: Tính toán sĩ số thực tế từ MockStudentDataSource
   private getRealStudentCount(classId: string): number {
     try {
-      const studentsJson = localStorage.getItem('mock_students_db_v6');
+      const studentsJson = localStorage.getItem('mock_students_db_v7');
       if (!studentsJson) return 0;
       const students = JSON.parse(studentsJson);
       

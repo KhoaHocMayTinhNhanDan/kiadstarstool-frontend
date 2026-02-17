@@ -73,16 +73,32 @@ export class MockDashboardDataSource implements IDashboardDataSource {
     const { timeRange, branchIds = [] } = input;
     
     // 1. Determine target branches (if empty, we assume "all" - but for mock calculation we need specific IDs or default)
-    // In a real DB query, "empty" usually means no filter. Here we simulate by using keys from MOCK_BRANCH_DATA
-    const targetBranchIds = branchIds.length > 0 
-      ? branchIds 
-      : Object.keys(MOCK_BRANCH_DATA).filter(k => k !== 'default');
+    // FIX: Đọc danh sách chi nhánh THẬT từ localStorage thay vì dùng dữ liệu cứng MOCK_BRANCH_DATA
+    let targetBranchIds: string[] = branchIds;
+
+    if (targetBranchIds.length === 0) {
+      try {
+        const branchStorage = localStorage.getItem('mock_branches_db_v7'); // Key phải khớp với MockBranchDataSource
+        if (branchStorage) {
+          const realBranches = JSON.parse(branchStorage);
+          targetBranchIds = realBranches.map((b: any) => b.id);
+        }
+      } catch (e) {
+        console.error('Failed to load real branches for dashboard', e);
+      }
+    }
+    
+    // Fallback nếu không có chi nhánh nào (lần đầu chạy)
+    if (targetBranchIds.length === 0) {
+       targetBranchIds = Object.keys(MOCK_BRANCH_DATA).filter(k => k !== 'default');
+    }
 
     // 2. Aggregate Stats
     let totalSubs = 0;
     let totalSales = 0;
 
     targetBranchIds.forEach(id => {
+      // Nếu chi nhánh mới tạo chưa có data fake, dùng data 'default'
       const data = MOCK_BRANCH_DATA[id] || MOCK_BRANCH_DATA['default'];
       totalSubs += data.subs;
       totalSales += data.sales;
@@ -92,7 +108,7 @@ export class MockDashboardDataSource implements IDashboardDataSource {
     // Đọc dữ liệu từ cùng key mà MockStudentDataSource đang sử dụng
     let totalActive = 0;
     try {
-      const STUDENT_STORAGE_KEY = 'mock_students_db_v6';
+      const STUDENT_STORAGE_KEY = 'mock_students_db_v7';
       const storedStudents = localStorage.getItem(STUDENT_STORAGE_KEY);
       
       if (storedStudents) {

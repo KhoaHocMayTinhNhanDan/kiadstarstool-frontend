@@ -142,7 +142,7 @@ export class MockBranchDataSource implements IBranchDataSource {
   // Helper: Tính toán sĩ số thực tế từ MockStudentDataSource
   private getRealStudentCount(branchId: string): number {
     try {
-      const studentsJson = localStorage.getItem('mock_students_db_v6');
+      const studentsJson = localStorage.getItem('mock_students_db_v7');
       if (!studentsJson) return 0;
       const students = JSON.parse(studentsJson);
       

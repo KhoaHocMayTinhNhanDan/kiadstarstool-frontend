@@ -12,7 +12,8 @@ import {
   Filter,
   Check,
   Calendar,
-  Clock
+  Clock,
+  ClipboardCheck
 } from 'lucide-react';
 import { Box, Text, Icon, Button } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
@@ -116,13 +117,12 @@ export const DashboardPage = () => {
     const fetchOngoingClasses = async () => {
       try {
         const controller = AppContext.getClassesController();
-        const result = await controller.listClassesByBranch(''); // Lấy tất cả lớp
+        // Lấy tất cả lớp đang diễn ra (Active + Có lịch hôm nay) bằng Use Case chuyên dụng
+        const result = await controller.listOngoingClasses(); 
         
         if (result.isSuccess) {
           const classes = result.getValue();
-          // Filter lớp đang active và map sang format của Dashboard
           const mappedClasses = classes
-            .filter((c: any) => c.status === 'active')
             .slice(0, 4) // Lấy 4 lớp đầu tiên
             .map((c: any) => ({ id: c.id, name: c.name, students: c.currentStudents, time: c.schedule }));
           setOngoingClasses(mappedClasses);
@@ -135,8 +135,8 @@ export const DashboardPage = () => {
   }, []);
 
   // Tính toán dữ liệu hiển thị (Derived State) - Tự động cập nhật khi dashboardStats hoặc t thay đổi
-  const stats: StatData[] = dashboardStats ? [
-    {
+  const stats: StatData[] = [
+    ...(dashboardStats ? [{
       title: t('dashboard.total_revenue'),
       value: `$${dashboardStats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: <DollarSign />,
@@ -163,7 +163,7 @@ export const DashboardPage = () => {
       icon: <Activity />,
       accentColor: 'warning' as const,
       description: t('dashboard.users_on_platform'),
-    },
+    }] : []),
     {
       title: t('dashboard.branches'),
       value: branches.length.toString(),
@@ -171,8 +171,16 @@ export const DashboardPage = () => {
       accentColor: 'info' as const,
       description: t('dashboard.manage_branches'),
       onClick: () => navigate('/branches'),
+    },
+    {
+      title: 'Điểm danh',
+      value: 'Truy cập',
+      icon: <ClipboardCheck />,
+      accentColor: 'primary' as const,
+      description: 'Quản lý điểm danh',
+      onClick: () => navigate('/attendance'),
     }
-  ] : [];
+  ];
 
   const toggleBranch = (branchId: string) => {
     setSelectedBranchIds(prev => {

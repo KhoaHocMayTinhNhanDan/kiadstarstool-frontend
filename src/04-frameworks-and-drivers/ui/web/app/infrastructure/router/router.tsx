@@ -19,6 +19,7 @@ import { CreateClassPage } from '../../../pages/classes/CreateClassPage';
 import { EditClassPage } from '../../../pages/classes/EditClassPage';
 import { StudentListPage } from '../../../pages/students/StudentListPage';
 import { StudentDetailPage } from '../../../pages/students/StudentDetailPage';
+import { AttendancePage } from '../../../pages/attendance/AttendancePage';
 /* ==========================================================================
  * Router Configuration
  * ========================================================================== */
@@ -108,6 +109,10 @@ const routes: RouteObject[] = [
               {
                 path: 'students/:studentId',
                 element: <StudentDetailPage />,
+              },
+              {
+                path: 'attendance',
+                element: <AttendancePage />,
               },
             ],
           },

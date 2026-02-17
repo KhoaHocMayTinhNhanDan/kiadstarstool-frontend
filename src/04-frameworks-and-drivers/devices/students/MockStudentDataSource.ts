@@ -20,7 +20,7 @@ export interface StudentDTO {
 }
 
 let studentStore: StudentDTO[] = [];
-const STORAGE_KEY = 'mock_students_db_v6';
+const STORAGE_KEY = 'mock_students_db_v7';
 
 export class MockStudentDataSource implements IStudentDataSource {
   constructor() {
@@ -48,7 +48,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0901234567',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2023-01-15' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-15' }
           ]
         },
         // CASE 2: Chuyển cơ sở (Bản ghi cũ tại HN - Đã nghỉ)
@@ -59,7 +59,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0909876543',
           status: 'active', // Tài khoản vẫn active, nhưng enrollment cũ inactive
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'transferred', joinedDate: '2023-02-20', endDate: '2023-07-01' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'transferred', joinedDate: '2025-02-20', endDate: '2025-07-01' }
           ]
         },
         {
@@ -68,7 +68,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           email: 'cuong.le@example.com',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'dropped', joinedDate: '2022-11-10', endDate: '2023-01-01' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'dropped', joinedDate: '2024-11-10', endDate: '2025-01-01' }
           ]
         },
         // CASE 3: Học 3 lớp tại cơ sở A (Multi-class)
@@ -79,9 +79,9 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0912345678',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2023-03-05' },
-            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2023-03-05' },
-            { branchId: 'branch-01', classId: 'class-05', status: 'active', joinedDate: '2023-10-05' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-20' },
+            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-15' },
+            { branchId: 'branch-01', classId: 'class-05', status: 'active', joinedDate: '2025-12-15' }
           ]
         },
 
@@ -92,7 +92,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           email: 'em.hoang@example.com',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2023-04-01' }
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-25' }
           ]
         },
         // CASE 1: Học viên học tại 2 cơ sở (Bản ghi tại HCM - ID khác, cùng thông tin cá nhân)
@@ -103,7 +103,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0901234567',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2023-06-15' }
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-12-01' }
           ]
         },
         // CASE 2: Chuyển cơ sở (Bản ghi mới tại HCM - Đang học)
@@ -113,7 +113,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           email: 'binh.tran@example.com',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2023-07-20' }
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-07-20' }
           ]
         },
         // --- Additional Students for Pagination Demo ---
@@ -124,7 +124,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0911223344',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2023-09-05' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-16' }
           ]
         },
         {
@@ -134,7 +134,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0922334455',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2023-09-10' }
+            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-16' }
           ]
         },
         {
@@ -144,7 +144,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0933445566',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2023-09-15' }
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-21' }
           ]
         },
         {
@@ -154,7 +154,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0944556677',
           status: 'inactive',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'dropped', joinedDate: '2023-01-01', endDate: '2023-06-01' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'dropped', joinedDate: '2025-01-01', endDate: '2025-06-01' }
           ]
         }
       ];

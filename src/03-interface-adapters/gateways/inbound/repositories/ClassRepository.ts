@@ -17,8 +17,7 @@ export class ClassRepository implements IClassRepository {
 
 
     async getAll(): Promise<Class[]> {
-    
-    return this.dataSource.getByBranchId(''); // Assuming getByBranchId with empty string returns all
+    return this.dataSource.getAll();
   }
 
   async getByBranchId(branchId: string): Promise<Class[]> {

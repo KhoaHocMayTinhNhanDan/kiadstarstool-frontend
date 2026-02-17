@@ -25,11 +25,19 @@ export class ListClassesByDateInteractor {
         return Result.fail('Invalid date format.');
       }
 
-      // 1. Fetch all classes (TODO: Add pagination later)
-      const allClasses = await this.classRepo.getAll() as Class[];
+      // 1. Fetch initial classes, filtering by branch if provided
+      let initialClasses: Class[];
+      if (input.branchId) {
+        initialClasses = await this.classRepo.getByBranchId(input.branchId);
+      } else {
+        initialClasses = await this.classRepo.getAll();
+      }
 
       // 2. Filter classes based on the provided date and their sessions.
-      const filteredClasses = allClasses.filter(cls => {
+      // Also filter for active classes only
+      const filteredClasses = initialClasses.filter(cls => {
+        if (cls.status !== 'active') return false;
+
          // Check if the class has a session on the given date
         return cls.sessions.some(session => {
           // Convert the selected date to a day of the week (Mon, Tue, Wed, etc.)

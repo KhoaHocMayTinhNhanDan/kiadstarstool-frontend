@@ -2,6 +2,7 @@ import { Result } from '@/01-entities/shared/base/result';
 import { ListClassesByBranchInteractor } from '@/02-usecases/class/ListClassesByBranch.interactor';
 import { CreateClassInteractor } from '@/02-usecases/class/CreateClass.interactor';
 import { GetClassDetailsInteractor } from '@/02-usecases/class/GetClassDetails.interactor';
+import { ListOngoingClassesInteractor } from '@/02-usecases/class/ListOngoingClasses.interactor';
 import { ListClassesByDateInteractor } from '@/02-usecases/class/ListClassesByDate.interactor';
 import { UpdateClassInfoInteractor } from '@/02-usecases/class/UpdateClassInfo.interactor';
 import { DeleteClassInteractor } from '@/02-usecases/class/DeleteClass.interactor';
@@ -11,6 +12,7 @@ import { type ListClassesByBranchOutput } from '@/02-usecases/class/ports/output
 import { type CreateClassInput } from '@/02-usecases/class/ports/input/CreateClass.input';
 import { type CreateClassOutput } from '@/02-usecases/class/ports/output/CreateClass.output';
 import { type GetClassDetailsOutput } from '@/02-usecases/class/ports/output/GetClassDetails.output';
+import { type ListOngoingClassesOutput } from '@/02-usecases/class/ports/output/ListOngoingClasses.output';
 import { type ListClassesByDateOutput } from '@/02-usecases/class/ports/output/ListClassesByDate.output';
 import { type UpdateClassInfoInput } from '@/02-usecases/class/ports/input/UpdateClassInfo.input';
 import { type UpdateClassInfoOutput } from '@/02-usecases/class/ports/output/UpdateClassInfo.output';
@@ -20,6 +22,7 @@ export class ClassesController {
   private readonly listClassesByBranchInteractor: ListClassesByBranchInteractor;
   private readonly createClassInteractor: CreateClassInteractor;
   private readonly getClassDetailsInteractor: GetClassDetailsInteractor;
+  private readonly listOngoingClassesInteractor: ListOngoingClassesInteractor;
   private readonly listClassesByDateInteractor: ListClassesByDateInteractor;
   private readonly updateClassInfoInteractor: UpdateClassInfoInteractor;
   private readonly deleteClassInteractor: DeleteClassInteractor;
@@ -27,6 +30,7 @@ export class ClassesController {
     listClassesByBranchInteractor: ListClassesByBranchInteractor,
     createClassInteractor: CreateClassInteractor,
     getClassDetailsInteractor: GetClassDetailsInteractor,
+    listOngoingClassesInteractor: ListOngoingClassesInteractor,
     listClassesByDateInteractor: ListClassesByDateInteractor,
     updateClassInfoInteractor: UpdateClassInfoInteractor,
     deleteClassInteractor: DeleteClassInteractor
@@ -34,6 +38,7 @@ export class ClassesController {
     this.listClassesByBranchInteractor = listClassesByBranchInteractor;
     this.createClassInteractor = createClassInteractor;
     this.getClassDetailsInteractor = getClassDetailsInteractor;
+    this.listOngoingClassesInteractor = listOngoingClassesInteractor;
     this.listClassesByDateInteractor = listClassesByDateInteractor;
     this.updateClassInfoInteractor = updateClassInfoInteractor;
     this.deleteClassInteractor = deleteClassInteractor;
@@ -41,6 +46,10 @@ export class ClassesController {
 
   async listClassesByBranch(branchId: string): Promise<Result<ListClassesByBranchOutput>> {
     return this.listClassesByBranchInteractor.execute({ branchId });
+  }
+
+  async listOngoingClasses(branchId?: string): Promise<Result<ListOngoingClassesOutput>> {
+    return this.listOngoingClassesInteractor.execute({ branchId });
   }
 
   async createClass(input: CreateClassInput): Promise<Result<CreateClassOutput>> {

@@ -35,7 +35,22 @@ export class Class extends Entity<ClassId> {
   get branchId(): BranchId { return this._branchId; }
   get name(): string { return this._name; }
   get code(): string { return this._code; }
-  get status(): ClassStatus { return this._status; }
+  
+  // Logic tự động tính trạng thái dựa trên ngày tháng
+  get status(): ClassStatus {
+    const now = new Date();
+    // 1. Nếu đã quá ngày kết thúc -> Completed
+    if (this._endDate && now > this._endDate) {
+      return ClassStatus.COMPLETED;
+    }
+    // 2. Nếu chưa đến ngày bắt đầu -> Planned
+    if (now < this._startDate) {
+      return ClassStatus.PLANNED;
+    }
+    // 3. Còn lại trả về trạng thái đã lưu (cho phép admin hủy/đóng lớp thủ công)
+    return this._status;
+  }
+
   get maxStudents(): number { return this._maxStudents; }
   get currentStudents(): number { return this._currentStudents; }
   get startDate(): Date { return this._startDate; }

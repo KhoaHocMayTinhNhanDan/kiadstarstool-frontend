@@ -33,6 +33,7 @@ import { ClassRepository } from '@/03-interface-adapters/gateways/inbound/reposi
 import { ListClassesByBranchInteractor } from '@/02-usecases/class/ListClassesByBranch.interactor';
 import { CreateClassInteractor } from '@/02-usecases/class/CreateClass.interactor';
 import { GetClassDetailsInteractor } from '@/02-usecases/class/GetClassDetails.interactor';
+import { ListOngoingClassesInteractor } from '@/02-usecases/class/ListOngoingClasses.interactor';
 import { ListClassesByDateInteractor } from '@/02-usecases/class/ListClassesByDate.interactor';
 import { UpdateClassInfoInteractor } from '@/02-usecases/class/UpdateClassInfo.interactor';
 import { DeleteClassInteractor } from '@/02-usecases/class/DeleteClass.interactor';
@@ -187,6 +188,7 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
   const listClassesByBranchInteractor = new ListClassesByBranchInteractor(classRepository);
   const createClassInteractor = new CreateClassInteractor(classRepository);
  const getClassDetailsInteractor = new GetClassDetailsInteractor(classRepository);
+  const listOngoingClassesInteractor = new ListOngoingClassesInteractor(classRepository);
   const listClassesByDateInteractor = new ListClassesByDateInteractor(classRepository);
   const updateClassInfoInteractor = new UpdateClassInfoInteractor(classRepository);
   const deleteClassInteractor = new DeleteClassInteractor(classRepository, attendanceRepository);
@@ -195,7 +197,8 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
     listClassesByBranchInteractor, 
     createClassInteractor, 
     getClassDetailsInteractor, 
-    listClassesByDateInteractor, // Thêm interactor này vào
+    listOngoingClassesInteractor,
+    listClassesByDateInteractor,
     updateClassInfoInteractor, 
     deleteClassInteractor
   );
