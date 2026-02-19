@@ -1,110 +1,64 @@
-// src/04-frameworks-and-drivers/ui/web/components/02-organisms/navigation/AppFooter/AppFooter.styles.ts
+/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import {
-  SPACING,
-  COLORS,
-  FONT_SIZES,
-  TRANSITIONS,
-  RADIUS
-} from '../../../00-atoms/00-core/tokens-constants';
 
-export const footer = css`
-  background-color: ${COLORS.BACKGROUND_NEUTRAL};
-  border-top: 1px solid ${COLORS.NEUTRAL_LIGHT};
-  padding: ${SPACING.lg} ${SPACING.xl};
-  margin-top: auto; /* Đẩy footer xuống đáy trong flex container */
-  color: ${COLORS.TEXT_MUTED};
-  font-size: ${FONT_SIZES.sm};
-  
-  @media (max-width: 768px) {
-    padding: ${SPACING.md} ${SPACING.lg};
-  }
+export const footer = (mode: any) => css`
+  background-color: ${mode.colors.surface.primary};
+  border-top: 1px solid ${mode.colors.border.default};
+  padding: 24px 0;
+  margin-top: auto;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 `;
 
 export const container = css`
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 24px;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: ${SPACING.md};
   
   @media (max-width: 768px) {
     flex-direction: column;
-    align-items: flex-start;
-    gap: ${SPACING.lg};
+    gap: 16px;
+    text-align: center;
   }
 `;
 
-export const copyright = css`
-  flex: 1;
-  min-width: 200px;
-  
-  strong {
-    color: ${COLORS.PRIMARY};
-  }
-  
-  @media (max-width: 768px) {
-    width: 100%;
-  }
+export const copyright = (mode: any) => css`
+  color: ${mode.colors.text.secondary};
+  font-size: 14px;
 `;
 
 export const nav = css`
   display: flex;
-  gap: ${SPACING.lg};
+  gap: 24px;
   flex-wrap: wrap;
   
   @media (max-width: 768px) {
-    flex-direction: column;
-    gap: ${SPACING.md};
-    width: 100%;
-    border-top: 1px solid ${COLORS.NEUTRAL_LIGHT};
-    padding-top: ${SPACING.md};
+    justify-content: center;
   }
 `;
 
-export const link = css`
-  color: ${COLORS.SECONDARY};
+export const link = (mode: any) => css`
+  color: ${mode.colors.text.secondary};
   text-decoration: none;
-  cursor: pointer;
-  transition: color ${TRANSITIONS.FAST};
-  padding: ${SPACING.xs} ${SPACING.sm};
-  border-radius: ${RADIUS.sm};
+  font-size: 14px;
+  transition: color 0.2s ease;
   
   &:hover {
-    color: ${COLORS.PRIMARY};
-    background-color: ${COLORS.BACKGROUND_SUBTLE};
+    color: ${mode.colors.primary};
   }
-  
-  &:focus {
-    outline: 2px solid ${COLORS.PRIMARY};
-    outline-offset: 2px;
-  }
-  
-  &:focus:not(:focus-visible) {
-    outline: none;
-  }
-  
-  &:focus-visible {
-    outline: 2px solid ${COLORS.PRIMARY};
-    outline-offset: 2px;
-  }
-`;
-
-export const secondaryContent = css`
-  margin-top: ${SPACING.lg};
-  width: 100%;
-  text-align: center;
-  font-size: ${FONT_SIZES.xs};
-  color: ${COLORS.DISABLED};
-  border-top: 1px solid ${COLORS.NEUTRAL_LIGHT};
-  padding-top: ${SPACING.md};
 `;
 
 export const linkIcon = css`
-  margin-right: ${SPACING.xs};
-  vertical-align: middle;
+  margin-right: 4px;
   display: inline-flex;
   align-items: center;
+`;
+
+export const secondaryContent = css`
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
 `;

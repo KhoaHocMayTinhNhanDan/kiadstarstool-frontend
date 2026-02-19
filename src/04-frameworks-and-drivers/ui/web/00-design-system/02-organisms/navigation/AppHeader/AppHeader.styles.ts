@@ -1,49 +1,47 @@
-// src/04-frameworks-and-drivers/ui/web/components/02-organisms/navigation/AppHeader/AppHeader.styles.ts
+/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import {
-  SPACING,
-  COLORS,
-  Z_INDEX,
-} from '../../../00-atoms/00-core/tokens-constants';
+import type { ThemeColors } from './AppHeader.types';
 
-export const BREAKPOINTS = {
-  mobile: '768px',
-  tablet: '1024px',
-} as const;
-
-export const header = css`
-  position: sticky;
-  top: 0;
-  z-index: ${Z_INDEX.sticky};
-  background-color: ${COLORS.WHITE};
-  border-bottom: 1px solid ${COLORS.NEUTRAL_LIGHT};
-  padding: 0 ${SPACING.xl};
+export const header = (mode?: 'light' | 'dark', themeColors?: ThemeColors) => css`
   height: 64px;
+  background-color: ${themeColors?.surface || (mode === 'dark' ? '#1a1a1a' : '#ffffff')};
+  border-bottom: 1px solid ${themeColors?.border?.default || (mode === 'dark' ? '#333' : '#e2e8f0')};
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: ${SPACING.lg};
-  
-  @media (max-width: ${BREAKPOINTS.mobile}) {
-    padding: 0 ${SPACING.lg};
-    height: 56px;
-  }
+  padding: 0 16px 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  width: 100%;
 `;
 
 export const leftSection = css`
   display: flex;
   align-items: center;
-  gap: ${SPACING.xl};
+  gap: 16px;
   flex: 1;
+  min-width: 0; /* Prevent overflow */
+`;
+
+export const leftSectionContent = css`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 `;
 
 export const logoWrapper = css`
   display: flex;
   align-items: center;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 600;
   flex-shrink: 0;
+  transition: opacity 0.2s ease;
   
   &:hover {
-    cursor: pointer;
     opacity: 0.8;
   }
 `;
@@ -51,41 +49,206 @@ export const logoWrapper = css`
 export const nav = css`
   display: flex;
   align-items: center;
-  gap: ${SPACING.xs};
+  gap: 4px;
+  flex-wrap: wrap;
   
-  @media (max-width: ${BREAKPOINTS.tablet}) {
+  @media (max-width: 768px) {
     display: none;
   }
 `;
 
-export const navItem = (isActive: boolean) => css`
+export const navItem = (isActive: boolean, mode?: 'light' | 'dark', themeColors?: ThemeColors) => css`
   display: flex;
   align-items: center;
-  gap: ${SPACING.sm};
-  padding: ${SPACING.sm} ${SPACING.md};
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: ${isActive ? 600 : 500};
-  color: ${isActive ? COLORS.PRIMARY : COLORS.TEXT_SECONDARY};
-  background-color: ${isActive ? COLORS.PRIMARY_LIGHT : 'transparent'};
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: ${isActive 
+    ? (themeColors?.primary || '#3182CE') 
+    : (themeColors?.text?.secondary || (mode === 'dark' ? '#a0aec0' : '#4a5568'))};
   text-decoration: none;
+  font-size: 14px;
+  font-weight: ${isActive ? 500 : 400};
   transition: all 0.2s ease;
+  white-space: nowrap;
   
   &:hover {
-    background-color: ${isActive ? COLORS.PRIMARY_LIGHT : COLORS.BACKGROUND_SUBTLE};
-    color: ${COLORS.PRIMARY};
+    background-color: ${themeColors?.background || (mode === 'dark' ? '#2d3748' : '#f7fafc')};
+    color: ${themeColors?.text?.primary || (mode === 'dark' ? '#fff' : '#1a202c')};
   }
+`;
+
+export const navItemIcon = css`
+  display: flex;
+  margin-right: 8px;
 `;
 
 export const rightSection = css`
   display: flex;
   align-items: center;
-  gap: ${SPACING.lg};
+  gap: 8px;
   flex-shrink: 0;
 `;
 
 export const actionsWrapper = css`
   display: flex;
   align-items: center;
-  gap: ${SPACING.md};
+  gap: 4px;
+`;
+
+export const searchContainer = css`
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+export const iconButton = (mode?: 'light' | 'dark', themeColors?: ThemeColors) => css`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid ${themeColors?.border?.light || (mode === 'dark' ? '#4a5568' : '#e2e8f0')};
+  color: ${themeColors?.text?.secondary || (mode === 'dark' ? '#a0aec0' : '#4a5568')};
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ${themeColors?.background || (mode === 'dark' ? '#2d3748' : '#f7fafc')};
+    border-color: ${themeColors?.primary || (mode === 'dark' ? '#4299e1' : '#3182CE')};
+    color: ${themeColors?.primary || (mode === 'dark' ? '#4299e1' : '#3182CE')};
+  }
+`;
+
+export const userMenuContainer = css`
+  position: relative;
+  margin-left: 4px;
+`;
+
+export const userButton = (mode?: 'light' | 'dark', themeColors?: ThemeColors) => css`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 4px 4px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid ${themeColors?.border?.light || (mode === 'dark' ? '#4a5568' : '#e2e8f0')};
+  color: ${themeColors?.text?.primary || (mode === 'dark' ? '#e2e8f0' : '#1a202c')};
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ${themeColors?.background || (mode === 'dark' ? '#2d3748' : '#f7fafc')};
+    border-color: ${themeColors?.primary || (mode === 'dark' ? '#4299e1' : '#3182CE')};
+  }
+`;
+
+export const userAvatar = css`
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: cover;
+`;
+
+export const userAvatarPlaceholder = (mode?: 'light' | 'dark', themeColors?: ThemeColors) => css`
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${themeColors?.primary || (mode === 'dark' ? '#4299e1' : '#3182CE')};
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+`;
+
+export const userName = css`
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  
+  @media (max-width: 1024px) {
+    display: none;
+  }
+`;
+
+export const dropdownIcon = css`
+  margin-left: 4px;
+  color: ${(props: any) => props.theme?.text?.tertiary || '#a0aec0'};
+`;
+
+export const userMenu = (mode?: 'light' | 'dark', themeColors?: ThemeColors) => css`
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  background-color: ${themeColors?.surface || (mode === 'dark' ? '#1a1a1a' : '#ffffff')};
+  border: 1px solid ${themeColors?.border?.default || (mode === 'dark' ? '#333' : '#e2e8f0')};
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+`;
+
+export const userInfo = (mode?: 'light' | 'dark', themeColors?: ThemeColors) => css`
+  padding: 12px 16px;
+  border-bottom: 1px solid ${themeColors?.border?.light || (mode === 'dark' ? '#2d3748' : '#e2e8f0')};
+`;
+
+export const userInfoName = css`
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+`;
+
+export const userInfoEmail = css`
+  font-size: 12px;
+  color: ${(props: any) => props.theme?.text?.secondary || '#718096'};
+  margin-bottom: 4px;
+`;
+
+export const userInfoRole = css`
+  font-size: 12px;
+  color: ${(props: any) => props.theme?.primary || '#3182CE'};
+`;
+
+export const menuItems = css`
+  padding: 8px;
+`;
+
+export const menuDivider = (mode?: 'light' | 'dark', themeColors?: ThemeColors) => css`
+  height: 1px;
+  background-color: ${themeColors?.border?.light || (mode === 'dark' ? '#2d3748' : '#e2e8f0')};
+  margin: 8px;
+`;
+
+export const menuItem = (danger?: boolean, mode?: 'light' | 'dark', themeColors?: ThemeColors) => css`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  color: ${danger 
+    ? (mode === 'dark' ? '#fc8181' : '#e53e3e')
+    : (themeColors?.text?.primary || (mode === 'dark' ? '#e2e8f0' : '#1a202c'))};
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+
+  &:hover {
+    background-color: ${danger
+      ? (mode === 'dark' ? '#742a2a' : '#fff5f5')
+      : (themeColors?.background || (mode === 'dark' ? '#2d3748' : '#f7fafc'))};
+  }
+`;
+
+export const menuItemIcon = css`
+  display: flex;
+  align-items: center;
 `;

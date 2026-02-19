@@ -1,109 +1,131 @@
-// src/04-frameworks-and-drivers/ui/web/components/02-organisms/navigation/AppSidebar/AppSidebar.styles.ts
+/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import {
-  COLORS,
-  SPACING,
-  TRANSITIONS,
-  Z_INDEX,
-  SHADOWS,
-  TYPOGRAPHY,
-  RADIUS
-} from '../../../00-atoms/00-core/tokens-constants';
+import type { ThemeColors } from './AppSidebar.types';
 
-export const sidebarWidth = 260;
-export const sidebarCollapsedWidth = 72;
-
-export const container = (collapsed: boolean) => css`
-  width: ${collapsed ? sidebarCollapsedWidth : sidebarWidth}px;
-  height: 100%;
-  background-color: ${COLORS.BACKGROUND_PAPER};
-  border-right: 1px solid ${COLORS.NEUTRAL_BORDER};
+export const container = (
+  collapsed: boolean, 
+  width?: number | string, 
+  collapsedWidth?: number | string,
+  mode?: 'light' | 'dark',
+  themeColors?: ThemeColors
+) => css`
+  width: ${collapsed 
+    ? (collapsedWidth || '72px') 
+    : (width || '260px')};
+  height: 100vh;
+  background-color: ${themeColors?.surface || (mode === 'dark' ? '#1a1a1a' : '#ffffff')};
+  border-right: 1px solid ${themeColors?.border?.default || (mode === 'dark' ? '#333' : '#e2e8f0')};
   display: flex;
   flex-direction: column;
-  transition: width ${TRANSITIONS.NORMAL};
-  z-index: ${Z_INDEX.sticky};
-  position: relative;
-  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  transition: width 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  z-index: 100;
 `;
 
 export const header = css`
-  height: 64px;
+  padding: 16px;
   display: flex;
   align-items: center;
-  padding: 0 ${SPACING.lg};
-  border-bottom: 1px solid ${COLORS.NEUTRAL_LIGHT};
-  flex-shrink: 0;
-  overflow: hidden;
-  white-space: nowrap;
+  justify-content: center;
+  min-height: 64px;
+`;
+
+export const collapseButton = (mode?: 'light' | 'dark', themeColors?: ThemeColors) => css`
+  position: absolute;
+  right: -12px;
+  top: 72px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: ${themeColors?.surface || (mode === 'dark' ? '#2d3748' : '#ffffff')};
+  border: 1px solid ${themeColors?.border?.default || (mode === 'dark' ? '#4a5568' : '#e2e8f0')};
+  color: ${themeColors?.text?.secondary || (mode === 'dark' ? '#a0aec0' : '#4a5568')};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 101;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: ${themeColors?.primary || (mode === 'dark' ? '#4299e1' : '#3182CE')};
+    border-color: ${themeColors?.primary || (mode === 'dark' ? '#4299e1' : '#3182CE')};
+    color: ${themeColors?.text?.inverse || '#ffffff'};
+  }
 `;
 
 export const content = css`
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
-  padding: ${SPACING.md} ${SPACING.sm};
+  padding: 16px 8px;
   
-  /* Custom Scrollbar */
   &::-webkit-scrollbar {
     width: 4px;
   }
+  
   &::-webkit-scrollbar-track {
     background: transparent;
   }
+  
   &::-webkit-scrollbar-thumb {
-    background: ${COLORS.NEUTRAL_BORDER};
-    border-radius: ${RADIUS.full};
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
   }
 `;
 
-export const footer = css`
-  padding: ${SPACING.md};
-  border-top: 1px solid ${COLORS.NEUTRAL_LIGHT};
-  flex-shrink: 0;
-  overflow: hidden;
-`;
-
-export const groupLabel = (collapsed: boolean) => css`
-  padding: ${SPACING.sm} ${SPACING.md};
-  font-size: ${TYPOGRAPHY.FONT_SIZE.xs};
-  font-weight: ${TYPOGRAPHY.FONT_WEIGHT.bold};
-  color: ${COLORS.TEXT_MUTED};
+export const groupLabel = (
+  collapsed: boolean, 
+  mode?: 'light' | 'dark',
+  themeColors?: ThemeColors
+) => css`
+  padding: ${collapsed ? '16px 0 8px 0' : '16px 16px 8px 16px'};
+  font-size: 11px;
+  font-weight: 600;
+  color: ${themeColors?.text?.tertiary || (mode === 'dark' ? '#718096' : '#a0aec0')};
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-top: ${SPACING.sm};
-  margin-bottom: ${SPACING.xs};
+  letter-spacing: 0.5px;
+  text-align: ${collapsed ? 'center' : 'left'};
   white-space: nowrap;
-  opacity: ${collapsed ? 0 : 1};
-  transition: opacity ${TRANSITIONS.FAST};
-  height: ${collapsed ? 0 : 'auto'};
   overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
-export const item = (isActive: boolean, collapsed: boolean, disabled: boolean) => css`
+export const item = (
+  isActive: boolean, 
+  collapsed: boolean, 
+  disabled: boolean,
+  mode?: 'light' | 'dark',
+  themeColors?: ThemeColors,
+  borderRadius?: string
+) => css`
   display: flex;
   align-items: center;
-  width: 100%;
-  padding: ${SPACING.sm} ${SPACING.md};
-  margin-bottom: 2px;
-  border-radius: ${RADIUS.md};
+  padding: ${collapsed ? '12px 0' : '8px 16px'};
+  margin: 2px 0;
+  border-radius: ${borderRadius || '8px'};
+  color: ${isActive 
+    ? (themeColors?.text?.inverse || '#ffffff') 
+    : (themeColors?.text?.primary || (mode === 'dark' ? '#e2e8f0' : '#1a202c'))};
+  background-color: ${isActive 
+    ? (themeColors?.primary || (mode === 'dark' ? '#4299e1' : '#3182CE')) 
+    : 'transparent'};
   cursor: ${disabled ? 'not-allowed' : 'pointer'};
-  text-decoration: none;
-  color: ${isActive ? COLORS.PRIMARY : COLORS.TEXT_SECONDARY};
-  background-color: ${isActive ? COLORS.PRIMARY_LIGHT + '20' : 'transparent'};
-  transition: all ${TRANSITIONS.FAST};
-  font-size: ${TYPOGRAPHY.FONT_SIZE.sm};
-  font-weight: ${isActive ? TYPOGRAPHY.FONT_WEIGHT.medium : TYPOGRAPHY.FONT_WEIGHT.normal};
   opacity: ${disabled ? 0.5 : 1};
+  text-decoration: none;
+  transition: all 0.2s ease;
   position: relative;
 
   &:hover {
-    background-color: ${isActive ? COLORS.PRIMARY_LIGHT + '30' : COLORS.NEUTRAL_HOVER};
-    color: ${isActive ? COLORS.PRIMARY : COLORS.TEXT_PRIMARY};
+    background-color: ${!disabled && !isActive 
+      ? (themeColors?.background || (mode === 'dark' ? '#2d3748' : '#f7fafc')) 
+      : ''};
   }
 
   ${collapsed && css`
     justify-content: center;
-    padding: ${SPACING.sm};
+    padding-left: 0;
+    padding-right: 0;
   `}
 `;
 
@@ -111,15 +133,8 @@ export const itemIcon = (collapsed: boolean) => css`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  margin-right: ${collapsed ? 0 : SPACING.md};
-  flex-shrink: 0;
-  
-  svg {
-    width: 100%;
-    height: 100%;
-  }
+  ${!collapsed && 'margin-right: 12px;'}
+  font-size: 20px;
 `;
 
 export const itemLabel = (collapsed: boolean) => css`
@@ -127,41 +142,23 @@ export const itemLabel = (collapsed: boolean) => css`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  opacity: ${collapsed ? 0 : 1};
-  width: ${collapsed ? 0 : 'auto'};
-  transition: opacity ${TRANSITIONS.FAST}, width ${TRANSITIONS.FAST};
+  font-size: 14px;
+  ${collapsed && 'display: none;'}
 `;
 
-export const badge = css`
-  background-color: ${COLORS.DANGER};
-  color: ${COLORS.WHITE};
-  font-size: 10px;
-  font-weight: bold;
+export const badge = (mode?: 'light' | 'dark') => css`
   padding: 2px 6px;
-  border-radius: ${RADIUS.full};
-  margin-left: auto;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background-color: ${mode === 'dark' ? '#e53e3e' : '#c53030'};
+  color: white;
+  margin-left: 8px;
+  min-width: 20px;
+  text-align: center;
 `;
 
-export const collapseButton = css`
-  position: absolute;
-  right: -12px;
-  top: 24px;
-  width: 24px;
-  height: 24px;
-  background-color: ${COLORS.BACKGROUND_PAPER};
-  border: 1px solid ${COLORS.NEUTRAL_BORDER};
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  color: ${COLORS.TEXT_SECONDARY};
-  box-shadow: ${SHADOWS.sm};
-  transition: all ${TRANSITIONS.FAST};
-
-  &:hover {
-    color: ${COLORS.PRIMARY};
-    border-color: ${COLORS.PRIMARY};
-  }
+export const footer = (mode?: 'light' | 'dark', themeColors?: ThemeColors) => css`
+  padding: 16px;
+  border-top: 1px solid ${themeColors?.border?.light || (mode === 'dark' ? '#2d3748' : '#e2e8f0')};
 `;

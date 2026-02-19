@@ -1,72 +1,98 @@
-// src/04-frameworks-and-drivers/ui/web/components/02-organisms/navigation/AppHeader/AppHeader.organism.tsx
 /** @jsxImportSource @emotion/react */
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { css } from '@emotion/react';
 import { Box, Text } from '../../../00-atoms';
 import { Avatar } from '../../../00-atoms/Avatar';
 import { IconButton } from '../../../00-atoms/IconButton';
-import { IconButtonBadge } from '../../../00-atoms/IconButtonBadge/IconButtonBadge';
 import { Button } from '../../../00-atoms/Button';
-import { DropdownMenu } from '../../../01-molecules/Dropdown/DropdownMenu';
 import { SearchInput } from '../../../01-molecules/SearchInput';
 import * as styles from './AppHeader.styles';
-import type { AppHeaderProps, NavItem } from './AppHeader.types';
+import type { AppHeaderProps, NavItem, ThemeColors } from './AppHeader.types';
 
 import { SPACING } from '../../../00-atoms/00-core/tokens-constants';
 
-const NavLink: React.FC<{ item: NavItem }> = ({ item }) => (
-  <Link
-    to={item.href}
-    css={styles.navItem(!!item.isActive)}
-    data-testid={item['data-testid']}
-    aria-current={item.isActive ? 'page' : undefined}
-  >
-    {item.icon && <span css={{ display: 'flex', marginRight: SPACING.xs }}>{item.icon}</span>}
-    <Text as="span">{item.label}</Text>
-  </Link>
+// Icons
+const SearchIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+  </svg>
 );
 
-const DefaultActions: React.FC = () => (
-  <>
-    <IconButton
-      size="sm"
-      variant="ghost"
-      aria-label="Search"
-      icon={
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-        </svg>
-      }
-      onClick={() => console.log('Search clicked')}
-    />
-    
-    <IconButtonBadge
-      badge={3}
-      size="sm"
-      variant="ghost"
-      aria-label="Notifications"
-      icon={
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
-        </svg>
-      }
-    />
-    
-    <Button
-      variant="primary"
-      size="sm"
-      leftIcon={
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-        </svg>
-      }
-      onClick={() => console.log('Create clicked')}
-    >
-      Create
-    </Button>
-  </>
+const NotificationIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+  </svg>
 );
+
+const CreateIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+  </svg>
+);
+
+const SunIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
+  </svg>
+);
+
+const MoonIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.86 0-7-3.14-7-7s3.14-7 7-7 7 3.14 7 7-3.14 7-7 7z"/>
+  </svg>
+);
+
+const ChevronDownIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M7 10l5 5 5-5z"/>
+  </svg>
+);
+
+const NavLink: React.FC<{ item: NavItem; mode?: 'light' | 'dark'; themeColors?: ThemeColors }> = 
+  ({ item, mode, themeColors }) => (
+    <Link
+      to={item.href}
+      css={styles.navItem(!!item.isActive, mode, themeColors)}
+      data-testid={item['data-testid']}
+      aria-current={item.isActive ? 'page' : undefined}
+    >
+      {item.icon && <span css={styles.navItemIcon}>{item.icon}</span>}
+      <Text as="span" size="sm">{item.label}</Text>
+    </Link>
+);
+
+const DefaultActions: React.FC<{ mode?: 'light' | 'dark'; themeColors?: ThemeColors }> = 
+  ({ mode, themeColors }) => (
+    <>
+      <IconButton
+        size="sm"
+        variant="ghost"
+        aria-label="Search"
+        icon={<SearchIcon />}
+        onClick={() => console.log('Search clicked')}
+        css={styles.iconButton(mode, themeColors)}
+      />
+      
+      <IconButton
+        size="sm"
+        variant="ghost"
+        aria-label="Notifications"
+        icon={<NotificationIcon />}
+        css={styles.iconButton(mode, themeColors)}
+      />
+      
+      <Button
+        variant="primary"
+        size="sm"
+        leftIcon={<CreateIcon />}
+        onClick={() => console.log('Create clicked')}
+        css={{ whiteSpace: 'nowrap' }}
+      >
+        Create
+      </Button>
+    </>
+  );
 
 export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
   logo,
@@ -77,53 +103,67 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
   showSearch = false,
   searchPlaceholder = 'Search...',
   onSearch,
+  onThemeToggle,
+  mode = 'light',
+  themeColors,
   className,
   sx,
   testId = 'app-header',
   onLogoClick,
+  leftSectionContent,
+  style,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showUserMenu, setShowUserMenu] = useState(false);
   
-  const dropdownMenuItems = userMenuItems.map(item => ({
-    id: item.id,
-    label: item.label,
-    icon: item.icon,
-    onClick: item.onClick,
-    isDivider: item.isDivider,
-    danger: item.danger,
-  }));
-  
-  // Handle input change: Update local state only
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
   
-  // Handle search action: Trigger external callback
-  // SearchInput calls this when value changes or clear is clicked
-  const handleSearch = (value: string) => {
+  const handleSearch = useCallback((value: string) => {
     setSearchQuery(value);
     onSearch?.(value);
-  };
+  }, [onSearch]);
   
-  const handleLogoClick = () => {
+  const handleLogoClick = useCallback(() => {
     if (onLogoClick) {
       onLogoClick();
     }
-  };
+  }, [onLogoClick]);
+
+  const handleUserMenuToggle = useCallback(() => {
+    setShowUserMenu(prev => !prev);
+  }, []);
+
+  const handleUserMenuItemClick = useCallback((item: any) => {
+    if (item.onClick) {
+      item.onClick();
+    }
+    setShowUserMenu(false);
+  }, []);
   
   return (
     <Box
       as="header"
-      css={[styles.header, sx]}
+      css={[styles.header(mode, themeColors), sx]}
       className={className}
       data-testid={testId}
       role="banner"
+      style={style}
     >
       <div css={styles.leftSection}>
+        {/* Left section content (menu button, collapse button) */}
+        {leftSectionContent && (
+          <div css={styles.leftSectionContent}>
+            {leftSectionContent}
+          </div>
+        )}
+        
+        {/* Logo */}
         {logo && (
           <div 
-            css={[styles.logoWrapper, onLogoClick && css`cursor: pointer;`]}
-            onClick={onLogoClick ? handleLogoClick : undefined}
+            css={styles.logoWrapper}
+            onClick={handleLogoClick}
             role={onLogoClick ? 'button' : undefined}
             tabIndex={onLogoClick ? 0 : undefined}
             onKeyDown={(e: React.KeyboardEvent) => {
@@ -137,78 +177,120 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
           </div>
         )}
         
+        {/* Navigation */}
         {navItems.length > 0 && (
           <Box as="nav" css={styles.nav} aria-label="Main navigation">
             {navItems.map((item) => (
-              <NavLink key={item.id} item={item} />
+              <NavLink key={item.id} item={item} mode={mode} themeColors={themeColors} />
             ))}
           </Box>
         )}
       </div>
       
       <div css={styles.rightSection}>
-        {/* FIX: Sử dụng đúng props của SearchInput */}
-        {showSearch && (
-          <SearchInput
-            value={searchQuery}
-            onChange={handleSearchChange}  // ✅ ĐÚNG: nhận ChangeEvent
-            onSearch={handleSearch}        // ✅ ĐÚNG: nhận string
-            placeholder={searchPlaceholder}
+        {/* Theme Toggle Button */}
+        {onThemeToggle && (
+          <IconButton
             size="sm"
-            css={css`
-              width: 220px;
-              flex-shrink: 1;
-              min-width: 140px;
-              @media (max-width: 1024px) {
-                width: 160px;
-              }
-              @media (max-width: 768px) {
-                display: none;
-              }
-            `}
+            variant="ghost"
+            onClick={onThemeToggle}
+            aria-label={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}
+            icon={mode === 'light' ? <MoonIcon /> : <SunIcon />}
+            css={styles.iconButton(mode, themeColors)}
           />
         )}
+
+        {/* Search Input */}
+        {showSearch && (
+          <div css={styles.searchContainer}>
+            <SearchInput
+              value={searchQuery}
+              onChange={handleSearchChange}
+              onSearch={handleSearch}
+              placeholder={searchPlaceholder}
+              size="sm"
+              css={css`
+                width: 220px;
+                flex-shrink: 1;
+                min-width: 140px;
+                @media (max-width: 1024px) {
+                  width: 160px;
+                }
+                @media (max-width: 768px) {
+                  display: none;
+                }
+              `}
+            />
+          </div>
+        )}
         
+        {/* Custom Actions */}
         <div css={styles.actionsWrapper}>
-          {actions ? actions : <DefaultActions />}
+          {actions ? actions : <DefaultActions mode={mode} themeColors={themeColors} />}
         </div>
         
+        {/* User Menu */}
         {userProfile ? (
-          <DropdownMenu
-            trigger={
-              <Button
-                variant="ghost"
-                size="sm"
-                css={css`
-                  display: flex;
-                  align-items: center;
-                  gap: ${SPACING.sm};
-                  padding: ${SPACING.xs} ${SPACING.sm};
-                `}
-                aria-label="User menu"
-              >
-                <Avatar
+          <div css={styles.userMenuContainer}>
+            <button
+              onClick={handleUserMenuToggle}
+              css={styles.userButton(mode, themeColors)}
+              aria-label="User menu"
+              aria-expanded={showUserMenu}
+            >
+              {userProfile.avatarUrl ? (
+                <img
                   src={userProfile.avatarUrl}
-                  name={userProfile.name}
-                  size="xs"
+                  alt={userProfile.name}
+                  css={styles.userAvatar}
                 />
-                <Text as="span" size="sm" weight="medium">
-                  {userProfile.name}
-                </Text>
-                <svg 
-                  width="12" 
-                  height="12" 
-                  viewBox="0 0 24 24" 
-                  fill="currentColor"
-                  css={{ marginLeft: SPACING.xs }}
-                >
-                  <path d="M7 10l5 5 5-5z"/>
-                </svg>
-              </Button>
-            }
-            items={dropdownMenuItems}
-            align="end"
-          />
+              ) : (
+                <div css={styles.userAvatarPlaceholder(mode, themeColors)}>
+                  {userProfile.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <span css={styles.userName}>{userProfile.name}</span>
+              <span css={styles.dropdownIcon}>
+                <ChevronDownIcon />
+              </span>
+            </button>
+
+            {showUserMenu && (
+              <div css={styles.userMenu(mode, themeColors)}>
+                {/* User Info */}
+                <div css={styles.userInfo(mode, themeColors)}>
+                  <div css={styles.userInfoName}>{userProfile.name}</div>
+                  {userProfile.email && (
+                    <div css={styles.userInfoEmail}>{userProfile.email}</div>
+                  )}
+                  {userProfile.role && (
+                    <div css={styles.userInfoRole}>{userProfile.role}</div>
+                  )}
+                </div>
+
+                {/* Menu Items */}
+                <div css={styles.menuItems}>
+                  {userMenuItems.map((item) => {
+                    if (item.isDivider) {
+                      return (
+                        <div key={item.id} css={styles.menuDivider(mode, themeColors)} />
+                      );
+                    }
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => handleUserMenuItemClick(item)}
+                        css={styles.menuItem(item.danger, mode, themeColors)}
+                      >
+                        {item.icon && <span css={styles.menuItemIcon}>{item.icon}</span>}
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         ) : (
           <div css={styles.actionsWrapper}>
             <Button

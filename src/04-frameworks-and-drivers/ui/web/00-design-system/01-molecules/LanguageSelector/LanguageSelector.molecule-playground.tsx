@@ -1,7 +1,7 @@
 import { Box } from '../../00-atoms/Box';
 import { Text } from '../../00-atoms/Text';
 import { LanguageSelector } from './LanguageSelector.molecule';
-import { I18nProvider } from '../../../app/providers/I18nProvider';
+import { I18nProvider } from '../../../02-app/providers/I18nProvider';
 
 export const LanguageSelectorPlayground = () => {
   return (

@@ -1,16 +1,18 @@
-// src/04-frameworks-and-drivers/ui/web/components/02-organisms/navigation/AppSidebar/AppSidebar.organism.tsx
 /** @jsxImportSource @emotion/react */
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Box } from '../../../00-atoms';
 import * as styles from './AppSidebar.styles';
-import type { AppSidebarProps, SidebarItem, SidebarGroup } from './AppSidebar.types';
+import type { AppSidebarProps, SidebarItem, SidebarGroup, ThemeColors } from './AppSidebar.types';
 
-const SidebarItemComponent = React.memo<({ 
+const SidebarItemComponent = React.memo<{ 
   item: SidebarItem; 
   collapsed: boolean;
-})>(({ item, collapsed }) => {
+  mode?: 'light' | 'dark';
+  themeColors?: ThemeColors;
+  borderRadius?: string;
+}>(({ item, collapsed, mode, themeColors, borderRadius }) => {
   const content = (
     <>
       <div css={styles.itemIcon(collapsed)}>
@@ -20,13 +22,20 @@ const SidebarItemComponent = React.memo<({
         {item.label}
       </span>
       {!collapsed && item.badge && (
-        <span css={styles.badge}>{item.badge}</span>
+        <span css={styles.badge(mode)}>{item.badge}</span>
       )}
     </>
   );
 
   const commonProps = {
-    css: styles.item(!!item.isActive, collapsed, !!item.disabled),
+    css: styles.item(
+      !!item.isActive, 
+      collapsed, 
+      !!item.disabled, 
+      mode, 
+      themeColors,
+      borderRadius
+    ),
     onClick: item.onClick,
     'data-testid': item['data-testid'],
     title: collapsed ? item.label : undefined,
@@ -47,12 +56,19 @@ const SidebarItemComponent = React.memo<({
   );
 });
 
+SidebarItemComponent.displayName = 'SidebarItemComponent';
+
 export const AppSidebar: React.FC<AppSidebarProps> = ({
   logo,
   items,
   collapsed: controlledCollapsed,
   onCollapseChange,
   footer,
+  mode = 'light',
+  themeColors,
+  borderRadius,
+  width,
+  collapsedWidth,
   className,
   sx,
   testId = 'app-sidebar',
@@ -73,9 +89,10 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   return (
     <Box 
       as="aside" 
-      css={[styles.container(collapsed), sx]} 
+      css={[styles.container(collapsed, width, collapsedWidth, mode, themeColors), sx]} 
       className={className}
       data-testid={testId}
+      aria-label="Sidebar navigation"
     >
       {/* Header / Logo */}
       <div css={styles.header}>
@@ -84,7 +101,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
       {/* Collapse Toggle Button */}
       <button 
-        css={styles.collapseButton} 
+        css={styles.collapseButton(mode, themeColors)} 
         onClick={handleToggle}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
@@ -94,13 +111,12 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       {/* Content */}
       <div css={styles.content}>
         {items.map((itemOrGroup, index) => {
-          // Check if it's a group
           if ('items' in itemOrGroup) {
             const group = itemOrGroup as SidebarGroup;
             return (
               <Box key={group.id || index} mb="sm">
                 {group.label && (
-                  <div css={styles.groupLabel(collapsed)}>
+                  <div css={styles.groupLabel(collapsed, mode, themeColors)}>
                     {group.label}
                   </div>
                 )}
@@ -108,19 +124,24 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   <SidebarItemComponent 
                     key={subItem.id} 
                     item={subItem} 
-                    collapsed={collapsed} 
+                    collapsed={collapsed}
+                    mode={mode}
+                    themeColors={themeColors}
+                    borderRadius={borderRadius}
                   />
                 ))}
               </Box>
             );
           }
           
-          // It's a single item
           return (
             <SidebarItemComponent 
               key={(itemOrGroup as SidebarItem).id} 
               item={itemOrGroup as SidebarItem} 
-              collapsed={collapsed} 
+              collapsed={collapsed}
+              mode={mode}
+              themeColors={themeColors}
+              borderRadius={borderRadius}
             />
           );
         })}
@@ -128,10 +149,12 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
       {/* Footer */}
       {footer && (
-        <div css={styles.footer}>
+        <div css={styles.footer(mode, themeColors)}>
           {footer}
         </div>
       )}
     </Box>
   );
 };
+
+AppSidebar.displayName = 'AppSidebar';

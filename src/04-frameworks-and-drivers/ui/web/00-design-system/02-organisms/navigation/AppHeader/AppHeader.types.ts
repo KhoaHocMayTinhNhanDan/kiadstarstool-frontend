@@ -1,4 +1,3 @@
-// src/04-frameworks-and-drivers/ui/web/components/02-organisms/navigation/AppHeader/AppHeader.types.ts
 import type { ReactNode } from 'react';
 import type { SerializedStyles } from '@emotion/react';
 
@@ -28,20 +27,37 @@ export interface UserProfile {
   role?: string;
 }
 
+// Theme colors interface
+export interface ThemeColors {
+  primary: string;
+  surface: string;
+  background: string;
+  text: {
+    primary: string;
+    secondary: string;
+    tertiary: string;
+    inverse: string;
+  };
+  border: {
+    default: string;
+    light: string;
+  };
+}
+
 export interface AppHeaderProps {
-  /** Logo component hoặc ReactNode */
+  /** Logo component */
   logo?: ReactNode;
   
   /** Navigation items */
   navItems?: NavItem[];
   
-  /** User profile - null nếu chưa đăng nhập */
+  /** User profile */
   userProfile?: UserProfile | null;
   
   /** User menu items */
   userMenuItems?: UserMenuItem[];
   
-  /** Custom actions (thay thế default actions) */
+  /** Custom actions */
   actions?: ReactNode;
   
   /** Show search input */
@@ -50,8 +66,17 @@ export interface AppHeaderProps {
   /** Search placeholder */
   searchPlaceholder?: string;
   
-  /** Callback khi search */
+  /** Search callback */
   onSearch?: (query: string) => void;
+  
+  /** Theme toggle callback */
+  onThemeToggle?: () => void;
+  
+  /** Current theme mode */
+  mode?: 'light' | 'dark';
+  
+  /** Theme colors */
+  themeColors?: ThemeColors;
   
   /** Custom className */
   className?: string;
@@ -62,6 +87,12 @@ export interface AppHeaderProps {
   /** Test ID */
   testId?: string;
   
-  /** On logo click */
+  /** Logo click handler */
   onLogoClick?: () => void;
+
+  /** Left section content (for menu button, collapse button) */
+  leftSectionContent?: ReactNode;
+
+  /** Custom styles */
+  style?: React.CSSProperties;
 }

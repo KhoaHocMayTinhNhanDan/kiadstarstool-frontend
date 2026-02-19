@@ -19,6 +19,8 @@ export class ListUsersInteractor {
         displayName: user.profile.displayName,
         role: user.role.value,
         isActive: user.isActive,
+        email: user.profile.email,
+        photoURL: user.profile.photoURL,
       }));
 
       return Result.ok<UserOutput[]>(userOutputs);

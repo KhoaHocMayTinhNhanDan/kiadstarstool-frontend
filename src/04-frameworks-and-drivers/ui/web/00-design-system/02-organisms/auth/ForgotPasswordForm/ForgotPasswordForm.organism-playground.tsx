@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ForgotPasswordForm from './ForgotPasswordForm.organism';
 import type { ForgotPasswordFormData } from './ForgotPasswordForm.organism.types';
 import { Box, Text } from '../../../00-atoms';
-import { I18nProvider } from '../../../../app/providers/I18nProvider';
+import { I18nProvider } from '../../../../02-app/providers/I18nProvider';
 import { LanguageSelector } from '../../../01-molecules/LanguageSelector/LanguageSelector.molecule';
 
 export const ForgotPasswordFormPlayground = () => {

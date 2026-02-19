@@ -1,8 +1,8 @@
 export interface UserOutput {
   id: string;
   displayName: string;
-  // Consider adding more fields as needed by the UI
-  // email: string;
+  email?: string;
+  photoURL?: string;
   role: string;
   isActive: boolean;
 }

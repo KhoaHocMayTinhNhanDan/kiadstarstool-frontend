@@ -1,13 +1,14 @@
-// src/04-frameworks-and-drivers/ui/web/components/02-organisms/navigation/AppFooter/AppFooter.organism.tsx
 /** @jsxImportSource @emotion/react */
 import React from 'react';
-import { Box, Text } from '../../../00-atoms';
 import { Link as RouterLink } from 'react-router-dom';
+import { Box, Text } from '../../../00-atoms';
+import { useMode } from '../../../../01-ui-core/hooks/useMode';
 import * as styles from './AppFooter.styles';
 import type { AppFooterProps, FooterLink } from './AppFooter.types';
 
-// Simple, type-safe solution
 const FooterLinkItem: React.FC<{ link: FooterLink }> = ({ link }) => {
+  const { mode } = useMode();
+  
   const isInternal = link.href.startsWith('/');
   const rel = link.rel || (link.target === '_blank' ? 'noopener noreferrer' : undefined);
   
@@ -18,7 +19,7 @@ const FooterLinkItem: React.FC<{ link: FooterLink }> = ({ link }) => {
         target={link.target}
         rel={rel}
         aria-label={link.ariaLabel || link.label}
-        css={styles.link}
+        css={styles.link(mode)}
       >
         {link.icon && <span css={styles.linkIcon}>{link.icon}</span>}
         {link.label}
@@ -32,7 +33,7 @@ const FooterLinkItem: React.FC<{ link: FooterLink }> = ({ link }) => {
       target={link.target}
       rel={rel}
       aria-label={link.ariaLabel || link.label}
-      css={styles.link}
+      css={styles.link(mode)}
     >
       {link.icon && <span css={styles.linkIcon}>{link.icon}</span>}
       {link.label}
@@ -40,14 +41,6 @@ const FooterLinkItem: React.FC<{ link: FooterLink }> = ({ link }) => {
   );
 };
 
-/**
- * AppFooter - Production Ready Component
- * 
- * Features:
- * ✅ Type-safe 100% - không cần @ts-ignore
- * ✅ Clean and simple
- * ✅ Dễ maintain
- */
 export const AppFooter: React.FC<AppFooterProps> = React.memo(({
   copyright,
   links = [],
@@ -56,6 +49,8 @@ export const AppFooter: React.FC<AppFooterProps> = React.memo(({
   className,
   sx,
 }) => {
+  const { mode } = useMode();
+  
   const defaultCopyright = (
     <Text>
       &copy; {new Date().getFullYear()} Your Company. All rights reserved.
@@ -67,14 +62,14 @@ export const AppFooter: React.FC<AppFooterProps> = React.memo(({
   return (
     <Box
       as="footer"
-      css={[styles.footer, sx]}
+      css={[styles.footer(mode), sx]}
       className={className}
       role="contentinfo"
       aria-label="Site footer"
       data-testid={testId}
     >
       <div css={styles.container}>
-        <div css={styles.copyright}>
+        <div css={styles.copyright(mode)}>
           {copyrightContent}
         </div>
         
@@ -95,5 +90,3 @@ export const AppFooter: React.FC<AppFooterProps> = React.memo(({
 });
 
 AppFooter.displayName = 'AppFooter';
-
-export { FooterLinkItem };

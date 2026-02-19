@@ -2,6 +2,7 @@
 
 import { Result } from '@/01-entities/shared/base/result';
 import { type Class } from '@/01-entities/classes/Class.entity';
+import { type DayOfWeek } from '@/01-entities/classes/ClassSession';
 import { type IClassRepository } from './ports/gateways_interface/IClassRepository';
 import { type ListClassesByDateInput } from './ports/input/ListClassesByDate.input';
 import { type ListClassesByDateOutput } from './ports/output/ListClassesByDate.output';
@@ -70,6 +71,3 @@ export class ListClassesByDateInteractor {
     }
   }
 }
-
-
-type DayOfWeek =  "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";

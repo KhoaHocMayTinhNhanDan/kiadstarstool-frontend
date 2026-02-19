@@ -20,7 +20,7 @@ export interface StudentDTO {
 }
 
 let studentStore: StudentDTO[] = [];
-const STORAGE_KEY = 'mock_students_db_v7';
+const STORAGE_KEY = 'mock_students_db_v9';
 
 export class MockStudentDataSource implements IStudentDataSource {
   constructor() {
@@ -155,6 +155,106 @@ export class MockStudentDataSource implements IStudentDataSource {
           status: 'inactive',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-01', status: 'dropped', joinedDate: '2025-01-01', endDate: '2025-06-01' }
+          ]
+        },
+        {
+          id: 'student-12',
+          name: 'Lê Hoàn',
+          email: 'hoan.le@example.com',
+          phone: '0955112233',
+          status: 'active',
+          enrollments: [
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-28' }
+          ]
+        },
+        {
+          id: 'student-13',
+          name: 'Lý Công Uẩn',
+          email: 'uan.ly@example.com',
+          phone: '0966223344',
+          status: 'active',
+          enrollments: [
+            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-20' }
+          ]
+        },
+        {
+          id: 'student-14',
+          name: 'Trần Nhân Tông',
+          email: 'tong.tran@example.com',
+          phone: '0977334455',
+          status: 'active',
+          enrollments: [
+            { branchId: 'branch-01', classId: 'class-05', status: 'active', joinedDate: '2025-12-20' }
+          ]
+        },
+        {
+          id: 'student-15',
+          name: 'Lê Thánh Tông',
+          email: 'tong.le@example.com',
+          phone: '0988445566',
+          status: 'active',
+          enrollments: [
+            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-18' }
+          ]
+        },
+        {
+          id: 'student-16',
+          name: 'Quang Trung',
+          email: 'trung.quang@example.com',
+          phone: '0999556677',
+          status: 'active',
+          enrollments: [
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-22' }
+          ]
+        },
+        {
+          id: 'student-17',
+          name: 'Yết Kiêu',
+          email: 'kieu.yet@example.com',
+          phone: '0913456789',
+          status: 'active',
+          enrollments: [
+            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-18' }
+          ]
+        },
+        {
+          id: 'student-18',
+          name: 'Dã Tượng',
+          email: 'tuong.da@example.com',
+          phone: '0924567890',
+          status: 'active',
+          enrollments: [
+            { branchId: 'branch-01', classId: 'class-05', status: 'active', joinedDate: '2025-12-18' }
+          ]
+        },
+        {
+          id: 'student-19',
+          name: 'Phạm Ngũ Lão',
+          email: 'lao.pham@example.com',
+          phone: '0935678901',
+          status: 'active',
+          enrollments: [
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-23' }
+          ]
+        },
+        {
+          id: 'student-20',
+          name: 'Trần Quốc Tuấn',
+          email: 'tuan.tran@example.com',
+          phone: '0946789012',
+          status: 'active',
+          enrollments: [
+            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-19' }
+          ]
+        },
+        {
+          id: 'student-21',
+          name: 'Võ Thị Sáu',
+          email: 'sau.vo@example.com',
+          phone: '0957890123',
+          status: 'inactive',
+          enrollments: [
+            { branchId: 'branch-02', classId: 'class-04', status: 'completed', joinedDate: '2025-01-12', endDate: '2025-04-09' }
           ]
         }
       ];

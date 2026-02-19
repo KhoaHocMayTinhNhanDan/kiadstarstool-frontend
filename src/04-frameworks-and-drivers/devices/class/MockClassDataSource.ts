@@ -6,7 +6,7 @@ import { type IClassDataSource } from '@/03-interface-adapters/gateways/outbound
 import { type ClassSession } from '@/01-entities/classes/ClassSession';
 
 let classStore = new Map<string, Class>();
-const STORAGE_KEY = 'mock_classes_db_v12';
+const STORAGE_KEY = 'mock_classes_db_v14';
 
 export class MockClassDataSource implements IClassDataSource {
   constructor() {
@@ -116,7 +116,7 @@ export class MockClassDataSource implements IClassDataSource {
           ] as ClassSession[],
           teacherName: 'Hoàng Thị E'
         },
-        // --- Lớp học tương lai (Test Logic Entity) ---
+        // --- Lớp học tương lai & lớp đã kết thúc ---
         {
           id: 'class-future',
           branchId: 'branch-01',
@@ -130,6 +130,64 @@ export class MockClassDataSource implements IClassDataSource {
             { day: 'Mon', startTime: '18:00', endTime: '19:30' }
           ] as ClassSession[],
           teacherName: 'Giáo viên Mới'
+        },
+        {
+          id: 'class-06',
+          branchId: 'branch-01',
+          name: 'Ngữ Pháp Nâng Cao',
+          code: 'GRAMMAR-ADV',
+          status: ClassStatus.ACTIVE,
+          maxStudents: 20,
+          currentStudents: 0,
+          startDate: new Date('2026-02-01'),
+          sessions: [
+            { day: 'Tue', startTime: '18:00', endTime: '19:30' },
+            { day: 'Thu', startTime: '18:00', endTime: '19:30' }
+          ] as ClassSession[],
+          teacherName: 'Lê Văn C'
+        },
+        {
+          id: 'class-07',
+          branchId: 'branch-02',
+          name: 'Luyện Nói IELTS',
+          code: 'IELTS-SPK',
+          status: ClassStatus.ACTIVE,
+          maxStudents: 10,
+          currentStudents: 0,
+          startDate: new Date('2026-02-10'),
+          sessions: [
+            { day: 'Wed', startTime: '19:00', endTime: '20:30' }
+          ] as ClassSession[],
+          teacherName: 'Hoàng Thị E'
+        },
+        {
+          id: 'class-08',
+          branchId: 'branch-01',
+          name: 'Tiếng Anh Doanh Nghiệp',
+          code: 'BIZ-ENG-01',
+          status: ClassStatus.ACTIVE,
+          maxStudents: 18,
+          currentStudents: 0,
+          startDate: new Date('2025-12-01'),
+          sessions: [
+            { day: 'Fri', startTime: '14:00', endTime: '15:30' }
+          ] as ClassSession[],
+          teacherName: 'Trần Thị B'
+        },
+        {
+          id: 'class-09',
+          branchId: 'branch-02',
+          name: 'TOEIC Nâng Cao',
+          code: 'TOEIC-A-01',
+          status: ClassStatus.ACTIVE,
+          maxStudents: 25,
+          currentStudents: 0,
+          startDate: new Date('2026-01-20'),
+          sessions: [
+            { day: 'Tue', startTime: '09:00', endTime: '10:30' },
+            { day: 'Thu', startTime: '09:00', endTime: '10:30' }
+          ] as ClassSession[],
+          teacherName: 'Phạm Văn D'
         }
       ];
 
@@ -201,7 +259,7 @@ export class MockClassDataSource implements IClassDataSource {
   // Helper: Tính toán sĩ số thực tế từ MockStudentDataSource
   private getRealStudentCount(classId: string): number {
     try {
-      const studentsJson = localStorage.getItem('mock_students_db_v7');
+      const studentsJson = localStorage.getItem('mock_students_db_v9');
       if (!studentsJson) return 0;
       const students = JSON.parse(studentsJson);
       

@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { useTheme } from '../../../app/providers/ThemeProvider';
+import { useTheme } from '../../../02-app/providers/ThemeProvider';
 import { Icon } from '../../00-atoms/Icon';
 import { IconButton } from '../../00-atoms/IconButton';
 import type { ThemeToggleProps } from './ThemeToggle.types';

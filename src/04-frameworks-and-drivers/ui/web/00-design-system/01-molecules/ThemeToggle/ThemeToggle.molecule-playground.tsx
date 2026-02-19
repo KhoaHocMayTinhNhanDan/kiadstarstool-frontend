@@ -1,7 +1,7 @@
 import { Box } from '../../00-atoms/Box';
 import { Text } from '../../00-atoms/Text';
 import { ThemeToggle } from './ThemeToggle.molecule';
-import { useTheme, ThemeProvider } from '../../../app/providers/ThemeProvider';
+import { useTheme, ThemeProvider } from '../../../02-app/providers/ThemeProvider';
 
 const ThemeToggleDemo = () => {
   const { theme } = useTheme();
