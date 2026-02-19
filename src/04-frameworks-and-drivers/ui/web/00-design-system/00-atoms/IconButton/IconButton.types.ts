@@ -7,5 +7,6 @@ export interface IconButtonProps
   extends Omit<ButtonProps<'button'>, 'children'> {
   icon: ReactNode;
   'aria-label': string;
+  badge?: ReactNode;
   sx?: CSSObject;
 }

@@ -24,7 +24,8 @@ export const IconButton = React.forwardRef<
   IconButtonProps
 >(({ 
   icon, 
-  size = 'md', 
+  size = 'md',
+  badge,
   sx, 
   className,
   ...props 
@@ -37,6 +38,7 @@ export const IconButton = React.forwardRef<
     flex-shrink: 0;
     line-height: 0;
     aspect-ratio: 1 / 1;
+    position: relative; /* Needed for badge positioning */
     
     /* Đảm bảo kích thước tối thiểu cho accessibility */
     min-width: 32px;
@@ -53,6 +55,26 @@ export const IconButton = React.forwardRef<
     }
   `;
   
+  const badgeStyles = css`
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    transform: translate(40%, -40%);
+    background-color: #e53e3e; /* Danger color */
+    color: white;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 0 5px;
+    line-height: 1.5;
+    min-width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  `;
+
   return (
     <Button
       ref={ref}
@@ -64,6 +86,11 @@ export const IconButton = React.forwardRef<
       <Icon size="inherit">
         {icon}
       </Icon>
+      {badge != null && badge !== '' && (
+        <span css={badgeStyles}>
+          {badge}
+        </span>
+      )}
     </Button>
   );
 });

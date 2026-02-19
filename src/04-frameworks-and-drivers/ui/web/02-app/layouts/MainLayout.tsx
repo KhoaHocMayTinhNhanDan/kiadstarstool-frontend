@@ -7,7 +7,7 @@ import { AppSidebar } from '../../00-design-system/02-organisms/navigation/AppSi
 import { Box } from '../../00-design-system/00-atoms/Box';
 import { Icon } from '../../00-design-system/00-atoms/Icon';
 import { IconButton } from '../../00-design-system/00-atoms/IconButton';
-import { Breadcrumb } from '../../00-design-system/02-organisms/navigation/Breadcrumbs/Breadcrumbs.organism';
+import { Breadcrumbs } from '../../00-design-system/02-organisms/navigation/Breadcrumbs/Breadcrumbs.organism';
 import { 
   LayoutDashboard, Users, BookOpen, GraduationCap, 
   ClipboardCheck, Building, Settings, User, LogOut,
@@ -54,18 +54,6 @@ export const MainLayout = () => {
 
   // Get current page title
   const currentPageTitle = pageTitles[location.pathname] || 'Trang chủ';
-
-  // Generate breadcrumbs from path
-  const breadcrumbs = location.pathname
-    .split('/')
-    .filter(Boolean)
-    .map((segment, index, array) => {
-      const path = '/' + array.slice(0, index + 1).join('/');
-      return {
-        label: pageTitles[path] || segment,
-        href: path,
-      };
-    });
 
   // Navigation items - CHỈ ĐỂ TRONG SIDEBAR
   const navItems = [
@@ -301,158 +289,36 @@ export const MainLayout = () => {
       >
         {/* Header - CHỈ LÀM NHIỆM VỤ HEADER */}
         <AppHeader
-          // Left section: menu button + collapse button + page title
-          leftContent={
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+          // Pass content to the correct props of AppHeader
+          leftSectionContent={
+            <>
               {menuButton}
               {collapseButton}
-              <div>
-                <h1 style={{ 
-                  fontSize: '20px', 
-                  fontWeight: 600,
-                  margin: 0,
-                  color: mode.colors.text.primary,
-                }}>
-                  {currentPageTitle}
-                </h1>
-                {breadcrumbs.length > 0 && (
-                  <Breadcrumb
-                    items={breadcrumbs}
-                    separator="/"
-                    size="sm"
-                    css={{ marginTop: '2px' }}
-                  />
-                )}
-              </div>
+            </>
+          }
+          logo={
+            <div>
+              <h1 style={{ fontSize: '20px', fontWeight: 600, margin: 0 }}>
+                {currentPageTitle}
+              </h1>
+              <Breadcrumbs />
             </div>
           }
-          
-          // Right section: search + actions + user
-          rightContent={
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {/* Search */}
-              <Box
-                css={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  backgroundColor: mode.colors.background.tertiary,
-                  borderRadius: '8px',
-                  padding: '0 12px',
-                  height: '36px',
-                  width: '240px',
-                  '@media (max-width: 768px)': {
-                    display: 'none',
-                  },
-                }}
-              >
-                <Icon size="sm" color={mode.colors.text.tertiary}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
-                </Icon>
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm..."
-                  css={{
-                    border: 'none',
-                    background: 'transparent',
-                    padding: '8px 12px',
-                    fontSize: '14px',
-                    width: '100%',
-                    color: mode.colors.text.primary,
-                    '&::placeholder': {
-                      color: mode.colors.text.tertiary,
-                    },
-                    '&:focus': {
-                      outline: 'none',
-                    },
-                  }}
-                />
-              </Box>
-
-              {/* Theme Toggle */}
-              <IconButton
-                size="sm"
-                variant="ghost"
-                onClick={toggleMode}
-                aria-label="Toggle theme"
-                icon={
-                  mode.id === 'dark' 
-                    ? <Sun size={18} /> 
-                    : <Moon size={18} />
-                }
-                css={{
-                  border: `1px solid ${mode.colors.border.light}`,
-                }}
-              />
-
-              {/* Custom Actions */}
-              {headerActions}
-
-              {/* User Menu */}
-              {user && (
-                <div css={{ position: 'relative', marginLeft: '4px' }}>
-                  <button
-                    onClick={() => {}} // Mở menu
-                    css={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      padding: '4px 8px 4px 4px',
-                      borderRadius: '8px',
-                      background: 'transparent',
-                      border: `1px solid ${mode.colors.border.light}`,
-                      cursor: 'pointer',
-                      '&:hover': {
-                        backgroundColor: mode.colors.background.tertiary,
-                      },
-                    }}
-                  >
-                    {user.photoURL ? (
-                      <img
-                        src={user.photoURL}
-                        alt={user.displayName || 'User'}
-                        css={{
-                          width: '28px',
-                          height: '28px',
-                          borderRadius: '6px',
-                          objectFit: 'cover',
-                        }}
-                      />
-                    ) : (
-                      <div css={{
-                        width: '28px',
-                        height: '28px',
-                        borderRadius: '6px',
-                        backgroundColor: themeColors.primary,
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 600,
-                        fontSize: '14px',
-                      }}>
-                        {(user.displayName || 'U').charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <span css={{
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      '@media (max-width: 1024px)': {
-                        display: 'none',
-                      },
-                    }}>
-                      {user.displayName || 'User'}
-                    </span>
-                  </button>
-                </div>
-              )}
-            </div>
-          }
-          
+          showSearch={true}
+          searchPlaceholder="Tìm kiếm..."
+          onSearch={(query) => console.log('Search:', query)}
+          actions={headerActions}
+          onThemeToggle={toggleMode}
+          userProfile={user ? {
+            name: user.displayName || 'User',
+            email: user.email || '',
+            avatarUrl: user.photoURL,
+            role: user.role,
+          } : null}
+          userMenuItems={userMenuItems}
           mode={mode.id}
           themeColors={themeColors}
-          sx={{
+          css={{
             borderBottom: `1px solid ${mode.colors.border.default}`,
             backgroundColor: mode.colors.surface.primary,
           }}
