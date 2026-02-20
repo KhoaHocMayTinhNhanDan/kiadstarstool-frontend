@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Filter, Search, Mail, Phone, MoreHorizontal } from 'lucide-react';
+import { Plus, Filter, Search, Mail, Phone, MoreHorizontal, DollarSign } from 'lucide-react';
 import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SPACING, RADIUS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
 import { AppContext } from '@/00-core/app-context';
@@ -130,6 +130,7 @@ export const StudentListPage = () => {
               <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Liên hệ</Text></th>
               <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Trạng thái</Text></th>
               <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Ngày tham gia</Text></th>
+              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Học phí</Text></th>
               <th style={{ padding: SPACING.md, textAlign: 'right' }}></th>
             </tr>
           </thead>
@@ -139,23 +140,40 @@ export const StudentListPage = () => {
             ) : filteredStudents.length === 0 ? (
               <tr><td colSpan={5} style={{ padding: SPACING.xl, textAlign: 'center' }}><Text color="SECONDARY">Không tìm thấy học viên nào.</Text></td></tr>
             ) : (
-              paginatedStudents.map(student => (
-                <tr key={student.id} style={{ borderBottom: `1px solid ${COLORS.NEUTRAL_BORDER}`, cursor: 'pointer' }} onClick={() => navigate(`/students/${student.id}`)}>
-                  <td style={{ padding: SPACING.md }}>
-                    <Text weight="medium">{student.name}</Text>
-                    <Text size="xs" color="SECONDARY">{student.id}</Text>
-                  </td>
-                  <td style={{ padding: SPACING.md }}>
-                    <Box display="flex" flexDirection="column" gap="xs">
-                      <Box display="flex" alignItems="center" gap="xs"><Icon size="xs" color="SECONDARY"><Mail /></Icon><Text size="sm">{student.email}</Text></Box>
-                      <Box display="flex" alignItems="center" gap="xs"><Icon size="xs" color="SECONDARY"><Phone /></Icon><Text size="sm">{student.phone}</Text></Box>
-                    </Box>
-                  </td>
-                  <td style={{ padding: SPACING.md }}><Text size="sm">{student.status}</Text></td>
-                  <td style={{ padding: SPACING.md }}><Text size="sm">{new Date(student.joinedDate).toLocaleDateString('vi-VN')}</Text></td>
-                  <td style={{ padding: SPACING.md, textAlign: 'right' }}><Button variant="ghost" size="sm"><Icon><MoreHorizontal /></Icon></Button></td>
-                </tr>
-              ))
+              paginatedStudents.map(student => {
+                // Lấy thông tin học phí từ enrollment active đầu tiên (nếu có)
+                const activeEnrollment = student.enrollments?.find((e: any) => e.status === 'active');
+                const paymentStatus = activeEnrollment?.paymentStatus || 'unknown';
+                const tuitionAmount = activeEnrollment?.tuitionAmount || 0;
+
+                return (
+                  <tr key={student.id} style={{ borderBottom: `1px solid ${COLORS.NEUTRAL_BORDER}`, cursor: 'pointer' }} onClick={() => navigate(`/students/${student.id}`)}>
+                    <td style={{ padding: SPACING.md }}>
+                      <Text weight="medium">{student.name}</Text>
+                      <Text size="xs" color="SECONDARY">{student.id}</Text>
+                    </td>
+                    <td style={{ padding: SPACING.md }}>
+                      <Box display="flex" flexDirection="column" gap="xs">
+                        <Box display="flex" alignItems="center" gap="xs"><Icon size="xs" color="SECONDARY"><Mail /></Icon><Text size="sm">{student.email}</Text></Box>
+                        <Box display="flex" alignItems="center" gap="xs"><Icon size="xs" color="SECONDARY"><Phone /></Icon><Text size="sm">{student.phone}</Text></Box>
+                      </Box>
+                    </td>
+                    <td style={{ padding: SPACING.md }}><Text size="sm">{student.status}</Text></td>
+                    <td style={{ padding: SPACING.md }}><Text size="sm">{new Date(student.joinedDate).toLocaleDateString('vi-VN')}</Text></td>
+                    <td style={{ padding: SPACING.md }}>
+                      {activeEnrollment ? (
+                        <Box display="flex" flexDirection="column" gap="xxs">
+                          <Text size="sm" weight="medium">{tuitionAmount.toLocaleString('vi-VN')} đ</Text>
+                          <Text size="xs" color={paymentStatus === 'paid' ? 'SUCCESS' : (paymentStatus === 'unpaid' ? 'DANGER' : 'WARNING')}>
+                            {paymentStatus === 'paid' ? 'Đã đóng' : (paymentStatus === 'unpaid' ? 'Chưa đóng' : 'Đóng một phần')}
+                          </Text>
+                        </Box>
+                      ) : <Text size="sm" color="SECONDARY">-</Text>}
+                    </td>
+                    <td style={{ padding: SPACING.md, textAlign: 'right' }}><Button variant="ghost" size="sm"><Icon><MoreHorizontal /></Icon></Button></td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

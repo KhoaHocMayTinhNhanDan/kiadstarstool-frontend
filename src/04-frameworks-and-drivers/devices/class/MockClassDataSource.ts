@@ -272,7 +272,7 @@ export class MockClassDataSource implements IClassDataSource {
   // Helper: Tính toán sĩ số thực tế từ MockStudentDataSource
   private getRealStudentCount(classId: string): number {
     try {
-      const studentsJson = localStorage.getItem('mock_students_db_v9');
+      const studentsJson = localStorage.getItem('mock_students_db_v14');
       if (!studentsJson) return 0;
       const students = JSON.parse(studentsJson);
       

@@ -3,7 +3,7 @@ import { Student } from '@/01-entities/students/Student.entity';
 import { type StudentDTO } from './student.dto';
 
 let studentStore: StudentDTO[] = [];
-const STORAGE_KEY = 'mock_students_db_v10';
+const STORAGE_KEY = 'mock_students_db_v14'; // Bump version to ensure fresh data
 
 export class MockStudentDataSource implements IStudentDataSource {
   constructor() {
@@ -137,7 +137,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0944556677',
           status: 'archived',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'dropped', joinedDate: '2025-01-01', endDate: '2025-06-01' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'dropped', joinedDate: '2025-01-01', endDate: '2025-06-01', tuitionAmount: 5000000, paymentStatus: 'unpaid' }
           ]
         },
         {
@@ -237,7 +237,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0957890123',
           status: 'archived',
           enrollments: [
-            { branchId: 'branch-02', classId: 'class-04', status: 'completed', joinedDate: '2025-01-12', endDate: '2025-04-09' }
+            { branchId: 'branch-02', classId: 'class-04', status: 'completed', joinedDate: '2025-01-12', endDate: '2025-04-09', tuitionAmount: 6000000, paymentStatus: 'paid' }
           ]
         }
       ];

@@ -29,7 +29,7 @@ export class CreateClassInteractor {
         code: input.code,
         maxStudents: input.maxStudents || 20,
         status: input.status,
-        sessions: input.sessions,
+        sessions: input.sessions || [],
         teacherName: input.teacherName,
         tuition: input.tuition,
         currentStudents: 0,
