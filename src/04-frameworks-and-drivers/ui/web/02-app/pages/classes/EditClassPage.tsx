@@ -29,7 +29,7 @@ export const EditClassPage = () => {
     name: string;
     branchId: string;
     code: string;
-    maxStudents: number;
+    maxStudents: number | '';
     status: ClassStatus;
   }
 
@@ -39,13 +39,18 @@ export const EditClassPage = () => {
     name: '',
     branchId: '',
     code: '',
-    maxStudents: 20,
-    status: ClassStatus.ACTIVE
+    maxStudents: '',
+    status: 'active'
   });
 
   // Schedule State
   const [sessions, setSessions] = useState<{ id: string; day: DayOfWeek; startTime: string; endTime: string }[]>([]);
   const [teacherName, setTeacherName] = useState('');
+  const [tuition, setTuition] = useState<{ courseFee: number | ''; sessionFee: number | ''; monthlyFee: number | '' }>({
+    courseFee: '',
+    sessionFee: '',
+    monthlyFee: ''
+  });
 
   // 1. Load Data
   useEffect(() => {
@@ -74,7 +79,7 @@ export const EditClassPage = () => {
             maxStudents: data.maxStudents,
             status: data.status
           });
-          setTeacherName((data as any).teacherName || '');
+          setTeacherName(data.teacherName || '');
 
           // Populate sessions from structured data
           if (data.sessions && Array.isArray(data.sessions)) {
@@ -82,6 +87,14 @@ export const EditClassPage = () => {
               ...s,
               id: Math.random().toString() // Add a temporary unique ID for UI keys
             })));
+          }
+
+          if (data.tuition) {
+            setTuition({ 
+              courseFee: data.tuition.courseFee || '',
+              sessionFee: data.tuition.sessionFee || '',
+              monthlyFee: data.tuition.monthlyFee || ''
+            });
           }
         } else {
           toast.error(t('classes.not_found'));
@@ -136,8 +149,16 @@ export const EditClassPage = () => {
         classId: formData.id,
         name: formData.name,
         code: formData.code,
-        maxStudents: formData.maxStudents,
+        maxStudents: formData.maxStudents === '' ? undefined : Number(formData.maxStudents),
         status: formData.status,
+        teacherName: teacherName,
+        sessions: finalSessions,
+        tuition: { 
+          courseFee: tuition.courseFee ? Number(tuition.courseFee) : undefined,
+          sessionFee: tuition.sessionFee ? Number(tuition.sessionFee) : undefined,
+          monthlyFee: tuition.monthlyFee ? Number(tuition.monthlyFee) : undefined,
+          currency: 'VND' 
+        }
       });
 
       if (result.isSuccess) {
@@ -318,8 +339,45 @@ export const EditClassPage = () => {
             <Input 
               type="number"
               value={formData.maxStudents}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('maxStudents', Number(e.target.value))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const value = e.target.value;
+                handleChange('maxStudents', value === '' ? '' : Number(value));
+              }}
             />
+          </Box>
+        </Box>
+
+        {/* Tuition */}
+        <Box>
+          <Text weight="semibold" mb="xs">Học phí</Text>
+          <Box display="grid" gridTemplateColumns="1fr 1fr 1fr" gap="md">
+            <Box>
+              <Text size="sm" mb="xxs">Theo khóa</Text>
+              <Input 
+                type="number"
+                placeholder="VNĐ"
+                value={tuition.courseFee}
+                onChange={(e) => setTuition(prev => ({ ...prev, courseFee: e.target.value === '' ? '' : Number(e.target.value) }))}
+              />
+            </Box>
+            <Box>
+              <Text size="sm" mb="xxs">Theo buổi</Text>
+              <Input 
+                type="number"
+                placeholder="VNĐ"
+                value={tuition.sessionFee}
+                onChange={(e) => setTuition(prev => ({ ...prev, sessionFee: e.target.value === '' ? '' : Number(e.target.value) }))}
+              />
+            </Box>
+            <Box>
+              <Text size="sm" mb="xxs">Theo tháng</Text>
+              <Input 
+                type="number"
+                placeholder="VNĐ"
+                value={tuition.monthlyFee}
+                onChange={(e) => setTuition(prev => ({ ...prev, monthlyFee: e.target.value === '' ? '' : Number(e.target.value) }))}
+              />
+            </Box>
           </Box>
         </Box>
 

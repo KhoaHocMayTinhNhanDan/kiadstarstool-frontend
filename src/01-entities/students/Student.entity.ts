@@ -94,6 +94,13 @@ export class Student extends Entity<Identifier> {
       .map(e => e.branchId))];
   }
 
+  // Domain Method: Cập nhật thông tin enrollment (ví dụ: sau khi điểm danh)
+  public updateEnrollment(index: number, enrollment: Enrollment): Result<void> {
+    if (index < 0 || index >= this._enrollments.length) return Result.fail('Enrollment index out of bounds');
+    this._enrollments[index] = enrollment;
+    return Result.ok();
+  }
+
   public static create(props: StudentProps, id?: Identifier): Result<Student> {
     if (!props.name) {
       return Result.fail<Student>('Name is required');

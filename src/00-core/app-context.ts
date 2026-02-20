@@ -7,7 +7,6 @@ import type { UsersController } from '@/03-interface-adapters/controllers/Users.
 import type { BranchController } from '@/03-interface-adapters/controllers/Branch.controller';
 import type { ClassesController } from '@/03-interface-adapters/controllers/Classes.controller';
 import type { StudentsController } from '@/03-interface-adapters/controllers/Students.controller';
-import type { DashboardController } from '@/03-interface-adapters/controllers/Dashboard.controller';
 import type { AttendanceController } from '@/03-interface-adapters/controllers/Attendance.controller';
 import type { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
 import type { LoginInteractor } from '@/02-usecases/auth/Login.interactor'
@@ -57,11 +56,6 @@ export type AppContextType = {
   // Attendance feature
   attendance?: {
     controller: AttendanceController;
-  }
-
-  // Dashboard feature
-  dashboard?: {
-    controller: DashboardController;
   }
   
   // Configuration
@@ -154,14 +148,6 @@ class AppContextImpl {
     return ctx.attendance;
   }
 
-  static getDashboard() {
-    const ctx = this.get();
-    if (!ctx.dashboard) {
-      throw new Error('[AppContext] Dashboard feature not configured.');
-    }
-    return ctx.dashboard;
-  }
-
   static getConfig() {
     const ctx = this.get()
     if (!ctx.config) {
@@ -204,10 +190,6 @@ class AppContextImpl {
 
   static getAttendanceController(): AttendanceController {
     return this.getAttendance().controller;
-  }
-
-  static getDashboardController(): DashboardController {
-    return this.getDashboard().controller;
   }
 
   static getLoginInteractor(): LoginInteractor {
@@ -282,7 +264,6 @@ class AppContextImpl {
         ...(ctx.branch ? ['branch'] : []),
         ...(ctx.classes ? ['classes'] : []),
         ...(ctx.students ? ['students'] : []),
-        ...(ctx.dashboard ? ['dashboard'] : []),
         ...(ctx.attendance ? ['attendance'] : []),
       ],
       config: ctx.config || {},

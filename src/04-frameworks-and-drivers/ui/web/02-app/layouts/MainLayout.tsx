@@ -226,7 +226,7 @@ export const MainLayout = () => {
           {/* Overlay */}
           {mobileOpen && (
             <Box
-              css={{
+              xs={{
                 position: 'fixed',
                 top: 0,
                 left: 0,

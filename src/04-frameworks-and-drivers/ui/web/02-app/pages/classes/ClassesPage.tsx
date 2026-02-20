@@ -13,89 +13,73 @@ import {
 import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
 import { AppContext } from '@/00-core/app-context';
+import { type ListClassesByBranchOutputItem } from '@/02-usecases/class/ports/output/ListClassesByBranch.output';
+import { type BranchListItem } from '@/02-usecases/branch/ports/output/ListBranches.output';
 
-// Định nghĩa kiểu dữ liệu cho một lớp học và chi nhánh trong danh sách
-interface ClassListItem {
-  id: string;
-  name: string;
-  students: number;
-  schedule: string;
+// Định nghĩa một View Model cho card lớp học để bao gồm cả tên chi nhánh
+interface ClassCardViewModel extends ListClassesByBranchOutputItem {
   branchName: string;
-  teacherName: string;
-  status: string;
-  sessions: any[]; // Thêm trường sessions để tính giờ
 }
 
-type BranchListItem = { id: string; name: string };
-
-export const ClassesListPage = () => {
+export const ClassesPage = () => {
   const navigate = useNavigate();
-  const [classes, setClasses] = useState<ClassListItem[]>([]);
+  const [classes, setClasses] = useState<ClassCardViewModel[]>([]);
   const [branches, setBranches] = useState<BranchListItem[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState('');
 
-  // 1. Fetch Branches để làm bộ lọc
+  // Fetch data for branches and classes
   useEffect(() => {
-    const fetchBranches = async () => {
-      try {
-        const controller = AppContext.getBranchController();
-        const result = await controller.listBranches({});
-        if (result.isSuccess) {
-          setBranches(result.getValue());
-        }
-      } catch (error) {
-        console.error('Failed to fetch branches', error);
-      }
-    };
-    fetchBranches();
-  }, []);
-
-  // 2. Fetch Classes
-  useEffect(() => {
-    const fetchClasses = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
-        const controller = AppContext.getClassesController();
-        // Truyền trực tiếp branchId (string) thay vì một object
-        const result = await controller.listClassesByBranch(selectedBranchId);
-        
-        if (result.isSuccess) {
-          const data = result.getValue();
-          // Map Entity -> View Model
-          const mappedData = data.map((c: any) => {
-            return {
-              id: c.id, // Interactor đã trả về string
-              name: c.name,
-              students: c.currentStudents || 0,
-              schedule: c.schedule || 'Chưa có lịch',
-              branchName: branches.find(b => b.id === c.branchId)?.name || 'Unknown Branch',
-              teacherName: c.teacherName || 'Chưa phân công',
-              status: c.status,
-              sessions: c.sessions || []
-            };
-          });
+        const branchController = AppContext.getBranchController();
+        const classController = AppContext.getClassesController();
+
+        // Fetch in parallel
+        const [branchResult, classResult] = await Promise.all([
+          branchController.listBranches({}),
+          classController.listClassesByBranch(selectedBranchId)
+        ]);
+
+        let branchesData: BranchListItem[] = [];
+        if (branchResult.isSuccess) {
+          branchesData = branchResult.getValue();
+          setBranches(branchesData);
+        } else {
+          console.error('Failed to fetch branches:', branchResult.getErrorValue());
+        }
+
+        if (classResult.isSuccess) {
+          const classData = classResult.getValue();
+          // Create a map for efficient branch name lookup
+          const branchMap = new Map(branchesData.map(b => [b.id, b.name]));
+
+          const mappedData: ClassCardViewModel[] = classData.map(c => ({
+            ...c,
+            branchName: branchMap.get(c.branchId) || 'Unknown Branch'
+          }));
           setClasses(mappedData);
         } else {
-           // Nếu lỗi, log ra console và set danh sách rỗng
-           console.error('Error fetching classes:', result.getErrorValue());
-           setClasses([]);
+          console.error('Error fetching classes:', classResult.getErrorValue());
+          setClasses([]);
         }
       } catch (error) {
-        console.error('Failed to fetch classes', error);
+        console.error('Failed to fetch data', error);
         setClasses([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchClasses();
-  }, [selectedBranchId, branches]);
+    fetchData();
+  }, [selectedBranchId]);
 
   // Client-side filtering
   const filteredClasses = classes.filter(c => 
-    c.name.toLowerCase().includes(searchKeyword.toLowerCase())
+    c.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+    (c.teacherName && c.teacherName.toLowerCase().includes(searchKeyword.toLowerCase()))
   );
 
   return (
@@ -280,7 +264,9 @@ const getSessionStatus = (sessions: any[]) => {
   return { type: 'finished', label: 'Đã học xong hôm nay', color: 'SECONDARY', animate: false };
 };
 
-const ClassCard = ({ data, onClick }: { data: ClassListItem, onClick: () => void }) => {
+const pulseAnimation = css`animation: pulse 1.5s infinite; @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }`;
+
+const ClassCard = ({ data, onClick }: { data: ClassCardViewModel, onClick: () => void }) => {
   const statusConfig = getStatusConfig(data.status);
   // Chỉ tính trạng thái buổi học nếu lớp đang Active
   const sessionStatus = data.status === 'active' ? getSessionStatus(data.sessions) : null;
@@ -323,7 +309,7 @@ const ClassCard = ({ data, onClick }: { data: ClassListItem, onClick: () => void
                w="8px" h="8px" 
                borderRadius="full" 
                bg={sessionStatus.color as any}
-               css={sessionStatus.animate ? css`animation: pulse 1.5s infinite; @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }` : undefined}
+               css={sessionStatus.animate ? pulseAnimation : undefined}
              />
              <Text size="xs" weight="bold" color={sessionStatus.color as any}>
                {sessionStatus.type === 'upcoming' && sessionStatus.targetDate ? (
@@ -349,9 +335,9 @@ const ClassCard = ({ data, onClick }: { data: ClassListItem, onClick: () => void
       )}
 
       <Box display="flex" flexDirection="column" gap="xs" mb="md">
-        <InfoRow icon={<Users />} text={`${data.students || 0} Học viên`} />
+        <InfoRow icon={<Users />} text={`${data.currentStudents || 0} Học viên`} />
         <InfoRow icon={<Clock />} text={data.schedule || 'Chưa có lịch'} />
-        <InfoRow icon={<Building />} text={data.branchName || 'Chi nhánh chính'} />
+        <InfoRow icon={<Building />} text={data.branchName} />
       </Box>
 
       <Box pt="sm" borderTop={`1px solid ${COLORS.NEUTRAL_BORDER}`} display="flex" justifyContent="space-between" alignItems="center">

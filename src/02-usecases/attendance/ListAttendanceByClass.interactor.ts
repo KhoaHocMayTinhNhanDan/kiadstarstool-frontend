@@ -45,16 +45,29 @@ export class ListAttendanceByClassInteractor {
       const output: ListAttendanceByClassOutput = students.map(student => {
         const att = attendanceMap.get(student.id.toString());
         
+        // Tìm enrollment active của lớp này để lấy thông tin số buổi
+        const enrollment = student.enrollments.find(e => e.classId === input.classId && e.status === 'active');
+        let remainingSessions: number | undefined;
+        let isLowBalance = false;
+
+        if (enrollment && enrollment.prepaidSessions > 0) {
+          remainingSessions = enrollment.prepaidSessions - enrollment.usedSessions;
+          // Cảnh báo nếu còn dưới 2 buổi
+          isLowBalance = remainingSessions <= 2;
+        }
+        
         if (att) {
           return {
             id: att.id.toString(),
             studentId: att.studentId,
             studentName: student.name,
             status: att.attendanceStatus,
-            checkInTime: (att.time as any).checkInTime,
-            checkOutTime: (att.time as any).checkOutTime,
+            checkInTime: att.time?.checkInTime || undefined,
+            checkOutTime: att.time?.checkOutTime || undefined,
             score: att.getScore(),
-            notes: att.metadata.absentReason
+            notes: att.metadata.absentReason,
+            remainingSessions,
+            isLowBalance
           };
         } else {
           // Chưa có bản ghi điểm danh -> Trả về trạng thái mặc định
@@ -66,7 +79,9 @@ export class ListAttendanceByClassInteractor {
             checkInTime: undefined,
             checkOutTime: undefined,
             score: 0,
-            notes: undefined
+            notes: undefined,
+            remainingSessions,
+            isLowBalance
           };
         }
       });

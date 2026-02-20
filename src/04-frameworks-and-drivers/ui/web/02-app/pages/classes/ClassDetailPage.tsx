@@ -2,9 +2,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
-import { ArrowLeft, Edit, Calendar, Users, BookOpen } from 'lucide-react';
+import { ArrowLeft, Edit, Calendar, Users, BookOpen, DollarSign } from 'lucide-react';
 import { Box, Text, Button, Icon } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
+import { COLORS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
 import { AppContext } from '@/00-core/app-context';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
@@ -25,7 +25,7 @@ export const ClassDetailPage = () => {
 
   // Tính toán sĩ số thực tế: Đếm số học viên Có mặt (present) hoặc Đi muộn (late)
   const currentStudentsCount = useMemo(() => {
-    if (!attendanceList || attendanceList.length === 0) return 0;
+    if (!attendanceList) return 0; // Guard against undefined
     return attendanceList.filter((record: any) => 
       record.status === 'present' || record.status === 'late'
     ).length;
@@ -100,7 +100,7 @@ export const ClassDetailPage = () => {
           </Box>
           <Box textAlign="right">
              <Text color="SECONDARY" size="sm">Ngày bắt đầu</Text>
-             <Text weight="medium">{new Date(classData.startDate).toLocaleDateString('vi-VN')}</Text>
+             <Text weight="medium">{classData.startDate ? new Date(classData.startDate).toLocaleDateString('vi-VN') : 'Chưa cập nhật'}</Text>
           </Box>
         </Box>
         <Box 
@@ -125,25 +125,41 @@ export const ClassDetailPage = () => {
             label="Giáo viên" 
             value={classData.teacherName || 'Chưa phân công'} 
           />
+          <DetailItem 
+            icon={<DollarSign />} 
+            label="Học phí"
+            value={
+              <Box>
+                {classData.tuition?.courseFee && <Text sx={{ display: 'block' }}>{classData.tuition.courseFee.toLocaleString('vi-VN')} {classData.tuition.currency} / Khóa</Text>}
+                {classData.tuition?.sessionFee && <Text sx={{ display: 'block' }}>{classData.tuition.sessionFee.toLocaleString('vi-VN')} {classData.tuition.currency} / Buổi</Text>}
+                {classData.tuition?.monthlyFee && <Text sx={{ display: 'block' }}>{classData.tuition.monthlyFee.toLocaleString('vi-VN')} {classData.tuition.currency} / Tháng</Text>}
+                {!classData.tuition?.courseFee && !classData.tuition?.sessionFee && !classData.tuition?.monthlyFee && <Text>Chưa thiết lập</Text>}
+              </Box>
+            } 
+          />
         </Box>
       </Box>
 
       {/* Attendance Section */}
       <Box mt="lg">
         <Text as="h2" variant="heading-lg" weight="bold" mb="md">Điểm danh</Text>
-        {/* Component đã được di chuyển và đổi tên */}
+        {/* 
+          Lỗi "Cannot read properties of undefined (reading 'length')" xảy ra bên trong AttendanceList.
+          Điều này là do hook useClassAttendance có thể trả về `undefined` trong khi tải dữ liệu.
+          Để khắc phục, component AttendanceList cần được sửa để xử lý trường hợp này, ví dụ bằng cách truyền một mảng rỗng `[]` vào DataTable nếu dữ liệu chưa có.
+        */}
         <AttendanceList classId={classId || ''} />
       </Box>
     </Box>
   );
 };
 
-const DetailItem = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
+const DetailItem = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) => (
   <Box display="flex" gap="md" alignItems="center" p="md" bg="BACKGROUND_NEUTRAL" borderRadius="md">
     <Icon size="md" color="PRIMARY">{icon}</Icon>
     <Box>
       <Text color="SECONDARY" size="sm" mb="xxs">{label}</Text>
-      <Text weight="semibold">{value}</Text>
+      <Box fontWeight="semibold">{value}</Box>
     </Box>
   </Box>
 );

@@ -5,7 +5,7 @@ import * as styles from './DataTable.organism.styles';
 import type { DataTableProps } from './DataTable.types';
 
 export const DataTable = <T extends object>({
-  data,
+  data = [], // Default to empty array to prevent crash on undefined
   columns,
   isLoading = false,
   keyExtractor,

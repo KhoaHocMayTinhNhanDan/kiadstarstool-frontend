@@ -6,6 +6,13 @@ import { ClassId } from './value-objects/ClassId.vo';
 import { ClassStatus } from './ClassStatus.enum';
 import { type ClassSession, DAY_MAP } from './ClassSession';
 
+export interface TuitionConfig {
+  courseFee?: number;   // Học phí trọn khóa
+  sessionFee?: number;  // Học phí theo buổi
+  monthlyFee?: number;  // Học phí theo tháng
+  currency: string;
+}
+
 export interface ClassProps {
   id?: ClassId;
   branchId: BranchId;
@@ -18,6 +25,7 @@ export interface ClassProps {
   endDate?: Date;
   sessions: ClassSession[];
   teacherName?: string;
+  tuition?: TuitionConfig; // Cập nhật kiểu dữ liệu học phí
 }
 
 export class Class extends Entity<ClassId> {
@@ -31,6 +39,7 @@ export class Class extends Entity<ClassId> {
   private _endDate?: Date;
   private _sessions: ClassSession[];
   private _teacherName?: string;
+  private _tuition?: TuitionConfig;
 
   get branchId(): BranchId { return this._branchId; }
   get name(): string { return this._name; }
@@ -57,6 +66,7 @@ export class Class extends Entity<ClassId> {
   get endDate(): Date | undefined { return this._endDate; }
   get sessions(): ClassSession[] { return this._sessions; }
   get teacherName(): string | undefined { return this._teacherName; }
+  get tuition(): TuitionConfig | undefined { return this._tuition; }
 
   // Computed property: Tự động tạo chuỗi hiển thị từ sessions
   get schedule(): string {
@@ -78,6 +88,7 @@ export class Class extends Entity<ClassId> {
     this._endDate = props.endDate;
     this._sessions = props.sessions;
     this._teacherName = props.teacherName;
+    this._tuition = props.tuition;
   }
 
   public static create(props: ClassProps): Result<Class> {
@@ -91,7 +102,8 @@ export class Class extends Entity<ClassId> {
     return Result.ok<Class>(new Class({
       ...props,
       sessions: props.sessions || [],
-      currentStudents: props.currentStudents || 0
+      currentStudents: props.currentStudents || 0,
+      tuition: props.tuition || { currency: 'VND' }
     }));
   }
 
@@ -103,6 +115,7 @@ export class Class extends Entity<ClassId> {
     if (props.status !== undefined) this._status = props.status;
     if (props.sessions !== undefined) this._sessions = props.sessions;
     if (props.teacherName !== undefined) this._teacherName = props.teacherName;
+    if (props.tuition !== undefined) this._tuition = props.tuition;
     return Result.ok();
   }
 }

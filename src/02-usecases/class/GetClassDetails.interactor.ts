@@ -32,7 +32,11 @@ export class GetClassDetailsInteractor {
         currentStudents: classItem.currentStudents,
         status: classItem.status,
         schedule: classItem.schedule,
-        sessions: classItem.sessions
+        teacherName: classItem.teacherName,
+        sessions: classItem.sessions,
+        tuition: classItem.tuition,
+        startDate: classItem.startDate.toISOString(),
+        endDate: classItem.endDate?.toISOString()
       });
     } catch (error: any) {
       console.error('Error in GetClassDetailsInteractor:', error);

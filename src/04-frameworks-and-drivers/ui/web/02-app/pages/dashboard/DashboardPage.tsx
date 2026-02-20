@@ -21,9 +21,11 @@ import { StatsCard, StatsCardSkeleton } from '@/04-frameworks-and-drivers/ui/web
 import { useAuth } from '@/04-frameworks-and-drivers/ui/web/02-app/hooks/user/useAuth';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { AppContext } from '@/00-core/app-context';
-import { type ListBranchesOutput } from '@/02-usecases/branch/ports/output/ListBranches.output';
 import { BarChart } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/charts/BarChart';
 import { PieChart } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/charts/PieChart';
+import { type StudentDTO } from '@/04-frameworks-and-drivers/devices/students/student.dto';
+import { type ListBranchesOutput } from '@/02-usecases/branch/ports/output/ListBranches.output';
+import { type ListOngoingClassesOutput } from '@/02-usecases/class/ports/output/ListOngoingClasses.output';
 
 // Định nghĩa kiểu dữ liệu cho một card thống kê để dễ quản lý
 type StatData = {
@@ -37,136 +39,236 @@ type StatData = {
   className?: string;
 };
 
+// --- Helper Functions for Data Calculation (moved from Interactor) ---
+const getStartDateForTimeRange = (timeRange: 'week' | 'month' | 'year'): Date => {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
+  switch (timeRange) {
+    case 'week':
+      const day = now.getDay();
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust so Monday is the first day
+      return new Date(now.setDate(diff));
+    case 'month':
+      return new Date(now.getFullYear(), now.getMonth(), 1);
+    case 'year':
+      return new Date(now.getFullYear(), 0, 1);
+    default:
+      return new Date(now.getFullYear(), 0, 1);
+  }
+};
+
+const getChartLabels = (timeRange: 'week' | 'month' | 'year'): string[] => {
+    switch (timeRange) {
+        case 'week':
+            return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        case 'month':
+            return ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+        case 'year':
+            return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    }
+}
+
+const groupRevenueByLabel = (
+    enrollments: any[],
+    timeRange: 'week' | 'month' | 'year'
+): Array<{ name: string; value: number }> => {
+    const labels = getChartLabels(timeRange);
+    const dataMap = new Map<string, number>();
+    labels.forEach(label => dataMap.set(label, 0));
+
+    for (const enrollment of enrollments) {
+        const date = new Date(enrollment.joinedDate);
+        let key = '';
+
+        switch (timeRange) {
+            case 'year':
+                key = labels[date.getMonth()];
+                break;
+            case 'month':
+                const weekOfMonth = Math.ceil(date.getDate() / 7);
+                key = `Week ${weekOfMonth > 4 ? 4 : weekOfMonth}`;
+                break;
+            case 'week':
+                const dayOfWeek = date.getDay(); // Sun: 0, Mon: 1, ...
+                key = labels[dayOfWeek === 0 ? 6 : dayOfWeek - 1];
+                break;
+        }
+
+        if (dataMap.has(key)) {
+            dataMap.set(key, (dataMap.get(key) || 0) + (enrollment.tuitionAmount || 0));
+        }
+    }
+
+    return Array.from(dataMap.entries()).map(([name, value]) => ({ name, value }));
+};
+
+
 export const DashboardPage = () => {
   const { t } = useI18n();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [dashboardStats, setDashboardStats] = useState<{
-    totalRevenue: number;
-    totalSubs: number;
-    totalSales: number;
-    totalActive: number;
-  } | null>(null);
-  const [chartData, setChartData] = useState<Array<{ name: string; value: number }>>([]);
-  const [branches, setBranches] = useState<ListBranchesOutput>([]);
+
+  // --- States for raw data from different sources ---
+  const [allStudents, setAllStudents] = useState<StudentDTO[]>([]);
+  const [allBranches, setAllBranches] = useState<ListBranchesOutput>([]);
+  const [ongoingClasses, setOngoingClasses] = useState<ListOngoingClassesOutput>([]);
+
+  // --- Filter States ---
   const [selectedBranchIds, setSelectedBranchIds] = useState<string[]>([]); // Empty array = All Branches
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('year');
+  
+  // --- UI States ---
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [ongoingClasses, setOngoingClasses] = useState<Array<{ id: string; name: string; students: number; time: string }>>([]);
 
+  // Fetch all necessary data on component mount
   useEffect(() => {
-    const fetchBranches = async () => {
-      // Chỉ fetch branches 1 lần khi mount
-      if (branches.length > 0) return;
-      
-      setIsLoading(true);
-      try {
-        const branchController = AppContext.getBranchController();
-        const branchResult = await branchController.listBranches({});
-        
-        if (branchResult.isSuccess) {
-          setBranches(branchResult.getValue());
-        }
-      } catch (e: any) {
-        console.error("Failed to fetch branches", e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchBranches();
-  }, []);
-
-  // Fetch Stats mỗi khi filter thay đổi
-  useEffect(() => {
-    const fetchStats = async () => {
+    const fetchAllData = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const dashboardController = AppContext.getDashboardController();
-        const result = await dashboardController.getStats({
-          timeRange,
-          branchIds: selectedBranchIds.length > 0 ? selectedBranchIds : undefined
-        });
+        const studentController = AppContext.getStudentsController();
+        const branchController = AppContext.getBranchController();
+        const classController = AppContext.getClassesController();
 
-        if (result.isSuccess) {
-          const data = result.getValue();
-          setChartData(data.chartData);
-          setDashboardStats({
-            totalRevenue: data.totalRevenue,
-            totalSubs: data.totalSubs,
-            totalSales: data.totalSales,
-            totalActive: data.totalActive
-          });
+        // Fetch all data in parallel
+        const [studentResult, branchResult, ongoingClassResult] = await Promise.all([
+          studentController.listStudentsByBranch({ branchId: '' }), // Assuming '' gets all
+          branchController.listBranches({}),
+          classController.listOngoingClasses()
+        ]);
+
+        if (studentResult.isSuccess) {
+          // The interactor/repository layer is returning DTOs, which is not ideal but the UI can handle it.
+          // The previous mapping logic was incorrect as it treated DTOs as Entities, causing a runtime error.
+          // We now accept the DTOs directly into the state.
+          setAllStudents(studentResult.getValue() as StudentDTO[]);
         } else {
-          setError(result.getErrorValue() as string);
+          throw new Error(studentResult.getErrorValue() as string);
         }
+
+        if (branchResult.isSuccess) {
+          setAllBranches(branchResult.getValue());
+        } else {
+          throw new Error(branchResult.getErrorValue() as string);
+        }
+
+        if (ongoingClassResult.isSuccess) {
+          setOngoingClasses(ongoingClassResult.getValue());
+        } else {
+          throw new Error(ongoingClassResult.getErrorValue() as string);
+        }
+
       } catch (e: any) {
-        setError(e.message || "Đã có lỗi không xác định xảy ra.");
+        setError(e.message || "Đã có lỗi không xác định xảy ra khi tải dữ liệu.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchStats();
-  }, [selectedBranchIds, timeRange]); // Chỉ gọi lại API khi filter thay đổi, không phụ thuộc vào 't' hay 'branches'
+    fetchAllData();
+  }, []); // Fetch only once on mount
 
-  // Fetch Ongoing Classes (Lớp học đang diễn ra)
-  useEffect(() => {
-    const fetchOngoingClasses = async () => {
-      try {
-        const controller = AppContext.getClassesController();
-        // Lấy tất cả lớp đang diễn ra (Active + Có lịch hôm nay) bằng Use Case chuyên dụng
-        const result = await controller.listOngoingClasses(); 
-        
-        if (result.isSuccess) {
-          const classes = result.getValue();
-          const mappedClasses = classes
-            .slice(0, 4) // Lấy 4 lớp đầu tiên
-            .map((c: any) => ({ id: c.id, name: c.name, students: c.currentStudents, time: c.schedule }));
-          setOngoingClasses(mappedClasses);
+  // --- Derived Data Calculation using useMemo ---
+  const pageData = useMemo(() => {
+    if (allStudents.length === 0 || allBranches.length === 0) {
+      return null;
+    }
+
+    // --- Filter students and enrollments based on UI controls ---
+    const startDate = getStartDateForTimeRange(timeRange);
+    // Safeguard against malformed student data from localStorage.
+    // 1. `s.enrollments || []`: Handles cases where a student has no `enrollments` array.
+    // 2. `.filter(e => e)`: Handles cases where the `enrollments` array itself contains null/undefined entries.
+    // This prevents the `enrollment.joinedDate` error.
+    const allEnrollments = allStudents.flatMap(s => s.enrollments || []).filter(e => e);
+
+    const filteredEnrollments = allEnrollments.filter(enrollment => {
+      const enrollmentDate = new Date(enrollment.joinedDate);
+      const isInBranch = selectedBranchIds.length === 0 || selectedBranchIds.includes(enrollment.branchId);
+      const isInTimeRange = enrollmentDate >= startDate;
+      return isInBranch && isInTimeRange;
+    });
+
+    // --- Calculate Stats ---
+    const paidEnrollments = filteredEnrollments.filter(e => e.paymentStatus === 'paid');
+    const totalRevenue = paidEnrollments.reduce((sum, e) => sum + (e.tuitionAmount || 0), 0);
+    const totalSubs = filteredEnrollments.length;
+    const totalSales = paidEnrollments.length;
+
+    const activeStudentsCount = allStudents.filter(s => 
+      s.status === 'active' &&
+      (selectedBranchIds.length === 0 || s.enrollments.some(e => selectedBranchIds.includes(e.branchId) && e.status === 'active'))
+    ).length;
+
+    // --- NEW: Revenue by Type Calculation ---
+    let courseRevenue = 0;
+    let sessionRevenue = 0;
+    for (const enrollment of paidEnrollments) {
+        if (enrollment.prepaidSessions && enrollment.prepaidSessions > 0) {
+            sessionRevenue += enrollment.tuitionAmount || 0;
+        } else {
+            courseRevenue += enrollment.tuitionAmount || 0;
         }
-      } catch (e) {
-        console.error("Failed to fetch ongoing classes", e);
-      }
-    };
-    fetchOngoingClasses();
-  }, []);
+    }
+    const revenueByTypeData = [
+        { name: 'Theo Khóa', value: courseRevenue },
+        { name: 'Theo Buổi', value: sessionRevenue },
+    ];
 
-  // Tính toán dữ liệu hiển thị (Derived State) - Tự động cập nhật khi dashboardStats hoặc t thay đổi
-  const stats: StatData[] = [
-    ...(dashboardStats ? [{
+    // --- Prepare Chart Data ---
+    const revenueChartData = groupRevenueByLabel(paidEnrollments, timeRange);
+
+    return {
+      totalRevenue,
+      totalSubs,
+      totalSales,
+      totalActive: activeStudentsCount,
+      chartData: revenueChartData,
+      revenueByTypeData,
+      branches: allBranches,
+      ongoingClasses: ongoingClasses.slice(0, 4) // Limit to 4
+    };
+  }, [allStudents, allBranches, ongoingClasses, selectedBranchIds, timeRange]);
+
+
+  // --- Stats for UI Cards ---
+  const stats: StatData[] = useMemo(() => {
+    if (!pageData) return [];
+
+    return [
+    {
       title: t('dashboard.total_revenue'),
-      value: `$${dashboardStats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: `$${pageData.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: <DollarSign />,
       accentColor: 'success' as const,
       trend: { value: 20.1, label: t('dashboard.from_last_month') },
     },
     {
       title: t('dashboard.subscriptions'),
-      value: `+${dashboardStats.totalSubs.toLocaleString()}`,
+      value: `+${pageData.totalSubs.toLocaleString()}`,
       icon: <Users />,
       accentColor: 'primary' as const,
       trend: { value: 180.1, label: t('dashboard.from_last_month') },
     },
     {
       title: t('dashboard.sales'),
-      value: `+${dashboardStats.totalSales.toLocaleString()}`,
+      value: `+${pageData.totalSales.toLocaleString()}`,
       icon: <ShoppingCart />,
       accentColor: 'info' as const,
       trend: { value: 19, label: t('dashboard.from_last_month') },
     },
     {
       title: t('dashboard.active_now'),
-      value: `+${dashboardStats.totalActive.toLocaleString()}`,
+      value: `+${pageData.totalActive.toLocaleString()}`,
       icon: <Activity />,
       accentColor: 'warning' as const,
       description: t('dashboard.users_on_platform'),
-    }] : []),
+    },
     {
       title: t('dashboard.branches'),
-      value: branches.length.toString(),
+      value: pageData.branches.length.toString(),
       icon: <Building />,
       accentColor: 'info' as const,
       description: t('dashboard.manage_branches'),
@@ -179,8 +281,8 @@ export const DashboardPage = () => {
       accentColor: 'primary' as const,
       description: 'Quản lý điểm danh',
       onClick: () => navigate('/attendance'),
-    }
-  ];
+    }];
+  }, [pageData, t, navigate]);
 
   const toggleBranch = (branchId: string) => {
     setSelectedBranchIds(prev => {
@@ -194,12 +296,6 @@ export const DashboardPage = () => {
 
   const welcomeMessage = user?.displayName ? t('common.welcome_back', { name: user.displayName }) : t('dashboard.title');
 
-  // Mock data cho PieChart (Tỷ lệ học viên theo chi nhánh)
-  // Sử dụng useMemo để tránh random lại dữ liệu mỗi khi component re-render
-  const studentDistributionData = useMemo(() => branches.map((branch: any) => ({
-    name: branch.name,
-    value: branch.studentCount || 0, // Lấy dữ liệu thật từ Branch Entity/DTO
-  })), [branches]);
 
   return (
     <Box display="flex" flexDirection="column" gap="xl">
@@ -230,7 +326,7 @@ export const DashboardPage = () => {
           </Button>
 
           {/* Individual Branch Buttons */}
-          {branches.map(branch => {
+          {pageData?.branches.map((branch: any) => {
             const isSelected = selectedBranchIds.includes(branch.id);
             return (
               <Button
@@ -307,8 +403,8 @@ export const DashboardPage = () => {
           gap: ${SPACING.lg};
         `}
       >
-        {isLoading 
-          ? Array.from({ length: 4 }).map((_, index) => <StatsCardSkeleton key={index} />)
+        {(isLoading || !pageData)
+          ? Array.from({ length: 6 }).map((_, index) => <StatsCardSkeleton key={index} />)
           : stats.map((stat) => (
               <div 
                 key={stat.title} 
@@ -322,7 +418,7 @@ export const DashboardPage = () => {
         }
       </Box>
 
-      {/* Charts Section: Revenue & Student Distribution */}
+      {/* Charts Section: Revenue & Revenue by Type */}
       <Box 
         css={css`
           display: grid;
@@ -353,7 +449,7 @@ export const DashboardPage = () => {
           
           <Box css={css`flex: 1; min-height: 0; width: 100%; overflow: hidden;`}>
             <BarChart 
-              data={chartData}
+              data={pageData?.chartData || []}
               xAxisKey="name"
               height="100%"
               series={[
@@ -363,7 +459,7 @@ export const DashboardPage = () => {
           </Box>
         </Box>
         
-        {/* Student Distribution Chart */}
+        {/* Revenue by Type Chart */}
         <Box 
           css={css`
             background-color: ${COLORS.BACKGROUND_PAPER};
@@ -376,12 +472,12 @@ export const DashboardPage = () => {
           `}
         >
           <Box mb="lg">
-            <Text as="h3" size="lg" weight="bold">{t('dashboard.student_distribution')}</Text>
+            <Text as="h3" size="lg" weight="bold">Doanh thu theo loại hình</Text>
           </Box>
           
           <Box css={css`flex: 1; min-height: 0; width: 100%; overflow: hidden;`}>
             <PieChart 
-              data={studentDistributionData}
+              data={pageData?.revenueByTypeData || []}
               height="100%"
               isLoading={isLoading}
             />
@@ -403,7 +499,7 @@ export const DashboardPage = () => {
             gap: ${SPACING.md};
           `}
         >
-          {ongoingClasses.map(cls => (
+          {pageData?.ongoingClasses.map((cls: any) => (
             <Box 
               key={cls.id}
               p="md" 

@@ -2,6 +2,7 @@ import { Result } from '@/01-entities/shared/base/result';
 import { type IBranchRepository } from './ports/gateways_interface/IBranchRepository';
 import { type IStudentRepository } from '@/02-usecases/students/ports/gateways_interface/IStudentRepository';
 import { type ListBranchesOutput } from './ports/output/ListBranches.output';
+import type { WeeklyOperatingHours } from '@/01-entities/branch/value-objects/BranchOperatingHours.vo';
 
 export class ListBranchesInteractor {
   private readonly branchRepo: IBranchRepository;
@@ -43,7 +44,7 @@ export class ListBranchesInteractor {
           current: activeStudentCount,
           max: branch.capacity.maxStudents
         },
-        operatingHours: branch.operatingHours,
+        operatingHours: branch.operatingHours.props as WeeklyOperatingHours,
         updatedAt: branch.updatedAt
       };
     }));

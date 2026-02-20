@@ -3,16 +3,23 @@ import { Attendance } from '@/01-entities/attendance/Attendance.entity';
 import { ATTENDANCE_STATUS } from '@/shared/constants/classes.constant';
 import { type IAttendanceRepository } from './ports/gateways_interface/IAttendanceRepository';
 import { type IClassRepository } from '@/02-usecases/class/ports/gateways_interface/IClassRepository';
+import { type IStudentRepository } from '@/02-usecases/students/ports/gateways_interface/IStudentRepository';
 import { type MarkBatchAttendanceInput } from './ports/input/MarkBatchAttendance.input';
 import { type MarkBatchAttendanceOutput } from './ports/output/MarkBatchAttendance.output';
 
 export class MarkBatchAttendanceInteractor {
   private readonly attendanceRepo: IAttendanceRepository;
   private readonly classRepo: IClassRepository;
+  private readonly studentRepo: IStudentRepository;
 
-  constructor(attendanceRepo: IAttendanceRepository, classRepo: IClassRepository) {
+  constructor(
+    attendanceRepo: IAttendanceRepository, 
+    classRepo: IClassRepository,
+    studentRepo: IStudentRepository
+  ) {
     this.attendanceRepo = attendanceRepo;
     this.classRepo = classRepo;
+    this.studentRepo = studentRepo;
   }
 
   async execute(input: MarkBatchAttendanceInput): Promise<Result<MarkBatchAttendanceOutput>> {
@@ -20,30 +27,57 @@ export class MarkBatchAttendanceInteractor {
       let count = 0;
 
       // 1. Tối ưu: Lấy tất cả điểm danh hiện có của lớp trong ngày này (1 Query thay vì N Query)
-      const existingAttendances = await this.attendanceRepo.getByClassAndDate(input.classId, input.date);
+      const [existingAttendances, classEntity] = await Promise.all([
+        this.attendanceRepo.getByClassAndDate(input.classId, input.date),
+        this.classRepo.getById(input.classId)
+      ]);
+
+      if (!classEntity) {
+        return Result.fail('Class not found');
+      }
       
       // Tạo Set các studentId đã có điểm danh để tra cứu nhanh O(1)
       const existingStudentIds = new Set(existingAttendances.map(a => a.studentId));
 
-      for (const studentId of input.studentIds) {
-        // 2. Chỉ tạo mới nếu chưa tồn tại (Logic hiện tại: Không ghi đè)
-        // Nếu muốn ghi đè (Update), cần sửa logic ở đây để lấy entity từ existingAttendances và update
-        if (!existingStudentIds.has(studentId)) {
-          const attendance = Attendance.create({
-            courseId: input.classId,
-            studentId: studentId,
-            date: input.date,
-            session: 'default',
-            attendanceStatus: input.status
-          });
-          
-          attendance.checkIn(); // Set giờ check-in mặc định
+      const isPerSessionClass = !!classEntity.tuition?.sessionFee;
+      const isPresent = input.status === ATTENDANCE_STATUS.PRESENT || input.status === ATTENDANCE_STATUS.LATE;
 
-          // 3. Lưu
-          await this.attendanceRepo.save(attendance);
-          count++;
+      // Xử lý song song các tác vụ cho mỗi học viên
+      const processingTasks = input.studentIds.map(async (studentId) => {
+        if (existingStudentIds.has(studentId)) return; // Bỏ qua nếu đã điểm danh
+
+        // 2. Tạo bản ghi điểm danh mới
+        const attendance = Attendance.create({
+          courseId: input.classId,
+          studentId: studentId,
+          date: input.date, // Entity expects string
+          session: 'default',
+          attendanceStatus: input.status
+        });
+        
+        attendance.checkIn(); // Set giờ check-in mặc định
+        await this.attendanceRepo.save(attendance);
+        count++;
+
+        // 3. Xử lý trừ buổi học nếu cần
+        if (isPresent && isPerSessionClass) {
+          const studentEntity = await this.studentRepo.getById(studentId);
+          if (studentEntity) {
+            const enrollmentIndex = studentEntity.enrollments.findIndex(
+              e => e.classId === input.classId && e.status === 'active'
+            );
+            if (enrollmentIndex !== -1) {
+              const updatedEnrollmentResult = studentEntity.enrollments[enrollmentIndex].consumeSession();
+              if (updatedEnrollmentResult.isSuccess) {
+                studentEntity.updateEnrollment(enrollmentIndex, updatedEnrollmentResult.getValue());
+                await this.studentRepo.save(studentEntity);
+              }
+            }
+          }
         }
-      }
+      });
+
+      await Promise.all(processingTasks);
 
       // 4. ĐỒNG BỘ: Tính toán lại sĩ số thực tế
       await this.syncClassStudentCount(input.classId, input.date);
@@ -53,7 +87,6 @@ export class MarkBatchAttendanceInteractor {
       return Result.fail(error.message || 'Failed to batch mark attendance');
     }
   }
-
   private async syncClassStudentCount(classId: string, date: string): Promise<void> {
     const dailyAttendance = await this.attendanceRepo.getByClassAndDate(classId, date);
     
@@ -64,8 +97,8 @@ export class MarkBatchAttendanceInteractor {
 
     const classEntity = await this.classRepo.getById(classId);
     if (classEntity) {
-      (classEntity as any).currentStudents = presentCount;
-      await this.classRepo.save(classEntity);
+      classEntity.updateInfo({ currentStudents: presentCount });
+      await this.classRepo.update(classEntity);
     }
   }
 }

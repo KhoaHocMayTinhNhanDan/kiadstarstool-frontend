@@ -26,7 +26,10 @@ export class UpdateClassInfoInteractor {
         name: input.name,
         code: input.code,
         maxStudents: input.maxStudents,
-        status: input.status
+        status: input.status,
+        teacherName: input.teacherName,
+        sessions: input.sessions,
+        tuition: input.tuition
       });
 
       await this.classRepo.update(classItem);

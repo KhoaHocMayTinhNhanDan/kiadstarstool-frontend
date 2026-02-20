@@ -13,7 +13,7 @@ import { BranchListPage } from '../../pages/branch/BranchListPage';
 import { RootLayout } from '../../layouts/RootLayout';
 import { AuthLayout } from '../../layouts/AuthLayout';
 import { MainLayout } from '../../layouts/MainLayout';
-import { ClassesListPage } from '../../pages/classes/ClassesListPage';
+import { ClassesPage } from '../../pages/classes/ClassesPage';
 import { ClassDetailPage } from '../../pages/classes/ClassDetailPage';
 import { CreateClassPage } from '../../pages/classes/CreateClassPage';
 import { EditClassPage } from '../../pages/classes/EditClassPage';
@@ -89,7 +89,7 @@ const routes: RouteObject[] = [
               },
               {
                 path: 'classes',
-                element: <ClassesListPage />,
+                element: <ClassesPage />,
               },
               {
                 path: 'classes/new',

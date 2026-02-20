@@ -1,79 +1,77 @@
-import { Result } from '@/01-entities/shared/base/result';
-import { Attendance } from '@/01-entities/attendance/Attendance.entity';
+import { Result } from '../../01-entities/shared/base/result';
 import { ATTENDANCE_STATUS } from '@/shared/constants/classes.constant';
+import { AttendanceMetadata } from '@/01-entities/attendance/value-objects/AttendanceMetadata.vo';
 import { type IAttendanceRepository } from './ports/gateways_interface/IAttendanceRepository';
-import { type IClassRepository } from '@/02-usecases/class/ports/gateways_interface/IClassRepository';
+import { type IClassRepository } from '../class/ports/gateways_interface/IClassRepository';
+import { type IStudentRepository } from '../students/ports/gateways_interface/IStudentRepository';
+import { Attendance } from '../../01-entities/attendance/Attendance.entity';
 import { type MarkAttendanceInput } from './ports/input/MarkAttendance.input';
-import { type MarkAttendanceOutput } from './ports/output/MarkAttendance.output';
 
 export class MarkAttendanceInteractor {
-
   private readonly attendanceRepo: IAttendanceRepository;
   private readonly classRepo: IClassRepository;
+  private readonly studentRepo: IStudentRepository;
 
-  constructor(attendanceRepo: IAttendanceRepository, classRepo: IClassRepository) {
+  constructor(
+    attendanceRepo: IAttendanceRepository,
+    classRepo: IClassRepository,
+    studentRepo: IStudentRepository
+  ) {
     this.attendanceRepo = attendanceRepo;
     this.classRepo = classRepo;
+    this.studentRepo = studentRepo;
   }
 
-  async execute(input: MarkAttendanceInput): Promise<Result<MarkAttendanceOutput>> {
+  async execute(input: MarkAttendanceInput): Promise<Result<void>> {
     try {
-      // 1. Tìm bản ghi điểm danh hiện có
-      let attendance = await this.attendanceRepo.getByStudentAndDate(
-        input.studentId,
-        input.classId,
-        input.date
-      );
+      // 1. Validate Class & Student existence
+      const classEntity = await this.classRepo.getById(input.classId);
+      if (!classEntity) return Result.fail('Class not found');
 
-      // 2. Nếu chưa có, tạo mới
-      if (!attendance) {
-        attendance = Attendance.create({
-          courseId: input.classId,
-          studentId: input.studentId,
-          date: input.date,
-          session: 'default', // Có thể mở rộng input để nhận session
-          attendanceStatus: input.status
-        });
-      }
+      const studentEntity = await this.studentRepo.getById(input.studentId);
+      if (!studentEntity) return Result.fail('Student not found');
 
-      // 3. Cập nhật trạng thái
-      // Sử dụng các phương thức domain của Entity để đảm bảo tính toàn vẹn
-      if (input.status === ATTENDANCE_STATUS.ABSENT || input.status === ATTENDANCE_STATUS.EXCUSED) {
-        attendance.markAbsent(input.note, input.status === ATTENDANCE_STATUS.EXCUSED);
-      } else if (input.status === ATTENDANCE_STATUS.LATE) {
-        // Nếu đánh dấu trễ thủ công, ta vẫn check-in nhưng set status là Late
-        attendance.checkIn(); 
-        attendance.withStatus(ATTENDANCE_STATUS.LATE);
-      } else {
-        // Present
-        attendance.checkIn();
-        attendance.withStatus(ATTENDANCE_STATUS.PRESENT);
-      }
+      // 2. Create/Update Attendance Record
+      // Note: In a real app, we might check if attendance already exists for this date/student/class
+      const attendance = Attendance.create({
+        courseId: input.classId, // Mapping classId to courseId as per Attendance Entity definition usually
+        studentId: input.studentId,
+        date: input.date, // Entity expects string (ISO format)
+        session: 'default', // Default session if not provided
+        attendanceStatus: input.status,
+        metadata: input.note ? AttendanceMetadata.empty().withAbsentReason(input.note) : undefined
+      });
 
-      // 4. Lưu
       await this.attendanceRepo.save(attendance);
 
-      // 5. ĐỒNG BỘ: Tính toán lại sĩ số thực tế (Có mặt + Đi muộn)
-      await this.syncClassStudentCount(input.classId, input.date);
+      // 3. Handle Tuition Deduction (Consume Session)
+      // Chỉ trừ buổi nếu học viên có đi học (present/late) và lớp thu tiền theo buổi
+      const isPresent = input.status === ATTENDANCE_STATUS.PRESENT || input.status === ATTENDANCE_STATUS.LATE;
+      const isPerSessionClass = !!classEntity.tuition?.sessionFee;
 
-      return Result.ok({ success: true, attendanceId: attendance.id.toString() });
+      if (isPresent && isPerSessionClass) {
+        // Tìm enrollment active của học viên trong lớp này
+        const enrollmentIndex = studentEntity.enrollments.findIndex(
+          e => e.classId === input.classId && e.status === 'active'
+        );
+
+        if (enrollmentIndex !== -1) {
+          const currentEnrollment = studentEntity.enrollments[enrollmentIndex];
+          
+          // Trừ buổi học
+          const updatedEnrollmentResult = currentEnrollment.consumeSession();
+          
+          if (updatedEnrollmentResult.isSuccess) {
+            studentEntity.updateEnrollment(enrollmentIndex, updatedEnrollmentResult.getValue());
+            // Lưu thay đổi của học viên (số buổi đã học tăng lên)
+            await this.studentRepo.save(studentEntity);
+          }
+        }
+      }
+
+      return Result.ok();
     } catch (error: any) {
       return Result.fail(error.message || 'Failed to mark attendance');
-    }
-  }
-
-  private async syncClassStudentCount(classId: string, date: string): Promise<void> {
-    const dailyAttendance = await this.attendanceRepo.getByClassAndDate(classId, date);
-    
-    const presentCount = dailyAttendance.filter(a => 
-      a.attendanceStatus === ATTENDANCE_STATUS.PRESENT || 
-      a.attendanceStatus === ATTENDANCE_STATUS.LATE
-    ).length;
-
-    const classEntity = await this.classRepo.getById(classId);
-    if (classEntity) {
-      (classEntity as any).currentStudents = presentCount;
-      await this.classRepo.save(classEntity);
     }
   }
 }

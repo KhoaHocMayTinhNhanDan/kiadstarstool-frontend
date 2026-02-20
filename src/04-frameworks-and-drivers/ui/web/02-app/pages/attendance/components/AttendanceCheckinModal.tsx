@@ -4,6 +4,7 @@ import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/w
 import { COLORS, SPACING, type ColorKey } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
 import { CheckCircle, XCircle, Clock, AlertCircle, X, Save } from 'lucide-react';
 import { AppContext } from '@/00-core/app-context';
+import { type AttendanceListItem } from '@/02-usecases/attendance/ports/output/ListAttendanceByClass.output';
 import { useToast } from '../../../../01-ui-core/hooks/useToast';
 
 interface AttendanceCheckinModalProps {
@@ -16,7 +17,7 @@ interface AttendanceCheckinModalProps {
 
 export const AttendanceCheckinModal = ({ isOpen, onClose, classId, className, date }: AttendanceCheckinModalProps) => {
   const { toast } = useToast();
-  const [students, setStudents] = useState<any[]>([]);
+  const [students, setStudents] = useState<AttendanceListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -27,24 +28,15 @@ export const AttendanceCheckinModal = ({ isOpen, onClose, classId, className, da
     const fetchStudents = async () => {
       setIsLoading(true);
       try {
-        // 1. Lấy danh sách học viên của lớp (Cần UseCase ListStudentsByClass - tạm thời dùng ListStudentsByBranch và lọc hoặc giả định API trả về)
-        // Trong thực tế: Cần API getStudentsByClassId(classId)
-        // Ở đây ta sẽ dùng tạm logic lấy danh sách điểm danh cũ nếu có, hoặc lấy danh sách học viên mới
-        
-        // Tạm thời mock logic lấy học viên để demo UI
-        const controller = AppContext.getStudentsController();
-        // Giả sử ta lấy danh sách học viên của branch chứa class này (cần logic phức tạp hơn ở backend)
-        // Để đơn giản cho demo UI, ta sẽ hardcode một vài học viên hoặc lấy từ AttendanceRepository nếu đã có record
-        
-        // TODO: Gọi UseCase thực tế: GetClassAttendanceSheet(classId, date)
-        // UseCase này sẽ trả về danh sách học viên kèm trạng thái điểm danh hiện tại (nếu đã điểm danh)
-        
-        // Mock data cho UI
-        setStudents([
-          { id: 'student-01', name: 'Nguyễn Văn An', status: 'present', note: '' },
-          { id: 'student-04', name: 'Phạm Thị Dung', status: 'not_marked', note: '' },
-          { id: 'student-05', name: 'Hoàng Văn Em', status: 'absent', note: 'Có phép' },
-        ]);
+        // Gọi UseCase `ListAttendanceByClass` để lấy danh sách học viên và trạng thái điểm danh hiện tại
+        const controller = AppContext.getAttendanceController();
+        const result = await controller.listAttendanceByClass({ classId, date });
+
+        if (result.isSuccess) {
+          setStudents(result.getValue());
+        } else {
+          throw new Error(result.getErrorValue() as string);
+        }
 
       } catch (error) {
         console.error(error);
@@ -55,18 +47,28 @@ export const AttendanceCheckinModal = ({ isOpen, onClose, classId, className, da
     };
 
     fetchStudents();
-  }, [isOpen, classId, date]);
+  }, [isOpen, classId, date, toast]);
 
   const handleStatusChange = (studentId: string, newStatus: string) => {
-    setStudents(prev => prev.map(s => s.id === studentId ? { ...s, status: newStatus } : s));
+    setStudents(prev => prev.map(s => s.studentId === studentId ? { ...s, status: newStatus as any } : s));
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Gọi UseCase MarkBatchAttendance
-      // await controller.markBatchAttendance({ classId, date, records: students });
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Mock delay
+      const controller = AppContext.getAttendanceController();
+      const attendanceTasks = students
+        .filter(s => s.status !== 'not_marked') // Chỉ lưu những học viên đã được điểm danh
+        .map(student => controller.markAttendance({
+          classId,
+          date,
+          studentId: student.studentId,
+          status: student.status as any, // Cast vì status có thể là 'not_marked' trong type nhưng đã lọc ở trên
+          note: student.notes,
+        }));
+
+      await Promise.all(attendanceTasks);
+
       toast.success('Đã lưu điểm danh thành công');
       onClose();
     } catch (error) {
@@ -96,9 +98,9 @@ export const AttendanceCheckinModal = ({ isOpen, onClose, classId, className, da
             <Text align="center">Đang tải...</Text>
           ) : (
             <Box display="flex" flexDirection="column" gap="md">
-              {students.map(student => (
+              {students.map((student) => (
                 <Box key={student.id} display="flex" alignItems="center" justifyContent="space-between" p="sm" border={`1px solid ${COLORS.NEUTRAL_BORDER}`} borderRadius="md">
-                  <Text weight="medium">{student.name}</Text>
+                  <Text weight="medium">{student.studentName}</Text>
                   <Box display="flex" gap="xs">
                     <StatusButton 
                       active={student.status === 'present'} 

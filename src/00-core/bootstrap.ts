@@ -45,10 +45,6 @@ import { CreateStudentInteractor } from '@/02-usecases/students/CreateStudent.in
 import { GetStudentDetailsInteractor } from '@/02-usecases/students/GetStudentDetails.interactor';
 import { TransferStudentInteractor } from '@/02-usecases/students/TransferStudent.interactor';
 import { StudentsController } from '@/03-interface-adapters/controllers/Students.controller';
-import { MockDashboardDataSource } from '@/04-frameworks-and-drivers/devices/dashboard/MockDashboardDataSource';
-import { DashboardRepository } from '@/03-interface-adapters/gateways/inbound/repositories/DashboardRepository';
-import { GetDashboardStatsInteractor } from '@/02-usecases/dashboard/GetDashboardStats.interactor';
-import { DashboardController } from '@/03-interface-adapters/controllers/Dashboard.controller';
 import { MockAttendanceDataSource } from '@/04-frameworks-and-drivers/devices/attendance/MockAttendanceDataSource';
 import { AttendanceRepository } from '@/03-interface-adapters/gateways/inbound/repositories/AttendanceRepository';
 import { ListAttendanceByClassInteractor } from '@/02-usecases/attendance/ListAttendanceByClass.interactor';
@@ -179,8 +175,6 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
   const classRepository = new ClassRepository(classDataSource);
   const attendanceDataSource = new MockAttendanceDataSource();
   const attendanceRepository = new AttendanceRepository(attendanceDataSource);
-  const dashboardDataSource = new MockDashboardDataSource();
-  const dashboardRepository = new DashboardRepository(dashboardDataSource);
 
   // --- Interactors & Controllers (Now can be initialized in any order as repos are ready) ---
 
@@ -212,14 +206,10 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
     const transferStudentInteractor = new TransferStudentInteractor(studentRepository, classRepository);
   const studentsController = new StudentsController(listStudentsByBranchInteractor, createStudentInteractor, getStudentDetailsInteractor, transferStudentInteractor);
 
-  // 1.6 Initialize Dashboard
-  const getDashboardStatsInteractor = new GetDashboardStatsInteractor(dashboardRepository);
-  const dashboardController = new DashboardController(getDashboardStatsInteractor);
-
   // 1.7 Initialize Attendance
   const listAttendanceInteractor = new ListAttendanceByClassInteractor(attendanceRepository, studentRepository, classRepository);
-  const markAttendanceInteractor = new MarkAttendanceInteractor(attendanceRepository, classRepository);
-    const markBatchAttendanceInteractor = new MarkBatchAttendanceInteractor(attendanceRepository, classRepository);
+  const markAttendanceInteractor = new MarkAttendanceInteractor(attendanceRepository, classRepository, studentRepository);
+  const markBatchAttendanceInteractor = new MarkBatchAttendanceInteractor(attendanceRepository, classRepository, studentRepository);
   const attendanceController = new AttendanceController(listAttendanceInteractor, markAttendanceInteractor, markBatchAttendanceInteractor);
 
   // 2. Create Application Context
@@ -258,10 +248,6 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
 
     students: {
       controller: studentsController
-    },
-
-    dashboard: {
-      controller: dashboardController
     },
 
     attendance: {

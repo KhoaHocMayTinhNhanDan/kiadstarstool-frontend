@@ -6,7 +6,7 @@ import { type IClassDataSource } from '@/03-interface-adapters/gateways/outbound
 import { type ClassSession } from '@/01-entities/classes/ClassSession';
 
 let classStore = new Map<string, Class>();
-const STORAGE_KEY = 'mock_classes_db_v14';
+const STORAGE_KEY = 'mock_classes_db_v20'; // Support multiple tuition types
 
 export class MockClassDataSource implements IClassDataSource {
   constructor() {
@@ -48,7 +48,8 @@ export class MockClassDataSource implements IClassDataSource {
             { day: 'Wed', startTime: '18:00', endTime: '19:30' },
             { day: 'Fri', startTime: '18:00', endTime: '19:30' }
           ] as ClassSession[],
-          teacherName: 'Nguyễn Văn A'
+          teacherName: 'Nguyễn Văn A',
+          tuition: { courseFee: 5000000, sessionFee: 250000, currency: 'VND' }
         },
         {
           id: 'class-02',
@@ -64,7 +65,8 @@ export class MockClassDataSource implements IClassDataSource {
             { day: 'Thu', startTime: '19:30', endTime: '21:00' },
             { day: 'Sat', startTime: '19:30', endTime: '21:00' }
           ] as ClassSession[],
-          teacherName: 'Trần Thị B'
+          teacherName: 'Trần Thị B',
+          tuition: { sessionFee: 350000, currency: 'VND' }
         },
         {
           id: 'class-05', // Lớp thứ 3 tại HN
@@ -79,7 +81,8 @@ export class MockClassDataSource implements IClassDataSource {
             { day: 'Sat', startTime: '08:00', endTime: '10:00' },
             { day: 'Sun', startTime: '08:00', endTime: '10:00' }
           ] as ClassSession[],
-          teacherName: 'Lê Văn C'
+          teacherName: 'Lê Văn C',
+          tuition: { sessionFee: 200000, currency: 'VND' }
         },
         
         // --- Classes for Branch 02 (HCM) ---
@@ -97,7 +100,8 @@ export class MockClassDataSource implements IClassDataSource {
             { day: 'Wed', startTime: '09:00', endTime: '10:30' },
             { day: 'Fri', startTime: '09:00', endTime: '10:30' }
           ] as ClassSession[],
-          teacherName: 'Phạm Văn D'
+          teacherName: 'Phạm Văn D',
+          tuition: { courseFee: 4500000, currency: 'VND' }
         },
         {
           id: 'class-04',
@@ -114,7 +118,8 @@ export class MockClassDataSource implements IClassDataSource {
             { day: 'Thu', startTime: '14:00', endTime: '16:00' },
             { day: 'Sat', startTime: '14:00', endTime: '16:00' }
           ] as ClassSession[],
-          teacherName: 'Hoàng Thị E'
+          teacherName: 'Hoàng Thị E',
+          tuition: { courseFee: 6000000, currency: 'VND' }
         },
         // --- Lớp học tương lai & lớp đã kết thúc ---
         {
@@ -129,7 +134,8 @@ export class MockClassDataSource implements IClassDataSource {
           sessions: [
             { day: 'Mon', startTime: '18:00', endTime: '19:30' }
           ] as ClassSession[],
-          teacherName: 'Giáo viên Mới'
+          teacherName: 'Giáo viên Mới',
+          tuition: { courseFee: 5500000, currency: 'VND' }
         },
         {
           id: 'class-06',
@@ -144,7 +150,8 @@ export class MockClassDataSource implements IClassDataSource {
             { day: 'Tue', startTime: '18:00', endTime: '19:30' },
             { day: 'Thu', startTime: '18:00', endTime: '19:30' }
           ] as ClassSession[],
-          teacherName: 'Lê Văn C'
+          teacherName: 'Lê Văn C',
+          tuition: { courseFee: 4000000, currency: 'VND' }
         },
         {
           id: 'class-07',
@@ -158,7 +165,8 @@ export class MockClassDataSource implements IClassDataSource {
           sessions: [
             { day: 'Wed', startTime: '19:00', endTime: '20:30' }
           ] as ClassSession[],
-          teacherName: 'Hoàng Thị E'
+          teacherName: 'Hoàng Thị E',
+          tuition: { sessionFee: 400000, currency: 'VND' }
         },
         {
           id: 'class-08',
@@ -172,7 +180,8 @@ export class MockClassDataSource implements IClassDataSource {
           sessions: [
             { day: 'Fri', startTime: '14:00', endTime: '15:30' }
           ] as ClassSession[],
-          teacherName: 'Trần Thị B'
+          teacherName: 'Trần Thị B',
+          tuition: { courseFee: 10000000, currency: 'VND' }
         },
         {
           id: 'class-09',
@@ -187,7 +196,8 @@ export class MockClassDataSource implements IClassDataSource {
             { day: 'Tue', startTime: '09:00', endTime: '10:30' },
             { day: 'Thu', startTime: '09:00', endTime: '10:30' }
           ] as ClassSession[],
-          teacherName: 'Phạm Văn D'
+          teacherName: 'Phạm Văn D',
+          tuition: { courseFee: 6500000, currency: 'VND' }
         }
       ];
 
@@ -203,7 +213,8 @@ export class MockClassDataSource implements IClassDataSource {
           startDate: data.startDate,
           endDate: data.endDate,
           sessions: data.sessions, // Pass directly to create
-          teacherName: data.teacherName
+          teacherName: data.teacherName,
+          tuition: data.tuition as any // Cast tạm thời để pass type check
         }).getValue();
 
         classStore.set(classEntity.id.toString(), classEntity);
@@ -226,7 +237,8 @@ export class MockClassDataSource implements IClassDataSource {
         startDate: c.startDate,
         endDate: c.endDate,
         sessions: c.sessions, // Getter is public, no need for 'as any'
-        teacherName: c.teacherName
+        teacherName: c.teacherName,
+        tuition: c.tuition
       }));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
     } catch (e) {
@@ -246,7 +258,8 @@ export class MockClassDataSource implements IClassDataSource {
       startDate: new Date(data.startDate),
       endDate: data.endDate ? new Date(data.endDate) : undefined,
       sessions: data.sessions || [],
-      teacherName: data.teacherName
+      teacherName: data.teacherName,
+      tuition: data.tuition
     });
 
     if (result.isFailure) {

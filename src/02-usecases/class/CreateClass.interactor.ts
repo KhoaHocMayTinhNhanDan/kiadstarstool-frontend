@@ -29,9 +29,11 @@ export class CreateClassInteractor {
         code: input.code,
         maxStudents: input.maxStudents || 20,
         status: input.status,
+        sessions: input.sessions,
+        teacherName: input.teacherName,
+        tuition: input.tuition,
         currentStudents: 0,
-        sessions: [],
-        startDate: new Date() // Mặc định ngày bắt đầu là hôm nay (hoặc thêm vào Input nếu cần)
+        startDate: new Date()
       });
 
       if (classOrError.isFailure) {

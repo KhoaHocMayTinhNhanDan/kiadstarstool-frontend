@@ -33,6 +33,11 @@ export const CreateClassPage = () => {
     { id: Date.now().toString(), day: 'Mon', startTime: '', endTime: '' }
   ]);
   const [teacherName, setTeacherName] = useState('');
+  const [tuition, setTuition] = useState<{ courseFee: number | ''; sessionFee: number | ''; monthlyFee: number | '' }>({
+    courseFee: '',
+    sessionFee: '',
+    monthlyFee: ''
+  });
 
   // 1. Load danh sách chi nhánh để hiển thị trong Select
   useEffect(() => {
@@ -94,8 +99,14 @@ export const CreateClassPage = () => {
       const result = await controller.createClass({ 
         ...formData, 
         status: ClassStatus.PLANNED,
-        // sessions: finalSessions, // TODO: Re-enable when backend supports it
-        // teacherName, // TODO: Re-enable when backend supports it
+        sessions: finalSessions,
+        teacherName,
+        tuition: { 
+          courseFee: tuition.courseFee ? Number(tuition.courseFee) : undefined,
+          sessionFee: tuition.sessionFee ? Number(tuition.sessionFee) : undefined,
+          monthlyFee: tuition.monthlyFee ? Number(tuition.monthlyFee) : undefined,
+          currency: 'VND' 
+        }
       });
 
       if (result.isSuccess) {
@@ -239,6 +250,40 @@ export const CreateClassPage = () => {
               value={formData.maxStudents}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('maxStudents', Number(e.target.value))}
             />
+          </Box>
+        </Box>
+
+        {/* Tuition */}
+        <Box>
+          <Text weight="semibold" mb="xs">Học phí</Text>
+          <Box display="grid" gridTemplateColumns="1fr 1fr 1fr" gap="md">
+            <Box>
+              <Text size="sm" mb="xxs">Theo khóa</Text>
+              <Input 
+                type="number"
+                placeholder="VNĐ"
+                value={tuition.courseFee}
+                onChange={(e) => setTuition(prev => ({ ...prev, courseFee: e.target.value === '' ? '' : Number(e.target.value) }))}
+              />
+            </Box>
+            <Box>
+              <Text size="sm" mb="xxs">Theo buổi</Text>
+              <Input 
+                type="number"
+                placeholder="VNĐ"
+                value={tuition.sessionFee}
+                onChange={(e) => setTuition(prev => ({ ...prev, sessionFee: e.target.value === '' ? '' : Number(e.target.value) }))}
+              />
+            </Box>
+            <Box>
+              <Text size="sm" mb="xxs">Theo tháng</Text>
+              <Input 
+                type="number"
+                placeholder="VNĐ"
+                value={tuition.monthlyFee}
+                onChange={(e) => setTuition(prev => ({ ...prev, monthlyFee: e.target.value === '' ? '' : Number(e.target.value) }))}
+              />
+            </Box>
           </Box>
         </Box>
 

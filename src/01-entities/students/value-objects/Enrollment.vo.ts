@@ -2,12 +2,20 @@
 import { ValueObject } from '../../shared/base/ValueObject';
 import { Result } from '../../shared/base/result';
 
+export type PaymentStatus = 'paid' | 'unpaid' | 'partial' | 'waived'; // waived = miễn học phí
+
 export interface EnrollmentProps {
   branchId: string;
   classId?: string; // Có thể null nếu học viên chỉ mới đăng ký vào chi nhánh mà chưa xếp lớp
   status: 'active' | 'inactive' | 'completed' | 'dropped' | 'transferred';
   joinedDate: Date;
   endDate?: Date;
+  tuitionAmount?: number; // Số tiền thực tế phải trả cho lần ghi danh này (có thể khác giá gốc)
+  paymentStatus?: PaymentStatus; // Trạng thái thanh toán
+  
+  // Hỗ trợ trả theo buổi (Prepaid)
+  prepaidSessions?: number; // Tổng số buổi đã mua (VD: 10 buổi)
+  usedSessions?: number;    // Số buổi đã học (VD: 2 buổi)
 }
 
 export class Enrollment extends ValueObject<EnrollmentProps> {
@@ -19,7 +27,7 @@ export class Enrollment extends ValueObject<EnrollmentProps> {
     return this.props.classId;
   }
 
-  get status(): string {
+  get status(): 'active' | 'inactive' | 'completed' | 'dropped' | 'transferred' {
     return this.props.status;
   }
 
@@ -29,6 +37,22 @@ export class Enrollment extends ValueObject<EnrollmentProps> {
 
   get endDate(): Date | undefined {
     return this.props.endDate;
+  }
+
+  get tuitionAmount(): number | undefined {
+    return this.props.tuitionAmount;
+  }
+
+  get paymentStatus(): PaymentStatus | undefined {
+    return this.props.paymentStatus;
+  }
+
+  get prepaidSessions(): number {
+    return this.props.prepaidSessions || 0;
+  }
+
+  get usedSessions(): number {
+    return this.props.usedSessions || 0;
   }
 
   private constructor(props: EnrollmentProps) {
@@ -42,6 +66,29 @@ export class Enrollment extends ValueObject<EnrollmentProps> {
     if (!props.joinedDate) {
       return Result.fail<Enrollment>('Joined Date is required');
     }
-    return Result.ok<Enrollment>(new Enrollment(props));
+    return Result.ok<Enrollment>(new Enrollment({
+      ...props,
+      tuitionAmount: props.tuitionAmount ?? 0,
+      paymentStatus: props.paymentStatus ?? 'unpaid',
+      prepaidSessions: props.prepaidSessions ?? 0,
+      usedSessions: props.usedSessions ?? 0
+    }));
+  }
+
+  // Domain Method: Nạp thêm buổi học (Top-up)
+  public addSessions(count: number, amountPaid: number): Result<Enrollment> {
+    return Enrollment.create({
+      ...this.props,
+      prepaidSessions: (this.props.prepaidSessions || 0) + count,
+      tuitionAmount: (this.props.tuitionAmount || 0) + amountPaid
+    });
+  }
+
+  // Domain Method: Trừ buổi học (khi điểm danh)
+  public consumeSession(): Result<Enrollment> {
+    return Enrollment.create({
+      ...this.props,
+      usedSessions: (this.props.usedSessions || 0) + 1
+    });
   }
 }
