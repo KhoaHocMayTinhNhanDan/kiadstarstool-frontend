@@ -1,7 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { css } from '@emotion/react';
 import { ArrowLeft, Save, X } from 'lucide-react';
 import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SPACING, RADIUS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
@@ -10,6 +9,7 @@ import { useI18n } from '@/shared/i18n/useI18n';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 import { type DayOfWeek, DAY_MAP } from '@/01-entities/classes/ClassSession';
+import { isValidTimeRange } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/utils/validators/time.validator';
 
 type TimeSlot = { startTime: string; endTime: string; active: boolean };
 type ScheduleRow = { id: string; day: DayOfWeek; slots: [TimeSlot, TimeSlot, TimeSlot] };
@@ -114,6 +114,18 @@ export const CreateClassPage = () => {
     if (!formData.name || !formData.branchId || !formData.code) {
       toast.error('Vui lòng nhập tên lớp và chọn chi nhánh.');
       return;
+    }
+
+    // Validate time slots
+    for (const row of scheduleRows) {
+      for (const slot of row.slots) {
+        if (slot.active) {
+          if (!isValidTimeRange(slot.startTime, slot.endTime)) {
+            toast.error(`Giờ kết thúc phải lớn hơn giờ bắt đầu (${DAY_MAP[row.day]}: ${slot.startTime} - ${slot.endTime})`);
+            return;
+          }
+        }
+      }
     }
 
     // Flatten rows into sessions
@@ -293,14 +305,16 @@ export const CreateClassPage = () => {
                               value={slot.startTime} 
                               disabled={!slot.active}
                               onChange={(e) => updateSlot(row.id, index, 'startTime', e.target.value)}
-                              style={{ fontSize: '12px', border: 'none', background: 'transparent', padding: 0, color: slot.active ? 'inherit' : '#aaa' }}
+                              style={{ fontSize: '12px', border: 'none', background: 'transparent', padding: 0, color: slot.active ? 'inherit' : '#aaa',
+                                borderColor: slot.active && !isValidTimeRange(slot.startTime, slot.endTime) ? COLORS.DANGER : undefined, borderWidth: slot.active && !isValidTimeRange(slot.startTime, slot.endTime) ? '1px' : '0px', borderStyle: slot.active && !isValidTimeRange(slot.startTime, slot.endTime) ? 'solid' : 'none' }}
                             />
                             <Input 
                               type="time" 
                               value={slot.endTime} 
                               disabled={!slot.active}
                               onChange={(e) => updateSlot(row.id, index, 'endTime', e.target.value)}
-                              style={{ fontSize: '12px', border: 'none', background: 'transparent', padding: 0, color: slot.active ? 'inherit' : '#aaa' }}
+                              style={{ fontSize: '12px', border: 'none', background: 'transparent', padding: 0, color: slot.active ? 'inherit' : '#aaa',
+                                borderColor: slot.active && !isValidTimeRange(slot.startTime, slot.endTime) ? COLORS.DANGER : undefined, borderWidth: slot.active && !isValidTimeRange(slot.startTime, slot.endTime) ? '1px' : '0px', borderStyle: slot.active && !isValidTimeRange(slot.startTime, slot.endTime) ? 'solid' : 'none' }}
                             />
                           </Box>
                         </Box>

@@ -1,6 +1,5 @@
 export * from './Button';
 export * from './Input';
-export * from './InputTime';
 export * from './Icon'; 
 export * from './LoadingSpinner';
 export * from './Textarea';

@@ -9,7 +9,7 @@ import { EditBranchPage } from '../../pages/branch/EditBranchPage';
 import { NotFoundPage } from '../../pages/system/NotFoundPage';
 import { DevShowcasePage } from '../../pages/playground/DevShowcasePage';
 import { ForbiddenPage } from '../../pages/system/ForbiddenPage';
-import { BranchListPage } from '../../pages/branch/BranchListPage';
+import { BranchPage } from '../../pages/branch/BranchPage';
 import { RootLayout } from '../../layouts/RootLayout';
 import { AuthLayout } from '../../layouts/AuthLayout';
 import { MainLayout } from '../../layouts/MainLayout';
@@ -73,7 +73,7 @@ const routes: RouteObject[] = [
               },
               {
                 path: 'branches',
-                element: <BranchListPage />,
+                element: <BranchPage />,
               },
               {
                 path: 'branches/new',

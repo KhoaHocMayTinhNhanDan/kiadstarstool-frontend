@@ -1,3 +1,6 @@
+import { type BranchFinancialProps } from '@/01-entities/branch/value-objects/BranchFinancial.vo';
+import { type WeeklyOperatingHours } from '@/01-entities/branch/value-objects/BranchOperatingHours.vo';
+
 export interface CreateBranchInput {
   name: string;
   code: string;
@@ -8,4 +11,7 @@ export interface CreateBranchInput {
     city: string;
   };
   maxStudents?: number;
+  totalRooms?: number;
+  financial?: Partial<BranchFinancialProps>;
+  operatingHours?: Partial<WeeklyOperatingHours>;
 }

@@ -9,7 +9,7 @@ import { Plus, MapPin, Users, ChevronRight } from 'lucide-react';
 import { SPACING, COLORS, RADIUS } from '../../../00-design-system/00-atoms/00-core/tokens-constants';
 import { useI18n } from '@/shared/i18n/useI18n';
 
-export const BranchListPage = () => {
+export const BranchPage = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
   const { toast } = useToast();

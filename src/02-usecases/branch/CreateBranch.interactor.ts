@@ -28,10 +28,11 @@ export class CreateBranchInteractor {
     const address = BranchAddress.create(input.address);
     const capacity = BranchCapacity.create({ 
       maxStudents: input.maxStudents ?? 100, 
-      currentStudents: 0 
+      currentStudents: 0,
+      totalRooms: input.totalRooms ?? 0
     });
-    const financial = BranchFinancial.create(); // Mặc định
-    const operatingHours = BranchOperatingHours.create(); // Mặc định
+    const financial = BranchFinancial.create(input.financial);
+    const operatingHours = BranchOperatingHours.create(input.operatingHours);
 
     // 4. Tạo Entity
     const branchOrError = Branch.create({

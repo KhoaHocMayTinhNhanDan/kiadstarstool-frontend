@@ -8,7 +8,7 @@ import { type IBranchDataSource } from '@/03-interface-adapters/gateways/outboun
 
 // Mock in-memory storage
 let branchStore = new Map<string, Branch>();
-const STORAGE_KEY = 'mock_branches_db_v7';
+const STORAGE_KEY = 'mock_branches_db_v8'; // Bump version to include financial & operating hours data
 
 // Helper để lấy dữ liệu thô từ Value Object (xử lý trường hợp VO bọc trong 'props')
 const getVOProps = (vo: any) => (vo && vo.props) ? vo.props : vo;
@@ -47,7 +47,24 @@ export class MockBranchDataSource implements IBranchDataSource {
           city: 'Hà Nội',
           maxStudents: 500,
           currentStudents: 320,
-          isActive: true
+          isActive: true,
+          financial: {
+            bankAccount: '190320102023',
+            taxCode: '0101234567',
+            yearlyTarget: 5000000000,
+            currency: 'VND',
+            monthlyRevenue: 0,
+            monthlyExpenses: 0
+          },
+          operatingHours: {
+            monday: { open: '08:00', close: '21:00' },
+            tuesday: { open: '08:00', close: '21:00' },
+            wednesday: { open: '08:00', close: '21:00' },
+            thursday: { open: '08:00', close: '21:00' },
+            friday: { open: '08:00', close: '21:00' },
+            saturday: { open: '08:00', close: '18:00' },
+            sunday: { open: '08:00', close: '12:00' }
+          }
         },
         {
           id: 'branch-02', // Cơ sở B
@@ -59,7 +76,24 @@ export class MockBranchDataSource implements IBranchDataSource {
           city: 'Hồ Chí Minh',
           maxStudents: 300,
           currentStudents: 150,
-          isActive: true
+          isActive: true,
+          financial: {
+            bankAccount: '0071000123456',
+            taxCode: '0301234567',
+            yearlyTarget: 3000000000,
+            currency: 'VND',
+            monthlyRevenue: 0,
+            monthlyExpenses: 0
+          },
+          operatingHours: {
+            monday: { open: '09:00', close: '21:00' },
+            tuesday: { open: '09:00', close: '21:00' },
+            wednesday: { open: '09:00', close: '21:00' },
+            thursday: { open: '09:00', close: '21:00' },
+            friday: { open: '09:00', close: '21:00' },
+            saturday: { open: '08:00', close: '17:00' },
+            sunday: { open: '08:00', close: '12:00' }
+          }
         },
         {
           id: 'branch-03',
@@ -86,9 +120,9 @@ export class MockBranchDataSource implements IBranchDataSource {
             district: data.district,
             city: data.city
           }),
-          capacity: BranchCapacity.create({ maxStudents: data.maxStudents, currentStudents: data.currentStudents }),
-          financial: BranchFinancial.create(),
-          operatingHours: BranchOperatingHours.create(),
+          capacity: BranchCapacity.create({ maxStudents: data.maxStudents, currentStudents: data.currentStudents, totalRooms: 10 }), // Default rooms
+          financial: BranchFinancial.create((data as any).financial),
+          operatingHours: BranchOperatingHours.create((data as any).operatingHours),
           isActive: data.isActive
         }).getValue();
         
