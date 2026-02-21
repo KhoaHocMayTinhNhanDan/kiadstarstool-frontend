@@ -6,7 +6,7 @@ import { type IClassDataSource } from '@/03-interface-adapters/gateways/outbound
 import { type ClassSession } from '@/01-entities/classes/ClassSession';
 
 let classStore = new Map<string, Class>();
-const STORAGE_KEY = 'mock_classes_db_v20'; // Support multiple tuition types
+const STORAGE_KEY = 'mock_classes_db_v22'; // Multi-shift class demo
 
 export class MockClassDataSource implements IClassDataSource {
   constructor() {
@@ -79,6 +79,7 @@ export class MockClassDataSource implements IClassDataSource {
           startDate: new Date('2025-12-15'), // Bắt đầu trong quá khứ, vẫn đang active
           sessions: [
             { day: 'Sat', startTime: '08:00', endTime: '10:00' },
+            { day: 'Sat', startTime: '14:00', endTime: '16:00' },
             { day: 'Sun', startTime: '08:00', endTime: '10:00' }
           ] as ClassSession[],
           teacherName: 'Lê Văn C',

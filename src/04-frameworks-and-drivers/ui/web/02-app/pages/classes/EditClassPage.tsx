@@ -12,6 +12,15 @@ import { ConfirmDialog } from '@/04-frameworks-and-drivers/ui/web/00-design-syst
 import { type DayOfWeek, DAY_MAP, type ClassSession } from '@/01-entities/classes/ClassSession';
 import { ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 
+type TimeSlot = { startTime: string; endTime: string; active: boolean };
+type ScheduleRow = { id: string; day: DayOfWeek; slots: [TimeSlot, TimeSlot, TimeSlot] };
+
+const DEFAULT_SLOTS: [TimeSlot, TimeSlot, TimeSlot] = [
+  { startTime: '08:00', endTime: '09:30', active: false },
+  { startTime: '14:00', endTime: '15:30', active: false },
+  { startTime: '18:00', endTime: '19:30', active: false }, // Default inactive for new rows
+];
+
 export const EditClassPage = () => {
   const { classId } = useParams<{ classId: string }>();
   const navigate = useNavigate();
@@ -44,7 +53,7 @@ export const EditClassPage = () => {
   });
 
   // Schedule State
-  const [sessions, setSessions] = useState<{ id: string; day: DayOfWeek; startTime: string; endTime: string }[]>([]);
+  const [scheduleRows, setScheduleRows] = useState<ScheduleRow[]>([]);
   const [teacherName, setTeacherName] = useState('');
   const [tuition, setTuition] = useState<{ courseFee: number | ''; sessionFee: number | ''; monthlyFee: number | '' }>({
     courseFee: '',
@@ -83,10 +92,36 @@ export const EditClassPage = () => {
 
           // Populate sessions from structured data
           if (data.sessions && Array.isArray(data.sessions)) {
-            setSessions(data.sessions.map((s: ClassSession) => ({
-              ...s,
-              id: Math.random().toString() // Add a temporary unique ID for UI keys
-            })));
+            // Group sessions by day
+            const groupedSessions: Record<string, ClassSession[]> = {};
+            data.sessions.forEach((s: ClassSession) => {
+              if (!groupedSessions[s.day]) groupedSessions[s.day] = [];
+              groupedSessions[s.day].push(s);
+            });
+
+            const rows: ScheduleRow[] = Object.entries(groupedSessions).map(([day, sessions], idx) => {
+              const slots = JSON.parse(JSON.stringify(DEFAULT_SLOTS)) as [TimeSlot, TimeSlot, TimeSlot];
+              
+              sessions.forEach(s => {
+                const startH = parseInt(s.startTime.split(':')[0]);
+                let slotIndex = 2; // Default Evening
+                if (startH >= 5 && startH < 12) slotIndex = 0; // Morning
+                else if (startH >= 12 && startH < 17) slotIndex = 1; // Afternoon
+
+                slots[slotIndex] = {
+                  startTime: s.startTime,
+                  endTime: s.endTime,
+                  active: true
+                };
+              });
+
+              return {
+                id: Date.now().toString() + idx,
+                day: day as DayOfWeek,
+                slots
+              };
+            });
+            setScheduleRows(rows);
           }
 
           if (data.tuition) {
@@ -114,18 +149,29 @@ export const EditClassPage = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const addSession = () => {
-    setSessions(prev => [...prev, { id: Date.now().toString(), day: 'Mon', startTime: '', endTime: '' }]);
+  const addRow = () => {
+    setScheduleRows(prev => [...prev, {
+      id: Date.now().toString(),
+      day: 'Mon',
+      slots: JSON.parse(JSON.stringify(DEFAULT_SLOTS))
+    }]);
   };
 
-  const removeSession = (id: string) => {
-    setSessions(prev => prev.filter(s => s.id !== id));
+  const removeRow = (id: string) => {
+    setScheduleRows(prev => prev.filter(r => r.id !== id));
   };
 
-  const handleSessionChange = (id: string, field: 'day' | 'startTime' | 'endTime', value: string) => {
-    setSessions(prev =>
-      prev.map(s => (s.id === id ? { ...s, [field]: value } : s))
-    );
+  const updateRowDay = (id: string, day: DayOfWeek) => {
+    setScheduleRows(prev => prev.map(r => r.id === id ? { ...r, day } : r));
+  };
+
+  const updateSlot = (rowId: string, slotIndex: number, field: keyof TimeSlot, value: any) => {
+    setScheduleRows(prev => prev.map(row => {
+      if (row.id !== rowId) return row;
+      const newSlots = [...row.slots] as [TimeSlot, TimeSlot, TimeSlot];
+      newSlots[slotIndex] = { ...newSlots[slotIndex], [field]: value };
+      return { ...row, slots: newSlots };
+    }));
   };
 
   const handleSubmit = async () => {
@@ -134,17 +180,24 @@ export const EditClassPage = () => {
       return;
     }
     
-    const finalSessions = sessions.map(({ id, ...rest }) => rest);
-    if (finalSessions.some(s => !s.day || !s.startTime || !s.endTime)) {
-      toast.error('Vui lòng điền đầy đủ thông tin cho tất cả các buổi học.');
+    // Flatten rows into sessions
+    const finalSessions: any[] = [];
+    scheduleRows.forEach(row => {
+      row.slots.forEach(slot => {
+        if (slot.active) {
+          finalSessions.push({ day: row.day, startTime: slot.startTime, endTime: slot.endTime });
+        }
+      });
+    });
+
+    if (finalSessions.length === 0) {
+      toast.error('Vui lòng chọn ít nhất một buổi học.');
       return;
     }
 
     setIsLoading(true);
     try {
       const controller = AppContext.getClassesController();
-      // NOTE: Dùng interactor `updateClassInfo` chỉ cập nhật thông tin cơ bản.
-      // Việc cập nhật `sessions` và `teacherName` sẽ cần một use case riêng hoặc sửa đổi use case hiện tại.
       const result = await controller.updateClassInfo({
         classId: formData.id,
         name: formData.name,
@@ -286,41 +339,77 @@ export const EditClassPage = () => {
 
         {/* Schedule & Teacher */}
         <Box>
-          <Text weight="semibold" mb="xs">{t('classes.schedule_label')} <Text as="span" color="DANGER">*</Text></Text>
-          <Box p="md" border={`1px solid ${COLORS.NEUTRAL_BORDER}`} borderRadius="md" display="flex" flexDirection="column" gap="md">
-            {sessions.map((session) => (
-              <Box key={session.id} display="flex" gap="md" alignItems="center">
-                <select
-                  value={session.day}
-                  onChange={(e) => handleSessionChange(session.id, 'day', e.target.value)}
-                  style={{ padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
-                >
-                  {(Object.keys(DAY_MAP) as DayOfWeek[]).map(dayKey => (
-                    <option key={dayKey} value={dayKey}>{DAY_MAP[dayKey]}</option>
-                  ))}
-                </select>
-                <Input 
-                  type="time" 
-                  value={session.startTime}
-                  onChange={(e) => handleSessionChange(session.id, 'startTime', e.target.value)}
-                  style={{ padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
-                />
-                <Text>-</Text>
-                <Input 
-                  type="time" 
-                  value={session.endTime}
-                  onChange={(e) => handleSessionChange(session.id, 'endTime', e.target.value)}
-                  style={{ padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
-                />
-                {sessions.length > 1 && (
-                  <Button variant="ghost" intent="danger" size="sm" onClick={() => removeSession(session.id)} type="button">
-                    <Icon><X size={16} /></Icon>
-                  </Button>
-                )}
-              </Box>
-            ))}
-            <Button variant="outline" size="sm" onClick={addSession} type="button" sx={{ alignSelf: 'flex-start' }}>
-              Thêm buổi học
+          <Text weight="semibold" mb="sm">{t('classes.schedule_label')}</Text>
+          <Box p="md" border={`1px solid ${COLORS.NEUTRAL_BORDER}`} borderRadius="md" overflow="auto">
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left', paddingBottom: '8px', width: '100px' }}>Thứ</th>
+                  <th style={{ textAlign: 'center', paddingBottom: '8px' }}>Sáng</th>
+                  <th style={{ textAlign: 'center', paddingBottom: '8px' }}>Chiều</th>
+                  <th style={{ textAlign: 'center', paddingBottom: '8px' }}>Tối</th>
+                  <th style={{ width: '40px' }}></th>
+                </tr>
+              </thead>
+              <tbody>
+                {scheduleRows.map((row) => (
+                  <tr key={row.id} style={{ borderTop: `1px solid ${COLORS.NEUTRAL_LIGHT}` }}>
+                    <td style={{ padding: '8px' }}>
+                      <select
+                        value={row.day}
+                        onChange={(e) => updateRowDay(row.id, e.target.value as DayOfWeek)}
+                        style={{ width: '100%', padding: '6px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
+                      >
+                        {(Object.keys(DAY_MAP) as DayOfWeek[]).map(dayKey => (
+                          <option key={dayKey} value={dayKey}>{DAY_MAP[dayKey]}</option>
+                        ))}
+                      </select>
+                    </td>
+                    {row.slots.map((slot, index) => (
+                      <td key={index} style={{ padding: '8px' }}>
+                        <Box 
+                          display="flex" 
+                          alignItems="center" 
+                          gap="xs" 
+                          bg={slot.active ? 'PRIMARY_LIGHT' : 'transparent'} 
+                          p="xs" 
+                          borderRadius="md"
+                          border={slot.active ? `1px solid ${COLORS.PRIMARY}` : '1px solid transparent'}
+                        >
+                          <Input 
+                            type="checkbox" 
+                            checked={slot.active} 
+                            onChange={(e) => updateSlot(row.id, index, 'active', e.target.checked)}
+                            style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                          />
+                          <Box display="flex" flexDirection="column" gap="2px">
+                            <Input 
+                              type="time" 
+                              value={slot.startTime} 
+                              disabled={!slot.active}
+                              onChange={(e) => updateSlot(row.id, index, 'startTime', e.target.value)}
+                              style={{ fontSize: '12px', border: 'none', background: 'transparent', padding: 0, color: slot.active ? 'inherit' : '#aaa' }}
+                            />
+                            <Input 
+                              type="time" 
+                              value={slot.endTime} 
+                              disabled={!slot.active}
+                              onChange={(e) => updateSlot(row.id, index, 'endTime', e.target.value)}
+                              style={{ fontSize: '12px', border: 'none', background: 'transparent', padding: 0, color: slot.active ? 'inherit' : '#aaa' }}
+                            />
+                          </Box>
+                        </Box>
+                      </td>
+                    ))}
+                    <td style={{ textAlign: 'center', padding: '8px' }}>
+                      <Button variant="ghost" intent="danger" size="sm" onClick={() => removeRow(row.id)}><Icon><X size={16} /></Icon></Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <Button variant="outline" size="sm" onClick={addRow} type="button" sx={{ marginTop: '12px' }}>
+              Thêm ngày học
             </Button>
           </Box>
         </Box>
