@@ -14,13 +14,14 @@ import { RootLayout } from '../../layouts/RootLayout';
 import { AuthLayout } from '../../layouts/AuthLayout';
 import { MainLayout } from '../../layouts/MainLayout';
 import { ClassesPage } from '../../pages/classes/ClassesPage';
-import { ClassDetailPage } from '../../pages/classes/ClassDetailPage';
-import { CreateClassPage } from '../../pages/classes/CreateClassPage';
-import { EditClassPage } from '../../pages/classes/EditClassPage';
+import { ClassDetailPage } from '../../pages/classes/components/ClassDetailPage';
+import { CreateClassPage } from '../../pages/classes/components/CreateClassPage';
+import { EditClassPage } from '../../pages/classes/components/EditClassPage';
 import { StudentListPage } from '../../pages/students/StudentListPage';
 import { StudentDetailPage } from '../../pages/students/StudentDetailPage';
 import { AttendancePage } from '../../pages/attendance/AttendancePage';
 import { ThemeSelector } from '../../pages/settings/ThemeSelector';
+import { FinancePage } from '../../pages/finance/FinancePage';
 /* ==========================================================================
  * Router Configuration
  * ========================================================================== */
@@ -114,6 +115,10 @@ const routes: RouteObject[] = [
               {
                 path: 'attendance',
                 element: <AttendancePage />,
+              },
+              {
+                path: 'finance',
+                element: <FinancePage />,
               },
               {
                 path: 'settings/theme',

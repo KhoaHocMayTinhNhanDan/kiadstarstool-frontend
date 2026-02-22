@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, FONT_SIZES, FONT_WEIGHTS, RADIUS, SPACING, TRANSITIONS } from '../00-core/tokens-constants';
+import { COLORS, FONT_SIZES, FONT_WEIGHTS, RADIUS, SPACING, TRANSITIONS } from '../../../03-ui-shared/constants/tokens-constants';
 import type { ChipColor, ChipVariant } from './Chip.types';
 
 /** 🔥 GRID + FLEX SAFE WRAPPER */

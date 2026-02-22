@@ -10,12 +10,14 @@ import { IconButton } from '../../00-design-system/00-atoms/IconButton';
 import { Breadcrumbs } from '../../00-design-system/02-organisms/navigation/Breadcrumbs/Breadcrumbs.organism';
 import { 
   LayoutDashboard, Users, BookOpen, GraduationCap, 
-  ClipboardCheck, Building, Settings, User, LogOut,
+  ClipboardCheck, Building, Settings, User, LogOut, DollarSign,
   Menu, X, ChevronLeft, ChevronRight, Bell, HelpCircle
 } from 'lucide-react';
 import { useAuth } from '../hooks/user/useAuth';
 import { useToast } from '../../01-ui-core/hooks/useToast';
 import { useState, useEffect } from 'react';
+import { IronmanLayout } from './dynamic/IronmanLayout';
+import { CosmicLayout } from './dynamic/CosmicLayout';
 
 // Định nghĩa page titles cho từng route
 const pageTitles: Record<string, string> = {
@@ -24,6 +26,7 @@ const pageTitles: Record<string, string> = {
   '/classes': 'Quản lý Lớp học',
   '/students': 'Quản lý Học viên',
   '/attendance': 'Điểm danh',
+  '/finance': 'Quản lý Tài chính',
   '/users': 'Quản lý Người dùng',
   '/settings/theme': 'Cài đặt Giao diện',
   '/profile': 'Hồ sơ cá nhân',
@@ -62,6 +65,7 @@ export const MainLayout = () => {
     { id: 'classes', label: 'Lớp học', href: '/classes', icon: <Icon size="sm"><BookOpen /></Icon> },
     { id: 'students', label: 'Học viên', href: '/students', icon: <Icon size="sm"><GraduationCap /></Icon> },
     { id: 'attendance', label: 'Điểm danh', href: '/attendance', icon: <Icon size="sm"><ClipboardCheck /></Icon>, badge: '12' },
+    { id: 'finance', label: 'Tài chính', href: '/finance', icon: <Icon size="sm"><DollarSign /></Icon> },
     { id: 'users', label: 'Người dùng', href: '/users', icon: <Icon size="sm"><Users /></Icon> },
     { id: 'settings', label: 'Cài đặt', href: '/settings/theme', icon: <Icon size="sm"><Settings /></Icon> },
   ];
@@ -158,6 +162,16 @@ export const MainLayout = () => {
       }}
     />
   ) : null;
+
+  // --- DYNAMIC LAYOUT SWITCHING ---
+  // Nếu theme.id là 'ironman', trả về IronmanLayout
+  if (theme.id === 'ironman') {
+    return <IronmanLayout />;
+  }
+  // Nếu theme.id là 'cosmic', trả về CosmicLayout
+  if (theme.id === 'cosmic') {
+    return <CosmicLayout />;
+  }
 
   return (
     <Box

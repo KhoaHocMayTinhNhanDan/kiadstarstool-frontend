@@ -1,13 +1,21 @@
 /** @jsxImportSource @emotion/react */
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Box, Text, Button, Input, Card } from '../../../00-design-system/00-atoms';
+import { Plus, X } from 'lucide-react';
+import { Box, Text, Button, Input, Card, Icon } from '../../../00-design-system/00-atoms';
 import { useBranch } from '../../hooks/branch/useBranch';
 import { useBranchForm, type BranchFormData } from '../../hooks/branch/useBranchForm';
 import { AppContext } from '@/00-core/app-context';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
-import { SPACING } from '../../../00-design-system/00-atoms/00-core/tokens-constants';
+import { SPACING, COLORS } from '../../../03-ui-shared/constants/tokens-constants';
+import { type DayOfWeek } from '@/01-entities/branch/value-objects/BranchOperatingHours.vo';
+
+const DAYS: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+const DAY_LABELS: Record<DayOfWeek, string> = {
+  monday: 'Thứ 2', tuesday: 'Thứ 3', wednesday: 'Thứ 4', thursday: 'Thứ 5', 
+  friday: 'Thứ 6', saturday: 'Thứ 7', sunday: 'Chủ Nhật'
+};
 
 export const EditBranchPage = () => {
   const { branchId } = useParams<{ branchId: string }>();
@@ -23,6 +31,15 @@ export const EditBranchPage = () => {
     reset,
     formState: { errors } 
   } = useBranchForm();
+
+  // State for fields not in react-hook-form
+  const [financial, setFinancial] = useState({
+    bankAccount: '',
+    taxCode: '',
+    yearlyTarget: ''
+  });
+  const [totalRooms, setTotalRooms] = useState<string>('');
+  const [operatingRows, setOperatingRows] = useState<{ id: string; day: DayOfWeek; open: string; close: string }[]>([]);
 
   useEffect(() => {
     const fetchBranch = async () => {
@@ -45,6 +62,23 @@ export const EditBranchPage = () => {
             city: branch.city,
             maxStudents: branch.capacity.max,
           });
+
+          // Populate additional states
+          if ((branch as any).financial) {
+            setFinancial({
+              bankAccount: (branch as any).financial.bankAccount || '',
+              taxCode: (branch as any).financial.taxCode || '',
+              yearlyTarget: (branch as any).financial.yearlyTarget?.toString() || ''
+            });
+          }
+          setTotalRooms((branch as any).capacity?.totalRooms?.toString() || '');
+
+          if (branch.operatingHours) {
+            const rows = Object.entries(branch.operatingHours).map(([day, hours]) => ({
+              id: day, day: day as DayOfWeek, open: hours.open, close: hours.close
+            }));
+            setOperatingRows(rows);
+          }
         } else {
           toast.error(result.getErrorValue() as string);
           navigate('/branches');
@@ -57,11 +91,34 @@ export const EditBranchPage = () => {
     };
 
     fetchBranch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [branchId]);
+
+  const addOperatingDay = () => {
+    setOperatingRows(prev => [...prev, {
+      id: Date.now().toString(),
+      day: 'monday',
+      open: '08:00',
+      close: '20:00'
+    }]);
+  };
+
+  const removeOperatingDay = (id: string) => {
+    setOperatingRows(prev => prev.filter(r => r.id !== id));
+  };
+
+  const updateOperatingDay = (id: string, field: 'day' | 'open' | 'close', value: string) => {
+    setOperatingRows(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r));
+  };
 
   const onSubmit = async (data: BranchFormData) => {
     if (!branchId) return;
     
+    const operatingHoursObj: any = {};
+    operatingRows.forEach(row => {
+      operatingHoursObj[row.day] = { open: row.open, close: row.close };
+    });
+
     const success = await updateBranchInfo({
       branchId,
       name: data.name,
@@ -72,7 +129,13 @@ export const EditBranchPage = () => {
         district: data.district,
         city: data.city
       },
-      maxStudents: data.maxStudents
+      maxStudents: data.maxStudents,
+      totalRooms: Number(totalRooms) || 0,
+      financial: {
+        ...financial,
+        yearlyTarget: Number(financial.yearlyTarget) || 0
+      },
+      operatingHours: operatingHoursObj
     });
 
     if (success) {
@@ -129,12 +192,73 @@ export const EditBranchPage = () => {
             </Box>
 
             <Text weight="semibold" sx={{ marginTop: SPACING.sm }}>{t('branch.capacity_section')}</Text>
-            <Input 
-              label={t('branch.max_students_label')}
-              type="number" 
-              {...register('maxStudents', { valueAsNumber: true })}
-              error={errors.maxStudents?.message}
-            />
+            <Box display="grid" gridTemplateColumns="1fr 1fr" gap="md">
+              <Input 
+                label={t('branch.max_students_label')}
+                type="number" 
+                {...register('maxStudents', { valueAsNumber: true })}
+                error={errors.maxStudents?.message}
+              />
+              <Input 
+                label="Số phòng học"
+                type="number"
+                value={totalRooms}
+                onChange={(e) => setTotalRooms(e.target.value)}
+                placeholder="VD: 10"
+              />
+            </Box>
+
+            <Text weight="semibold" sx={{ marginTop: SPACING.sm }}>Thông tin tài chính</Text>
+            <Box display="grid" gridTemplateColumns="1fr 1fr" gap="md">
+              <Input 
+                label="Số tài khoản"
+                placeholder="VD: 1903..."
+                value={financial.bankAccount}
+                onChange={(e) => setFinancial(prev => ({ ...prev, bankAccount: e.target.value }))}
+              />
+              <Input 
+                label="Mã số thuế"
+                placeholder="VD: 010..."
+                value={financial.taxCode}
+                onChange={(e) => setFinancial(prev => ({ ...prev, taxCode: e.target.value }))}
+              />
+              <Input 
+                label="Doanh thu mục tiêu (Năm)"
+                type="number"
+                placeholder="VNĐ"
+                value={financial.yearlyTarget}
+                onChange={(e) => setFinancial(prev => ({ ...prev, yearlyTarget: e.target.value }))}
+              />
+            </Box>
+
+            <Text weight="semibold" sx={{ marginTop: SPACING.sm }}>Giờ hoạt động</Text>
+            <Box p="md" border={`1px solid ${COLORS.NEUTRAL_BORDER}`} borderRadius="md" overflow="auto">
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '400px' }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left', paddingBottom: '8px', width: '150px' }}>Ngày</th>
+                    <th style={{ textAlign: 'center', paddingBottom: '8px' }}>Giờ mở cửa</th>
+                    <th style={{ textAlign: 'center', paddingBottom: '8px' }}>Giờ đóng cửa</th>
+                    <th style={{ width: '40px' }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {operatingRows.map((row) => (
+                    <tr key={row.id} style={{ borderTop: `1px solid ${COLORS.NEUTRAL_LIGHT}` }}>
+                      <td style={{ padding: '8px' }}>
+                        <select value={row.day} onChange={(e) => updateOperatingDay(row.id, 'day', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}>
+                          {DAYS.map(d => (<option key={d} value={d}>{DAY_LABELS[d]}</option>))}
+                        </select>
+                      </td>
+                      <td style={{ padding: '8px', textAlign: 'center' }}><Box display="flex" justifyContent="center"><Input type="time" value={row.open} onChange={(e) => updateOperatingDay(row.id, 'open', e.target.value)} /></Box></td>
+                      <td style={{ padding: '8px', textAlign: 'center' }}><Box display="flex" justifyContent="center"><Input type="time" value={row.close} onChange={(e) => updateOperatingDay(row.id, 'close', e.target.value)} /></Box></td>
+                      <td style={{ textAlign: 'center', padding: '8px' }}><Button variant="ghost" intent="danger" size="sm" onClick={() => removeOperatingDay(row.id)} type="button"><Icon><X size={16} /></Icon></Button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <Button variant="outline" size="sm" onClick={addOperatingDay} type="button" sx={{ marginTop: '12px' }} leftIcon={<Icon><Plus size={16} /></Icon>}>Thêm ngày</Button>
+            </Box>
 
             <Box mt="lg" display="flex" justifyContent="flex-end" gap="sm">
               <Button variant="ghost" onClick={() => navigate(-1)} type="button">{t('branch.cancel_button')}</Button>

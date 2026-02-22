@@ -1,6 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 import type { HTMLAttributes, ReactNode } from 'react';
-import type { SIZES } from '../00-core/tokens-constants';
+import type { SIZES } from '../../../03-ui-shared/constants/tokens-constants';
 
 export type IconSize = keyof typeof SIZES | 'inherit';
 

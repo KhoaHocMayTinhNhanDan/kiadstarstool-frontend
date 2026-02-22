@@ -6,7 +6,7 @@ import {
   TYPOGRAPHY,
   TRANSITIONS,
   RADIUS
-} from '../../../00-atoms/00-core/tokens-constants';
+} from '../../../../03-ui-shared/constants/tokens-constants';
 
 export const nav = css`
   display: flex;

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Filter, Search, Mail, Phone, MoreHorizontal, DollarSign } from 'lucide-react';
 import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING, RADIUS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
+import { COLORS, SPACING, RADIUS } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
 import { AppContext } from '@/00-core/app-context';
 import { Pagination } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/navigation/Pagination';
 

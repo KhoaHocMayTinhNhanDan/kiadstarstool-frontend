@@ -3,7 +3,7 @@
 import React from 'react';
 import { css } from '@emotion/react';
 import { IconButton } from '../IconButton';
-import { COLORS } from '../00-core/tokens-constants';
+import { COLORS } from '../../../03-ui-shared/constants/tokens-constants';
 import * as styles from './IconButtonBadge.styles';
 import type { IconButtonBadgeProps } from './IconButtonBadge.types';
 

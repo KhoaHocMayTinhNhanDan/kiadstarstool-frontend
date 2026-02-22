@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, RADIUS, SHADOWS, SPACING } from '../00-core/tokens-constants';
+import { COLORS, RADIUS, SHADOWS, SPACING } from '../../../03-ui-shared/constants/tokens-constants';
 
 export const wrapper = css`
   position: relative;

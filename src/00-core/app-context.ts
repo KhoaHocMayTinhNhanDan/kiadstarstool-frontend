@@ -8,6 +8,7 @@ import type { BranchController } from '@/03-interface-adapters/controllers/Branc
 import type { ClassesController } from '@/03-interface-adapters/controllers/Classes.controller';
 import type { StudentsController } from '@/03-interface-adapters/controllers/Students.controller';
 import type { AttendanceController } from '@/03-interface-adapters/controllers/Attendance.controller';
+import type { FinanceController } from '@/03-interface-adapters/controllers/Finance.controller';
 import type { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
 import type { LoginInteractor } from '@/02-usecases/auth/Login.interactor'
 import type { LogoutInteractor } from '@/02-usecases/auth/Logout.interactor'
@@ -56,6 +57,11 @@ export type AppContextType = {
   // Attendance feature
   attendance?: {
     controller: AttendanceController;
+  }
+
+  // Finance feature
+  finance?: {
+    controller: FinanceController;
   }
   
   // Configuration
@@ -148,6 +154,14 @@ class AppContextImpl {
     return ctx.attendance;
   }
 
+  static getFinance() {
+    const ctx = this.get();
+    if (!ctx.finance) {
+      throw new Error('[AppContext] Finance feature not configured.');
+    }
+    return ctx.finance;
+  }
+
   static getConfig() {
     const ctx = this.get()
     if (!ctx.config) {
@@ -190,6 +204,10 @@ class AppContextImpl {
 
   static getAttendanceController(): AttendanceController {
     return this.getAttendance().controller;
+  }
+
+  static getFinanceController(): FinanceController {
+    return this.getFinance().controller;
   }
 
   static getLoginInteractor(): LoginInteractor {
@@ -265,6 +283,7 @@ class AppContextImpl {
         ...(ctx.classes ? ['classes'] : []),
         ...(ctx.students ? ['students'] : []),
         ...(ctx.attendance ? ['attendance'] : []),
+        ...(ctx.finance ? ['finance'] : []),
       ],
       config: ctx.config || {},
       auth: ctx.auth ? {

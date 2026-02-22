@@ -6,7 +6,7 @@
 
 import type { ReactNode } from 'react';
 import type { DropdownBaseProps, DropdownVariant, DropdownSize } from '../DropdownBase/DropdownBase.types';
-import type { SpacingKey, ColorKey } from '../../../00-atoms/00-core/tokens-constants';
+import type { SpacingKey, ColorKey } from '../../../../03-ui-shared/constants/tokens-constants';
 
 export interface DropdownMenuItem {
   /** Unique identifier for the item */

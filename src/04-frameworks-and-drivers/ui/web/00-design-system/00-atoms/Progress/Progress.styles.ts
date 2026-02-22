@@ -1,5 +1,5 @@
 import { css, keyframes } from '@emotion/react';
-import { COLORS, RADIUS, TRANSITIONS } from '../00-core/tokens-constants';
+import { COLORS, RADIUS, TRANSITIONS } from '../../../03-ui-shared/constants/tokens-constants';
 import { type ProgressSize, type ProgressVariant } from './Progress.types';
 
 const SIZES = {

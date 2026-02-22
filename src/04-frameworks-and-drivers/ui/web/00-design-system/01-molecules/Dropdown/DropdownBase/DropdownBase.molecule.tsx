@@ -13,7 +13,7 @@ import {
   dropdownContent,
   dropdownTrigger as triggerStyles,
 } from './DropdownBase.molecule.styles';
-import { COLORS, SPACING } from '../../../00-atoms/00-core/tokens-constants';
+import { COLORS, SPACING } from '../../../../03-ui-shared/constants/tokens-constants';
 import type {
   DropdownBaseProps,
   DropdownBaseContextValue,

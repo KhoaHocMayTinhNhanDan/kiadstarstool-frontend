@@ -1,3 +1,5 @@
+import { type BranchFinancialProps } from "@/01-entities/branch/value-objects/BranchFinancial.vo";
+
 export interface OperatingHours {
   open: string;
   close: string;
@@ -19,7 +21,9 @@ export interface GetBranchDetailsOutput {
   capacity: {
     current: number;
     max: number;
+    totalRooms?: number;
   };
+  financial?: Partial<BranchFinancialProps>;
   operatingHours: WeeklyOperatingHours;
   updatedAt?: Date;
 }

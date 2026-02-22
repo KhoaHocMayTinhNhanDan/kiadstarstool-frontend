@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, SPACING } from '../00-core/tokens-constants';
+import { COLORS, SPACING } from '../../../03-ui-shared/constants/tokens-constants';
 import type { DividerProps } from './Divider.types';
 
 export const getDividerStyles = ({

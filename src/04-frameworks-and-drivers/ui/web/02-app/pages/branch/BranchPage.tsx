@@ -6,7 +6,7 @@ import { AppContext } from '@/00-core/app-context';
 import { type ListBranchesOutput } from '@/02-usecases/branch/ports/output/ListBranches.output';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { Plus, MapPin, Users, ChevronRight } from 'lucide-react';
-import { SPACING, COLORS, RADIUS } from '../../../00-design-system/00-atoms/00-core/tokens-constants';
+import { SPACING, COLORS, RADIUS } from '../../../03-ui-shared/constants/tokens-constants';
 import { useI18n } from '@/shared/i18n/useI18n';
 
 export const BranchPage = () => {

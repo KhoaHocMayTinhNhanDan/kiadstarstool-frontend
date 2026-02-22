@@ -6,7 +6,7 @@ import {
   SHADOWS,
   TRANSITIONS,
   Z_INDEX
-} from '../../../00-atoms/00-core/tokens-constants';
+} from '../../../../03-ui-shared/constants/tokens-constants';
 
 export const container = css`
   position: relative;

@@ -4,13 +4,13 @@ import {
   DataTable
 } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/data/DataTable';
 import { type Column } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/data/DataTable/DataTable.types';
-import { Box } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/Box';
+import { Box, Button } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { Badge } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/Badge';
 import { Icon } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/Icon';
 import { Tooltip } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/Tooltip';
 import { AlertTriangle, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { type AttendanceListItem } from '@/02-usecases/attendance/ports/output/ListAttendanceByClass.output';
-import { COLORS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
+import { COLORS } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
 import { ATTENDANCE_STATUS } from '@/shared/constants/classes.constant';
 
 interface AttendanceTableProps {
@@ -94,16 +94,34 @@ export const AttendanceTable = ({ data, onMarkAttendance, isLoading }: Attendanc
       key: 'actions',
       header: 'Thao tác',
       render: (item) => (
-        <div css={css`display: flex; gap: 4px;`}>
-          <button onClick={() => onMarkAttendance(item.studentId, ATTENDANCE_STATUS.PRESENT)} title="Có mặt">
-            <Icon size="sm" color="success"><CheckCircle /></Icon>
-          </button>
-          <button onClick={() => onMarkAttendance(item.studentId, ATTENDANCE_STATUS.ABSENT)} title="Vắng">
-            <Icon size="sm" color="danger"><XCircle /></Icon>
-          </button>
-          <button onClick={() => onMarkAttendance(item.studentId, ATTENDANCE_STATUS.LATE)} title="Muộn">
-            <Icon size="sm" color="warning"><Clock /></Icon>
-          </button>
+        <div css={css`display: flex; gap: 8px;`}>
+          <Button 
+            size="sm" 
+            variant={item.status === ATTENDANCE_STATUS.PRESENT ? 'primary' : 'ghost'}
+            onClick={() => onMarkAttendance(item.studentId, ATTENDANCE_STATUS.PRESENT)} 
+            title="Có mặt"
+            sx={{ padding: '4px 8px', minWidth: 'auto' }}
+          >
+            <Icon size="sm" color={item.status === ATTENDANCE_STATUS.PRESENT ? 'white' : 'SUCCESS'}><CheckCircle /></Icon>
+          </Button>
+          <Button 
+            size="sm" 
+            variant={item.status === ATTENDANCE_STATUS.ABSENT ? 'danger' : 'ghost'}
+            onClick={() => onMarkAttendance(item.studentId, ATTENDANCE_STATUS.ABSENT)} 
+            title="Vắng"
+            sx={{ padding: '4px 8px', minWidth: 'auto' }}
+          >
+            <Icon size="sm" color={item.status === ATTENDANCE_STATUS.ABSENT ? 'white' : 'DANGER'}><XCircle /></Icon>
+          </Button>
+          <Button 
+            size="sm" 
+            variant={item.status === ATTENDANCE_STATUS.LATE ? 'outline' : 'ghost'}
+            onClick={() => onMarkAttendance(item.studentId, ATTENDANCE_STATUS.LATE)} 
+            title="Muộn"
+            sx={{ padding: '4px 8px', minWidth: 'auto', borderColor: item.status === ATTENDANCE_STATUS.LATE ? COLORS.WARNING : 'transparent' }}
+          >
+            <Icon size="sm" color={item.status === ATTENDANCE_STATUS.LATE ? 'WARNING' : 'WARNING'}><Clock /></Icon>
+          </Button>
         </div>
       )
     }

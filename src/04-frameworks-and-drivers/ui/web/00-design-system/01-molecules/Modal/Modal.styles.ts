@@ -1,5 +1,5 @@
 import { css, keyframes } from '@emotion/react';
-import { COLORS, RADIUS, SPACING, SHADOWS, Z_INDEX, FONT_SIZES, FONT_WEIGHTS } from '../../00-atoms/00-core/tokens-constants';
+import { COLORS, RADIUS, SPACING, SHADOWS, Z_INDEX, FONT_SIZES, FONT_WEIGHTS } from '../../../03-ui-shared/constants/tokens-constants';
 import type { ModalSize } from './Modal.types';
 
 const fadeIn = keyframes`

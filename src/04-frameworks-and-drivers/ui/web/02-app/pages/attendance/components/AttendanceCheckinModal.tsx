@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { useState, useEffect } from 'react';
 import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING, type ColorKey } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
+import { COLORS, SPACING, type ColorKey } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
 import { CheckCircle, XCircle, Clock, AlertCircle, X, Save } from 'lucide-react';
 import { AppContext } from '@/00-core/app-context';
 import { type AttendanceListItem } from '@/02-usecases/attendance/ports/output/ListAttendanceByClass.output';
@@ -47,7 +47,7 @@ export const AttendanceCheckinModal = ({ isOpen, onClose, classId, className, da
     };
 
     fetchStudents();
-  }, [isOpen, classId, date, toast]);
+  }, [isOpen, classId, date]);
 
   const handleStatusChange = (studentId: string, newStatus: string) => {
     setStudents(prev => prev.map(s => s.studentId === studentId ? { ...s, status: newStatus as any } : s));

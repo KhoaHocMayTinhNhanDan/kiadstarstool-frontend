@@ -1,6 +1,6 @@
 // src/04-frameworks-and-drivers/ui/web/components/01-molecules/SearchInput/SearchInput.molecule.styles.ts
 import { css } from '@emotion/react';
-import { COLORS, RADIUS, SPACING, TYPOGRAPHY, TRANSITIONS } from '../../00-atoms/00-core/tokens-constants';
+import { COLORS, RADIUS, SPACING, TYPOGRAPHY, TRANSITIONS } from '../../../03-ui-shared/constants/tokens-constants';
 
 export const container = css`
   position: relative;

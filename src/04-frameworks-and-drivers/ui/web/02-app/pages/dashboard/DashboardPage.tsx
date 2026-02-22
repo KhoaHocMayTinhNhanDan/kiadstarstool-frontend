@@ -1,43 +1,22 @@
 // src/04-frameworks-and-drivers/ui/web/pages/dashboard/DashboardPage.tsx
 /** @jsxImportSource @emotion/react */
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { css } from '@emotion/react';
 import { 
-  Users, 
-  DollarSign, 
-  ShoppingCart, 
-  Activity,
-  Building,
-  Filter,
-  Check,
-  Calendar,
-  Clock,
-  ClipboardCheck
+  Activity
 } from 'lucide-react';
-import { Box, Text, Icon, Button } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING, RADIUS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
-import { StatsCard, StatsCardSkeleton } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/cards/StatsCard';
+import { Box, Text, Icon } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { useAuth } from '@/04-frameworks-and-drivers/ui/web/02-app/hooks/user/useAuth';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { AppContext } from '@/00-core/app-context';
-import { BarChart } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/charts/BarChart';
-import { PieChart } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/charts/PieChart';
-import { type StudentDTO } from '@/04-frameworks-and-drivers/devices/students/student.dto';
+import { type StudentListItem } from '@/02-usecases/students/ports/output/ListStudentsByBranch.output';
 import { type ListBranchesOutput } from '@/02-usecases/branch/ports/output/ListBranches.output';
 import { type ListOngoingClassesOutput } from '@/02-usecases/class/ports/output/ListOngoingClasses.output';
+import { type ListTransactionsOutput } from '@/02-usecases/finance/ports/output/ListTransactions.output';
 
-// Định nghĩa kiểu dữ liệu cho một card thống kê để dễ quản lý
-type StatData = {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  accentColor: 'success' | 'primary' | 'info' | 'warning';
-  trend?: { value: number; label: string };
-  description?: string;
-  onClick?: () => void;
-  className?: string;
-};
+import { DashboardStatsGrid } from './components/DashboardStatsGrid';
+import { DashboardCharts } from './components/DashboardCharts';
+import { DashboardFilters } from './components/DashboardFilters';
+import { DashboardOngoingClasses } from './components/DashboardOngoingClasses';
 
 // --- Helper Functions for Data Calculation (moved from Interactor) ---
 const getStartDateForTimeRange = (timeRange: 'week' | 'month' | 'year'): Date => {
@@ -70,15 +49,15 @@ const getChartLabels = (timeRange: 'week' | 'month' | 'year'): string[] => {
 }
 
 const groupRevenueByLabel = (
-    enrollments: any[],
+    transactions: any[],
     timeRange: 'week' | 'month' | 'year'
 ): Array<{ name: string; value: number }> => {
     const labels = getChartLabels(timeRange);
     const dataMap = new Map<string, number>();
     labels.forEach(label => dataMap.set(label, 0));
 
-    for (const enrollment of enrollments) {
-        const date = new Date(enrollment.joinedDate);
+    for (const trx of transactions) {
+        const date = new Date(trx.date); // Transaction has 'date' field
         let key = '';
 
         switch (timeRange) {
@@ -96,7 +75,7 @@ const groupRevenueByLabel = (
         }
 
         if (dataMap.has(key)) {
-            dataMap.set(key, (dataMap.get(key) || 0) + (enrollment.tuitionAmount || 0));
+            dataMap.set(key, (dataMap.get(key) || 0) + (trx.amount || 0));
         }
     }
 
@@ -106,13 +85,13 @@ const groupRevenueByLabel = (
 
 export const DashboardPage = () => {
   const { t } = useI18n();
-  const navigate = useNavigate();
   const { user } = useAuth();
 
   // --- States for raw data from different sources ---
-  const [allStudents, setAllStudents] = useState<StudentDTO[]>([]);
+  const [allStudents, setAllStudents] = useState<StudentListItem[]>([]);
   const [allBranches, setAllBranches] = useState<ListBranchesOutput>([]);
   const [ongoingClasses, setOngoingClasses] = useState<ListOngoingClassesOutput>([]);
+  const [allTransactions, setAllTransactions] = useState<ListTransactionsOutput>([]);
 
   // --- Filter States ---
   const [selectedBranchIds, setSelectedBranchIds] = useState<string[]>([]); // Empty array = All Branches
@@ -131,19 +110,21 @@ export const DashboardPage = () => {
         const studentController = AppContext.getStudentsController();
         const branchController = AppContext.getBranchController();
         const classController = AppContext.getClassesController();
+        const financeController = AppContext.getFinanceController();
 
         // Fetch all data in parallel
-        const [studentResult, branchResult, ongoingClassResult] = await Promise.all([
+        const [studentResult, branchResult, ongoingClassResult, financeResult] = await Promise.all([
           studentController.listStudentsByBranch({ branchId: '' }), // Assuming '' gets all
           branchController.listBranches({}),
-          classController.listOngoingClasses()
+          classController.listOngoingClasses(),
+          financeController.listTransactions({})
         ]);
 
         if (studentResult.isSuccess) {
           // The interactor/repository layer is returning DTOs, which is not ideal but the UI can handle it.
           // The previous mapping logic was incorrect as it treated DTOs as Entities, causing a runtime error.
           // We now accept the DTOs directly into the state.
-          setAllStudents(studentResult.getValue() as StudentDTO[]);
+          setAllStudents(studentResult.getValue());
         } else {
           throw new Error(studentResult.getErrorValue() as string);
         }
@@ -160,6 +141,12 @@ export const DashboardPage = () => {
           throw new Error(ongoingClassResult.getErrorValue() as string);
         }
 
+        if (financeResult.isSuccess) {
+          setAllTransactions(financeResult.getValue());
+        } else {
+          // Don't throw here, just log, so dashboard still loads if finance fails
+          console.error('Failed to load transactions:', financeResult.getErrorValue());
+        }
       } catch (e: any) {
         setError(e.message || "Đã có lỗi không xác định xảy ra khi tải dữ liệu.");
       } finally {
@@ -176,26 +163,34 @@ export const DashboardPage = () => {
       return null;
     }
 
-    // --- Filter students and enrollments based on UI controls ---
     const startDate = getStartDateForTimeRange(timeRange);
-    // Safeguard against malformed student data from localStorage.
-    // 1. `s.enrollments || []`: Handles cases where a student has no `enrollments` array.
-    // 2. `.filter(e => e)`: Handles cases where the `enrollments` array itself contains null/undefined entries.
-    // This prevents the `enrollment.joinedDate` error.
-    const allEnrollments = allStudents.flatMap(s => s.enrollments || []).filter(e => e);
 
-    const filteredEnrollments = allEnrollments.filter(enrollment => {
-      const enrollmentDate = new Date(enrollment.joinedDate);
-      const isInBranch = selectedBranchIds.length === 0 || selectedBranchIds.includes(enrollment.branchId);
-      const isInTimeRange = enrollmentDate >= startDate;
+    // --- Filter Transactions for Revenue Stats ---
+    const filteredTransactions = allTransactions.filter(t => {
+      const trxDate = new Date(t.date);
+      const isInBranch = selectedBranchIds.length === 0 || selectedBranchIds.includes(t.branchId);
+      const isInTimeRange = trxDate >= startDate;
       return isInBranch && isInTimeRange;
     });
 
+    const incomeTransactions = filteredTransactions.filter(t => t.type === 'income');
+    const expenseTransactions = filteredTransactions.filter(t => t.type === 'expense');
+
     // --- Calculate Stats ---
-    const paidEnrollments = filteredEnrollments.filter(e => e.paymentStatus === 'paid');
-    const totalRevenue = paidEnrollments.reduce((sum, e) => sum + (e.tuitionAmount || 0), 0);
-    const totalSubs = filteredEnrollments.length;
-    const totalSales = paidEnrollments.length;
+    const totalRevenue = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+    // Optional: Calculate Net Revenue (Income - Expense) if needed, but dashboard usually shows Total Revenue
+    // const totalExpense = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
+    
+    const totalSales = incomeTransactions.length; // Number of income transactions
+
+    // --- Filter Students for Active Count (Still derived from Students) ---
+    // We still use enrollments for "Total Subs" (Active Enrollments) as transactions don't represent active status
+    const allEnrollments = allStudents.flatMap(s => s.enrollments || []).filter(e => e);
+    const activeEnrollments = allEnrollments.filter(e => {
+      const isInBranch = selectedBranchIds.length === 0 || selectedBranchIds.includes(e.branchId);
+      return isInBranch && e.status === 'active';
+    });
+    const totalSubs = activeEnrollments.length;
 
     const activeStudentsCount = allStudents.filter(s => 
       s.status === 'active' &&
@@ -203,6 +198,13 @@ export const DashboardPage = () => {
     ).length;
 
     // --- NEW: Revenue by Type Calculation ---
+    // Since Transaction entity doesn't strictly separate Course vs Session fee yet (it's in description),
+    // we will fallback to using Paid Enrollments for this specific chart to keep the breakdown logic working.
+    // Ideally, we would tag transactions with a subtype.
+    const paidEnrollments = allEnrollments.filter(e => 
+      e.paymentStatus === 'paid' && 
+      (selectedBranchIds.length === 0 || selectedBranchIds.includes(e.branchId))
+    );
     let courseRevenue = 0;
     let sessionRevenue = 0;
     for (const enrollment of paidEnrollments) {
@@ -218,7 +220,7 @@ export const DashboardPage = () => {
     ];
 
     // --- Prepare Chart Data ---
-    const revenueChartData = groupRevenueByLabel(paidEnrollments, timeRange);
+    const revenueChartData = groupRevenueByLabel(incomeTransactions, timeRange);
 
     return {
       totalRevenue,
@@ -230,59 +232,7 @@ export const DashboardPage = () => {
       branches: allBranches,
       ongoingClasses: ongoingClasses.slice(0, 4) // Limit to 4
     };
-  }, [allStudents, allBranches, ongoingClasses, selectedBranchIds, timeRange]);
-
-
-  // --- Stats for UI Cards ---
-  const stats: StatData[] = useMemo(() => {
-    if (!pageData) return [];
-
-    return [
-    {
-      title: t('dashboard.total_revenue'),
-      value: `$${pageData.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      icon: <DollarSign />,
-      accentColor: 'success' as const,
-      trend: { value: 20.1, label: t('dashboard.from_last_month') },
-    },
-    {
-      title: t('dashboard.subscriptions'),
-      value: `+${pageData.totalSubs.toLocaleString()}`,
-      icon: <Users />,
-      accentColor: 'primary' as const,
-      trend: { value: 180.1, label: t('dashboard.from_last_month') },
-    },
-    {
-      title: t('dashboard.sales'),
-      value: `+${pageData.totalSales.toLocaleString()}`,
-      icon: <ShoppingCart />,
-      accentColor: 'info' as const,
-      trend: { value: 19, label: t('dashboard.from_last_month') },
-    },
-    {
-      title: t('dashboard.active_now'),
-      value: `+${pageData.totalActive.toLocaleString()}`,
-      icon: <Activity />,
-      accentColor: 'warning' as const,
-      description: t('dashboard.users_on_platform'),
-    },
-    {
-      title: t('dashboard.branches'),
-      value: pageData.branches.length.toString(),
-      icon: <Building />,
-      accentColor: 'info' as const,
-      description: t('dashboard.manage_branches'),
-      onClick: () => navigate('/branches'),
-    },
-    {
-      title: 'Điểm danh',
-      value: 'Truy cập',
-      icon: <ClipboardCheck />,
-      accentColor: 'primary' as const,
-      description: 'Quản lý điểm danh',
-      onClick: () => navigate('/attendance'),
-    }];
-  }, [pageData, t, navigate]);
+  }, [allStudents, allBranches, ongoingClasses, allTransactions, selectedBranchIds, timeRange]);
 
   const toggleBranch = (branchId: string) => {
     setSelectedBranchIds(prev => {
@@ -308,81 +258,14 @@ export const DashboardPage = () => {
       </Box>
 
       {/* Filters Section */}
-      <Box display="flex" flexDirection="column" gap="md">
-        {/* Branch Filter */}
-        <Box display="flex" alignItems="center" gap="sm" mb="sm">
-          <Icon size="sm" color="SECONDARY"><Filter /></Icon>
-          <Text size="sm" weight="semibold" color="SECONDARY">{t('dashboard.filter_by_branch')}:</Text>
-        </Box>
-        <Box display="flex" gap="sm" flexWrap="wrap">
-          {/* All Branches Button */}
-          <Button 
-            size="sm"
-            variant={selectedBranchIds.length === 0 ? 'primary' : 'outline'}
-            onClick={() => setSelectedBranchIds([])}
-            leftIcon={selectedBranchIds.length === 0 ? <Icon><Check /></Icon> : undefined}
-          >
-            {t('dashboard.all_branches')}
-          </Button>
-
-          {/* Individual Branch Buttons */}
-          {pageData?.branches.map((branch: any) => {
-            const isSelected = selectedBranchIds.includes(branch.id);
-            return (
-              <Button
-                key={branch.id}
-                size="sm"
-                variant={isSelected ? 'primary' : 'outline'}
-                onClick={() => toggleBranch(branch.id)}
-                leftIcon={isSelected ? <Icon><Check /></Icon> : undefined}
-              >
-                {branch.name}
-              </Button>
-            );
-          })}
-        </Box>
-
-        {/* Time Range Filter */}
-        <Box display="flex" alignItems="center" gap="sm" mt="xs">
-          <Icon size="sm" color="SECONDARY"><Calendar /></Icon>
-          <Text size="sm" weight="semibold" color="SECONDARY">{t('dashboard.time_period')}:</Text>
-          <Box display="flex" gap="xs" bg="NEUTRAL_LIGHT" p="xxs" borderRadius="md">
-            <Button 
-              size="sm" 
-              variant="ghost" 
-              onClick={() => setTimeRange('week')}
-              sx={{ 
-                backgroundColor: timeRange === 'week' ? 'white' : undefined,
-                boxShadow: timeRange === 'week' ? 'sm' : 'none' 
-              }}
-            >
-              {t('dashboard.this_week')}
-            </Button>
-            <Button 
-              size="sm" 
-              variant="ghost" 
-              onClick={() => setTimeRange('month')}
-              sx={{ 
-                backgroundColor: timeRange === 'month' ? 'white' : undefined,
-                boxShadow: timeRange === 'month' ? 'sm' : 'none' 
-              }}
-            >
-              {t('dashboard.this_month')}
-            </Button>
-            <Button 
-              size="sm" 
-              variant="ghost" 
-              onClick={() => setTimeRange('year')}
-              sx={{ 
-                backgroundColor: timeRange === 'year' ? 'white' : undefined,
-                boxShadow: timeRange === 'year' ? 'sm' : 'none' 
-              }}
-            >
-              {t('dashboard.this_year')}
-            </Button>
-          </Box>
-        </Box>
-      </Box>
+      <DashboardFilters 
+        branches={pageData?.branches || []}
+        selectedBranchIds={selectedBranchIds}
+        onToggleBranch={toggleBranch}
+        onClearBranchSelection={() => setSelectedBranchIds([])}
+        timeRange={timeRange}
+        onTimeRangeChange={setTimeRange}
+      />
 
       {/* Error State */}
       {error && !isLoading && (
@@ -396,158 +279,13 @@ export const DashboardPage = () => {
       )}
 
       {/* Stats Grid */}
-      <Box 
-        css={css`
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: ${SPACING.lg};
-        `}
-      >
-        {(isLoading || !pageData)
-          ? Array.from({ length: 6 }).map((_, index) => <StatsCardSkeleton key={index} />)
-          : stats.map((stat) => (
-              <div 
-                key={stat.title} 
-                onClick={stat.onClick} 
-                style={{ cursor: stat.onClick ? 'pointer' : 'default' }}
-                role={stat.onClick ? "button" : undefined}
-              >
-                <StatsCard {...stat} />
-              </div>
-            ))
-        }
-      </Box>
+      <DashboardStatsGrid pageData={pageData} isLoading={isLoading} />
 
       {/* Charts Section: Revenue & Revenue by Type */}
-      <Box 
-        css={css`
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-          gap: ${SPACING.lg};
-        `}
-      >
-        {/* Revenue Chart */}
-        <Box 
-          css={css`
-            background-color: ${COLORS.BACKGROUND_PAPER};
-            border: 1px solid ${COLORS.NEUTRAL_BORDER};
-            border-radius: ${RADIUS.md};
-            padding: ${SPACING.xl};
-            height: 400px;
-            display: flex;
-            flex-direction: column;
-          `}
-        >
-          <Box mb="lg">
-            <Text as="h3" size="lg" weight="bold">
-              {t('dashboard.revenue_chart_title')} 
-              {timeRange === 'week' && ` ${t('dashboard.revenue_chart_subtitle_week')}`}
-              {timeRange === 'month' && ` ${t('dashboard.revenue_chart_subtitle_month')}`}
-              {timeRange === 'year' && ` ${t('dashboard.revenue_chart_subtitle_year')}`}
-            </Text>
-          </Box>
-          
-          <Box css={css`flex: 1; min-height: 0; width: 100%; overflow: hidden;`}>
-            <BarChart 
-              data={pageData?.chartData || []}
-              xAxisKey="name"
-              height="100%"
-              series={[
-                { key: 'value', name: t('dashboard.total_revenue'), color: COLORS.PRIMARY }
-              ]}
-            />
-          </Box>
-        </Box>
-        
-        {/* Revenue by Type Chart */}
-        <Box 
-          css={css`
-            background-color: ${COLORS.BACKGROUND_PAPER};
-            border: 1px solid ${COLORS.NEUTRAL_BORDER};
-            border-radius: ${RADIUS.md};
-            padding: ${SPACING.xl};
-            height: 400px;
-            display: flex;
-            flex-direction: column;
-          `}
-        >
-          <Box mb="lg">
-            <Text as="h3" size="lg" weight="bold">Doanh thu theo loại hình</Text>
-          </Box>
-          
-          <Box css={css`flex: 1; min-height: 0; width: 100%; overflow: hidden;`}>
-            <PieChart 
-              data={pageData?.revenueByTypeData || []}
-              height="100%"
-              isLoading={isLoading}
-            />
-          </Box>
-        </Box>
-      </Box>
+      <DashboardCharts pageData={pageData} timeRange={timeRange} isLoading={isLoading} />
 
       {/* Ongoing Classes Section - Entry point for Attendance */}
-      <Box>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb="md">
-          <Text as="h3" size="lg" weight="bold">{t('dashboard.ongoing_classes')}</Text>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/classes')}>{t('common.view_all')}</Button>
-        </Box>
-        
-        <Box 
-          css={css`
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: ${SPACING.md};
-          `}
-        >
-          {pageData?.ongoingClasses.map((cls: any) => (
-            <Box 
-              key={cls.id}
-              p="md" 
-              bg="BACKGROUND_PAPER"
-              border="1px solid" 
-              borderColor="NEUTRAL_BORDER" 
-              borderRadius="md"
-              onClick={() => navigate(`/classes/${cls.id}`)}
-              css={css`
-                cursor: pointer; 
-                transition: all 0.2s;
-                &:hover { 
-                  border-color: ${COLORS.PRIMARY};
-                  box-shadow: ${SHADOWS.md};
-                }
-              `}
-            >
-              <Box display="flex" justifyContent="space-between" mb="sm">
-                <Text weight="bold" size="md">{cls.name}</Text>
-                <Icon size="sm" color="SUCCESS"><Activity /></Icon>
-              </Box>
-              
-              <Box display="flex" flexDirection="column" gap="xs" mb="md">
-                <Box display="flex" gap="xs" alignItems="center">
-                  <Icon size="xs" color="SECONDARY"><Users /></Icon>
-                  <Text size="sm" color="SECONDARY">{cls.students} {t('dashboard.students_count')}</Text>
-                </Box>
-                <Box display="flex" gap="xs" alignItems="center">
-                  <Icon size="xs" color="SECONDARY"><Clock /></Icon>
-                  <Text size="sm" color="SECONDARY">{cls.time}</Text>
-                </Box>
-              </Box>
-
-              <Button 
-                size="sm" 
-                variant="primary" 
-                fullWidth
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/classes/${cls.id}`);
-                }}
-              >
-                {t('dashboard.check_in_now')}
-              </Button>
-            </Box>
-          ))}
-        </Box>
-      </Box>
+      <DashboardOngoingClasses classes={pageData?.ongoingClasses || []} />
     </Box>
   );
 };

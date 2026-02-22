@@ -11,7 +11,7 @@ import {
 } from 'recharts';
 
 import { Box, Text, LoadingSpinner } from '../../../00-atoms';
-import { COLORS } from '../../../00-atoms/00-core/tokens-constants';
+import { COLORS } from '../../../../03-ui-shared/constants/tokens-constants';
 import * as styles from './BarChart.organism.styles';
 import type { BarChartProps } from './BarChart.types';
 

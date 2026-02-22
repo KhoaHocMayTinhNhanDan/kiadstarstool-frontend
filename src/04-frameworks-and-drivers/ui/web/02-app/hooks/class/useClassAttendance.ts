@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { AppContext } from '@/00-core/app-context';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
-import { COLORS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
+import { COLORS } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
 
 export const useClassAttendance = (classId: string) => {
   const { toast } = useToast();

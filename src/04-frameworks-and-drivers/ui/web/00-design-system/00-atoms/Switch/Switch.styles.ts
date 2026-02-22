@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, RADIUS, TRANSITIONS, SPACING, FONT_SIZES } from '../00-core/tokens-constants';
+import { COLORS, RADIUS, TRANSITIONS, SPACING, FONT_SIZES } from '../../../03-ui-shared/constants/tokens-constants';
 import type { SwitchSize } from './Switch.types';
 
 const sizeMap = {

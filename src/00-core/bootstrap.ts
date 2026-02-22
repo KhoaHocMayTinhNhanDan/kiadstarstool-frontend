@@ -51,6 +51,10 @@ import { ListAttendanceByClassInteractor } from '@/02-usecases/attendance/ListAt
 import { MarkAttendanceInteractor } from '@/02-usecases/attendance/MarkAttendance.interactor';
 import { MarkBatchAttendanceInteractor } from '@/02-usecases/attendance/MarkBatchAttendance.interactor';
 import { AttendanceController } from '@/03-interface-adapters/controllers/Attendance.controller';
+import { MockTransactionDataSource } from '@/04-frameworks-and-drivers/devices/transaction/MockTransactionDataSource';
+import { CreateTransactionInteractor } from '@/02-usecases/finance/CreateTransaction.interactor';
+import { ListTransactionsInteractor } from '@/02-usecases/finance/ListTransactions.interactor';
+import { FinanceController } from '@/03-interface-adapters/controllers/Finance.controller';
 
 export interface BootstrapOptions {
   useMockAuth?: boolean;
@@ -212,6 +216,12 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
   const markBatchAttendanceInteractor = new MarkBatchAttendanceInteractor(attendanceRepository, classRepository, studentRepository);
   const attendanceController = new AttendanceController(listAttendanceInteractor, markAttendanceInteractor, markBatchAttendanceInteractor);
 
+  // 1.8 Initialize Finance
+  const transactionDataSource = new MockTransactionDataSource();
+  const createTransactionInteractor = new CreateTransactionInteractor(transactionDataSource);
+  const listTransactionsInteractor = new ListTransactionsInteractor(transactionDataSource);
+  const financeController = new FinanceController(createTransactionInteractor, listTransactionsInteractor);
+
   // 2. Create Application Context
   const context: AppContextType = {
     config: {
@@ -252,6 +262,10 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
 
     attendance: {
       controller: attendanceController
+    },
+
+    finance: {
+      controller: financeController
     }
   }
 

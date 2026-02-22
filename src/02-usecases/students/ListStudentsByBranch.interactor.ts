@@ -20,7 +20,7 @@ export class ListStudentsByBranchInteractor {
       let joinedDate = new Date();
       
       if (input.branchId) {
-        const enrollment = student.enrollments.find(e => e.branchId === input.branchId);
+        const enrollment = student.enrollments.find(e => e.branchId.toString() === input.branchId);
         if (enrollment) joinedDate = enrollment.joinedDate;
       } else if (student.enrollments.length > 0) {
         // Sort để lấy ngày cũ nhất
@@ -36,7 +36,18 @@ export class ListStudentsByBranchInteractor {
         email: student.email,
         phone: student.phone,
         status: student.status,
-        joinedDate: joinedDate
+        joinedDate: joinedDate,
+        enrollments: student.enrollments.map(e => ({
+          branchId: e.branchId.toString(),
+          classId: e.classId || '', // Handle undefined and it is already a string
+          status: e.status,
+          joinedDate: e.joinedDate.toISOString(),
+          endDate: e.endDate?.toISOString(),
+          tuitionAmount: e.tuitionAmount,
+          paymentStatus: e.paymentStatus,
+          prepaidSessions: e.prepaidSessions,
+          usedSessions: e.usedSessions
+        }))
       };
     });
 

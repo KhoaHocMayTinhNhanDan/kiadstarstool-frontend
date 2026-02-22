@@ -18,7 +18,7 @@ import {
   dropdownGroupLabel,
   dropdownSeparator,
 } from './DropdownMultiSelect.molecule.styles';
-import { SPACING, COLORS, RADIUS } from '../../../00-atoms/00-core/tokens-constants';
+import { SPACING, COLORS, RADIUS } from '../../../../03-ui-shared/constants/tokens-constants';
 import type {
   DropdownMultiSelectProps,
   DropdownItem,

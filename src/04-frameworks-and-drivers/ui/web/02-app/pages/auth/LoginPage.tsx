@@ -7,7 +7,7 @@ import { Box, Text } from '../../../00-design-system/00-atoms';
 import { LoginForm, type LoginFormData } from '../../../00-design-system/02-organisms/auth/LoginForm';
 import { useAuth } from '../../hooks/user/useAuth';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
-import { COLORS, SPACING, RADIUS, SHADOWS } from '../../../00-design-system/00-atoms/00-core/tokens-constants';
+import { COLORS, SPACING, RADIUS, SHADOWS } from '../../../03-ui-shared/constants/tokens-constants';
 
 export const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);

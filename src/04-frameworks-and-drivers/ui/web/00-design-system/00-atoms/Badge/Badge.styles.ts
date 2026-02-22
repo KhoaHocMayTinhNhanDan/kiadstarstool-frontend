@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, FONT_SIZES, FONT_WEIGHTS, RADIUS, SPACING } from '../00-core/tokens-constants';
+import { COLORS, FONT_SIZES, FONT_WEIGHTS, RADIUS, SPACING } from '../../../03-ui-shared/constants/tokens-constants';
 import type { BadgeColor, BadgeSize, BadgeVariant } from './Badge.types';
 
 /** 🔥 GRID + FLEX SAFE WRAPPER */

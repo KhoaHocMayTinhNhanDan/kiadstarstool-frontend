@@ -1,4 +1,4 @@
-import { BREAKPOINTS } from '../../00-design-system/00-atoms/00-core/tokens-constants';
+import { BREAKPOINTS } from '../../03-ui-shared/constants/tokens-constants';
 import { useMediaQuery } from './useMediaQuery';
 
 export const useResponsive = () => {

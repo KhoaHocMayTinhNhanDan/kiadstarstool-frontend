@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, SPACING, FONT_SIZES, TRANSITIONS } from '../00-core/tokens-constants';
+import { COLORS, SPACING, FONT_SIZES, TRANSITIONS } from '../../../03-ui-shared/constants/tokens-constants';
 
 /** 🔥 GRID + FLEX SAFE WRAPPER (Giống Input) */
 export const sliderWrapper = css`

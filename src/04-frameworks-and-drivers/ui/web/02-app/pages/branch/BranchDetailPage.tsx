@@ -9,7 +9,7 @@ import { type StudentListItem } from '@/02-usecases/students/ports/output/ListSt
 import { ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { ArrowLeft, MapPin, Users, Clock, Edit, Trash2, Calendar, BookOpen, GraduationCap, Plus, X } from 'lucide-react';
-import { SPACING } from '../../../00-design-system/00-atoms/00-core/tokens-constants';
+import { SPACING } from '../../../03-ui-shared/constants/tokens-constants';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { useBranch } from '../../hooks/branch/useBranch';
 import { Pagination } from '../../../00-design-system/02-organisms/navigation/Pagination';

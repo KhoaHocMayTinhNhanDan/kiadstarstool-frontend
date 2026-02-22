@@ -10,7 +10,7 @@ import { SearchInput } from '../../../01-molecules/SearchInput';
 import * as styles from './AppHeader.styles';
 import type { AppHeaderProps, NavItem, ThemeColors } from './AppHeader.types';
 
-import { SPACING } from '../../../00-atoms/00-core/tokens-constants';
+import { SPACING } from '../../../../03-ui-shared/constants/tokens-constants';
 
 // Icons
 const SearchIcon = () => (

@@ -116,6 +116,10 @@ export class Branch extends AuditedEntity<BranchId> {
     return this.operatingHours.minutesUntilClose(date);
   }
 
+  updateFinancial(newFinancial: BranchFinancial): Result<Branch> {
+    return Result.ok(this.clone({ financial: newFinancial, updatedAt: new Date() }));
+  }
+
   // ===== Clone (SAFE) =====
 
   private clone(overrides: Partial<BranchProps> = {}): Branch {

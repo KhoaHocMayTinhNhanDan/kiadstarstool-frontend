@@ -3,7 +3,7 @@
 import { useId, useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Box, Text, LoadingSpinner } from '../../../00-atoms';
-import { COLORS } from '../../../00-atoms/00-core/tokens-constants';
+import { COLORS } from '../../../../03-ui-shared/constants/tokens-constants';
 import { GAUGE_SIZE_CONFIG } from './GaugeChart.size';
 import type { GaugeChartProps, GaugeSegment } from './GaugeChart.types';
 import * as styles from './GaugeChart.organism.styles';

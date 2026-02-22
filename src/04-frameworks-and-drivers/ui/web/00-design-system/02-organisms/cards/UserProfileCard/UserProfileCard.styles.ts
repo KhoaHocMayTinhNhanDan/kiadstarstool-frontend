@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, RADIUS, SPACING, FONT_SIZES, FONT_WEIGHTS } from '../../../00-atoms/00-core/tokens-constants';
+import { COLORS, RADIUS, SPACING, FONT_SIZES, FONT_WEIGHTS } from '../../../../03-ui-shared/constants/tokens-constants';
 
 export const coverImage = css`
   width: 100%;

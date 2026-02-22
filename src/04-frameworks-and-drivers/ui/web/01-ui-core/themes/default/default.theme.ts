@@ -6,7 +6,7 @@
  */
 
 import { type Theme } from '../base/base.theme';
-import { COLORS } from '../../../00-design-system/00-atoms/00-core/tokens-constants';
+import { COLORS } from '../../../03-ui-shared/constants/tokens-constants';
 
 export const defaultTheme: Theme = {
   id: 'default',

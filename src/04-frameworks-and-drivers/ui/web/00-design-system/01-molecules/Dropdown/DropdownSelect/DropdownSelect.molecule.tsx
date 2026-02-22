@@ -31,7 +31,7 @@ import {
   selectErrorMessage,
   spinAnimation, // Import spin animation
 } from './DropdownSelect.molecule.styles';
-import { SPACING, COLORS, TYPOGRAPHY } from '../../../00-atoms/00-core/tokens-constants';
+import { SPACING, COLORS, TYPOGRAPHY } from '../../../../03-ui-shared/constants/tokens-constants';
 import type {
   DropdownSelectProps,
   DropdownSelectOption,

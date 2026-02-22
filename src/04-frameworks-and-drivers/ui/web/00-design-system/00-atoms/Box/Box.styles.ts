@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { SPACING, RADIUS, COLORS } from '../00-core/tokens-constants';
+import { SPACING, RADIUS, COLORS } from '../../../03-ui-shared/constants/tokens-constants';
 import type { BoxOwnProps } from './Box.types';
 
 const getSpacing = (v?: string | number) => {

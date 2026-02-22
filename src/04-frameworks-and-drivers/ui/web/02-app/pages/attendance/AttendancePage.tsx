@@ -1,6 +1,6 @@
 // src/04-frameworks-and-drivers/ui/web/02-app/pages/attendance/AttendancePage.tsx
 /** @jsxImportSource @emotion/react */
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { css } from '@emotion/react';
 import { 
   Box, 
@@ -23,7 +23,7 @@ import {
   CheckCircle,
   BookOpen
 } from 'lucide-react';
-import { COLORS, SPACING, SHADOWS, RADIUS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
+import { COLORS, SPACING, SHADOWS, RADIUS } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
 import { AppContext } from '@/00-core/app-context';
 import { AttendanceList } from './components/AttendanceList';
 import { AttendanceCheckinModal } from './components/AttendanceCheckinModal';
@@ -52,7 +52,7 @@ export const AttendancePage = () => {
         const branchController = AppContext.getBranchController();
 
         const [classesResult, branchesResult] = await Promise.all([
-          classController.listClassesByBranch({ branchId: '' }), // Fetch all
+          classController.listClassesByBranch(''), // Fetch all
           branchController.listBranches({})
         ]);
 
@@ -103,8 +103,8 @@ export const AttendancePage = () => {
     setSelectedClassId(null);
   };
 
-  const handleQuickCheckin = (e: React.MouseEvent, cls: any) => {
-    e.stopPropagation();
+  const handleQuickCheckin = (e: React.MouseEvent | undefined, cls: any) => {
+    e?.stopPropagation();
     setCheckinClassData({ id: cls.id, name: cls.name });
     setIsCheckinModalOpen(true);
   };
@@ -237,7 +237,6 @@ export const AttendancePage = () => {
                     key={cls.id} 
                     data={cls} 
                     onClick={() => handleClassSelect(cls.id)}
-                    onQuickCheckin={(e) => handleQuickCheckin(e, cls)}
                     isToday={true}
                   />
                 ))}
@@ -267,7 +266,6 @@ export const AttendancePage = () => {
                     key={cls.id} 
                     data={cls} 
                     onClick={() => handleClassSelect(cls.id)}
-                    onQuickCheckin={(e) => handleQuickCheckin(e, cls)}
                   />
                 ))}
               </Box>
@@ -291,7 +289,7 @@ export const AttendancePage = () => {
 };
 
 // --- Sub-component: Class Card ---
-const ClassAttendanceCard = ({ data, onClick, onQuickCheckin, isToday }: any) => {
+const ClassAttendanceCard = ({ data, onClick, isToday }: any) => {
   return (
     <Box 
       p="lg" 
@@ -333,16 +331,18 @@ const ClassAttendanceCard = ({ data, onClick, onQuickCheckin, isToday }: any) =>
         </Box>
       </Box>
 
-      <Box display="flex" justifyContent="flex-end" gap="sm" mt="auto">
+      <Box display="flex" justifyContent="flex-end" mt="auto">
         <Button 
-          variant="outline" 
+          variant="ghost" 
           size="sm" 
-          onClick={onQuickCheckin}
-          leftIcon={<Icon><CheckCircle /></Icon>}
+          rightIcon={<Icon><ChevronRight /></Icon>}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick();
+          }}
         >
-          Điểm danh nhanh
+          Chi tiết
         </Button>
-        <Button variant="ghost" size="sm"><Icon><ChevronRight /></Icon></Button>
       </Box>
     </Box>
   );

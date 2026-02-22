@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { SIZES } from '../00-core/tokens-constants';
+import { SIZES } from '../../../03-ui-shared/constants/tokens-constants';
 import type { IconSize } from './Icon.types';
 
 /** ✅ WRAPPER CHUẨN PRODUCT */

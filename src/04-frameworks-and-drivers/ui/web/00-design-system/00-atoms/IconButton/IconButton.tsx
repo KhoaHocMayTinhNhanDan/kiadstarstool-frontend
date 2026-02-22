@@ -4,7 +4,7 @@ import React from 'react';
 import { css } from '@emotion/react';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
-import { SIZES } from '../00-core/tokens-constants';
+import { SIZES } from '../../../03-ui-shared/constants/tokens-constants';
 import type { IconButtonProps } from './IconButton.types';
 
 /**

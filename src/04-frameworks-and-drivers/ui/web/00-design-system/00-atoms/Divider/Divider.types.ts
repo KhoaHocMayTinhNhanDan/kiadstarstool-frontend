@@ -1,5 +1,5 @@
 import type { CSSObject } from '@emotion/react';
-import type { ColorKey, SpacingKey } from '../00-core/tokens-constants';
+import type { ColorKey, SpacingKey } from '../../../03-ui-shared/constants/tokens-constants';
 
 export interface DividerProps {
   orientation?: 'horizontal' | 'vertical';

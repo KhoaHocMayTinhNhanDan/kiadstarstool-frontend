@@ -33,7 +33,9 @@ export class GetBranchDetailsInteractor {
       capacity: {
         current: branch.capacity.currentStudents,
         max: branch.capacity.maxStudents,
+        totalRooms: branch.capacity.props.totalRooms
       },
+      financial: branch.financial.props,
       // Pass the entire operating hours object
       operatingHours: branch.operatingHours.props as WeeklyOperatingHours,
       updatedAt: branch.updatedAt,

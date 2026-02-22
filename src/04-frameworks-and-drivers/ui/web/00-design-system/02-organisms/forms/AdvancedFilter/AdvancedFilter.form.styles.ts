@@ -1,6 +1,6 @@
 // src/04-frameworks-and-drivers/ui/web/components/organisms/forms/AdvancedFilter/AdvancedFilter.form.styles.ts
 import { css, type CSSObject } from '@emotion/react';
-import { SPACING, COLORS, RADIUS, SHADOWS, FONT_SIZES, TRANSITIONS } from '../../../00-atoms/00-core/tokens-constants';
+import { SPACING, COLORS, RADIUS, SHADOWS, FONT_SIZES, TRANSITIONS } from '../../../../03-ui-shared/constants/tokens-constants';
 import type { FilterType } from './AdvancedFilter.form.types';
 
 export const container = css`

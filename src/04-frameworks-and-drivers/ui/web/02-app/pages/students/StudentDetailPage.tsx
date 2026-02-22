@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { css } from '@emotion/react';
 import { ArrowLeft, Mail, Phone, Calendar, MapPin, User, Clock, CheckCircle, XCircle, AlertCircle, DollarSign, CreditCard } from 'lucide-react';
 import { Box, Text, Button, Icon } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING, RADIUS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/00-core/tokens-constants';
+import { COLORS, SPACING, RADIUS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
 import { AppContext } from '@/00-core/app-context';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { type GetStudentDetailsOutput } from '@/02-usecases/students/ports/output/GetStudentDetails.output';

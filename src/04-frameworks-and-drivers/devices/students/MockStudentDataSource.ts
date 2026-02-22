@@ -253,9 +253,9 @@ export class MockStudentDataSource implements IStudentDataSource {
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
     if (!branchId) return studentStore; // Trả về tất cả nếu không có branchId
     
-    // Lọc học viên có enrollment active tại branchId
+    // Lọc học viên có enrollment tại branchId (bất kể trạng thái active hay dropped/completed)
     return studentStore.filter(s => 
-      s.enrollments.some(e => e.branchId === branchId && e.status === 'active')
+      s.enrollments.some(e => e.branchId === branchId)
     );
   }
 
