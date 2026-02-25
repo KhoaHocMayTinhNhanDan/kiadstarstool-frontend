@@ -1,9 +1,7 @@
 import { type IAttendanceDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/attendance/IAttendanceDataSource';
 import { Attendance, type AttendanceJSON } from '@/01-entities/attendance/Attendance.entity';
 import { ATTENDANCE_STATUS } from '@/shared/constants/classes.constant';
-
-let attendanceStore = new Map<string, AttendanceJSON>();
-const STORAGE_KEY = 'mock_attendance_db_v7';
+import { mockDatabase } from '@/04-frameworks-and-drivers/database/LocalStorage';
 
 export class MockAttendanceDataSource implements IAttendanceDataSource {
   constructor() {
@@ -11,26 +9,12 @@ export class MockAttendanceDataSource implements IAttendanceDataSource {
   }
 
   private initialize() {
-    // 1. Try to load from localStorage
-    const storedData = localStorage.getItem(STORAGE_KEY);
-    
-    if (storedData) {
-      try {
-        const parsedData = JSON.parse(storedData);
-        attendanceStore = new Map(parsedData);
+    const attendanceStore = mockDatabase.getCollection<AttendanceJSON>('attendances');
 
-        console.log('[MockAttendanceDataSource] Loaded data from localStorage', attendanceStore.size);
-      } catch (e) {
-        console.error('[MockAttendanceDataSource] Failed to parse localStorage data', e);
-        attendanceStore.clear();
-      }
-    }
-
-    // 2. If empty, seed data
-    if (attendanceStore.size === 0) {
+    if (attendanceStore.length === 0) {
       console.log('[MockAttendanceDataSource] Seeding initial data...');
       
-      const mockData: AttendanceJSON[] = [
+      const seedData: AttendanceJSON[] = [
         // --- Class 01 (Hà Nội) - Ngày 2026-02-16 (Thứ 2) ---
         {
           id: 'att-1',
@@ -157,36 +141,27 @@ export class MockAttendanceDataSource implements IAttendanceDataSource {
         }
       ];
 
-      mockData.forEach(d => attendanceStore.set(d.id, d));
-      this.persist();
-    }
-  }
-
-  private persist() {
-    try {
-      // Convert Map to Array of entries for JSON serialization
-      const dataToSave = Array.from(attendanceStore.entries());
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-    } catch (e) {
-      console.error('[MockAttendanceDataSource] Failed to save to localStorage', e);
+      mockDatabase.setCollection('attendances', seedData);
     }
   }
 
   async getByClassId(classId: string): Promise<Attendance[]> {
     await new Promise(resolve => setTimeout(resolve, 400));
-    const allRecords = Array.from(attendanceStore.values());
+    const attendanceStore = mockDatabase.getCollection<AttendanceJSON>('attendances');
     // Filter by classId
-    return allRecords.filter(json => json.courseId === classId).map(json => Attendance.createFromJSON(json));
+    return attendanceStore
+      .filter(json => json.courseId === classId)
+      .map(json => Attendance.createFromJSON(json));
   }
 
   async getByClassAndDate(classId: string, date: string): Promise<Attendance[]> {
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
     
     const queryDate = date.split('T')[0];
-    const allRecords = Array.from(attendanceStore.values());
+    const attendanceStore = mockDatabase.getCollection<AttendanceJSON>('attendances');
     
     // Filter by classId and date
-    const filtered = allRecords.filter(json => json.courseId === classId && json.date === queryDate);
+    const filtered = attendanceStore.filter(json => json.courseId === classId && json.date === queryDate);
     
     return filtered.map(json => Attendance.createFromJSON(json));
   }
@@ -195,9 +170,9 @@ export class MockAttendanceDataSource implements IAttendanceDataSource {
     await new Promise(resolve => setTimeout(resolve, 200));
     
     const queryDate = date.split('T')[0];
-    const allRecords = Array.from(attendanceStore.values());
+    const attendanceStore = mockDatabase.getCollection<AttendanceJSON>('attendances');
     
-    const found = allRecords.find(json => 
+    const found = attendanceStore.find(json => 
       json.studentId === studentId && json.courseId === classId && json.date === queryDate
     );
 
@@ -206,26 +181,30 @@ export class MockAttendanceDataSource implements IAttendanceDataSource {
 
   async getByStudentId(studentId: string): Promise<Attendance[]> {
     await new Promise(resolve => setTimeout(resolve, 400));
-    const allRecords = Array.from(attendanceStore.values());
-    return allRecords.filter(json => json.studentId === studentId).map(json => Attendance.createFromJSON(json));
+    const attendanceStore = mockDatabase.getCollection<AttendanceJSON>('attendances');
+    return attendanceStore
+      .filter(json => json.studentId === studentId)
+      .map(json => Attendance.createFromJSON(json));
   }
 
   async save(attendance: Attendance): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 300));
+    const attendanceStore = mockDatabase.getCollection<AttendanceJSON>('attendances');
     const json = attendance.toJSON();
-    attendanceStore.set(json.id, json);
-    this.persist();
+    const index = attendanceStore.findIndex(a => a.id === json.id);
+
+    if (index > -1) {
+      attendanceStore[index] = json;
+    } else {
+      attendanceStore.push(json);
+    }
+    mockDatabase.persist();
   }
 
   async deleteByClassId(classId: string): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 300));
-    const keysToDelete: string[] = [];
-    for (const [key, value] of attendanceStore.entries()) {
-      if (value.courseId === classId) {
-        keysToDelete.push(key);
-      }
-    }
-    keysToDelete.forEach(key => attendanceStore.delete(key));
-    this.persist();
+    let attendanceStore = mockDatabase.getCollection<AttendanceJSON>('attendances');
+    attendanceStore = attendanceStore.filter(a => a.courseId !== classId);
+    mockDatabase.setCollection('attendances', attendanceStore);
   }
 }

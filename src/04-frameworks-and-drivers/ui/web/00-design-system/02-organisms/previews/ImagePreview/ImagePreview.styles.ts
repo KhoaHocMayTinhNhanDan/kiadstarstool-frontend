@@ -1,6 +1,6 @@
 // src/04-frameworks-and-drivers/ui/web/components/02-organisms/previews/ImagePreview/ImagePreview.styles.ts
 import { css, keyframes } from '@emotion/react';
-import { COLORS, RADIUS, Z_INDEX, TRANSITIONS, SPACING } from '../../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, RADIUS, Z_INDEX, TRANSITIONS, SPACING } from '../../../../01-ui-core/constants/tokens-constants';
 
 export const container = (zoomable: boolean) => css`
   position: relative;

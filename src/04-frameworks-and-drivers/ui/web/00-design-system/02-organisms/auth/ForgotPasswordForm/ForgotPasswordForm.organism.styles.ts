@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, SPACING, SHADOWS, RADIUS, FONT_SIZES, FONT_WEIGHTS } from '../../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, SPACING, SHADOWS, RADIUS, FONT_SIZES, FONT_WEIGHTS } from '../../../../01-ui-core/constants/tokens-constants';
 
 export const formContainer = css`
   display: flex;

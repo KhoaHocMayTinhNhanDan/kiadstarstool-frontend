@@ -7,7 +7,7 @@ import { Button } from '../../../00-atoms/Button';
 import { Avatar } from '../../../00-atoms/Avatar';
 import { IconButton } from '../../../00-atoms/IconButton';
 import type { DropdownSelectOption } from './DropdownSelect.types';
-import { SPACING } from '../../../../03-ui-shared/constants/tokens-constants';
+import { SPACING } from '../../../../01-ui-core/constants/tokens-constants';
 
 export const DropdownSelectPlayground = () => {
   // States for different examples

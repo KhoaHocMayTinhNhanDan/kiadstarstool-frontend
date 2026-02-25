@@ -23,7 +23,7 @@ import {
   CheckCircle,
   BookOpen
 } from 'lucide-react';
-import { COLORS, SPACING, SHADOWS, RADIUS } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
+import { COLORS, SPACING, SHADOWS, RADIUS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { AppContext } from '@/00-core/app-context';
 import { AttendanceList } from './components/AttendanceList';
 import { AttendanceCheckinModal } from './components/AttendanceCheckinModal';
@@ -228,9 +228,11 @@ export const AttendancePage = () => {
               </Box>
               
               <Box 
-                display="grid" 
-                gridTemplateColumns="repeat(auto-fill, minmax(300px, 1fr))" 
-                gap="md"
+                css={css`
+                  display: grid;
+                  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                  gap: ${SPACING.sm};
+                `}
               >
                 {todayClasses.map(cls => (
                   <ClassAttendanceCard 
@@ -257,9 +259,11 @@ export const AttendancePage = () => {
               </Box>
             ) : (
               <Box 
-                display="grid" 
-                gridTemplateColumns="repeat(auto-fill, minmax(300px, 1fr))" 
-                gap="md"
+                css={css`
+                  display: grid;
+                  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                  gap: ${SPACING.sm};
+                `}
               >
                 {filteredClasses.map(cls => (
                   <ClassAttendanceCard 
@@ -288,50 +292,161 @@ export const AttendancePage = () => {
   );
 };
 
+// --- Helpers & Animations from ClassesPage ---
+const pulseAnimation = css`animation: pulse 1.5s infinite; @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }`;
+
+const getProgressInfo = (startTime: string, endTime: string) => {
+  const now = new Date();
+  const [startH, startM] = startTime.split(':').map(Number);
+  const [endH, endM] = endTime.split(':').map(Number);
+  
+  const start = new Date(); start.setHours(startH, startM, 0, 0);
+  const end = new Date(); end.setHours(endH, endM, 0, 0);
+  
+  const totalDuration = (end.getTime() - start.getTime());
+  const elapsed = (now.getTime() - start.getTime());
+  const remaining = (end.getTime() - now.getTime());
+  
+  const percent = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+  const remainingMinutes = Math.ceil(remaining / 60000);
+  
+  return { percent, remainingMinutes };
+};
+
+const getSessionStatus = (sessions: any[]) => {
+  if (!sessions || sessions.length === 0) return null;
+
+  const now = new Date();
+  const dayMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const currentDay = dayMap[now.getDay()];
+  
+  const todaySessions = sessions.filter((s: any) => s.day === currentDay);
+  if (todaySessions.length === 0) return null;
+
+  const currentHour = now.getHours().toString().padStart(2, '0');
+  const currentMinute = now.getMinutes().toString().padStart(2, '0');
+  const currentTime = `${currentHour}:${currentMinute}`;
+
+  // 1. Đang diễn ra
+  const isHappening = todaySessions.some((s: any) => s.startTime <= currentTime && s.endTime >= currentTime);
+  if (isHappening) {
+    const session = todaySessions.find((s: any) => s.startTime <= currentTime && s.endTime >= currentTime);
+    const progress = getProgressInfo(session.startTime, session.endTime);
+    return { type: 'happening', label: 'Đang diễn ra', color: 'DANGER', animate: true, progress };
+  }
+
+  // 2. Sắp diễn ra
+  const upcomingSession = todaySessions.find((s: any) => s.startTime > currentTime);
+  if (upcomingSession) {
+    const [h, m] = upcomingSession.startTime.split(':').map(Number);
+    const start = new Date(); start.setHours(h, m, 0, 0);
+    return { type: 'upcoming', targetDate: start, color: 'WARNING', animate: false };
+  }
+
+  // 3. Đã xong
+  return { type: 'finished', label: 'Đã học xong', color: 'SECONDARY', animate: false };
+};
+
+const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
+  const [timeLeft, setTimeLeft] = useState('');
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      const diff = targetDate.getTime() - now.getTime();
+      if (diff <= 0) { setTimeLeft('00:00:00'); return; }
+      const h = Math.floor(diff / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((diff % (1000 * 60)) / 1000);
+      setTimeLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+    };
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [targetDate]);
+  return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{timeLeft}</span>;
+};
+
+const InfoRow = ({ icon, text }: { icon: React.ReactNode, text: string }) => (
+  <Box display="flex" gap="xs" alignItems="center">
+    <Icon size="xs" color="SECONDARY">{icon}</Icon>
+    <Text size="sm" color="SECONDARY">{text}</Text>
+  </Box>
+);
+
 // --- Sub-component: Class Card ---
 const ClassAttendanceCard = ({ data, onClick, isToday }: any) => {
+  const sessionStatus = getSessionStatus(data.sessions);
+
   return (
     <Box 
-      p="lg" 
+      p="sm" 
       bg="BACKGROUND_PAPER" 
       border={`1px solid ${isToday ? COLORS.PRIMARY : COLORS.NEUTRAL_BORDER}`}
       borderRadius="md"
       onClick={onClick}
       css={css`
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.2s;
         box-shadow: ${isToday ? SHADOWS.md : 'none'};
         &:hover {
-          transform: translateY(-2px);
-          box-shadow: ${SHADOWS.lg};
           border-color: ${COLORS.PRIMARY};
+          box-shadow: ${SHADOWS.lg};
+          transform: translateY(-2px);
         }
       `}
     >
       <Box display="flex" justifyContent="space-between" alignItems="start" mb="sm">
-        <Box>
-          <Text weight="bold" size="lg" mb="xs">{data.name}</Text>
-          <Text size="sm" color="SECONDARY">{data.code}</Text>
+        <Box display="flex" gap="sm" alignItems="center">
+          <Box p="xs" bg="PRIMARY_LIGHT" borderRadius="sm" color="PRIMARY" display="flex">
+            <Icon size="sm"><BookOpen /></Icon>
+          </Box>
+          <Box>
+            <Text weight="bold" size="md">{data.name}</Text>
+            <Text size="xs" color="SECONDARY">{data.code}</Text>
+          </Box>
         </Box>
         {isToday && <Badge color="success" size="sm">Hôm nay</Badge>}
       </Box>
 
-      <Box display="flex" flexDirection="column" gap="xs" mb="lg">
-        <Box display="flex" alignItems="center" gap="xs">
-          <Icon size="xs" color="SECONDARY"><Users /></Icon>
-          <Text size="sm" color="SECONDARY">{data.currentStudents} / {data.maxStudents} Học viên</Text>
+      {/* Real-time Status Indicator (Only show if relevant/today) */}
+      {sessionStatus && isToday && (
+        <Box mb="md">
+          <Box display="flex" alignItems="center" gap="xs" mb={sessionStatus.type === 'happening' ? 'xs' : '0'}>
+             <Box 
+               w="8px" h="8px" 
+               borderRadius="full" 
+               bg={sessionStatus.color as any}
+               css={sessionStatus.animate ? pulseAnimation : undefined}
+             />
+             <Text size="xs" weight="bold" color={sessionStatus.color as any}>
+               {sessionStatus.type === 'upcoming' && sessionStatus.targetDate ? (
+                 <>Bắt đầu trong <CountdownTimer targetDate={sessionStatus.targetDate} /></>
+               ) : (
+                 sessionStatus.label
+               )}
+             </Text>
+          </Box>
+
+          {sessionStatus.type === 'happening' && sessionStatus.progress && (
+            <Box>
+              <Box w="100%" h="4px" bg="NEUTRAL_LIGHT" borderRadius="full" overflow="hidden">
+                <Box h="100%" bg="DANGER" width={`${sessionStatus.progress.percent}%`} css={css`transition: width 1s ease-in-out;`} />
+              </Box>
+              <Text size="xs" color="SECONDARY">
+                Còn {sessionStatus.progress.remainingMinutes} phút
+              </Text>
+            </Box>
+          )}
         </Box>
-        <Box display="flex" alignItems="center" gap="xs">
-          <Icon size="xs" color="SECONDARY"><Clock /></Icon>
-          <Text size="sm" color="SECONDARY">{data.schedule}</Text>
-        </Box>
-        <Box display="flex" alignItems="center" gap="xs">
-          <Icon size="xs" color="SECONDARY"><Building /></Icon>
-          <Text size="sm" color="SECONDARY">{data.teacherName}</Text>
-        </Box>
+      )}
+
+      <Box display="flex" flexDirection="column" gap="xs" mb="md">
+        <InfoRow icon={<Users />} text={`${data.currentStudents || 0} / ${data.maxStudents} Học viên`} />
+        <InfoRow icon={<Clock />} text={data.schedule || 'Chưa có lịch'} />
+        <InfoRow icon={<Building />} text={data.teacherName || 'Chưa phân công'} />
       </Box>
 
-      <Box display="flex" justifyContent="flex-end" mt="auto">
+      <Box pt="sm" borderTop={`1px solid ${COLORS.NEUTRAL_BORDER}`} display="flex" justifyContent="flex-end" alignItems="center">
         <Button 
           variant="ghost" 
           size="sm" 

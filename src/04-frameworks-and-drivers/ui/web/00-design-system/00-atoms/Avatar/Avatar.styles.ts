@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, FONT_SIZES, FONT_WEIGHTS, SIZES } from '../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, FONT_SIZES, FONT_WEIGHTS, SIZES } from '../../../01-ui-core/constants/tokens-constants';
 import type { AvatarSize } from './Avatar.types';
 
 /** 🔥 GRID + FLEX SAFE WRAPPER */

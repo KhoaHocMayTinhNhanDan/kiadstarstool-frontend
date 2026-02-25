@@ -86,7 +86,7 @@ export const rightSection = css`
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
+  flex-shrink: 1; /* Cho phép phần bên phải co lại khi không đủ không gian */
 `;
 
 export const actionsWrapper = css`
@@ -174,9 +174,9 @@ export const userName = css`
   }
 `;
 
-export const dropdownIcon = css`
+export const dropdownIcon = (themeColors?: any) => css`
   margin-left: 4px;
-  color: ${(props: any) => props.theme?.text?.tertiary || '#a0aec0'};
+  color: ${themeColors?.text?.tertiary || '#a0aec0'};
 `;
 
 export const userMenu = (mode?: 'light' | 'dark', themeColors?: ThemeColors) => css`
@@ -203,15 +203,15 @@ export const userInfoName = css`
   margin-bottom: 4px;
 `;
 
-export const userInfoEmail = css`
+export const userInfoEmail = (themeColors?: any) => css`
   font-size: 12px;
-  color: ${(props: any) => props.theme?.text?.secondary || '#718096'};
+  color: ${themeColors?.text?.secondary || '#718096'};
   margin-bottom: 4px;
 `;
 
-export const userInfoRole = css`
+export const userInfoRole = (themeColors?: any) => css`
   font-size: 12px;
-  color: ${(props: any) => props.theme?.primary || '#3182CE'};
+  color: ${themeColors?.primary || '#3182CE'};
 `;
 
 export const menuItems = css`

@@ -1,4 +1,4 @@
-import { StatsCard } from './StatsCard.organism';
+import { StatCard } from './StatCard';
 import { Box } from '../../../00-atoms/Box/Box';
 import { Text } from '../../../00-atoms/Text/Text';
 
@@ -14,11 +14,11 @@ const ActivityIcon = (
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z" /></svg>
 );
 
-export const StatsCardPlayground = () => {
+export const StatCardPlayground = () => {
   return (
     <Box p="lg">
       <Text as="h2" variant="heading-2xl" sx={{ mb: '24px' }}>
-        📊 StatsCard Demo
+        📊 StatCard Demo
       </Text>
 
       <Box
@@ -28,7 +28,7 @@ export const StatsCardPlayground = () => {
           gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
         }}
       >
-        <StatsCard
+        <StatCard
           title="Total Revenue"
           value="$45,231.89"
           icon={WalletIcon}
@@ -36,7 +36,7 @@ export const StatsCardPlayground = () => {
           trend={{ value: 20.1, label: "vs last month" }}
         />
 
-        <StatsCard
+        <StatCard
           title="Active Users"
           value="2,345"
           icon={UsersIcon}
@@ -44,7 +44,7 @@ export const StatsCardPlayground = () => {
           trend={{ value: -4.5, label: "vs last week" }}
         />
 
-        <StatsCard
+        <StatCard
           title="Bounce Rate"
           value="42.3%"
           icon={ActivityIcon}
@@ -52,7 +52,7 @@ export const StatsCardPlayground = () => {
           trend={{ value: 12.5, direction: 'down', label: "vs yesterday" }}
         />
 
-        <StatsCard
+        <StatCard
           title="Pending Tasks"
           value="12"
           description="Requires immediate attention"

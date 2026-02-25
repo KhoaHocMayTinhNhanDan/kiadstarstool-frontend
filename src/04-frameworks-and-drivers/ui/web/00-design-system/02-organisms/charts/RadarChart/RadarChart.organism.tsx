@@ -12,7 +12,7 @@ import {
 } from 'recharts';
 
 import { Box, Text, LoadingSpinner } from '../../../00-atoms';
-import { COLORS } from '../../../../03-ui-shared/constants/tokens-constants';
+import { COLORS } from '../../../../01-ui-core/constants/tokens-constants';
 import * as styles from './RadarChart.organism.styles';
 
 /* ==========================================================================

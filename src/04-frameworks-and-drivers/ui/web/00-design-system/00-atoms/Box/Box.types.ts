@@ -1,6 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 import type { ElementType, ComponentPropsWithoutRef } from 'react';
-import type { SpacingKey } from '../../../03-ui-shared/constants/tokens-constants';
+import type { SpacingKey } from '../../../01-ui-core/constants/tokens-constants';
 
 export type BoxOwnProps = {
   as?: ElementType;

@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, TRANSITIONS } from '../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, TRANSITIONS } from '../../../01-ui-core/constants/tokens-constants';
 import type { TextareaProps } from './Textarea.types';
 
 /** 🔥 GRID + FLEX SAFE WRAPPER (Giống Input) */

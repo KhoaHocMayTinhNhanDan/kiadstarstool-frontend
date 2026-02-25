@@ -11,15 +11,15 @@ import {
 } from 'recharts';
 
 import { Box, Text, LoadingSpinner } from '../../../00-atoms';
-import { COLORS } from '../../../../03-ui-shared/constants/tokens-constants';
-import * as styles from './BarChart.organism.styles';
+import { COLORS } from '../../../../01-ui-core/constants/tokens-constants';
+import * as styles from './BarChart.styles';
 import type { BarChartProps } from './BarChart.types';
 
 /* ==========================================================================
  * Tooltip
  * ========================================================================== */
 
-const CustomTooltip = ({ active, label, payload }: any) => {
+const CustomTooltip = ({ active, label, payload, formatter }: any) => {
   if (!active || !payload || payload.length === 0) return null;
 
   return (
@@ -38,7 +38,7 @@ const CustomTooltip = ({ active, label, payload }: any) => {
               bg={item.color || 'PRIMARY'}
             />
             <Text size="sm">
-              {item.name}: <strong>{item.value}</strong>
+              {item.name}: <strong>{formatter ? formatter(item.value) : item.value}</strong>
             </Text>
           </Box>
         ))}
@@ -67,7 +67,8 @@ export const BarChart = ({
   showXAxis = true,
   showYAxis = true,
   layout = 'horizontal',
-}: Omit<BarChartProps, 'height'> & { height?: string | number }) => {
+  valueFormatter,
+}: Omit<BarChartProps, 'height'> & { height?: string | number; valueFormatter?: (value: any) => string }) => {
   /* ================= Loading ================= */
   if (isLoading) {
     return (
@@ -125,6 +126,7 @@ export const BarChart = ({
                 tick={{ fill: COLORS.SECONDARY, fontSize: 12 }}
                 axisLine={{ stroke: COLORS.NEUTRAL_LIGHT }}
                 tickLine={false}
+                tickFormatter={layout === 'vertical' ? valueFormatter : undefined}
               />
             )}
 
@@ -135,10 +137,11 @@ export const BarChart = ({
                 tick={{ fill: COLORS.SECONDARY, fontSize: 12 }}
                 axisLine={{ stroke: COLORS.NEUTRAL_LIGHT }}
                 tickLine={false}
+                tickFormatter={layout === 'horizontal' ? valueFormatter : undefined}
               />
             )}
 
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+            <Tooltip content={<CustomTooltip formatter={valueFormatter} />} cursor={{ fill: 'transparent' }} />
             {showLegend && <Legend />}
 
             {series.map((s) => (

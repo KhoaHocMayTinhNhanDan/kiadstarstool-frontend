@@ -30,6 +30,7 @@ export class GetStudentDetailsInteractor {
     if (!student) {
       return Result.fail('Student not found');
     }
+    console.log('[GetStudentDetailsInteractor] Student Entity from Repo:', JSON.stringify(student.enrollments, null, 2));
 
     // 2. Get Branch Info
     // FIX: Lấy branchId từ danh sách enrollments (ưu tiên active) thay vì student.branchId
@@ -58,6 +59,18 @@ export class GetStudentDetailsInteractor {
       status: student.status,
       joinedDate: activeEnrollment ? activeEnrollment.joinedDate : new Date(),
       branchName: branchName,
+      enrollments: student.enrollments.map(e => ({
+        branchId: e.branchId,
+        classId: e.classId || '',
+        status: e.status,
+        joinedDate: e.joinedDate.toISOString(),
+        endDate: e.endDate?.toISOString(),
+        tuitionAmount: e.tuitionAmount,
+        paidAmount: e.paidAmount,
+        paymentStatus: e.paymentStatus,
+        prepaidSessions: e.prepaidSessions,
+        usedSessions: e.usedSessions
+      })),
       attendanceHistory: attendanceRecords.map(att => ({
         classId: att.courseId,
         className: classNameMap.get(att.courseId) || 'Unknown Class',

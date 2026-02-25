@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, SPACING, FONT_SIZES, RADIUS, SHADOWS, TRANSITIONS } from '../../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, SPACING, FONT_SIZES, RADIUS, SHADOWS, TRANSITIONS } from '../../../../01-ui-core/constants/tokens-constants';
 
 export const container = css`
   position: relative;

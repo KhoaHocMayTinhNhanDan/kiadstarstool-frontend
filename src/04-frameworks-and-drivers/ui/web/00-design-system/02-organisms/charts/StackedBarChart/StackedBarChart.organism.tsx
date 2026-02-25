@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { useMemo } from 'react';
-import { BarChart } from '../BarChart/BarChart.organism';
+import { BarChart } from '../BarChart/BarChart';
 import { Box } from '../../../00-atoms';
 import * as styles from './StackedBarChart.organism.styles';
 import type { StackedBarChartProps } from './StackedBarChart.types';

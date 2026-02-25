@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, TRANSITIONS, SPACING, FONT_SIZES } from '../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, TRANSITIONS, SPACING, FONT_SIZES } from '../../../01-ui-core/constants/tokens-constants';
 import type { RadioSize, RadioProps } from './Radio.types';
 
 const sizeMap = {

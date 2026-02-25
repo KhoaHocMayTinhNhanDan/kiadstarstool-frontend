@@ -11,6 +11,7 @@ export interface EnrollmentProps {
   joinedDate: Date;
   endDate?: Date;
   tuitionAmount?: number; // Số tiền thực tế phải trả cho lần ghi danh này (có thể khác giá gốc)
+  paidAmount?: number;    // Số tiền đã thanh toán
   paymentStatus?: PaymentStatus; // Trạng thái thanh toán
   
   // Hỗ trợ trả theo buổi (Prepaid)
@@ -43,6 +44,10 @@ export class Enrollment extends ValueObject<EnrollmentProps> {
     return this.props.tuitionAmount;
   }
 
+  get paidAmount(): number {
+    return this.props.paidAmount || 0;
+  }
+
   get paymentStatus(): PaymentStatus | undefined {
     return this.props.paymentStatus;
   }
@@ -69,6 +74,7 @@ export class Enrollment extends ValueObject<EnrollmentProps> {
     return Result.ok<Enrollment>(new Enrollment({
       ...props,
       tuitionAmount: props.tuitionAmount ?? 0,
+      paidAmount: props.paidAmount ?? 0,
       paymentStatus: props.paymentStatus ?? 'unpaid',
       prepaidSessions: props.prepaidSessions ?? 0,
       usedSessions: props.usedSessions ?? 0

@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { useState } from 'react';
 import { Box, Button, Icon, Input, Text } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
+import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { Calendar, Save, RefreshCw, CheckCircle } from 'lucide-react';
 import { useClassAttendance } from '../../../hooks/class/useClassAttendance';
 import { AttendanceStats } from './AttendanceStats';

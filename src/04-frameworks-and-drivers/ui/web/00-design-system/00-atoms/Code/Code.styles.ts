@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, FONT_SIZES, RADIUS, SPACING } from '../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, FONT_SIZES, RADIUS, SPACING } from '../../../01-ui-core/constants/tokens-constants';
 
 export const getCodeStyles = (block?: boolean) => css`
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier,

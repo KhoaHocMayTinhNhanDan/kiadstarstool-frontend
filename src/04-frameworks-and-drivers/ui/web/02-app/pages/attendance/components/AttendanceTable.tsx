@@ -10,7 +10,7 @@ import { Icon } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-ato
 import { Tooltip } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/Tooltip';
 import { AlertTriangle, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { type AttendanceListItem } from '@/02-usecases/attendance/ports/output/ListAttendanceByClass.output';
-import { COLORS } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
+import { COLORS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { ATTENDANCE_STATUS } from '@/shared/constants/classes.constant';
 
 interface AttendanceTableProps {

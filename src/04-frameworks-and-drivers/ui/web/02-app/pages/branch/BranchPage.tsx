@@ -6,7 +6,6 @@ import { AppContext } from '@/00-core/app-context';
 import { type ListBranchesOutput } from '@/02-usecases/branch/ports/output/ListBranches.output';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { Plus, MapPin, Users, ChevronRight } from 'lucide-react';
-import { SPACING, COLORS, RADIUS } from '../../../03-ui-shared/constants/tokens-constants';
 import { useI18n } from '@/shared/i18n/useI18n';
 
 export const BranchPage = () => {
@@ -37,6 +36,13 @@ export const BranchPage = () => {
 
     fetchBranches();
   }, []);
+
+  const formatAddress = (address: any) => {
+    if (!address) return '';
+    // Handle both Entity VO (with props) and plain DTO
+    const data = address.props || address;
+    return [data.street, data.ward, data.district, data.city].filter(Boolean).join(', ');
+  };
 
   return (
     <Box p="xl" maxWidth="1200px" mx="auto">
@@ -89,7 +95,7 @@ export const BranchPage = () => {
               <Box display="flex" flexDirection="column" gap="sm">
                 <Box display="flex" gap="sm" alignItems="center">
                   <Icon size="sm" color="SECONDARY"><MapPin /></Icon>
-                  <Text size="sm" color="SECONDARY" truncate>{branch.address}</Text>
+                  <Text size="sm" color="SECONDARY" truncate>{formatAddress(branch.address)}</Text>
                 </Box>
                 <Box display="flex" gap="sm" alignItems="center">
                   <Icon size="sm" color="SECONDARY"><Users /></Icon>

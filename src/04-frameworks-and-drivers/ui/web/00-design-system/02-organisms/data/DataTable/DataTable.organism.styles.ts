@@ -1,6 +1,6 @@
 // src/04-frameworks-and-drivers/ui/web/components/organisms/data/DataTable/DataTable.organism.styles.ts
 import { css } from '@emotion/react';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOWS } from '../../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONT_WEIGHTS, SHADOWS } from '../../../../01-ui-core/constants/tokens-constants';
 
 export const container = css`
   width: 100%;

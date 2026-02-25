@@ -21,7 +21,7 @@ export class GetUserInteractor {
 
       // Map Entity to Output DTO
       return Result.ok<UserOutput>({
-        id: user.id.value,
+        uid: user.id.value,
         displayName: user.profile.displayName,
         role: user.role.value,
         isActive: user.isActive,

@@ -24,6 +24,7 @@ import {
 export const AppHeaderPlayground = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [lastAction, setLastAction] = useState('');
+  const [lang, setLang] = useState('vi');
 
   const handleAction = (action: string) => {
     setLastAction(action);
@@ -107,6 +108,12 @@ export const AppHeaderPlayground = () => {
               handleAction(`Search: ${query}`);
             }}
             onLogoClick={() => handleAction('Clicked Logo')}
+            currentLanguage={lang}
+            onLanguageChange={(code) => {
+              setLang(code);
+              handleAction(`Language changed to: ${code}`);
+            }}
+            onThemeToggle={() => handleAction('Theme toggled')}
           />
           {searchQuery && <Box p="sm" bg="NEUTRAL_LIGHT"><Text size="sm">Current Search: <strong>{searchQuery}</strong></Text></Box>}
         </Box>

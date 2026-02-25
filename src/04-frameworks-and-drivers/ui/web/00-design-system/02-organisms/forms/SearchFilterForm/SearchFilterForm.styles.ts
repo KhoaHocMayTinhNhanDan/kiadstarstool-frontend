@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { SPACING, COLORS, RADIUS, TRANSITIONS } from '../../../../03-ui-shared/constants/tokens-constants';
+import { SPACING, COLORS, RADIUS, TRANSITIONS } from '../../../../01-ui-core/constants/tokens-constants';
 
 export const container = css`
   display: flex;
@@ -37,7 +37,7 @@ export const filtersContainer = (isOpen: boolean) => css`
   max-height: ${isOpen ? '500px' : '0'};
   opacity: ${isOpen ? 1 : 0};
   overflow: hidden;
-  transition: all ${TRANSITIONS.normal};
+  transition: all ${TRANSITIONS.NORMAL};
 `;
 
 export const activeFiltersWrapper = css`

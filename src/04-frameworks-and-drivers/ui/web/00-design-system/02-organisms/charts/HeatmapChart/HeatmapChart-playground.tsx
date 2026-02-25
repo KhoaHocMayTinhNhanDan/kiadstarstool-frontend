@@ -1,7 +1,7 @@
 import { HeatmapChart } from './HeatmapChart.organism';
 import { Box } from '../../../00-atoms/Box/Box';
 import { Text } from '../../../00-atoms/Text/Text';
-import { COLORS } from '../../../../03-ui-shared/constants/tokens-constants';
+import { COLORS } from '../../../../01-ui-core/constants/tokens-constants';
 
 // Mock Data: Weekly Activity (GitHub style)
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];

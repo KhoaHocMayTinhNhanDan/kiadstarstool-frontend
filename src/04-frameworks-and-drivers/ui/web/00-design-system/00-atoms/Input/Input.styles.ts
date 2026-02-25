@@ -6,7 +6,7 @@ import {
   RADIUS,
   FONT_SIZES,
   TRANSITIONS,
-} from '../../../03-ui-shared/constants/tokens-constants';
+} from '../../../01-ui-core/constants/tokens-constants';
 import type { InputSize } from './Input.types';
 
 const heightMap: Record<InputSize, string> = {

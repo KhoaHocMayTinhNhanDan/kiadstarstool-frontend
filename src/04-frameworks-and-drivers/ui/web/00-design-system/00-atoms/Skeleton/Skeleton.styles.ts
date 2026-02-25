@@ -1,5 +1,5 @@
 import { css, keyframes } from '@emotion/react';
-import { COLORS, RADIUS } from '../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, RADIUS } from '../../../01-ui-core/constants/tokens-constants';
 import type { SkeletonVariant } from './Skeleton.types';
 
 const pulse = keyframes`

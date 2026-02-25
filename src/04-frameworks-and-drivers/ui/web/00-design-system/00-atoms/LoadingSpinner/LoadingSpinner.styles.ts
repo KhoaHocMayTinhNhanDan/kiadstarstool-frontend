@@ -1,5 +1,5 @@
 import { css, keyframes } from '@emotion/react';
-import { COLORS } from '../../../03-ui-shared/constants/tokens-constants';
+import { COLORS } from '../../../01-ui-core/constants/tokens-constants';
 import type { SpinnerSize } from './LoadingSpinner.types';
 
 const spin = keyframes`

@@ -1,30 +1,81 @@
 import { css } from '@emotion/react';
-import { COLORS, RADIUS, SPACING, TRANSITIONS } from '../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, SPACING, RADIUS, SHADOWS, TRANSITIONS, FONT_SIZES, FONT_WEIGHTS } from '../../../01-ui-core/constants/tokens-constants';
 
-export const getSelectStyles = () => css`
-  padding: 6px ${SPACING.md} 6px ${SPACING.sm};
+export const container = css`
+  position: relative;
+  display: inline-block;
+`;
+
+export const trigger = (isOpen: boolean, variant: string) => css`
+  display: flex;
+  align-items: center;
+  gap: ${SPACING.xs};
+  padding: ${variant === 'icon-only' ? SPACING.xs : `${SPACING.xs} ${SPACING.sm}`};
+  background-color: transparent;
+  border: 1px solid ${isOpen ? COLORS.PRIMARY : COLORS.NEUTRAL_BORDER};
   border-radius: ${RADIUS.md};
-  border: 1px solid ${COLORS.NEUTRAL_RING};
-  background-color: ${COLORS.WHITE};
-  color: ${COLORS.TEXT};
-  font-size: 14px;
-  font-weight: 500;
   cursor: pointer;
-  outline: none;
   transition: all ${TRANSITIONS.FAST};
-  appearance: none; /* Remove default arrow */
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  background-size: 16px;
+  color: ${COLORS.TEXT_PRIMARY};
+  font-size: ${FONT_SIZES.sm};
+  font-weight: ${FONT_WEIGHTS.medium};
+  min-height: 36px;
 
   &:hover {
-    border-color: ${COLORS.PRIMARY};
     background-color: ${COLORS.NEUTRAL_LIGHT};
+    border-color: ${COLORS.NEUTRAL_DARK};
   }
 
-  &:focus {
-    border-color: ${COLORS.PRIMARY};
-    box-shadow: 0 0 0 2px ${COLORS.PRIMARY_LIGHT};
+  &:focus-visible {
+    outline: 2px solid ${COLORS.PRIMARY};
+    outline-offset: 2px;
   }
+`;
+
+export const dropdown = (isOpen: boolean) => css`
+  position: absolute;
+  top: calc(100% + ${SPACING.xs});
+  right: 0;
+  min-width: 160px;
+  background-color: ${COLORS.WHITE};
+  border: 1px solid ${COLORS.NEUTRAL_BORDER};
+  border-radius: ${RADIUS.md};
+  box-shadow: ${SHADOWS.md};
+  padding: ${SPACING.xs};
+  z-index: 100;
+  
+  opacity: ${isOpen ? 1 : 0};
+  visibility: ${isOpen ? 'visible' : 'hidden'};
+  transform: translateY(${isOpen ? '0' : '-10px'});
+  transition: all ${TRANSITIONS.FAST};
+`;
+
+export const option = (isActive: boolean) => css`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: ${SPACING.sm} ${SPACING.md};
+  border: none;
+  background-color: ${isActive ? COLORS.PRIMARY_LIGHT : 'transparent'};
+  color: ${isActive ? COLORS.PRIMARY : COLORS.TEXT_PRIMARY};
+  font-size: ${FONT_SIZES.sm};
+  font-weight: ${isActive ? FONT_WEIGHTS.medium : FONT_WEIGHTS.normal};
+  text-align: left;
+  cursor: pointer;
+  border-radius: ${RADIUS.sm};
+  transition: background-color ${TRANSITIONS.FAST};
+
+  &:hover {
+    background-color: ${isActive ? COLORS.PRIMARY_LIGHT : COLORS.NEUTRAL_LIGHT};
+  }
+`;
+
+export const flag = css`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  margin-right: ${SPACING.xs};
 `;

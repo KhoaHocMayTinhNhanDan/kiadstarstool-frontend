@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { Box, Text } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
+import { COLORS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { PieChart } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/charts/PieChart';
 
 interface AttendanceStatsProps {

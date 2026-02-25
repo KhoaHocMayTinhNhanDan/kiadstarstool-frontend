@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { SerializedStyles } from '@emotion/react';
+import type { LanguageOption } from '../../../01-molecules/LanguageSelector';
 
 export interface NavItem {
   id: string;
@@ -71,6 +72,15 @@ export interface AppHeaderProps {
   
   /** Theme toggle callback */
   onThemeToggle?: () => void;
+
+  /** Mã ngôn ngữ hiện tại (ví dụ: 'vi', 'en') */
+  currentLanguage?: string;
+
+  /** Callback khi đổi ngôn ngữ */
+  onLanguageChange?: (code: string) => void;
+
+  /** Danh sách ngôn ngữ tùy chọn */
+  languageOptions?: LanguageOption[];
   
   /** Current theme mode */
   mode?: 'light' | 'dark';

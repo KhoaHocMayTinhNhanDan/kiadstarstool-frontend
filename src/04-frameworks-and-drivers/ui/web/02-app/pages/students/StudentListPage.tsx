@@ -1,15 +1,17 @@
 /** @jsxImportSource @emotion/react */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Filter, Search, Mail, Phone, MoreHorizontal, DollarSign } from 'lucide-react';
+import { Plus, Filter, Search, Mail, Phone, MoreHorizontal } from 'lucide-react';
 import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING, RADIUS } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
+import { COLORS, SPACING, RADIUS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { AppContext } from '@/00-core/app-context';
 import { Pagination } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/navigation/Pagination';
+import { type StudentListItem } from '@/02-usecases/students/ports/output/ListStudentsByBranch.output';
+import { PaymentStatusBadge } from './components/StudentSharedComponents';
 
 export const StudentListPage = () => {
   const navigate = useNavigate();
-  const [students, setStudents] = useState<any[]>([]);
+  const [students, setStudents] = useState<StudentListItem[]>([]);
   const [branches, setBranches] = useState<any[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState<string>('');
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -122,61 +124,76 @@ export const StudentListPage = () => {
       </Box>
 
       {/* List */}
-      <Box bg="BACKGROUND_PAPER" borderRadius="md" border={`1px solid ${COLORS.NEUTRAL_BORDER}`} overflow="hidden">
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom: `1px solid ${COLORS.NEUTRAL_BORDER}`, backgroundColor: COLORS.NEUTRAL_LIGHT }}>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Học viên</Text></th>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Liên hệ</Text></th>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Trạng thái</Text></th>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Ngày tham gia</Text></th>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Học phí</Text></th>
-              <th style={{ padding: SPACING.md, textAlign: 'right' }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr><td colSpan={5} style={{ padding: SPACING.xl, textAlign: 'center' }}><Text color="SECONDARY">Đang tải...</Text></td></tr>
-            ) : filteredStudents.length === 0 ? (
-              <tr><td colSpan={5} style={{ padding: SPACING.xl, textAlign: 'center' }}><Text color="SECONDARY">Không tìm thấy học viên nào.</Text></td></tr>
-            ) : (
-              paginatedStudents.map(student => {
-                // Lấy thông tin học phí từ enrollment active đầu tiên (nếu có)
-                const activeEnrollment = student.enrollments?.find((e: any) => e.status === 'active');
-                const paymentStatus = activeEnrollment?.paymentStatus || 'unknown';
-                const tuitionAmount = activeEnrollment?.tuitionAmount || 0;
+      <Box bg="BACKGROUND_PAPER" borderRadius="lg" border={`1px solid ${COLORS.NEUTRAL_BORDER}`} overflow="hidden">
+        {/* Table Header */}
+        <Box 
+          display="grid" 
+          px="md" 
+          py="sm"
+          bg="NEUTRAL_LIGHT"
+          sx={{
+            gridTemplateColumns: "2fr 2fr 1fr 1fr 1fr 50px",
+            borderBottom: `1px solid ${COLORS.NEUTRAL_BORDER}`
+          }}
+        >
+          <Text weight="semibold" size="sm">Học viên</Text>
+          <Text weight="semibold" size="sm">Liên hệ</Text>
+          <Text weight="semibold" size="sm">Trạng thái</Text>
+          <Text weight="semibold" size="sm">Ngày tham gia</Text>
+          <Text weight="semibold" size="sm">Học phí</Text>
+          <Box />
+        </Box>
 
-                return (
-                  <tr key={student.id} style={{ borderBottom: `1px solid ${COLORS.NEUTRAL_BORDER}`, cursor: 'pointer' }} onClick={() => navigate(`/students/${student.id}`)}>
-                    <td style={{ padding: SPACING.md }}>
-                      <Text weight="medium">{student.name}</Text>
-                      <Text size="xs" color="SECONDARY">{student.id}</Text>
-                    </td>
-                    <td style={{ padding: SPACING.md }}>
-                      <Box display="flex" flexDirection="column" gap="xs">
-                        <Box display="flex" alignItems="center" gap="xs"><Icon size="xs" color="SECONDARY"><Mail /></Icon><Text size="sm">{student.email}</Text></Box>
-                        <Box display="flex" alignItems="center" gap="xs"><Icon size="xs" color="SECONDARY"><Phone /></Icon><Text size="sm">{student.phone}</Text></Box>
-                      </Box>
-                    </td>
-                    <td style={{ padding: SPACING.md }}><Text size="sm">{student.status}</Text></td>
-                    <td style={{ padding: SPACING.md }}><Text size="sm">{new Date(student.joinedDate).toLocaleDateString('vi-VN')}</Text></td>
-                    <td style={{ padding: SPACING.md }}>
-                      {activeEnrollment ? (
-                        <Box display="flex" flexDirection="column" gap="xxs">
-                          <Text size="sm" weight="medium">{tuitionAmount.toLocaleString('vi-VN')} đ</Text>
-                          <Text size="xs" color={paymentStatus === 'paid' ? 'SUCCESS' : (paymentStatus === 'unpaid' ? 'DANGER' : 'WARNING')}>
-                            {paymentStatus === 'paid' ? 'Đã đóng' : (paymentStatus === 'unpaid' ? 'Chưa đóng' : 'Đóng một phần')}
-                          </Text>
-                        </Box>
-                      ) : <Text size="sm" color="SECONDARY">-</Text>}
-                    </td>
-                    <td style={{ padding: SPACING.md, textAlign: 'right' }}><Button variant="ghost" size="sm"><Icon><MoreHorizontal /></Icon></Button></td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+        {/* Table Body */}
+        {isLoading ? (
+          <Box p="xl" textAlign="center"><Text color="SECONDARY">Đang tải...</Text></Box>
+        ) : filteredStudents.length === 0 ? (
+          <Box p="xl" textAlign="center"><Text color="SECONDARY">Không tìm thấy học viên nào.</Text></Box>
+        ) : (
+          paginatedStudents.map(student => {
+            // Lấy thông tin học phí từ enrollment active đầu tiên (nếu có)
+            const activeEnrollment = student.enrollments?.find(e => e.status === 'active');
+            const paymentStatus = activeEnrollment?.paymentStatus || 'unknown';
+            const tuitionAmount = activeEnrollment?.tuitionAmount || 0;
+
+            return (
+              <Box 
+                key={student.id} 
+                display="grid" 
+                px="md" py="md"
+                alignItems="center"
+                onClick={() => navigate(`/students/${student.id}`)}
+                sx={{
+                  gridTemplateColumns: "2fr 2fr 1fr 1fr 1fr 50px",
+                  borderBottom: `1px solid ${COLORS.NEUTRAL_BORDER}`,
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s',
+                  '&:hover': { backgroundColor: COLORS.NEUTRAL_LIGHT }
+                }}
+              >
+                <Box>
+                  <Text weight="medium">{student.name}</Text>
+                  <Text size="xs" color="SECONDARY">{student.id}</Text>
+                </Box>
+                <Box display="flex" flexDirection="column" gap="xs">
+                  <Box display="flex" alignItems="center" gap="xs"><Icon size="xs" color="SECONDARY"><Mail /></Icon><Text size="sm">{student.email}</Text></Box>
+                  <Box display="flex" alignItems="center" gap="xs"><Icon size="xs" color="SECONDARY"><Phone /></Icon><Text size="sm">{student.phone}</Text></Box>
+                </Box>
+                <Text size="sm">{student.status}</Text>
+                <Text size="sm">{new Date(student.joinedDate).toLocaleDateString('vi-VN')}</Text>
+                <Box>
+                  {activeEnrollment ? (
+                    <Box display="flex" flexDirection="column" gap="xxs">
+                      <Text size="sm" weight="medium">{tuitionAmount.toLocaleString('vi-VN')} đ</Text>
+                      <PaymentStatusBadge status={paymentStatus} />
+                    </Box>
+                  ) : <Text size="sm" color="SECONDARY">-</Text>}
+                </Box>
+                <Box textAlign="right"><Button variant="ghost" size="sm"><Icon><MoreHorizontal /></Icon></Button></Box>
+              </Box>
+            );
+          })
+        )}
       </Box>
 
       {/* Pagination */}

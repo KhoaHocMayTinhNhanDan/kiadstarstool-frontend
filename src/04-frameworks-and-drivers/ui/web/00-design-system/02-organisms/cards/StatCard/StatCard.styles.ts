@@ -1,6 +1,6 @@
-// src/04-frameworks-and-drivers/ui/web/components/02-organisms/cards/StatsCard/StatsCard.styles.ts
+// src/04-frameworks-and-drivers/ui/web/components/02-organisms/cards/StatCard/StatCard.styles.ts
 import { css } from '@emotion/react';
-import { COLORS, SPACING, RADIUS, SHADOWS, TRANSITIONS, TYPOGRAPHY } from '../../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, SPACING, RADIUS, SHADOWS, TRANSITIONS, TYPOGRAPHY } from '../../../../01-ui-core/constants/tokens-constants';
 
 export const card = css`
   background-color: ${COLORS.BACKGROUND_PAPER};

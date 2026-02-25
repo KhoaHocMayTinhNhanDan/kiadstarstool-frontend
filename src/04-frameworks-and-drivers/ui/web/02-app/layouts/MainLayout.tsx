@@ -18,6 +18,8 @@ import { useToast } from '../../01-ui-core/hooks/useToast';
 import { useState, useEffect } from 'react';
 import { IronmanLayout } from './dynamic/IronmanLayout';
 import { CosmicLayout } from './dynamic/CosmicLayout';
+import { useI18n } from '@/shared/i18n/useI18n';
+import { type LanguageOption } from '../../00-design-system/01-molecules/LanguageSelector';
 
 // Định nghĩa page titles cho từng route
 const pageTitles: Record<string, string> = {
@@ -36,6 +38,7 @@ export const MainLayout = () => {
   const { theme } = useTheme();
   const { mode, toggleMode } = useMode();
   const { user, logout } = useAuth();
+  const { t, language, changeLanguage } = useI18n();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -112,23 +115,6 @@ export const MainLayout = () => {
     </>
   );
 
-  // Theme colors
-  const themeColors = {
-    primary: theme.colors?.primary || mode.colors.text.primary,
-    surface: mode.colors.surface.primary,
-    background: mode.colors.background.tertiary,
-    text: {
-      primary: mode.colors.text.primary,
-      secondary: mode.colors.text.secondary,
-      tertiary: mode.colors.text.tertiary,
-      inverse: mode.colors.text.inverse,
-    },
-    border: {
-      default: mode.colors.border.default,
-      light: mode.colors.border.light,
-    },
-  };
-
   const sidebarWidth = sidebarCollapsed 
     ? (theme.layout.sidebar.collapsedWidth || '72px')
     : (theme.layout.sidebar.width || '260px');
@@ -178,115 +164,50 @@ export const MainLayout = () => {
       css={{
         display: 'flex',
         height: '100vh',
-        width: '100vw',
+        width: '100%',
         overflow: 'hidden',
         backgroundColor: mode.colors.background.primary,
         color: mode.colors.text.primary,
       }}
     >
-      {/* Sidebar - Desktop */}
-      {!isMobile && (
-        <Box
-          css={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            height: '100vh',
-            width: sidebarWidth,
-            zIndex: 1000,
-            transition: 'width 0.3s ease',
-            boxShadow: '2px 0 8px rgba(0,0,0,0.05)',
-          }}
-        >
-          <AppSidebar
-            // Logo chỉ ở sidebar
-            logo={
-              <div style={{
-                fontSize: '20px',
-                fontWeight: 700,
-                color: theme.colors?.primary || mode.colors.text.primary,
-                whiteSpace: 'nowrap',
-              }}>
-                {sidebarCollapsed ? 'KS' : 'KiadStars'}
-              </div>
-            }
-            items={navItems}
-            mode={mode.id}
-            themeColors={themeColors}
-            borderRadius={theme.layout.cards.borderRadius}
-            width={theme.layout.sidebar.width}
-            collapsedWidth={theme.layout.sidebar.collapsedWidth}
-            collapsed={sidebarCollapsed}
-            onCollapseChange={setSidebarCollapsed}
-            footer={
-              <div style={{
-                padding: '16px',
-                color: mode.colors.text.secondary,
-                fontSize: '12px',
-                textAlign: 'center',
-                opacity: sidebarCollapsed ? 0 : 1,
-                transition: 'opacity 0.2s ease',
-              }}>
-                v1.0.0
-              </div>
-            }
-          />
-        </Box>
-      )}
+      {/* Unified Sidebar for both Desktop & Mobile */}
+      <AppSidebar
+        logo={
+          <div style={{
+            fontSize: '20px',
+            fontWeight: 700,
+            color: theme.colors?.primary || mode.colors.text.primary,
+            whiteSpace: 'nowrap',
+          }}>
+            {sidebarCollapsed ? 'KS' : 'KiadStars'}
+          </div>
+        }
+        items={navItems}
+        // Removed: mode, themeColors (AppSidebar now uses internal tokens)
+        borderRadius={theme.layout.cards.borderRadius}
+        width={theme.layout.sidebar.width}
+        collapsedWidth={theme.layout.sidebar.collapsedWidth}
+        collapsed={sidebarCollapsed}
+        onCollapseChange={setSidebarCollapsed}
+        
+        // Responsive Props
+        variant={isMobile ? 'drawer' : 'sidebar'}
+        isOpen={mobileOpen}
+        onClose={() => setMobileOpen(false)}
 
-      {/* Mobile Sidebar */}
-      {isMobile && (
-        <>
-          {/* Overlay */}
-          {mobileOpen && (
-            <Box
-              xs={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                zIndex: 999,
-                onClick: () => setMobileOpen(false),
-              }}
-            />
-          )}
-
-          {/* Sidebar */}
-          <Box
-            css={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              height: '100vh',
-              width: '280px',
-              zIndex: 1000,
-              transform: mobileOpen ? 'translateX(0)' : 'translateX(-280px)',
-              transition: 'transform 0.3s ease',
-              boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
-            }}
-          >
-            <AppSidebar
-              logo={<div style={{ fontSize: '20px', fontWeight: 700 }}>KiadStars</div>}
-              items={navItems}
-              mode={mode.id}
-              themeColors={themeColors}
-              borderRadius={theme.layout.cards.borderRadius}
-              footer={
-                <div style={{
-                  padding: '16px',
-                  color: mode.colors.text.secondary,
-                  fontSize: '12px',
-                  textAlign: 'center',
-                }}>
-                  v1.0.0
-                </div>
-              }
-            />
-          </Box>
-        </>
-      )}
+        footer={
+          <div style={{
+            padding: '16px',
+            color: mode.colors.text.secondary,
+            fontSize: '12px',
+            textAlign: 'center',
+            opacity: (!isMobile && sidebarCollapsed) ? 0 : 1,
+            transition: 'opacity 0.2s ease',
+          }}>
+            v1.0.0
+          </div>
+        }
+      />
 
       {/* Main Content */}
       <Box
@@ -294,9 +215,9 @@ export const MainLayout = () => {
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          marginLeft: isMobile ? 0 : sidebarWidth,
-          width: isMobile ? '100%' : `calc(100% - ${sidebarWidth})`,
-          transition: 'margin-left 0.3s ease, width 0.3s ease',
+          // AppSidebar 'sticky' sẽ tự chiếm chỗ trên desktop, 'fixed' sẽ nổi lên trên mobile
+          // Không cần tính toán marginLeft thủ công nữa
+          width: '100%',
           height: '100vh',
           overflow: 'hidden',
         }}
@@ -323,15 +244,19 @@ export const MainLayout = () => {
           onSearch={(query) => console.log('Search:', query)}
           actions={headerActions}
           onThemeToggle={toggleMode}
+          currentLanguage={language}
+          onLanguageChange={changeLanguage}
+          languageOptions={[
+            { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
+            { code: 'en', label: 'English', flag: '🇺🇸' },
+          ]}
           userProfile={user ? {
             name: user.displayName || 'User',
             email: user.email || '',
-            avatarUrl: user.photoURL,
+            avatarUrl: user.photoURL || undefined,
             role: user.role,
           } : null}
           userMenuItems={userMenuItems}
-          mode={mode.id}
-          themeColors={themeColors}
           css={{
             borderBottom: `1px solid ${mode.colors.border.default}`,
             backgroundColor: mode.colors.surface.primary,

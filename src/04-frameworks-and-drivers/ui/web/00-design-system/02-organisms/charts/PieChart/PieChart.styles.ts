@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, SPACING, RADIUS, SHADOWS } from '../../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, SPACING, RADIUS, SHADOWS } from '../../../../01-ui-core/constants/tokens-constants';
 
 export const tooltip = css`
   background-color: ${COLORS.WHITE};

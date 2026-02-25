@@ -1,4 +1,4 @@
-import { BREAKPOINTS } from '../../constants/tokens-constants';
+import { BREAKPOINTS } from '../../../01-ui-core/constants/tokens-constants';
 
 type BreakpointKey = keyof typeof BREAKPOINTS;
 

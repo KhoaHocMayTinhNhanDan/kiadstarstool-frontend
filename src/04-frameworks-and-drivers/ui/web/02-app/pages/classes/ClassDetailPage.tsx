@@ -4,11 +4,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
 import { ArrowLeft, Edit, Calendar, Users, BookOpen, DollarSign } from 'lucide-react';
 import { Box, Text, Button, Icon } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
+import { COLORS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { AppContext } from '@/00-core/app-context';
 import { useI18n } from '@/shared/i18n/useI18n';
-import { useToast } from '../../../../01-ui-core/hooks/useToast';
-import { AttendanceList } from '../../attendance/components/AttendanceList';
+import { useToast } from '../../../01-ui-core/hooks/useToast';
+import { AttendanceList } from '../attendance/components/AttendanceList';
 import { useClassAttendance } from '@/04-frameworks-and-drivers/ui/web/02-app/hooks/class/useClassAttendance';
 
 export const ClassDetailPage = () => {

@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { SPACING, COLORS, FONT_SIZES } from '../../../03-ui-shared/constants/tokens-constants';
+import { SPACING, COLORS, FONT_SIZES } from '../../../01-ui-core/constants/tokens-constants';
 
 export const container = (isHorizontal: boolean) => css`
   display: flex;

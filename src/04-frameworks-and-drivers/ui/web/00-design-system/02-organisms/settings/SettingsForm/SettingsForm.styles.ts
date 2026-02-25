@@ -4,7 +4,7 @@ import {
   COLORS,
   SPACING,
   TYPOGRAPHY,
-} from '../../../../03-ui-shared/constants/tokens-constants';
+} from '../../../../01-ui-core/constants/tokens-constants';
 
 export const container = css`
   display: flex;

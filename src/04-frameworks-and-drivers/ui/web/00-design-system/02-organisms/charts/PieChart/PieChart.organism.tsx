@@ -1,95 +1,80 @@
 /** @jsxImportSource @emotion/react */
-import {
-  PieChart as RechartsPieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
-
-import { Box, Text, LoadingSpinner } from '../../../00-atoms';
-import { COLORS } from '../../../../03-ui-shared/constants/tokens-constants';
+import { ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import { Box, Text } from '../../../00-atoms';
+import { COLORS } from '../../../../01-ui-core/constants/tokens-constants';
+import { type PieChartProps } from './PieChart.types';
 import * as styles from './PieChart.styles';
-import type { PieChartProps } from './PieChart.types';
 
-const CustomTooltip = ({ active, payload }: any) => {
+const DEFAULT_COLORS = [COLORS.PRIMARY, COLORS.SECONDARY, COLORS.SUCCESS, COLORS.DANGER, COLORS.WARNING, COLORS.INFO];
+
+const CustomTooltip = ({ active, payload, formatter }: any) => {
   if (!active || !payload || payload.length === 0) return null;
-  const data = payload[0].payload;
-
+  const data = payload[0];
+  
   return (
-    <Box css={styles.tooltip}>
-      <Box css={styles.tooltipItem}>
-        <Box w={8} h={8} radius="full" bg={data.color || COLORS.PRIMARY} />
+    <div css={styles.tooltip}>
+      <div css={styles.tooltipItem}>
+        <Box w="8px" h="8px" borderRadius="full" bg={data.payload.fill || data.fill} />
         <Text size="sm">
-          {data.name}: <strong>{data.value}</strong>
+          {data.name}: <strong>{formatter ? formatter(data.value) : data.value}</strong>
         </Text>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 
 export const PieChart = ({
   data,
-  width = '100%',
   height = 300,
+  colors = DEFAULT_COLORS,
+  valueFormatter,
+  showLegend = true,
+  showTooltip = true,
   isLoading = false,
-  emptyMessage = 'Không có dữ liệu',
+  emptyMessage = 'Chưa có dữ liệu',
+  innerRadius = 0,
+  outerRadius = 80,
 }: PieChartProps) => {
-  /* ================= Loading ================= */
+  // 1. Loading State
   if (isLoading) {
     return (
-      <Box w={width} h={height} display="flex" alignItems="center" justifyContent="center">
-        <LoadingSpinner size="lg" />
+      <Box w="100%" h={height} display="flex" alignItems="center" justifyContent="center" bg="NEUTRAL_LIGHT" borderRadius="md">
+        <Text color="SECONDARY">Đang tải biểu đồ...</Text>
       </Box>
     );
   }
 
-  /* ================= Empty ================= */
-  if (!data || data.length === 0) {
+  // 2. Empty State
+  if (!data || data.length === 0 || data.every(d => d.value === 0)) {
     return (
-      <Box w={width} h={height} display="flex" alignItems="center" justifyContent="center" bg="LIGHT" radius="md">
+      <Box w="100%" h={height} display="flex" alignItems="center" justifyContent="center" bg="NEUTRAL_LIGHT" borderRadius="md">
         <Text color="SECONDARY">{emptyMessage}</Text>
       </Box>
     );
   }
 
-  /* ================= Chart ================= */
-  // Tự động gán màu nếu thiếu
-  const DEFAULT_COLORS = [COLORS.PRIMARY, COLORS.SUCCESS, COLORS.WARNING, COLORS.DANGER, COLORS.INFO];
-  const chartData = data.map((item, index) => ({
-    ...item,
-    color: item.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length],
-  }));
-
   return (
-    <Box w={width} h={height} sx={{ minWidth: 0, minHeight: 0 }}>
+    <Box w="100%" h={height}>
       <ResponsiveContainer width="100%" height="100%">
         <RechartsPieChart>
           <Pie
-            data={chartData}
-            cx="50%"
-            cy="50%"
-            innerRadius={60}
-            outerRadius={80}
-            paddingAngle={5}
+            data={data}
+            cx="50%" cy="50%"
+            labelLine={false}
+            outerRadius={outerRadius}
+            innerRadius={innerRadius}
+            fill="#8884d8"
             dataKey="value"
+            nameKey="name"
           >
-            {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color || colors[index % colors.length]} />
             ))}
           </Pie>
-          <Tooltip content={<CustomTooltip />} />
-          <Legend 
-            verticalAlign="bottom" 
-            height={36} 
-            iconType="circle"
-            formatter={(value) => <Text as="span" size="sm" color="SECONDARY">{value}</Text>}
-          />
+          {showTooltip && <Tooltip content={<CustomTooltip formatter={valueFormatter} />} cursor={{ fill: 'transparent' }} />}
+          {showLegend && <Legend verticalAlign="bottom" height={36} iconType="circle" />}
         </RechartsPieChart>
       </ResponsiveContainer>
     </Box>
   );
 };
-
-PieChart.displayName = 'PieChart';

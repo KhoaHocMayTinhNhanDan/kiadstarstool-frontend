@@ -19,23 +19,6 @@ export interface SidebarGroup {
   items: SidebarItem[];
 }
 
-// Theme colors interface
-export interface ThemeColors {
-  primary: string;
-  surface: string;
-  background: string;
-  text: {
-    primary: string;
-    secondary: string;
-    tertiary: string;
-    inverse: string;
-  };
-  border: {
-    default: string;
-    light: string;
-  };
-}
-
 export interface AppSidebarProps {
   /** Logo hoặc Brand element */
   logo?: ReactNode;
@@ -51,12 +34,6 @@ export interface AppSidebarProps {
   
   /** Nội dung footer */
   footer?: ReactNode;
-  
-  /** Current mode */
-  mode?: 'light' | 'dark';
-  
-  /** Theme colors */
-  themeColors?: ThemeColors;
   
   /** Border radius từ theme */
   borderRadius?: string;
@@ -75,4 +52,13 @@ export interface AppSidebarProps {
   
   /** Test ID */
   testId?: string;
+
+  /** Chế độ hiển thị: 'sidebar' (cố định) hoặc 'drawer' (trượt/mobile) */
+  variant?: 'sidebar' | 'drawer';
+
+  /** Trạng thái mở (chỉ dùng cho variant='drawer') */
+  isOpen?: boolean;
+
+  /** Callback khi đóng sidebar (chỉ dùng cho variant='drawer') */
+  onClose?: () => void;
 }

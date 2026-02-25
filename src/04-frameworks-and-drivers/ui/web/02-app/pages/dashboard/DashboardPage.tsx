@@ -17,6 +17,8 @@ import { DashboardStatsGrid } from './components/DashboardStatsGrid';
 import { DashboardCharts } from './components/DashboardCharts';
 import { DashboardFilters } from './components/DashboardFilters';
 import { DashboardOngoingClasses } from './components/DashboardOngoingClasses';
+import { QuickActions } from './components/QuickActions';
+import { RecentActivities, type ActivityItem } from './components/RecentActivities';
 
 // --- Helper Functions for Data Calculation (moved from Interactor) ---
 const getStartDateForTimeRange = (timeRange: 'week' | 'month' | 'year'): Date => {
@@ -222,6 +224,39 @@ export const DashboardPage = () => {
     // --- Prepare Chart Data ---
     const revenueChartData = groupRevenueByLabel(incomeTransactions, timeRange);
 
+    // --- Recent Activities Calculation ---
+    const activities: ActivityItem[] = [];
+
+    // 1. From Transactions
+    allTransactions.forEach(t => {
+      activities.push({
+        id: `trx-${t.id}`,
+        type: 'finance',
+        title: t.type === 'income' ? 'Thu tiền' : 'Chi tiền',
+        description: `${t.description || 'Giao dịch mới'} - ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(t.amount)}`,
+        timestamp: new Date(t.date)
+      });
+    });
+
+    // 2. From Students (Joined Date)
+    allStudents.forEach(s => {
+       const joinedDate = s.enrollments?.[0]?.joinedDate;
+       if (joinedDate) {
+         activities.push({
+           id: `stu-${s.id}`,
+           type: 'student',
+           title: 'Học viên mới',
+           description: `${s.name} đã tham gia`,
+           timestamp: new Date(joinedDate)
+         });
+       }
+    });
+
+    // Sort by date desc and take top 5
+    const recentActivities = activities
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, 5);
+
     return {
       totalRevenue,
       totalSubs,
@@ -229,6 +264,7 @@ export const DashboardPage = () => {
       totalActive: activeStudentsCount,
       chartData: revenueChartData,
       revenueByTypeData,
+      recentActivities,
       branches: allBranches,
       ongoingClasses: ongoingClasses.slice(0, 4) // Limit to 4
     };
@@ -255,6 +291,11 @@ export const DashboardPage = () => {
           <Text as="h1" variant="heading-xl" weight="bold">{welcomeMessage}</Text>
           <Text color="SECONDARY">{t('dashboard.subtitle')}</Text>
         </Box>
+        
+        {/* Quick Actions */}
+        <Box display={{ base: 'none', md: 'flex' }}>
+          <QuickActions />
+        </Box>
       </Box>
 
       {/* Filters Section */}
@@ -269,7 +310,7 @@ export const DashboardPage = () => {
 
       {/* Error State */}
       {error && !isLoading && (
-        <Box p="lg" bg="DANGER_LIGHT" radius="md" border="1px solid" borderColor="DANGER" display="flex" alignItems="center" gap="md">
+        <Box p="lg" bg="DANGER_LIGHT" radius="md" border="1px solid" sx={{ borderColor: 'DANGER' }} display="flex" alignItems="center" gap="md">
           <Icon color="DANGER"><Activity /></Icon>
           <Box>
             <Text color="DANGER" weight="bold">{t('dashboard.error_loading_title')}</Text>
@@ -281,8 +322,14 @@ export const DashboardPage = () => {
       {/* Stats Grid */}
       <DashboardStatsGrid pageData={pageData} isLoading={isLoading} />
 
-      {/* Charts Section: Revenue & Revenue by Type */}
-      <DashboardCharts pageData={pageData} timeRange={timeRange} isLoading={isLoading} />
+      {/* Main Content: Charts & Recent Activities */}
+      <Box display="grid" sx={{ gridTemplateColumns: { base: '1fr', lg: '2fr 1fr' } }} gap="xl">
+        {/* Left Column: Charts */}
+        <DashboardCharts pageData={pageData} timeRange={timeRange} isLoading={isLoading} />
+
+        {/* Right Column: Recent Activities */}
+        <RecentActivities activities={pageData?.recentActivities || []} />
+      </Box>
 
       {/* Ongoing Classes Section - Entry point for Attendance */}
       <DashboardOngoingClasses classes={pageData?.ongoingClasses || []} />

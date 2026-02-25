@@ -13,7 +13,7 @@ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { ChevronDown, X, Search, Check } from 'lucide-react';
 import { DropdownBase } from '../DropdownBase/DropdownBase.molecule';
 import { useDropdownBaseContext } from '../DropdownBase/DropdownBase.molecule';
-import { useDropdown } from '../hooks/useDropdown';
+import { useDropdown } from '../../../../01-ui-core/hooks/useDropdown';
 import {
   selectTrigger,
   selectTriggerError,
@@ -31,7 +31,7 @@ import {
   selectErrorMessage,
   spinAnimation, // Import spin animation
 } from './DropdownSelect.molecule.styles';
-import { SPACING, COLORS, TYPOGRAPHY } from '../../../../03-ui-shared/constants/tokens-constants';
+import { SPACING, COLORS, TYPOGRAPHY } from '../../../../01-ui-core/constants/tokens-constants';
 import type {
   DropdownSelectProps,
   DropdownSelectOption,

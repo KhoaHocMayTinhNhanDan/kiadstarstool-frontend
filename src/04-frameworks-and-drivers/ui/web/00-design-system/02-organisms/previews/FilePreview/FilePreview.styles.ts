@@ -7,7 +7,7 @@ import {
   TRANSITIONS,
   RADIUS,
   SHADOWS
-} from '../../../../03-ui-shared/constants/tokens-constants';
+} from '../../../../01-ui-core/constants/tokens-constants';
 import type { FilePreviewVariant } from './FilePreview.types';
 
 export const container = (variant: FilePreviewVariant, error: boolean) => css`

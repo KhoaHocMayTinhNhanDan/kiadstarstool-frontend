@@ -1,18 +1,21 @@
 // src/04-frameworks-and-drivers/ui/web/02-app/contexts/AuthContext.tsx
-import React, { createContext, useState, useCallback, useEffect, useMemo } from 'react';
+import React, { createContext, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react';
 import { AppContext } from '@/00-core/app-context';
 import { type LoginInput } from '@/02-usecases/auth/ports/input/ILoginInput';
-import { type LoginOutput } from '@/02-usecases/auth/ports/output/ILoginOutput';
 import { type UserOutput } from '@/02-usecases/users/ports/output/IUserOutput';
 
 import { useToast } from '../../01-ui-core/hooks/useToast';
 import { jwtDecode } from 'jwt-decode';
 import { type PermissionCode } from '@/shared/constants/authorization/auth.domain';
 
-// 1. Định nghĩa "hình dạng" của Context
+// 1. Định nghĩa kiểu dữ liệu cho User và Context
+export interface AuthUser extends Partial<UserOutput> {
+  id: string; // Make id mandatory
+  token: string;
+}
+
 interface AuthContextType {
-  // Kết hợp thông tin Auth (token) và User Profile
-  user: (LoginOutput & Partial<UserOutput>) | null;
+  user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   permissions: PermissionCode[];
@@ -20,47 +23,41 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-// 2. Tạo Context (export để useAuth.ts có thể dùng)
+// 2. Tạo Context
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// 3. Tạo Provider Component
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<(LoginOutput & Partial<UserOutput>) | null>(null);
+const AUTH_STORAGE_KEY = 'auth_session';
+
+// 3. Tạo Provider
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true); // Bắt đầu loading để kiểm tra session
   const { toast } = useToast();
 
   // Khi component mount lần đầu, thử tải user từ localStorage để duy trì phiên đăng nhập
   useEffect(() => {
     try {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
+      const storedSession = localStorage.getItem(AUTH_STORAGE_KEY);
+      if (storedSession) {
+        const parsedUser: AuthUser = JSON.parse(storedSession);
         
-        // 1. Kiểm tra tính toàn vẹn: Bắt buộc phải có token
-        if (!parsedUser || !parsedUser.token) {
-          throw new Error('Invalid session: No token found');
+        if (!parsedUser?.token) {
+          throw new Error('Invalid session data: No token found');
         }
 
-        // 2. Kiểm tra token (Decode & Expiry)
-        // Chỉ thực hiện decode chặt chẽ nếu KHÔNG phải chế độ Mock (hoặc nếu muốn Mock cũng dùng JWT chuẩn)
-        // Lưu ý: AppContext đã được khởi tạo từ bootstrap trước khi render
-        const isMockMode = AppContext.isUsingMockAuth();
-        
-        if (!isMockMode) {
+        // Kiểm tra token hết hạn (chỉ khi không ở chế độ mock)
+        if (!AppContext.isUsingMockAuth()) {
           const decoded: any = jwtDecode(parsedUser.token);
           const currentTime = Date.now() / 1000;
-          
           if (decoded.exp && decoded.exp < currentTime) {
             throw new Error('Token expired');
           }
         }
-        
         setUser(parsedUser);
       }
     } catch (error) {
-      console.error("Failed to parse user from localStorage", error);
-      localStorage.removeItem('user');
-      localStorage.removeItem('userId');
+      console.error("Failed to initialize session from localStorage:", error);
+      localStorage.removeItem(AUTH_STORAGE_KEY);
       setUser(null); // Đảm bảo state được reset
     } finally {
       setIsLoading(false);
@@ -76,13 +73,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     async (input: { email: string; password: string }) => {
       setIsLoading(true);
       try {
-        // DEBUG: Kiểm tra xem đang dùng Driver nào
-        const debugInfo = AppContext.debug();
-        console.log(`[AuthContext] Login requested. Current Driver: ${debugInfo.auth?.driverName}`);
-
         const controller = AppContext.getAuthController();
         const usersController = AppContext.getUsersController();
-        
+
         // Map email sang username để đảm bảo tương thích với LoginInput/Credentials
         const loginInput: LoginInput = {
           username_or_email: input.email,
@@ -93,15 +86,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (result.isSuccess) {
           const authData = result.getValue();
           let userId = '';
-          
+
           // 1. Decode token để lấy userId
           try {
             const decoded: any = jwtDecode(authData.token);
-            if (decoded.sub || decoded.user_id) {
-              userId = decoded.sub || decoded.user_id;
-              localStorage.setItem('userId', userId);
-            }
-          } catch (e) { /* ignore */ }
+            userId = decoded.sub || decoded.user_id || '';
+          } catch (e) {
+            console.error("Failed to decode token:", e);
+          }
 
           // 2. Lấy thông tin Profile chi tiết (nếu có userId)
           let profileData: Partial<UserOutput> = {};
@@ -117,9 +109,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
 
           // 3. Gộp dữ liệu và lưu state
-          const fullUserData = { ...authData, id: userId, ...profileData };
+          const fullUserData: AuthUser = { ...profileData, id: userId, token: authData.token };
           setUser(fullUserData);
-          localStorage.setItem('user', JSON.stringify(fullUserData));
+          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(fullUserData));
           toast.success('Đăng nhập thành công!');
         } else {
           // Ném lỗi để component UI có thể bắt và hiển thị
@@ -147,8 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       // Luôn xóa state ở frontend
       setUser(null);
-      localStorage.removeItem('user');
-      localStorage.removeItem('userId');
+      localStorage.removeItem(AUTH_STORAGE_KEY);
       setIsLoading(false);
     }
   }, []);

@@ -4,15 +4,13 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Box } from '../../../00-atoms';
 import * as styles from './AppSidebar.styles';
-import type { AppSidebarProps, SidebarItem, SidebarGroup, ThemeColors } from './AppSidebar.types';
+import type { AppSidebarProps, SidebarItem, SidebarGroup } from './AppSidebar.types';
 
 const SidebarItemComponent = React.memo<{ 
   item: SidebarItem; 
   collapsed: boolean;
-  mode?: 'light' | 'dark';
-  themeColors?: ThemeColors;
   borderRadius?: string;
-}>(({ item, collapsed, mode, themeColors, borderRadius }) => {
+}>(({ item, collapsed, borderRadius }) => {
   const content = (
     <>
       <div css={styles.itemIcon(collapsed)}>
@@ -22,7 +20,7 @@ const SidebarItemComponent = React.memo<{
         {item.label}
       </span>
       {!collapsed && item.badge && (
-        <span css={styles.badge(mode)}>{item.badge}</span>
+        <span css={styles.badge}>{item.badge}</span>
       )}
     </>
   );
@@ -32,8 +30,6 @@ const SidebarItemComponent = React.memo<{
       !!item.isActive, 
       collapsed, 
       !!item.disabled, 
-      mode, 
-      themeColors,
       borderRadius
     ),
     onClick: item.onClick,
@@ -64,14 +60,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   collapsed: controlledCollapsed,
   onCollapseChange,
   footer,
-  mode = 'light',
-  themeColors,
   borderRadius,
   width,
   collapsedWidth,
   className,
   sx,
   testId = 'app-sidebar',
+  variant = 'sidebar',
+  isOpen = false,
+  onClose,
 }) => {
   const [internalCollapsed, setInternalCollapsed] = useState(false);
   
@@ -87,9 +84,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   };
 
   return (
+    <>
+    {/* Mobile Overlay Backdrop */}
+    {variant === 'drawer' && (
+      <div css={styles.overlay(isOpen)} onClick={onClose} aria-hidden="true" />
+    )}
+
     <Box 
       as="aside" 
-      css={[styles.container(collapsed, width, collapsedWidth, mode, themeColors), sx]} 
+      css={[styles.container(collapsed, width, collapsedWidth, variant, isOpen), sx]} 
       className={className}
       data-testid={testId}
       aria-label="Sidebar navigation"
@@ -100,13 +103,16 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       </div>
 
       {/* Collapse Toggle Button */}
-      <button 
-        css={styles.collapseButton(mode, themeColors)} 
-        onClick={handleToggle}
-        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-      >
-        {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-      </button>
+      {/* Chỉ hiện nút toggle khi ở chế độ Desktop Sidebar */}
+      {variant === 'sidebar' && (
+        <button 
+          css={styles.collapseButton} 
+          onClick={handleToggle}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+        </button>
+      )}
 
       {/* Content */}
       <div css={styles.content}>
@@ -116,7 +122,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             return (
               <Box key={group.id || index} mb="sm">
                 {group.label && (
-                  <div css={styles.groupLabel(collapsed, mode, themeColors)}>
+                  <div css={styles.groupLabel(collapsed)}>
                     {group.label}
                   </div>
                 )}
@@ -125,8 +131,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     key={subItem.id} 
                     item={subItem} 
                     collapsed={collapsed}
-                    mode={mode}
-                    themeColors={themeColors}
                     borderRadius={borderRadius}
                   />
                 ))}
@@ -139,8 +143,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
               key={(itemOrGroup as SidebarItem).id} 
               item={itemOrGroup as SidebarItem} 
               collapsed={collapsed}
-              mode={mode}
-              themeColors={themeColors}
               borderRadius={borderRadius}
             />
           );
@@ -149,11 +151,12 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
       {/* Footer */}
       {footer && (
-        <div css={styles.footer(mode, themeColors)}>
+        <div css={styles.footer}>
           {footer}
         </div>
       )}
     </Box>
+    </>
   );
 };
 

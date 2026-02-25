@@ -1,27 +1,39 @@
 import { type IStudentDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/students/IStudentDataSource';
 import { Student } from '@/01-entities/students/Student.entity';
 import { type StudentDTO } from './student.dto';
-
-let studentStore: StudentDTO[] = [];
-const STORAGE_KEY = 'mock_students_db_v14'; // Bump version to ensure fresh data
+import { mockDatabase } from '@/04-frameworks-and-drivers/database/LocalStorage';
 
 export class MockStudentDataSource implements IStudentDataSource {
   constructor() {
     this.initialize();
   }
 
+  // This now seeds the central mock database if it's empty
   private initialize() {
-    const storedData = localStorage.getItem(STORAGE_KEY);
-    if (storedData) {
+    let studentStore = mockDatabase.getCollection<StudentDTO>('students');
+
+    if (studentStore.length > 0) {
+      /*
       try {
         studentStore = JSON.parse(storedData) as StudentDTO[];
+        
+        // SANITIZE: Kiểm tra nếu có enrollment nào đang active mà tiền = 0 thì coi như data lỗi -> Reset
+        const hasCorruptedData = studentStore.some(s => 
+          s.enrollments && s.enrollments.some(e => e.status === 'active' && (e.tuitionAmount === 0 || e.tuitionAmount === undefined))
+        );
+        if (hasCorruptedData) {
+          console.warn('[MockStudentDataSource] Phát hiện dữ liệu lỗi (Học phí = 0). Đang reset lại dữ liệu mẫu...');
+          studentStore = []; // Xóa để seed lại từ đầu
+        }
       } catch (e) {
         console.error('Failed to parse students', e);
+        studentStore = [];
       }
+      */
+     return; // Already seeded
     }
 
-    if (studentStore.length === 0) {
-      studentStore = [
+    const seedData: StudentDTO[] = [
         // --- Students in Branch 01 (Hà Nội) ---
         // CASE 1: Học viên học tại 2 cơ sở (Bản ghi tại HN)
         {
@@ -241,19 +253,17 @@ export class MockStudentDataSource implements IStudentDataSource {
           ]
         }
       ];
-      this.persist();
-    }
-  }
-
-  private persist() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(studentStore));
+    mockDatabase.setCollection('students', seedData);
   }
 
   async getByBranchId(branchId: string): Promise<StudentDTO[]> {
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
+    const studentStore = mockDatabase.getCollection<StudentDTO>('students');
+
     if (!branchId) return studentStore; // Trả về tất cả nếu không có branchId
     
     // Lọc học viên có enrollment tại branchId (bất kể trạng thái active hay dropped/completed)
+    // This logic mimics a 'where array-contains' query
     return studentStore.filter(s => 
       s.enrollments.some(e => e.branchId === branchId)
     );
@@ -261,10 +271,19 @@ export class MockStudentDataSource implements IStudentDataSource {
 
   async getById(id: string): Promise<StudentDTO | null> {
     await new Promise(resolve => setTimeout(resolve, 200));
-    return studentStore.find(s => s.id === id) || null;
+    const studentStore = mockDatabase.getCollection<StudentDTO>('students');
+    const found = studentStore.find(s => s.id === id) || null;
+    if (found) {
+      console.log(`[MockStudentDataSource] getById(${id}) returning enrollments:`, JSON.stringify(found.enrollments, null, 2));
+    }
+    return found;
   }
 
   async save(student: Student): Promise<void> {
+    console.log('[MockStudentDataSource] Saving student:', student.id.toString());
+    console.log('[MockStudentDataSource] Enrollments to save:', JSON.stringify(student.enrollments, null, 2));
+    const studentStore = mockDatabase.getCollection<StudentDTO>('students');
+
     // Check if exists to update or push new
     const index = studentStore.findIndex(s => s.id === student.id.toString());
     const data: StudentDTO = {
@@ -280,6 +299,7 @@ export class MockStudentDataSource implements IStudentDataSource {
         joinedDate: e.joinedDate.toISOString(),
         endDate: e.endDate?.toISOString(),
         tuitionAmount: e.tuitionAmount,
+        paidAmount: e.paidAmount,
         paymentStatus: e.paymentStatus,
         prepaidSessions: e.prepaidSessions,
         usedSessions: e.usedSessions
@@ -291,6 +311,6 @@ export class MockStudentDataSource implements IStudentDataSource {
     } else {
       studentStore.push(data);
     }
-    this.persist();
+    mockDatabase.persist();
   }
 }

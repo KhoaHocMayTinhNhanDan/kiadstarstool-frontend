@@ -8,7 +8,7 @@ import { useBranchForm, type BranchFormData } from '../../hooks/branch/useBranch
 import { AppContext } from '@/00-core/app-context';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
-import { SPACING, COLORS } from '../../../03-ui-shared/constants/tokens-constants';
+import { SPACING, COLORS } from '../../../01-ui-core/constants/tokens-constants';
 import { type DayOfWeek } from '@/01-entities/branch/value-objects/BranchOperatingHours.vo';
 
 const DAYS: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];

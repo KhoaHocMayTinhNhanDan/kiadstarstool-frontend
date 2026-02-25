@@ -34,6 +34,10 @@ export const CosmicLayout = () => {
     &:hover {
       width: 240px;
     }
+
+    @media (max-width: 768px) {
+      display: none; /* Ẩn sidebar trên mobile cho layout demo này */
+    }
   `;
 
   const contentStyles = css`
@@ -46,6 +50,12 @@ export const CosmicLayout = () => {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+
+    @media (max-width: 768px) {
+      margin: 0;
+      border-radius: 0;
+      padding: 16px;
+    }
   `;
 
   return (

@@ -44,6 +44,7 @@ import { ListStudentsByBranchInteractor } from '@/02-usecases/students/ListStude
 import { CreateStudentInteractor } from '@/02-usecases/students/CreateStudent.interactor';
 import { GetStudentDetailsInteractor } from '@/02-usecases/students/GetStudentDetails.interactor';
 import { TransferStudentInteractor } from '@/02-usecases/students/TransferStudent.interactor';
+import { EnrollStudentInteractor } from '@/02-usecases/students/EnrollStudent.interactor';
 import { StudentsController } from '@/03-interface-adapters/controllers/Students.controller';
 import { MockAttendanceDataSource } from '@/04-frameworks-and-drivers/devices/attendance/MockAttendanceDataSource';
 import { AttendanceRepository } from '@/03-interface-adapters/gateways/inbound/repositories/AttendanceRepository';
@@ -55,6 +56,7 @@ import { MockTransactionDataSource } from '@/04-frameworks-and-drivers/devices/t
 import { CreateTransactionInteractor } from '@/02-usecases/finance/CreateTransaction.interactor';
 import { ListTransactionsInteractor } from '@/02-usecases/finance/ListTransactions.interactor';
 import { FinanceController } from '@/03-interface-adapters/controllers/Finance.controller';
+import { CollectTuitionInteractor } from '@/02-usecases/finance/CollectTuition.interactor';
 
 export interface BootstrapOptions {
   useMockAuth?: boolean;
@@ -208,7 +210,8 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
 
   const getStudentDetailsInteractor = new GetStudentDetailsInteractor(studentRepository, branchRepository, attendanceRepository, classRepository);
     const transferStudentInteractor = new TransferStudentInteractor(studentRepository, classRepository);
-  const studentsController = new StudentsController(listStudentsByBranchInteractor, createStudentInteractor, getStudentDetailsInteractor, transferStudentInteractor);
+    const enrollStudentInteractor = new EnrollStudentInteractor(studentRepository, classRepository);
+  const studentsController = new StudentsController(listStudentsByBranchInteractor, createStudentInteractor, getStudentDetailsInteractor, transferStudentInteractor, enrollStudentInteractor);
 
   // 1.7 Initialize Attendance
   const listAttendanceInteractor = new ListAttendanceByClassInteractor(attendanceRepository, studentRepository, classRepository);
@@ -218,10 +221,17 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
 
   // 1.8 Initialize Finance
   const transactionDataSource = new MockTransactionDataSource();
-  const createTransactionInteractor = new CreateTransactionInteractor(transactionDataSource);
+  const createTransactionInteractor = new CreateTransactionInteractor(transactionDataSource, studentRepository);
   const listTransactionsInteractor = new ListTransactionsInteractor(transactionDataSource);
-  const financeController = new FinanceController(createTransactionInteractor, listTransactionsInteractor);
-
+  // New Interactor
+  const collectTuitionInteractor = new CollectTuitionInteractor(transactionDataSource, studentRepository);
+  
+  const financeController = new FinanceController(
+    createTransactionInteractor, 
+    listTransactionsInteractor,
+    collectTuitionInteractor
+  );
+  
   // 2. Create Application Context
   const context: AppContextType = {
     config: {

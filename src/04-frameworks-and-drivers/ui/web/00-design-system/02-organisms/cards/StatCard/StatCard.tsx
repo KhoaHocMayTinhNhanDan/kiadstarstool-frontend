@@ -1,10 +1,10 @@
-// src/04-frameworks-and-drivers/ui/web/components/02-organisms/cards/StatsCard/StatsCard.organism.tsx
+// src/04-frameworks-and-drivers/ui/web/components/02-organisms/cards/StatCard/StatCard.organism.tsx
 /** @jsxImportSource @emotion/react */
 import React from 'react';
 import { Skeleton } from '../../../00-atoms/Skeleton';
 import { Box, Text, Icon } from '../../../00-atoms';
-import * as styles from './StatsCard.styles';
-import type { StatsCardProps } from './StatsCard.types';
+import * as styles from './StatCard.styles';
+import type { StatCardProps } from './StatCard.types';
 
 const TrendUpIcon = (
   <svg viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" /></svg>
@@ -14,7 +14,7 @@ const TrendDownIcon = (
   <svg viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M16 18l2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6z" /></svg>
 );
 
-export const StatsCard: React.FC<StatsCardProps> = ({
+export const StatCard: React.FC<StatCardProps> = ({
   title,
   value,
   icon,
@@ -31,7 +31,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
 
   if (isLoading) {
     // Skeleton Loading State
-    return <StatsCardSkeleton className={className} sx={sx} testId={testId} />;
+    return <StatCardSkeleton className={className} sx={sx} testId={testId} />;
   }
 
   return (
@@ -74,10 +74,10 @@ export const StatsCard: React.FC<StatsCardProps> = ({
 };
 
 /**
- * Skeleton component for StatsCard.
+ * Skeleton component for StatCard.
  * It's defined here to co-locate the loading state with the actual component.
  */
-export const StatsCardSkeleton: React.FC<Pick<StatsCardProps, 'className' | 'sx' | 'testId'>> = ({
+export const StatCardSkeleton: React.FC<Pick<StatCardProps, 'className' | 'sx' | 'testId'>> = ({
   className,
   sx,
   testId = 'stats-card'

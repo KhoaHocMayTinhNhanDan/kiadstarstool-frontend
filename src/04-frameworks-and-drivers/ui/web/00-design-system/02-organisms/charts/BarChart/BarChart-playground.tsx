@@ -1,4 +1,4 @@
-import { BarChart } from './BarChart.organism';
+import { BarChart } from './BarChart';
 import { Box, Text } from '../../../00-atoms';
 
 const MOCK_DATA = [

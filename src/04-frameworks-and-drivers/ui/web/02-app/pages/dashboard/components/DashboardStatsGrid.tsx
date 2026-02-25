@@ -11,8 +11,8 @@ import {
   ClipboardCheck
 } from 'lucide-react';
 import { Box } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { SPACING } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
-import { StatsCard, StatsCardSkeleton } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/cards/StatsCard';
+import { SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
+import { StatCard, StatCardSkeleton } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/cards/StatCard';
 import { useI18n } from '@/shared/i18n/useI18n';
 
 type StatData = {
@@ -95,7 +95,7 @@ export const DashboardStatsGrid = ({ pageData, isLoading }: DashboardStatsGridPr
       `}
     >
       {(isLoading || !pageData)
-        ? Array.from({ length: 6 }).map((_, index) => <StatsCardSkeleton key={index} />)
+        ? Array.from({ length: 6 }).map((_, index) => <StatCardSkeleton key={index} />)
         : stats.map((stat) => (
             <div 
               key={stat.title} 
@@ -103,7 +103,7 @@ export const DashboardStatsGrid = ({ pageData, isLoading }: DashboardStatsGridPr
               style={{ cursor: stat.onClick ? 'pointer' : 'default' }}
               role={stat.onClick ? "button" : undefined}
             >
-              <StatsCard {...stat} />
+              <StatCard {...stat} />
             </div>
           ))
       }

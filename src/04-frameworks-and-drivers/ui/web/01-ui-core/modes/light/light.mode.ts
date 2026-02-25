@@ -1,5 +1,5 @@
 import { type Mode } from '../base/base.mode';
-import { COLORS, SHADOWS } from '../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, SHADOWS } from '../../constants/tokens-constants';
 
 export const lightMode: Mode = {  // ✅ Sửa từ ColorMode thành Mode
   id: 'light',

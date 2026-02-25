@@ -7,7 +7,7 @@ import {
   RADIUS,
   SPACING,
   TRANSITIONS,
-} from '../../../03-ui-shared/constants/tokens-constants';
+} from '../../../01-ui-core/constants/tokens-constants';
 import type { ButtonSize, ButtonVariant, ButtonIntent } from './Button.types';
 
 /* ================= SIZE = FONT-SIZE ================= */

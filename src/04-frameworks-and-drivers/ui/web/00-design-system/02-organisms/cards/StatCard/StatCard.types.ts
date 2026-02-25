@@ -1,10 +1,10 @@
-// src/04-frameworks-and-drivers/ui/web/components/02-organisms/cards/StatsCard/StatsCard.types.ts
+// src/04-frameworks-and-drivers/ui/web/components/02-organisms/cards/StatCard/StatCard.types.ts
 import type { ReactNode } from 'react';
 import type { SerializedStyles } from '@emotion/react';
 
-export type StatsCardAccent = 'primary' | 'success' | 'warning' | 'danger' | 'info';
+export type StatCardAccent = 'primary' | 'success' | 'warning' | 'danger' | 'info';
 
-export interface StatsCardProps {
+export interface StatCardProps {
   title: string;
   value: string | number;
   icon?: ReactNode;
@@ -14,7 +14,7 @@ export interface StatsCardProps {
     direction?: 'up' | 'down';
   };
   description?: string;
-  accentColor?: StatsCardAccent;
+  accentColor?: StatCardAccent;
   isLoading?: boolean;
   className?: string;
   sx?: SerializedStyles;

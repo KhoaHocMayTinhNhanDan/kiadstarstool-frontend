@@ -7,7 +7,7 @@ import {
   Clock
 } from 'lucide-react';
 import { Box, Text, Icon, Button } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
+import { COLORS, SPACING, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { useI18n } from '@/shared/i18n/useI18n';
 
 interface DashboardOngoingClassesProps {

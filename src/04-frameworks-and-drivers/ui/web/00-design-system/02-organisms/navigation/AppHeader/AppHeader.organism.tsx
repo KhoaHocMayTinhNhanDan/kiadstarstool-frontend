@@ -7,10 +7,11 @@ import { Avatar } from '../../../00-atoms/Avatar';
 import { IconButton } from '../../../00-atoms/IconButton';
 import { Button } from '../../../00-atoms/Button';
 import { SearchInput } from '../../../01-molecules/SearchInput';
+import { LanguageSelector } from '../../../01-molecules/LanguageSelector';
 import * as styles from './AppHeader.styles';
 import type { AppHeaderProps, NavItem, ThemeColors } from './AppHeader.types';
 
-import { SPACING } from '../../../../03-ui-shared/constants/tokens-constants';
+import { SPACING } from '../../../../01-ui-core/constants/tokens-constants';
 
 // Icons
 const SearchIcon = () => (
@@ -103,6 +104,9 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
   showSearch = false,
   searchPlaceholder = 'Search...',
   onSearch,
+  currentLanguage,
+  onLanguageChange,
+  languageOptions,
   onThemeToggle,
   mode = 'light',
   themeColors,
@@ -188,6 +192,16 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
       </div>
       
       <div css={styles.rightSection}>
+        {/* Language Selector */}
+        {onLanguageChange && currentLanguage && (
+          <LanguageSelector
+            value={currentLanguage}
+            onChange={onLanguageChange}
+            options={languageOptions}
+            variant="icon-only"
+          />
+        )}
+
         {/* Theme Toggle Button */}
         {onThemeToggle && (
           <IconButton
@@ -209,17 +223,12 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
               onSearch={handleSearch}
               placeholder={searchPlaceholder}
               size="sm"
-              css={css`
-                width: 220px;
-                flex-shrink: 1;
-                min-width: 140px;
-                @media (max-width: 1024px) {
-                  width: 160px;
-                }
-                @media (max-width: 768px) {
-                  display: none;
-                }
-              `}
+              sx={{
+                flexShrink: 1,
+                minWidth: '100px', // Cho phép SearchInput co lại đến 100px
+                width: '100%', // Chiếm hết không gian còn lại
+                '@media (max-width: 768px)': { display: 'none' }
+              }}
             />
           </div>
         )}
@@ -250,7 +259,7 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
                 </div>
               )}
               <span css={styles.userName}>{userProfile.name}</span>
-              <span css={styles.dropdownIcon}>
+              <span css={styles.dropdownIcon(themeColors)}>
                 <ChevronDownIcon />
               </span>
             </button>
@@ -261,10 +270,10 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
                 <div css={styles.userInfo(mode, themeColors)}>
                   <div css={styles.userInfoName}>{userProfile.name}</div>
                   {userProfile.email && (
-                    <div css={styles.userInfoEmail}>{userProfile.email}</div>
+                    <div css={styles.userInfoEmail(themeColors)}>{userProfile.email}</div>
                   )}
                   {userProfile.role && (
-                    <div css={styles.userInfoRole}>{userProfile.role}</div>
+                    <div css={styles.userInfoRole(themeColors)}>{userProfile.role}</div>
                   )}
                 </div>
 

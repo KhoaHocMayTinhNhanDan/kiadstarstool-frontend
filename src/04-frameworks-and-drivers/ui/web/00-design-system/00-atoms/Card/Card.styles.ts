@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, RADIUS, SHADOWS, SPACING } from '../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, RADIUS, SHADOWS, SPACING } from '../../../01-ui-core/constants/tokens-constants';
 
 /** 🔥 GRID + FLEX SAFE WRAPPER */
 export const cardStyles = css`

@@ -6,7 +6,7 @@ import {
   TYPOGRAPHY,
   RADIUS,
   TRANSITIONS
-} from '../../../../03-ui-shared/constants/tokens-constants';
+} from '../../../../01-ui-core/constants/tokens-constants';
 
 export const container = css`
   border: 1px solid ${COLORS.NEUTRAL_BORDER};

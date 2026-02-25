@@ -14,14 +14,18 @@ import { RootLayout } from '../../layouts/RootLayout';
 import { AuthLayout } from '../../layouts/AuthLayout';
 import { MainLayout } from '../../layouts/MainLayout';
 import { ClassesPage } from '../../pages/classes/ClassesPage';
-import { ClassDetailPage } from '../../pages/classes/components/ClassDetailPage';
-import { CreateClassPage } from '../../pages/classes/components/CreateClassPage';
-import { EditClassPage } from '../../pages/classes/components/EditClassPage';
+import { ClassDetailPage } from '../../pages/classes/ClassDetailPage';
+import { CreateClassPage } from '../../pages/classes/CreateClassPage';
+import { EditClassPage } from '../../pages/classes/EditClassPage';
 import { StudentListPage } from '../../pages/students/StudentListPage';
 import { StudentDetailPage } from '../../pages/students/StudentDetailPage';
+import { CreateStudentPage } from '../../pages/students/CreateStudentPage';
 import { AttendancePage } from '../../pages/attendance/AttendancePage';
 import { ThemeSelector } from '../../pages/settings/ThemeSelector';
 import { FinancePage } from '../../pages/finance/FinancePage';
+import { CreateTransactionPage } from '../../pages/finance/CreateTransactionPage';
+import { CollectTuitionPage } from '../../pages/finance/CollectTuitionPage';
+
 /* ==========================================================================
  * Router Configuration
  * ========================================================================== */
@@ -109,6 +113,10 @@ const routes: RouteObject[] = [
                 element: <StudentListPage />,
               },
               {
+                path: 'students/new',
+                element: <CreateStudentPage />,
+              },
+              {
                 path: 'students/:studentId',
                 element: <StudentDetailPage />,
               },
@@ -121,8 +129,16 @@ const routes: RouteObject[] = [
                 element: <FinancePage />,
               },
               {
+                path: 'finance/new',
+                element: <CreateTransactionPage />,
+              },
+              {
                 path: 'settings/theme',
                 element: <ThemeSelector />,
+              },
+              {
+                path: 'finance/collect-tuition',
+                element: <CollectTuitionPage />,
               },
             ],
           },

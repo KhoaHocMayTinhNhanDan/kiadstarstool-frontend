@@ -1,9 +1,9 @@
-// src/03-interface-adapters/gateways/inbound/repositories/StudentRepository.ts
-import { type IStudentRepository } from '@/02-usecases/students/ports/gateways_interface/IStudentRepository';
-import { type IStudentDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/students/IStudentDataSource';
 import { Student } from '@/01-entities/students/Student.entity';
-import { Identifier } from '@/01-entities/shared/Identifier.vo';
 import { Enrollment } from '@/01-entities/students/value-objects/Enrollment.vo';
+import { type IStudentDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/students/IStudentDataSource';
+import { type StudentDTO, type StudentEnrollmentDTO } from '@/04-frameworks-and-drivers/devices/students/student.dto';
+import { type IStudentRepository } from '@/02-usecases/students/ports/gateways_interface/IStudentRepository';
+import { Identifier } from '@/01-entities/shared/Identifier.vo';
 
 export class StudentRepository implements IStudentRepository {
   private readonly dataSource: IStudentDataSource;
@@ -12,49 +12,59 @@ export class StudentRepository implements IStudentRepository {
     this.dataSource = dataSource;
   }
 
+  private hydrate(dto: StudentDTO): Student {
+    const enrollments = (dto.enrollments || [])
+      .map((e: StudentEnrollmentDTO) => {
+        const enrollmentResult = Enrollment.create({
+          branchId: e.branchId,
+          classId: e.classId,
+          status: e.status as any,
+          joinedDate: new Date(e.joinedDate),
+          endDate: e.endDate ? new Date(e.endDate) : undefined,
+          tuitionAmount: e.tuitionAmount,
+          paidAmount: e.paidAmount,
+          paymentStatus: e.paymentStatus as any,
+          prepaidSessions: e.prepaidSessions,
+          usedSessions: e.usedSessions,
+        });
+
+        if (enrollmentResult.isFailure) {
+          console.error(`Could not hydrate enrollment for student ${dto.id}:`, enrollmentResult.getErrorValue());
+          return null; // Bỏ qua enrollment bị lỗi
+        }
+        return enrollmentResult.getValue();
+      })
+      .filter((e): e is Enrollment => e !== null); // Lọc bỏ các giá trị null
+
+    const studentResult = Student.create({
+      id: Identifier.create(dto.id),
+      name: dto.name,
+      email: dto.email,
+      phone: dto.phone,
+      status: dto.status as any,
+      enrollments: enrollments,
+    });
+
+    if (studentResult.isFailure) {
+      // Trong ứng dụng thực tế, bạn có thể throw lỗi hoặc trả về một giá trị mặc định an toàn
+      throw new Error(`Could not hydrate student ${dto.id}: ${studentResult.getErrorValue()}`);
+    }
+
+    return studentResult.getValue();
+  }
+
   async getById(id: string): Promise<Student | null> {
-    const rawData = await this.dataSource.getById(id);
-    if (!rawData) return null;
-
-    const enrollments = (rawData.enrollments || []).map((e: any) => Enrollment.create({
-      branchId: e.branchId,
-      classId: e.classId,
-      status: e.status,
-      joinedDate: new Date(e.joinedDate),
-      endDate: e.endDate ? new Date(e.endDate) : undefined
-    }).getValue());
-
-    return Student.create({
-      name: rawData.name,
-      email: rawData.email,
-      phone: rawData.phone,
-      status: rawData.status as 'active' | 'banned' | 'archived',
-      enrollments: enrollments
-    }, Identifier.create(rawData.id)).getValue();
+    const dto = await this.dataSource.getById(id);
+    if (!dto) return null;
+    return this.hydrate(dto);
   }
 
   async getByBranchId(branchId: string): Promise<Student[]> {
-    const rawData = await this.dataSource.getByBranchId(branchId);
-    return rawData.map(item => {
-      const enrollments = (item.enrollments || []).map((e: any) => Enrollment.create({
-        branchId: e.branchId,
-        classId: e.classId,
-        status: e.status,
-        joinedDate: new Date(e.joinedDate),
-        endDate: e.endDate ? new Date(e.endDate) : undefined
-      }).getValue());
-
-      return Student.create({
-        name: item.name,
-        email: item.email,
-        phone: item.phone,
-        status: item.status as 'active' | 'banned' | 'archived',
-        enrollments: enrollments
-      }, Identifier.create(item.id)).getValue();
-    });
+    const dtos = await this.dataSource.getByBranchId(branchId);
+    return dtos.map(dto => this.hydrate(dto));
   }
 
   async save(student: Student): Promise<void> {
-    return this.dataSource.save(student);
+    await this.dataSource.save(student);
   }
 }

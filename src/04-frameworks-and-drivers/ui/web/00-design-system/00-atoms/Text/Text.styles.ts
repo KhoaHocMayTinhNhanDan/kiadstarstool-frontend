@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, FONT_SIZES, FONT_WEIGHTS, SPACING } from '../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, FONT_SIZES, FONT_WEIGHTS, SPACING } from '../../../01-ui-core/constants/tokens-constants';
 import type { TextProps, TextVariant } from './Text.types';
 
 const variantStyles: Record<TextVariant, ReturnType<typeof css>> = {

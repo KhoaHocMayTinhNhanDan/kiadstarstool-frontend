@@ -43,7 +43,7 @@ import { ForgotPasswordFormPlayground } from '../../../00-design-system/02-organ
 
 // Card
 import { DashboardCardPlayground } from '../../../00-design-system/02-organisms/cards/DashboardCard/DashboardCard.playground'
-import { StatsCardPlayground } from '../../../00-design-system/02-organisms/cards/StatsCard/StatsCard.playground'
+import { StatCardPlayground } from '../../../00-design-system/02-organisms/cards/StatCard/StatCard.playground'
 import { UserProfileCardPlayground } from '../../../00-design-system/02-organisms/cards/UserProfileCard/UserProfileCard.playground'
 
 // Modal
@@ -51,7 +51,7 @@ import { ConfirmDialogPlayground } from '../../../00-design-system/02-organisms/
 
 import { DataTablePlayground } from '../../../00-design-system/02-organisms/data/DataTable/DataTable.organism-playground'
 import { RadarChartPlayground } from  '../../../00-design-system/02-organisms/charts/RadarChart/RadarChart.organism-playground';
-import { BarChartPlayground } from '../../../00-design-system/02-organisms/charts/BarChart/BarChart.organism-playground';
+import { BarChartPlayground } from '../../../00-design-system/02-organisms/charts/BarChart/BarChart-playground';
 import { GaugeChartPlayground } from '../../../00-design-system/02-organisms/charts/GaugeChart/GaugeChart.organism-playground';
 import { HeatmapChartPlayground } from '../../../00-design-system/02-organisms/charts/HeatmapChart/HeatmapChart-playground';
 import { StackedBarChartPlayground } from '../../../00-design-system/02-organisms/charts/StackedBarChart/StackedBarChart-playground'
@@ -178,7 +178,7 @@ const categories: Category[] = [
 
       { id: 'org-header-card', label: 'Card Display', isHeader: true },
       { id: 'dashboard-card', label: 'DashboardCard', component: <DashboardCardPlayground /> },
-      { id: 'stats-card', label: 'StatsCard', component: <StatsCardPlayground /> },
+      { id: 'stats-card', label: 'StatCard', component: <StatCardPlayground /> },
       { id: 'user-profile-card', label: 'UserProfileCard', component: <UserProfileCardPlayground /> },
 
       { id: 'org-header-feedback', label: 'Feedback', isHeader: true },

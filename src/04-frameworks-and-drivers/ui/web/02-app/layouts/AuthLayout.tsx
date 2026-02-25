@@ -5,7 +5,7 @@ import { css } from '@emotion/react';
 import { useTheme } from '../../01-ui-core/hooks/useTheme';
 import { useMode } from '../../01-ui-core/hooks/useMode';
 import { Box, Card } from '../../00-design-system/00-atoms';
-import { SHADOWS } from '../../03-ui-shared/constants/tokens-constants';
+import { SHADOWS } from '../../01-ui-core/constants/tokens-constants';
 
 /**
  * AuthLayout (Layout Layer)

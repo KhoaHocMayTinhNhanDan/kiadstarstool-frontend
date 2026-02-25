@@ -4,7 +4,7 @@ import { css } from '@emotion/react';
 import { LoginForm } from './LoginForm.organism';
 import type { LoginFormData } from './LoginForm.types';
 import { Box, Text } from '../../../00-atoms';
-import { COLORS, RADIUS, SHADOWS, SPACING } from '../../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, RADIUS, SHADOWS, SPACING } from '../../../../01-ui-core/constants/tokens-constants';
 
 export const LoginFormPlayground = () => {
   // State cho Interactive Demo

@@ -32,7 +32,8 @@ export class ListClassesByBranchInteractor {
         currentStudents: cls.currentStudents,
         schedule: cls.schedule,
         status: cls.status,
-        sessions: cls.sessions
+        sessions: cls.sessions,
+        tuition: cls.tuition
       }));
 
       return Result.ok(classDTOs);

@@ -1,4 +1,4 @@
-import { Entity } from '../shared/base/base.entity';
+import { AggregateRoot } from '../shared/base/AggregateRoot';
 import { Identifier } from '../shared/Identifier.vo';
 import { Result } from '../shared/base/result';
 import { Enrollment, type EnrollmentProps } from './value-objects/Enrollment.vo';
@@ -8,111 +8,105 @@ export interface StudentProps {
   name: string;
   email: string;
   phone?: string;
-  // Global status (ví dụ: tài khoản bị khóa, nợ học phí toàn hệ thống)
-  status: 'active' | 'banned' | 'archived'; 
-  enrollments: Enrollment[];
+  status: 'active' | 'inactive' | 'archived';
+  enrollments?: Enrollment[];
 }
 
-export class Student extends Entity<Identifier> {
-  readonly name: string;
-  readonly email: string;
-  readonly phone?: string;
-  readonly status: 'active' | 'banned' | 'archived';
-  
-  // Danh sách các lần ghi danh (Lịch sử học tập)
+export class Student extends AggregateRoot<Identifier> {
+  private _name: string;
+  private _email: string;
+  private _phone?: string;
+  private _status: 'active' | 'inactive' | 'archived';
   private _enrollments: Enrollment[];
+
+  get name(): string { return this._name; }
+  get email(): string { return this._email; }
+  get phone(): string | undefined { return this._phone; }
+  get status(): 'active' | 'inactive' | 'archived' { return this._status; }
+  get enrollments(): Enrollment[] { return this._enrollments; }
 
   private constructor(props: StudentProps) {
     super(props);
-    this.name = props.name;
-    this.email = props.email;
-    this.phone = props.phone;
-    this.status = props.status;
-    this._enrollments = props.enrollments;
+    this._name = props.name;
+    this._email = props.email;
+    this._phone = props.phone;
+    this._status = props.status;
+    this._enrollments = props.enrollments || [];
   }
 
-  get enrollments(): Enrollment[] {
-    return this._enrollments;
-  }
-
-  // Domain Method: Đăng ký vào một lớp/chi nhánh mới
-  public enroll(props: EnrollmentProps): Result<void> {
-    const enrollmentOrError = Enrollment.create(props);
-    if (enrollmentOrError.isFailure) {
-      return Result.fail(enrollmentOrError.getErrorValue());
+  public static create(props: StudentProps): Result<Student> {
+    if (!props.name) {
+      return Result.fail<Student>('Student name is required');
+    }
+    if (!props.email) {
+      return Result.fail<Student>('Student email is required');
     }
     
-    // Logic nghiệp vụ: Kiểm tra xem đã học lớp này chưa (nếu cần)
-    const isAlreadyEnrolled = this._enrollments.some(
-      e => e.classId === props.classId && e.status === 'active'
-    );
+    return Result.ok<Student>(new Student({
+      ...props,
+      enrollments: props.enrollments || []
+    }));
+  }
 
-    if (isAlreadyEnrolled && props.classId) {
-      return Result.fail('Student is already active in this class');
+  // --- Domain Logic ---
+
+  /**
+   * Ghi danh học viên vào một lớp học.
+   * Đây là hành vi nghiệp vụ, nên nằm trong Student Entity.
+   */
+  public enroll(enrollmentProps: EnrollmentProps): Result<void> {
+    // Business Rule: Không cho ghi danh vào lớp đang học (active)
+    const isAlreadyEnrolled = this._enrollments.some(
+      e => e.classId === enrollmentProps.classId && e.status === 'active'
+    );
+    if (isAlreadyEnrolled) {
+      return Result.fail('Student is already actively enrolled in this class.');
+    }
+
+    const enrollmentOrError = Enrollment.create(enrollmentProps);
+    if (enrollmentOrError.isFailure) {
+      return Result.fail(enrollmentOrError.getErrorValue());
     }
 
     this._enrollments.push(enrollmentOrError.getValue());
     return Result.ok();
   }
 
-  // Domain Method: Chuyển lớp (Đóng lớp cũ, mở lớp mới)
+  /**
+   * Chuyển lớp cho học viên.
+   */
   public transfer(fromClassId: string, toBranchId: string, toClassId: string, transferDate: Date): Result<void> {
-    // 1. Tìm enrollment hiện tại đang active
-    const index = this._enrollments.findIndex(e => e.classId === fromClassId && e.status === 'active');
-    
-    if (index === -1) {
-      return Result.fail('Student is not currently active in the source class');
+    const currentEnrollmentIndex = this._enrollments.findIndex(
+      e => e.classId === fromClassId && e.status === 'active'
+    );
+
+    if (currentEnrollmentIndex === -1) {
+      return Result.fail('Cannot find active enrollment for the "from" class.');
     }
 
-    const current = this._enrollments[index];
-
-    // 2. Đóng enrollment cũ (Status: transferred)
-    const closedOrError = Enrollment.create({
-      branchId: current.branchId,
-      classId: current.classId,
+    // 1. Cập nhật enrollment cũ
+    const oldEnrollment = this._enrollments[currentEnrollmentIndex];
+    const updatedOldEnrollment = Enrollment.create({
+      ...oldEnrollment.props,
       status: 'transferred',
-      joinedDate: current.joinedDate,
       endDate: transferDate
-    });
+    }).getValue(); // Giả định thành công
 
-    if (closedOrError.isFailure) return Result.fail(closedOrError.getErrorValue());
-    this._enrollments[index] = closedOrError.getValue();
+    this._enrollments[currentEnrollmentIndex] = updatedOldEnrollment;
 
-    // 3. Tạo enrollment mới tại lớp đích
-    return this.enroll({
+    // 2. Tạo enrollment mới
+    const newEnrollmentResult = Enrollment.create({
       branchId: toBranchId,
       classId: toClassId,
       status: 'active',
       joinedDate: transferDate
     });
-  }
 
-  // Helper: Lấy danh sách các chi nhánh đang theo học
-  public getActiveBranchIds(): string[] {
-    return [...new Set(this._enrollments
-      .filter(e => e.status === 'active')
-      .map(e => e.branchId))];
-  }
+    if (newEnrollmentResult.isFailure) {
+      return Result.fail(newEnrollmentResult.getErrorValue());
+    }
 
-  // Domain Method: Cập nhật thông tin enrollment (ví dụ: sau khi điểm danh)
-  public updateEnrollment(index: number, enrollment: Enrollment): Result<void> {
-    if (index < 0 || index >= this._enrollments.length) return Result.fail('Enrollment index out of bounds');
-    this._enrollments[index] = enrollment;
+    this._enrollments.push(newEnrollmentResult.getValue());
     return Result.ok();
-  }
-
-  public static create(props: StudentProps, id?: Identifier): Result<Student> {
-    if (!props.name) {
-      return Result.fail<Student>('Name is required');
-    }
-    if (!props.email) {
-      return Result.fail<Student>('Email is required');
-    }
-
-    return Result.ok<Student>(new Student({ 
-      ...props, 
-      id: id ?? props.id,
-      enrollments: props.enrollments || [] 
-    }));
   }
 }

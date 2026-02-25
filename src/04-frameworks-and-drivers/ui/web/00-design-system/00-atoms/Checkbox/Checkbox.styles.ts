@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, RADIUS, TRANSITIONS, SPACING, FONT_SIZES } from '../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, RADIUS, TRANSITIONS, SPACING, FONT_SIZES } from '../../../01-ui-core/constants/tokens-constants';
 import type { CheckboxSize, CheckboxProps } from './Checkbox.types';
 
 const sizeMap = {

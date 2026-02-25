@@ -1,10 +1,7 @@
-import type { CSSObject } from '@emotion/react';
-import type { HTMLAttributes, ReactNode } from 'react';
+import type { BoxProps } from '../Box';
 
-export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  children: ReactNode;
-  /**
-   * Custom styles using Emotion CSSObject
-   */
-  sx?: CSSObject;
-}
+// CardProps kế thừa tất cả props từ BoxProps, cho phép nó nhận onClick, sx, v.v.
+export type CardProps = BoxProps<'div'> & {
+  /** Màu của hiệu ứng gợn sóng khi click. Mặc định: rgba(0, 0, 0, 0.1) */
+  rippleColor?: string;
+};

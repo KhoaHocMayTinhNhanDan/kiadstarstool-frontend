@@ -1,10 +1,7 @@
 import { Transaction, type TransactionProps } from '@/01-entities/finance/Transaction.entity';
 import { type ITransactionRepository } from '@/02-usecases/finance/ports/gateways_interface/ITransactionRepository';
 import { Identifier } from '@/01-entities/shared/Identifier.vo';
-
-// Mock in-memory storage
-let transactionStore = new Map<string, Transaction>();
-const STORAGE_KEY = 'mock_transactions_db_v1';
+import { mockDatabase } from '@/04-frameworks-and-drivers/database/LocalStorage';
 
 export class MockTransactionDataSource implements ITransactionRepository {
   constructor() {
@@ -12,29 +9,14 @@ export class MockTransactionDataSource implements ITransactionRepository {
   }
 
   private initialize() {
-    const storedData = localStorage.getItem(STORAGE_KEY);
-    if (storedData) {
-      try {
-        const parsedData = JSON.parse(storedData);
-        // Re-hydrate entities
-        parsedData.forEach((item: any) => {
-          const transaction = this.hydrate(item);
-          if (transaction) {
-            transactionStore.set(transaction.id.toString(), transaction);
-          }
-        });
-      } catch (e) {
-        console.error('[MockTransactionDataSource] Failed to parse localStorage data', e);
-      }
-    }
-
-    if (transactionStore.size === 0) {
+    const transactionStore = mockDatabase.getCollection<any>('transactions');
+    if (transactionStore.length === 0) {
       this.seed();
     }
   }
 
   private seed() {
-    const dummyData = [
+    const seedData = [
       {
         id: 'trx-01',
         branchId: 'branch-01',
@@ -78,20 +60,31 @@ export class MockTransactionDataSource implements ITransactionRepository {
         studentId: 'student-05',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
+      },
+      {
+        id: 'trx-04',
+        branchId: 'branch-01',
+        code: 'TRX-2024-003',
+        type: 'income',
+        amount: 3000000,
+        method: 'bank_transfer',
+        status: 'completed',
+        transactionDate: new Date(Date.now() - 172800000).toISOString(), // 2 ngày trước
+        description: 'Thu học phí Phạm Thị Dung - Lớp Tiếng Anh Thiếu Nhi',
+        performedBy: 'admin',
+        studentId: 'student-04',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }
     ];
 
-    dummyData.forEach(data => {
-      const t = this.hydrate(data);
-      if (t) transactionStore.set(t.id.toString(), t);
-    });
-    this.persist();
+    mockDatabase.setCollection('transactions', seedData);
   }
 
   private hydrate(data: any): Transaction | null {
     // Reconstruct entity from JSON data
     const props: TransactionProps = {
-      id: new Identifier(data.id),
+      id: Identifier.create(data.id),
       branchId: data.branchId,
       code: data.code,
       type: data.type,
@@ -105,56 +98,72 @@ export class MockTransactionDataSource implements ITransactionRepository {
       studentId: data.studentId,
       createdAt: new Date(data.createdAt),
       updatedAt: new Date(data.updatedAt),
-      createdBy: data.createdBy ? new Identifier(data.createdBy) : undefined,
-      updatedBy: data.updatedBy ? new Identifier(data.updatedBy) : undefined,
+      createdBy: data.createdBy ? Identifier.create(data.createdBy) : undefined,
+      updatedBy: data.updatedBy ? Identifier.create(data.updatedBy) : undefined,
     };
 
     const result = Transaction.create(props);
     return result.isSuccess ? result.getValue() : null;
   }
 
-  private persist() {
-    try {
-      // Save as array of objects (DTOs)
-      const dataToSave = Array.from(transactionStore.values()).map(t => ({
-        id: t.id.toString(),
-        branchId: t.branchId,
-        code: t.code,
-        type: t.type,
-        amount: t.amount,
-        method: t.method,
-        status: t.status,
-        transactionDate: t.transactionDate,
-        description: t.description,
-        performedBy: t.performedBy,
-        invoiceId: t.invoiceId,
-        studentId: t.studentId,
-        createdAt: t.createdAt,
-        updatedAt: t.updatedAt
-      }));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-    } catch (e) {
-      console.error('[MockTransactionDataSource] Failed to save to localStorage', e);
-    }
-  }
-
   async save(transaction: Transaction): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 300)); // Simulate delay
-    transactionStore.set(transaction.id.toString(), transaction);
-    this.persist();
+    const transactionStore = mockDatabase.getCollection<any>('transactions');
+    const index = transactionStore.findIndex(t => t.id === transaction.id.toString());
+
+    const dataToSave = {
+      id: transaction.id.toString(),
+      branchId: transaction.branchId,
+      code: transaction.code,
+      type: transaction.type,
+      amount: transaction.amount,
+      method: transaction.method,
+      status: transaction.status,
+      transactionDate: transaction.transactionDate,
+      description: transaction.description,
+      performedBy: transaction.performedBy,
+      invoiceId: transaction.invoiceId,
+      studentId: transaction.studentId,
+      createdAt: transaction.createdAt,
+      updatedAt: transaction.updatedAt
+    };
+
+    if (index > -1) {
+      transactionStore[index] = dataToSave;
+    } else {
+      transactionStore.push(dataToSave);
+    }
+    mockDatabase.persist();
   }
 
   async getAll(): Promise<Transaction[]> {
     await new Promise(resolve => setTimeout(resolve, 300));
-    return Array.from(transactionStore.values()).sort((a, b) => 
-      b.transactionDate.getTime() - a.transactionDate.getTime()
-    );
+    const transactionStore = mockDatabase.getCollection<any>('transactions');
+    return transactionStore
+      .map(data => this.hydrate(data)!)
+      .filter(Boolean)
+      .sort((a, b) => {
+        const tA = a.transactionDate.getTime();
+        const tB = b.transactionDate.getTime();
+        if (isNaN(tA)) return 1; // Đẩy ngày lỗi xuống cuối
+        if (isNaN(tB)) return -1;
+        return tB - tA;
+      });
   }
 
   async getByBranchId(branchId: string): Promise<Transaction[]> {
     await new Promise(resolve => setTimeout(resolve, 300));
-    return Array.from(transactionStore.values())
+    const transactionStore = mockDatabase.getCollection<any>('transactions');
+    return transactionStore
       .filter(t => t.branchId === branchId)
-      .sort((a, b) => b.transactionDate.getTime() - a.transactionDate.getTime());
+      .map(data => this.hydrate(data)!)
+      .filter(Boolean)
+      .sort((a, b) => {
+        const tA = a.transactionDate.getTime();
+        const tB = b.transactionDate.getTime();
+        if (isNaN(tA)) return 1;
+        if (isNaN(tB)) return -1;
+        return tB - tA;
+      });
   }
 }

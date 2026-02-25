@@ -10,7 +10,7 @@ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { css } from '@emotion/react';
 import { DropdownBase } from '../DropdownBase/DropdownBase.molecule';
 import { useDropdownBaseContext } from '../DropdownBase/DropdownBase.molecule';
-import { useDropdown } from '../hooks/useDropdown';
+import { useDropdown } from '../../../../01-ui-core/hooks/useDropdown';
 import {
   dropdownItem,
   dropdownItemDanger,
@@ -18,7 +18,7 @@ import {
   dropdownGroupLabel,
   dropdownSeparator,
 } from './DropdownMultiSelect.molecule.styles';
-import { SPACING, COLORS, RADIUS } from '../../../../03-ui-shared/constants/tokens-constants';
+import { SPACING, COLORS, RADIUS } from '../../../../01-ui-core/constants/tokens-constants';
 import type {
   DropdownMultiSelectProps,
   DropdownItem,

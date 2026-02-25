@@ -11,7 +11,7 @@ import {
   Building
 } from 'lucide-react';
 import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING, RADIUS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
+import { COLORS, SPACING, RADIUS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { AppContext } from '@/00-core/app-context';
 import { type ListClassesByBranchOutputItem } from '@/02-usecases/class/ports/output/ListClassesByBranch.output';
 import { type BranchListItem } from '@/02-usecases/branch/ports/output/ListBranches.output';

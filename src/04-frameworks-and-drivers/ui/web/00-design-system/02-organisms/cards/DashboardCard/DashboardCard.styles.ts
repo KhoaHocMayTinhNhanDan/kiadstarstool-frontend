@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { COLORS, RADIUS, SPACING } from '../../../../03-ui-shared/constants/tokens-constants';
+import { COLORS, RADIUS, SPACING } from '../../../../01-ui-core/constants/tokens-constants';
 import type { DashboardCardProps } from './DashboardCard.types';
 
 export const cardContent = css`

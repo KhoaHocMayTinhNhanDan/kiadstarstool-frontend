@@ -1,2 +1,2 @@
-export { PieChart } from './PieChart.organism';
-export type { PieChartProps, PieChartData } from './PieChart.types';
+export * from './PieChart.organism';
+export * from './PieChart.types';

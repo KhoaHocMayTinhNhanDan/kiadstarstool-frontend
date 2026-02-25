@@ -1,14 +1,12 @@
-import { type PaymentStatus } from '@/01-entities/students/value-objects/Enrollment.vo';
-
-// --- DTO Definitions (Schema for Database/LocalStorage) ---
-export interface EnrollmentDTO {
+export interface StudentEnrollmentDTO {
   branchId: string;
   classId?: string;
-  status: 'active' | 'inactive' | 'completed' | 'dropped' | 'transferred';
-  joinedDate: string; // ISO String
-  endDate?: string;   // ISO String
+  status: string;
+  joinedDate: string;
+  endDate?: string;
   tuitionAmount?: number;
-  paymentStatus?: PaymentStatus;
+  paidAmount?: number;
+  paymentStatus?: string;
   prepaidSessions?: number;
   usedSessions?: number;
 }
@@ -18,6 +16,6 @@ export interface StudentDTO {
   name: string;
   email: string;
   phone?: string;
-  status: 'active' | 'banned' | 'archived';
-  enrollments: EnrollmentDTO[];
+  status: string;
+  enrollments: StudentEnrollmentDTO[];
 }

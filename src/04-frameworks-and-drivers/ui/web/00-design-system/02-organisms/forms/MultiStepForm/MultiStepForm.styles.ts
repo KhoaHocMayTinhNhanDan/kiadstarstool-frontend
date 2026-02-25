@@ -6,7 +6,7 @@ import {
   COLORS,
   FONT_WEIGHTS,
   
-} from '../../../../03-ui-shared/constants/tokens-constants';
+} from '../../../../01-ui-core/constants/tokens-constants';
 
 /* ================= CONTAINER ================= */
 

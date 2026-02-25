@@ -16,7 +16,7 @@ import {
   dropdownGroupLabel,
   dropdownSeparator,
 } from './DropdownMenu.molecule.styles';
-import { SPACING, COLORS } from '../../../../03-ui-shared/constants/tokens-constants';
+import { SPACING, COLORS } from '../../../../01-ui-core/constants/tokens-constants';
 import type {
   DropdownMenuProps,
   DropdownMenuItem,

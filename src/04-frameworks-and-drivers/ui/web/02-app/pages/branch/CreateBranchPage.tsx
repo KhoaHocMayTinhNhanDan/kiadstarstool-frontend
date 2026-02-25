@@ -7,7 +7,7 @@ import { Box, Text, Button, Input, Card, Icon } from '../../../00-design-system/
 import { useBranch } from '../../hooks/branch/useBranch';
 import { useBranchForm, type BranchFormData } from '../../hooks/branch/useBranchForm';
 import { useI18n } from '@/shared/i18n/useI18n';
-import { SPACING, COLORS } from '../../../03-ui-shared/constants/tokens-constants';
+import { SPACING, COLORS } from '../../../01-ui-core/constants/tokens-constants';
 import { type DayOfWeek } from '@/01-entities/branch/value-objects/BranchOperatingHours.vo';
 
 const DAYS: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];

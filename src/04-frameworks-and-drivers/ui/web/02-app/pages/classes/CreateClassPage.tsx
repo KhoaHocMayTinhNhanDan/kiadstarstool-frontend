@@ -3,13 +3,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, X } from 'lucide-react';
 import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING, RADIUS } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/constants/tokens-constants';
+import { COLORS, SPACING, RADIUS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { AppContext } from '@/00-core/app-context';
 import { useI18n } from '@/shared/i18n/useI18n';
-import { useToast } from '../../../../01-ui-core/hooks/useToast';
+import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 import { type DayOfWeek, DAY_MAP } from '@/01-entities/classes/ClassSession';
-import { isValidTimeRange } from '@/04-frameworks-and-drivers/ui/web/03-ui-shared/utils/validators/time.validator';
+import { isValidTimeRange } from '../../../01-ui-core/utils/validators/time.validator';
+
 
 type TimeSlot = { startTime: string; endTime: string; active: boolean };
 type ScheduleRow = { id: string; day: DayOfWeek; slots: [TimeSlot, TimeSlot, TimeSlot] };

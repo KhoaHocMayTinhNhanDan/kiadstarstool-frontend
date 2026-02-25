@@ -6,7 +6,7 @@ import {
   TYPOGRAPHY,
   TRANSITIONS,
   RADIUS
-} from '../../../../03-ui-shared/constants/tokens-constants';
+} from '../../../../01-ui-core/constants/tokens-constants';
 import type { TabsVariant, TabsOrientation, TabsSize } from './Tabs.types';
 
 export const root = (orientation: TabsOrientation) => css`

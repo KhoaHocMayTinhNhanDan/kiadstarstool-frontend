@@ -1,38 +1,26 @@
-import { Class } from '@/01-entities/classes/Class.entity';
+import { Class, type ClassProps } from '@/01-entities/classes/Class.entity';
 import { ClassId } from '@/01-entities/classes/value-objects/ClassId.vo';
 import { BranchId } from '@/01-entities/branch/value-objects/BranchId.vo';
 import { ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 import { type IClassDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/class/IClassDataSource';
 import { type ClassSession } from '@/01-entities/classes/ClassSession';
-
-let classStore = new Map<string, Class>();
-const STORAGE_KEY = 'mock_classes_db_v22'; // Multi-shift class demo
+import { mockDatabase } from '@/04-frameworks-and-drivers/database/LocalStorage';
 
 export class MockClassDataSource implements IClassDataSource {
   constructor() {
     this.initialize();
   }
 
+  // This now seeds the central mock database if it's empty
   private initialize() {
-    // 1. Try to load from localStorage
-    const storedData = localStorage.getItem(STORAGE_KEY);
-    
-    if (storedData) {
-      try {
-        const parsedData = JSON.parse(storedData);
-        classStore = new Map(parsedData.map((item: any) => [item.id, this.hydrateClass(item)]));
-        console.log('[MockClassDataSource] Loaded data from localStorage', classStore.size);
-      } catch (e) {
-        console.error('[MockClassDataSource] Failed to parse localStorage data', e);
-        classStore.clear();
-      }
-    }
+    let classStore = mockDatabase.getCollection<any>('classes');
 
-    // 2. If empty, seed data
-    if (classStore.size === 0) {
+    if (classStore.length === 0) {
       console.log('[MockClassDataSource] Seeding initial class data...');
       
-      const classes = [
+      // In a real DB, currentStudents would be a denormalized field updated by transactions/triggers.
+      // Here, we seed it with a realistic static number. The anti-pattern of calculating it on-the-fly is removed.
+      const seedData = [
         // --- Classes for Branch 01 (Hà Nội) ---
         {
           id: 'class-01',
@@ -41,7 +29,7 @@ export class MockClassDataSource implements IClassDataSource {
           code: 'ENG-K1-001',
           status: ClassStatus.ACTIVE,
           maxStudents: 20,
-          currentStudents: 0, // Để Use Case tự tính toán dựa trên dữ liệu điểm danh/đăng ký
+          currentStudents: 5, // Static denormalized count
           startDate: new Date('2025-11-15'), // Bắt đầu trong quá khứ, vẫn đang active
           sessions: [
             { day: 'Mon', startTime: '18:00', endTime: '19:30' },
@@ -49,7 +37,7 @@ export class MockClassDataSource implements IClassDataSource {
             { day: 'Fri', startTime: '18:00', endTime: '19:30' }
           ] as ClassSession[],
           teacherName: 'Nguyễn Văn A',
-          tuition: { courseFee: 5000000, sessionFee: 250000, currency: 'VND' }
+          tuition: { courseFee: 5000000, monthlyFee: 1500000, sessionFee: 250000, currency: 'VND' }
         },
         {
           id: 'class-02',
@@ -58,7 +46,7 @@ export class MockClassDataSource implements IClassDataSource {
           code: 'IELTS-001',
           status: ClassStatus.ACTIVE,
           maxStudents: 15,
-          currentStudents: 0,
+          currentStudents: 4, // Static denormalized count
           startDate: new Date('2026-01-15'), // Bắt đầu trong quá khứ, vẫn đang active
           sessions: [
             { day: 'Tue', startTime: '19:30', endTime: '21:00' },
@@ -66,7 +54,7 @@ export class MockClassDataSource implements IClassDataSource {
             { day: 'Sat', startTime: '19:30', endTime: '21:00' }
           ] as ClassSession[],
           teacherName: 'Trần Thị B',
-          tuition: { sessionFee: 350000, currency: 'VND' }
+          tuition: { sessionFee: 350000, monthlyFee: 3000000, currency: 'VND' }
         },
         {
           id: 'class-05', // Lớp thứ 3 tại HN
@@ -75,7 +63,7 @@ export class MockClassDataSource implements IClassDataSource {
           code: 'KID-ST-01',
           status: ClassStatus.ACTIVE,
           maxStudents: 20,
-          currentStudents: 0,
+          currentStudents: 3, // Static denormalized count
           startDate: new Date('2025-12-15'), // Bắt đầu trong quá khứ, vẫn đang active
           sessions: [
             { day: 'Sat', startTime: '08:00', endTime: '10:00' },
@@ -83,7 +71,7 @@ export class MockClassDataSource implements IClassDataSource {
             { day: 'Sun', startTime: '08:00', endTime: '10:00' }
           ] as ClassSession[],
           teacherName: 'Lê Văn C',
-          tuition: { sessionFee: 200000, currency: 'VND' }
+          tuition: { sessionFee: 200000, monthlyFee: 1600000, currency: 'VND' }
         },
         
         // --- Classes for Branch 02 (HCM) ---
@@ -94,7 +82,7 @@ export class MockClassDataSource implements IClassDataSource {
           code: 'TOEIC-B-01',
           status: ClassStatus.ACTIVE,
           maxStudents: 30,
-          currentStudents: 0,
+          currentStudents: 6, // Static denormalized count
           startDate: new Date('2025-11-20'), // Bắt đầu trong quá khứ, vẫn đang active
           sessions: [
             { day: 'Mon', startTime: '09:00', endTime: '10:30' },
@@ -102,7 +90,7 @@ export class MockClassDataSource implements IClassDataSource {
             { day: 'Fri', startTime: '09:00', endTime: '10:30' }
           ] as ClassSession[],
           teacherName: 'Phạm Văn D',
-          tuition: { courseFee: 4500000, currency: 'VND' }
+          tuition: { courseFee: 4500000, monthlyFee: 1200000, currency: 'VND' }
         },
         {
           id: 'class-04',
@@ -110,8 +98,8 @@ export class MockClassDataSource implements IClassDataSource {
           name: 'Kỹ Năng Giao Tiếp Nâng Cao',
           code: 'COM-002',
           status: ClassStatus.COMPLETED,
-          maxStudents: 20,
-          currentStudents: 18, // Lớp đã kết thúc vẫn có sĩ số
+          maxStudents: 20, // Lớp đã kết thúc vẫn có sĩ số
+          currentStudents: 18,
           startDate: new Date('2025-01-10'), // Đã bắt đầu trong quá khứ
           endDate: new Date('2025-04-10'),   // Đã kết thúc trong quá khứ
           sessions: [
@@ -130,7 +118,7 @@ export class MockClassDataSource implements IClassDataSource {
           code: 'FUTURE-01',
           status: ClassStatus.PLANNED,
           maxStudents: 25,
-          currentStudents: 0,
+          currentStudents: 0, // Lớp chưa mở
           startDate: new Date('2026-04-01'), // Ngày bắt đầu trong tương lai
           sessions: [
             { day: 'Mon', startTime: '18:00', endTime: '19:30' }
@@ -145,7 +133,7 @@ export class MockClassDataSource implements IClassDataSource {
           code: 'GRAMMAR-ADV',
           status: ClassStatus.ACTIVE,
           maxStudents: 20,
-          currentStudents: 0,
+          currentStudents: 0, // Lớp mới, chưa có học viên
           startDate: new Date('2026-02-01'),
           sessions: [
             { day: 'Tue', startTime: '18:00', endTime: '19:30' },
@@ -161,7 +149,7 @@ export class MockClassDataSource implements IClassDataSource {
           code: 'IELTS-SPK',
           status: ClassStatus.ACTIVE,
           maxStudents: 10,
-          currentStudents: 0,
+          currentStudents: 0, // Lớp mới, chưa có học viên
           startDate: new Date('2026-02-10'),
           sessions: [
             { day: 'Wed', startTime: '19:00', endTime: '20:30' }
@@ -176,7 +164,7 @@ export class MockClassDataSource implements IClassDataSource {
           code: 'BIZ-ENG-01',
           status: ClassStatus.ACTIVE,
           maxStudents: 18,
-          currentStudents: 0,
+          currentStudents: 0, // Lớp mới, chưa có học viên
           startDate: new Date('2025-12-01'),
           sessions: [
             { day: 'Fri', startTime: '14:00', endTime: '15:30' }
@@ -191,7 +179,7 @@ export class MockClassDataSource implements IClassDataSource {
           code: 'TOEIC-A-01',
           status: ClassStatus.ACTIVE,
           maxStudents: 25,
-          currentStudents: 0,
+          currentStudents: 0, // Lớp mới, chưa có học viên
           startDate: new Date('2026-01-20'),
           sessions: [
             { day: 'Tue', startTime: '09:00', endTime: '10:30' },
@@ -202,52 +190,11 @@ export class MockClassDataSource implements IClassDataSource {
         }
       ];
 
-      classes.forEach(data => {
-        const classEntity = Class.create({
-          id: ClassId.create(data.id),
-          branchId: BranchId.create(data.branchId),
-          name: data.name,
-          code: data.code,
-          status: data.status,
-          maxStudents: data.maxStudents,
-          currentStudents: data.currentStudents,
-          startDate: data.startDate,
-          endDate: data.endDate,
-          sessions: data.sessions, // Pass directly to create
-          teacherName: data.teacherName,
-          tuition: data.tuition as any // Cast tạm thời để pass type check
-        }).getValue();
-
-        classStore.set(classEntity.id.toString(), classEntity);
-      });
-      
-      this.persist();
+      mockDatabase.setCollection('classes', seedData);
     }
   }
 
-  private persist() {
-    try {
-      const dataToSave = Array.from(classStore.values()).map(c => ({
-        id: c.id.toString(),
-        branchId: c.branchId.toString(),
-        name: c.name,
-        code: c.code,
-        status: c.status,
-        maxStudents: c.maxStudents,
-        currentStudents: c.currentStudents,
-        startDate: c.startDate,
-        endDate: c.endDate,
-        sessions: c.sessions, // Getter is public, no need for 'as any'
-        teacherName: c.teacherName,
-        tuition: c.tuition
-      }));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-    } catch (e) {
-      console.error('[MockClassDataSource] Failed to save to localStorage', e);
-    }
-  }
-
-  private hydrateClass(data: any): Class {
+  private hydrate(data: any): Class {
     const result = Class.create({
       id: ClassId.create(data.id),
       branchId: BranchId.create(data.branchId),
@@ -255,7 +202,8 @@ export class MockClassDataSource implements IClassDataSource {
       code: data.code,
       status: data.status,
       maxStudents: data.maxStudents,
-      currentStudents: data.currentStudents,
+      // The count is now read directly from the stored data.
+      currentStudents: data.currentStudents || 0,
       startDate: new Date(data.startDate),
       endDate: data.endDate ? new Date(data.endDate) : undefined,
       sessions: data.sessions || [],
@@ -270,67 +218,58 @@ export class MockClassDataSource implements IClassDataSource {
     return result.getValue();
   }
 
-  // Helper: Tính toán sĩ số thực tế từ MockStudentDataSource
-  private getRealStudentCount(classId: string): number {
-    try {
-      const studentsJson = localStorage.getItem('mock_students_db_v14');
-      if (!studentsJson) return 0;
-      const students = JSON.parse(studentsJson);
-      
-      // Đếm học viên có enrollment vào classId này và status là active
-      return students.filter((s: any) => 
-        s.status === 'active' && 
-        s.enrollments.some((e: any) => e.classId === classId && e.status === 'active')
-      ).length;
-    } catch (e) {
-      return 0;
-    }
-  }
-
   async getByBranchId(branchId: string): Promise<Class[]> {
     await new Promise(resolve => setTimeout(resolve, 400)); // Simulate network delay
-    const all = Array.from(classStore.values());
+    const classStore = mockDatabase.getCollection<any>('classes');
     
-    let filtered = branchId 
-      ? all.filter(c => c.branchId.toString() === branchId)
-      : all;
+    const filtered = branchId 
+      ? classStore.filter(c => c.branchId === branchId)
+      : classStore;
 
-    // Cập nhật sĩ số thực tế trước khi trả về
-    filtered = filtered.map(c => {
-      const realCount = this.getRealStudentCount(c.id.toString());
-      return c.updateInfo({ currentStudents: realCount }).isSuccess ? c : c;
-    });
-
-    return filtered;
+    // No longer calculating student count on the fly. We just hydrate what's in the DB.
+    return filtered.map(this.hydrate);
   }
 
   async save(classEntity: Class): Promise<void> {
-    classStore.set(classEntity.id.toString(), classEntity);
-    this.persist();
+    const classStore = mockDatabase.getCollection<any>('classes');
+    const index = classStore.findIndex(c => c.id === classEntity.id.toString());
+
+    const dataToSave = {
+      id: classEntity.id.toString(),
+      branchId: classEntity.branchId.toString(),
+      name: classEntity.name,
+      code: classEntity.code,
+      status: classEntity.status,
+      maxStudents: classEntity.maxStudents,
+      currentStudents: classEntity.currentStudents,
+      startDate: classEntity.startDate,
+      endDate: classEntity.endDate,
+      sessions: classEntity.sessions,
+      teacherName: classEntity.teacherName,
+      tuition: classEntity.tuition
+    };
+
+    if (index > -1) {
+      classStore[index] = dataToSave;
+    } else {
+      classStore.push(dataToSave);
+    }
+    mockDatabase.persist();
   }
 
   async getById(id: string): Promise<Class | null> {
     await new Promise(resolve => setTimeout(resolve, 200));
-    const cls = classStore.get(id);
+    const classStore = mockDatabase.getCollection<any>('classes');
+    const cls = classStore.find(c => c.id === id);
     if (!cls) return null;
 
-    // Cập nhật sĩ số thực tế
-    const realCount = this.getRealStudentCount(id);
-    cls.updateInfo({ currentStudents: realCount });
-    
-    return cls;
+    return this.hydrate(cls);
   }
 
-   
-   async getAll(): Promise<Class[]> {
+  async getAll(): Promise<Class[]> {
     await new Promise(resolve => setTimeout(resolve, 400));
-    const all = Array.from(classStore.values());
-    // Cập nhật sĩ số thực tế
-    return all.map(c => {
-      const realCount = this.getRealStudentCount(c.id.toString());
-      c.updateInfo({ currentStudents: realCount });
-      return c;
-    });
+    const classStore = mockDatabase.getCollection<any>('classes');
+    return classStore.map(this.hydrate);
   }
   async update(classEntity: Class): Promise<void> {
     await this.save(classEntity);
@@ -338,7 +277,8 @@ export class MockClassDataSource implements IClassDataSource {
 
   async delete(id: string): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 300));
-    classStore.delete(id);
-    this.persist();
+    let classStore = mockDatabase.getCollection<any>('classes');
+    classStore = classStore.filter(c => c.id !== id);
+    mockDatabase.setCollection('classes', classStore);
   }
 }

@@ -16,10 +16,6 @@ export type { DropdownSelectProps } from './DropdownSelect/DropdownSelect.types'
 export { DropdownMultiSelect } from './DropdownMultiSelect/DropdownMultiSelect.molecule';
 export type { DropdownMultiSelectProps } from './DropdownMultiSelect/DropdownMultiSelect.types';
 
-// Hooks
-export { useDropdown } from './hooks/useDropdown';
-export { useDropdownKeyboard } from './hooks/useDropdownKeyboard';
-
 // Shared Types
 export type {
   DropdownAlign,
