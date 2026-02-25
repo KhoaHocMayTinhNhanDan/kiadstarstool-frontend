@@ -223,12 +223,14 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
               onSearch={handleSearch}
               placeholder={searchPlaceholder}
               size="sm"
-              sx={{
-                flexShrink: 1,
-                minWidth: '100px', // Cho phép SearchInput co lại đến 100px
-                width: '100%', // Chiếm hết không gian còn lại
-                '@media (max-width: 768px)': { display: 'none' }
-              }}
+              sx={css`
+                flex-shrink: 1;
+                min-width: 100px;
+                width: 100%;
+                @media (max-width: 768px) {
+                  display: none;
+                }
+              `}
             />
           </div>
         )}
