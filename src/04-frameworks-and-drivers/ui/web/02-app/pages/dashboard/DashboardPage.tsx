@@ -39,22 +39,23 @@ const getStartDateForTimeRange = (timeRange: 'week' | 'month' | 'year'): Date =>
   }
 };
 
-const getChartLabels = (timeRange: 'week' | 'month' | 'year'): string[] => {
+const getChartLabels = (timeRange: 'week' | 'month' | 'year', t: (key: string) => string): string[] => {
     switch (timeRange) {
         case 'week':
-            return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            return [t('common.days.mon'), t('common.days.tue'), t('common.days.wed'), t('common.days.thu'), t('common.days.fri'), t('common.days.sat'), t('common.days.sun')];
         case 'month':
-            return ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+            return [t('common.weeks.1'), t('common.weeks.2'), t('common.weeks.3'), t('common.weeks.4')];
         case 'year':
-            return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return [t('common.months.jan'), t('common.months.feb'), t('common.months.mar'), t('common.months.apr'), t('common.months.may'), t('common.months.jun'), t('common.months.jul'), t('common.months.aug'), t('common.months.sep'), t('common.months.oct'), t('common.months.nov'), t('common.months.dec')];
     }
 }
 
 const groupRevenueByLabel = (
     transactions: any[],
-    timeRange: 'week' | 'month' | 'year'
+    timeRange: 'week' | 'month' | 'year',
+    t: (key: string) => string
 ): Array<{ name: string; value: number }> => {
-    const labels = getChartLabels(timeRange);
+    const labels = getChartLabels(timeRange, t);
     const dataMap = new Map<string, number>();
     labels.forEach(label => dataMap.set(label, 0));
 
@@ -68,7 +69,7 @@ const groupRevenueByLabel = (
                 break;
             case 'month':
                 const weekOfMonth = Math.ceil(date.getDate() / 7);
-                key = `Week ${weekOfMonth > 4 ? 4 : weekOfMonth}`;
+                key = labels[(weekOfMonth > 4 ? 4 : weekOfMonth) - 1];
                 break;
             case 'week':
                 const dayOfWeek = date.getDay(); // Sun: 0, Mon: 1, ...
@@ -217,24 +218,24 @@ export const DashboardPage = () => {
         }
     }
     const revenueByTypeData = [
-        { name: 'Theo Khóa', value: courseRevenue },
-        { name: 'Theo Buổi', value: sessionRevenue },
+        { name: t('dashboard.revenue_type_course'), value: courseRevenue },
+        { name: t('dashboard.revenue_type_session'), value: sessionRevenue },
     ];
 
     // --- Prepare Chart Data ---
-    const revenueChartData = groupRevenueByLabel(incomeTransactions, timeRange);
+    const revenueChartData = groupRevenueByLabel(incomeTransactions, timeRange, t);
 
     // --- Recent Activities Calculation ---
     const activities: ActivityItem[] = [];
 
     // 1. From Transactions
-    allTransactions.forEach(t => {
+    allTransactions.forEach(trx => {
       activities.push({
-        id: `trx-${t.id}`,
+        id: `trx-${trx.id}`,
         type: 'finance',
-        title: t.type === 'income' ? 'Thu tiền' : 'Chi tiền',
-        description: `${t.description || 'Giao dịch mới'} - ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(t.amount)}`,
-        timestamp: new Date(t.date)
+        title: trx.type === 'income' ? t('finance.income') : t('finance.expense'),
+        description: `${trx.description || t('finance.new_transaction')} - ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(trx.amount)}`,
+        timestamp: new Date(trx.date)
       });
     });
 
@@ -245,8 +246,8 @@ export const DashboardPage = () => {
          activities.push({
            id: `stu-${s.id}`,
            type: 'student',
-           title: 'Học viên mới',
-           description: `${s.name} đã tham gia`,
+           title: t('dashboard.new_student'),
+           description: t('dashboard.student_joined', { name: s.name }),
            timestamp: new Date(joinedDate)
          });
        }
@@ -268,7 +269,7 @@ export const DashboardPage = () => {
       branches: allBranches,
       ongoingClasses: ongoingClasses.slice(0, 4) // Limit to 4
     };
-  }, [allStudents, allBranches, ongoingClasses, allTransactions, selectedBranchIds, timeRange]);
+  }, [allStudents, allBranches, ongoingClasses, allTransactions, selectedBranchIds, timeRange, t]);
 
   const toggleBranch = (branchId: string) => {
     setSelectedBranchIds(prev => {

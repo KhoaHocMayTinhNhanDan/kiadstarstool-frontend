@@ -39,7 +39,12 @@ export class MarkBatchAttendanceInteractor {
       // Tạo Set các studentId đã có điểm danh để tra cứu nhanh O(1)
       const existingStudentIds = new Set(existingAttendances.map(a => a.studentId));
 
-      const isPerSessionClass = !!classEntity.tuition?.sessionFee;
+      // UPDATE: Trừ buổi cho cả lớp đóng theo tháng/khóa nếu có cấu hình học phí
+      const isTuitionClass = !!classEntity.tuition && (
+        !!classEntity.tuition.sessionFee || 
+        !!classEntity.tuition.monthlyFee || 
+        !!classEntity.tuition.courseFee
+      );
       const isPresent = input.status === ATTENDANCE_STATUS.PRESENT || input.status === ATTENDANCE_STATUS.LATE;
 
       // Xử lý song song các tác vụ cho mỗi học viên
@@ -60,7 +65,7 @@ export class MarkBatchAttendanceInteractor {
         count++;
 
         // 3. Xử lý trừ buổi học nếu cần
-        if (isPresent && isPerSessionClass) {
+        if (isPresent && isTuitionClass) {
           const studentEntity = await this.studentRepo.getById(studentId);
           if (studentEntity) {
             const enrollmentIndex = studentEntity.enrollments.findIndex(
@@ -69,7 +74,7 @@ export class MarkBatchAttendanceInteractor {
             if (enrollmentIndex !== -1) {
               const updatedEnrollmentResult = studentEntity.enrollments[enrollmentIndex].consumeSession();
               if (updatedEnrollmentResult.isSuccess) {
-                studentEntity.updateEnrollment(enrollmentIndex, updatedEnrollmentResult.getValue());
+                studentEntity.enrollments[enrollmentIndex] = updatedEnrollmentResult.getValue();
                 await this.studentRepo.save(studentEntity);
               }
             }

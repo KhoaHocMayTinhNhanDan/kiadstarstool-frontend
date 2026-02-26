@@ -6,6 +6,7 @@ import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/c
 import { AppContext } from '@/00-core/app-context';
 import { useToast } from '../../../../01-ui-core/hooks/useToast';
 import { type PaymentScheme } from '@/02-usecases/students/ports/input/EnrollStudent.input';
+import { ENROLLMENT_DEFAULTS } from '@/01-entities/students/value-objects/Enrollment.vo';
 
 interface EnrollStudentModalProps {
   isOpen: boolean;
@@ -131,6 +132,18 @@ export const EnrollStudentModal = ({ isOpen, onClose, studentId, availableClasse
                 
                 {/* Fallback if no tuition config */}
                 {!selectedClassForEnroll.tuition && <Text size="xs" color="DANGER">Lớp này chưa cấu hình học phí!</Text>}
+                
+                {/* Hiển thị số buổi quy đổi */}
+                {paymentScheme === 'monthly' && (
+                  <Text size="xs" color="SECONDARY">
+                    * Tương ứng: {ENROLLMENT_DEFAULTS.SESSIONS_PER_MONTH} buổi học/tháng
+                  </Text>
+                )}
+                {paymentScheme === 'course' && (
+                  <Text size="xs" color="SECONDARY" >
+                    * Tương ứng: {ENROLLMENT_DEFAULTS.SESSIONS_PER_COURSE} buổi học/khóa
+                  </Text>
+                )}
               </Box>
             )}
 

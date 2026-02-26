@@ -88,9 +88,15 @@ const DefaultActions: React.FC<{ mode?: 'light' | 'dark'; themeColors?: ThemeCol
         size="sm"
         leftIcon={<CreateIcon />}
         onClick={() => console.log('Create clicked')}
-        css={{ whiteSpace: 'nowrap' }}
+        css={css`
+          white-space: nowrap;
+          @media (max-width: 640px) {
+            .btn-text { display: none; }
+            padding: 0 8px;
+          }
+        `}
       >
-        Create
+        <span className="btn-text">Create</span>
       </Button>
     </>
   );
@@ -193,7 +199,7 @@ export const AppHeader: React.FC<AppHeaderProps> = React.memo(({
       
       <div css={styles.rightSection}>
         {/* Language Selector */}
-        {onLanguageChange && currentLanguage && (
+        {onLanguageChange && (
           <LanguageSelector
             value={currentLanguage}
             onChange={onLanguageChange}

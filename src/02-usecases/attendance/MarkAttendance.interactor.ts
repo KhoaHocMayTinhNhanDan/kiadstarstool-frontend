@@ -31,10 +31,14 @@ export class MarkAttendanceInteractor {
       const studentEntity = await this.studentRepo.getById(input.studentId);
       if (!studentEntity) return Result.fail('Student not found');
 
-      // 2. Create/Update Attendance Record
-      // Note: In a real app, we might check if attendance already exists for this date/student/class
+      // 2. Check existing attendance to decide Update or Create
+      const existingAttendance = await this.attendanceRepo.getByStudentAndDate(input.studentId, input.classId, input.date);
+      const oldStatus = existingAttendance ? existingAttendance.attendanceStatus : null;
+
+      // Create new entity but preserve ID if it existed (to perform Update instead of Insert)
       const attendance = Attendance.create({
-        courseId: input.classId, // Mapping classId to courseId as per Attendance Entity definition usually
+        id: existingAttendance?.id, // Quan trọng: Giữ nguyên ID nếu đã tồn tại để Repository thực hiện Update
+        courseId: input.classId,
         studentId: input.studentId,
         date: input.date, // Entity expects string (ISO format)
         session: 'default', // Default session if not provided
@@ -44,12 +48,22 @@ export class MarkAttendanceInteractor {
 
       await this.attendanceRepo.save(attendance);
 
-      // 3. Handle Tuition Deduction (Consume Session)
-      // Chỉ trừ buổi nếu học viên có đi học (present/late) và lớp thu tiền theo buổi
-      const isPresent = input.status === ATTENDANCE_STATUS.PRESENT || input.status === ATTENDANCE_STATUS.LATE;
-      const isPerSessionClass = !!classEntity.tuition?.sessionFee;
+      // 3. Handle Tuition Deduction (Consume or Refund Session)
+      // Logic: 
+      // - Nếu chuyển từ Vắng/Chưa có -> Có mặt: Trừ 1 buổi
+      // - Nếu chuyển từ Có mặt -> Vắng: Cộng lại 1 buổi (Hoàn tác)
+      // - Nếu chuyển từ Có mặt -> Muộn (hoặc ngược lại): Không đổi
+      
+      const isTuitionClass = !!classEntity.tuition && (
+        !!classEntity.tuition.sessionFee || 
+        !!classEntity.tuition.monthlyFee || 
+        !!classEntity.tuition.courseFee
+      );
 
-      if (isPresent && isPerSessionClass) {
+      if (isTuitionClass) {
+        const wasPresent = oldStatus === ATTENDANCE_STATUS.PRESENT || oldStatus === ATTENDANCE_STATUS.LATE;
+        const isNowPresent = input.status === ATTENDANCE_STATUS.PRESENT || input.status === ATTENDANCE_STATUS.LATE;
+
         // Tìm enrollment active của học viên trong lớp này
         const enrollmentIndex = studentEntity.enrollments.findIndex(
           e => e.classId === input.classId && e.status === 'active'
@@ -57,12 +71,18 @@ export class MarkAttendanceInteractor {
 
         if (enrollmentIndex !== -1) {
           const currentEnrollment = studentEntity.enrollments[enrollmentIndex];
+          let updatedEnrollmentResult;
           
-          // Trừ buổi học
-          const updatedEnrollmentResult = currentEnrollment.consumeSession();
+          if (!wasPresent && isNowPresent) {
+            // Chưa đi -> Đi: Trừ buổi
+            updatedEnrollmentResult = currentEnrollment.consumeSession();
+          } else if (wasPresent && !isNowPresent) {
+            // Đang đi -> Nghỉ: Hoàn lại buổi
+            updatedEnrollmentResult = currentEnrollment.refundSession();
+          }
           
-          if (updatedEnrollmentResult.isSuccess) {
-            studentEntity.updateEnrollment(enrollmentIndex, updatedEnrollmentResult.getValue());
+          if (updatedEnrollmentResult && updatedEnrollmentResult.isSuccess) {
+            studentEntity.enrollments[enrollmentIndex] = updatedEnrollmentResult.getValue();
             // Lưu thay đổi của học viên (số buổi đã học tăng lên)
             await this.studentRepo.save(studentEntity);
           }

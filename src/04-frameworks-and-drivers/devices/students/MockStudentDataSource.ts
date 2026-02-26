@@ -75,7 +75,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           status: 'active',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-20', tuitionAmount: 5000000, paymentStatus: 'paid' },
-            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-15', tuitionAmount: 8750000, paymentStatus: 'paid', prepaidSessions: 25, usedSessions: 1 },
+            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-15', tuitionAmount: 8750000, paymentStatus: 'paid', prepaidSessions: 30, usedSessions: 1 },
             { branchId: 'branch-01', classId: 'class-05', status: 'active', joinedDate: '2025-12-15', tuitionAmount: 3000000, paymentStatus: 'unpaid', prepaidSessions: 15, usedSessions: 1 }
           ]
         },
@@ -129,7 +129,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0922334455',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-16', tuitionAmount: 8750000, paymentStatus: 'paid', prepaidSessions: 25, usedSessions: 0 }
+            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-16', tuitionAmount: 8750000, paymentStatus: 'paid', prepaidSessions: 30, usedSessions: 0 }
           ]
         },
         {
@@ -169,7 +169,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0966223344',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-20', tuitionAmount: 8750000, paymentStatus: 'paid', prepaidSessions: 25, usedSessions: 0 }
+            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-20', tuitionAmount: 8750000, paymentStatus: 'paid', prepaidSessions: 30, usedSessions: 0 }
           ]
         },
         {
@@ -209,7 +209,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0913456789',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-18', tuitionAmount: 8750000, paymentStatus: 'paid', prepaidSessions: 25, usedSessions: 0 }
+            { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-18', tuitionAmount: 8750000, paymentStatus: 'paid', prepaidSessions: 30, usedSessions: 0 }
           ]
         },
         {

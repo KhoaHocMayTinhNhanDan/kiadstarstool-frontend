@@ -169,7 +169,7 @@ export const FinancePage = () => {
             leftIcon={<Icon><Plus /></Icon>}
             onClick={() => navigate('/finance/new')}
           >
-            Tạo giao dịch
+            Ghi chép Thu/Chi
           </Button>
         </Box>
       </Box>

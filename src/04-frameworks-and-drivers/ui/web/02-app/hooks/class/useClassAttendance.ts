@@ -61,5 +61,13 @@ export const useClassAttendance = (classId: string) => {
     ].filter(item => item.value > 0);
   }, [attendanceList]);
 
-  return { attendanceList, isLoading, selectedDate, setSelectedDate, fetchAttendance, statsData };
+  return { 
+    attendanceList, 
+    setAttendanceList, // Expose setter để UI có thể cập nhật Optimistic
+    isLoading, 
+    selectedDate, 
+    setSelectedDate, 
+    fetchAttendance, 
+    statsData 
+  };
 };

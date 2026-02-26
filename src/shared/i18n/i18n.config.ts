@@ -1,3 +1,4 @@
+// src/shared/i18n/i18n.config.ts
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -21,7 +22,6 @@ i18n
   .use(initReactI18next) // Kết nối i18next với React
   .init({
     resources,
-    lng: 'vi', // <--- THÊM DÒNG NÀY: Ép buộc sử dụng tiếng Việt
     supportedLngs: SUPPORTED_LOCALES,
     fallbackLng: 'vi', // <--- SỬA DÒNG NÀY: Fallback về tiếng Việt thay vì tiếng Anh
     debug: import.meta.env.DEV, // Bật debug mode ở môi trường dev

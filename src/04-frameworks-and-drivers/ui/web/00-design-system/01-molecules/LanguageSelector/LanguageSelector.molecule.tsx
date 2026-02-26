@@ -11,7 +11,7 @@ const DEFAULT_OPTIONS: LanguageOption[] = [
 ];
 
 export const LanguageSelector = ({
-  value,
+  value = 'vi',
   onChange,
   options = DEFAULT_OPTIONS,
   variant = 'default',

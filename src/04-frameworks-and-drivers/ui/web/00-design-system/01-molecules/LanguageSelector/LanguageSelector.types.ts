@@ -8,7 +8,7 @@ export interface LanguageOption {
 
 export interface LanguageSelectorProps {
   /** Mã ngôn ngữ đang chọn */
-  value: string;
+  value?: string;
 
   /** Callback khi thay đổi ngôn ngữ */
   onChange: (code: string) => void;

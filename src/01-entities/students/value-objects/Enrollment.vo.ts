@@ -4,6 +4,11 @@ import { Result } from '../../shared/base/result';
 
 export type PaymentStatus = 'paid' | 'unpaid' | 'partial' | 'waived'; // waived = miễn học phí
 
+export const ENROLLMENT_DEFAULTS = {
+  SESSIONS_PER_MONTH: 10,
+  SESSIONS_PER_COURSE: 30
+};
+
 export interface EnrollmentProps {
   branchId: string;
   classId?: string; // Có thể null nếu học viên chỉ mới đăng ký vào chi nhánh mà chưa xếp lớp
@@ -95,6 +100,14 @@ export class Enrollment extends ValueObject<EnrollmentProps> {
     return Enrollment.create({
       ...this.props,
       usedSessions: (this.props.usedSessions || 0) + 1
+    });
+  }
+
+  // Domain Method: Hoàn lại buổi học (khi sửa điểm danh từ Có mặt -> Vắng)
+  public refundSession(): Result<Enrollment> {
+    return Enrollment.create({
+      ...this.props,
+      usedSessions: Math.max(0, (this.props.usedSessions || 0) - 1)
     });
   }
 }
