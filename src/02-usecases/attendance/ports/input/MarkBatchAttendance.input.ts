@@ -5,4 +5,5 @@ export interface MarkBatchAttendanceInput {
   date: string;
   studentIds: string[];
   status: AttendanceStatus;
+  performedBy: string; // ID của người thực hiện
 }

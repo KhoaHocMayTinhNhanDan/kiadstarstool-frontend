@@ -6,4 +6,5 @@ export interface MarkAttendanceInput {
   date: string; // YYYY-MM-DD
   status: AttendanceStatus;
   note?: string;
+  performedBy: string; // ID của người thực hiện
 }

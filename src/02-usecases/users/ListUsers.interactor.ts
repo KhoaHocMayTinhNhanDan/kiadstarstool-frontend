@@ -1,11 +1,11 @@
 import { type ListUsersInput } from './ports/input/IListUsersInput';
 import { type UserOutput } from './ports/output/IUserOutput';
-import { type IUserProfileRepository } from './ports/gateways_interface/IUserProfileRepository';
+import { type IUserRepository } from './ports/gateways_interface/IUserRepository';
 import { Result } from '../../01-entities/shared/base/result';
 
 export class ListUsersInteractor {
- private readonly userRepo: IUserProfileRepository
-  constructor(userRepo: IUserProfileRepository) {
+ private readonly userRepo: IUserRepository
+  constructor(userRepo: IUserRepository) {
     this.userRepo = userRepo;
   }
 
@@ -15,11 +15,11 @@ export class ListUsersInteractor {
       const users = await this.userRepo.findAll(input.filters);
 
       const userOutputs = users.map(user => ({
-        id: user.id.value,
+        uid: user.id.value,
         displayName: user.profile.displayName,
         role: user.role.value,
         isActive: user.isActive,
-        email: user.profile.email,
+        email: user.email,
         photoURL: user.profile.photoURL,
       }));
 

@@ -1,11 +1,13 @@
 import { Result } from '../../01-entities/shared/base/result';
 import { ATTENDANCE_STATUS } from '@/shared/constants/classes.constant';
 import { AttendanceMetadata } from '@/01-entities/attendance/value-objects/AttendanceMetadata.vo';
+import { Identifier } from '@/01-entities/shared/Identifier.vo';
 import { type IAttendanceRepository } from './ports/gateways_interface/IAttendanceRepository';
 import { type IClassRepository } from '../class/ports/gateways_interface/IClassRepository';
 import { type IStudentRepository } from '../students/ports/gateways_interface/IStudentRepository';
 import { Attendance } from '../../01-entities/attendance/Attendance.entity';
 import { type MarkAttendanceInput } from './ports/input/MarkAttendance.input';
+import { type MarkAttendanceOutput } from './ports/output/MarkAttendance.output';
 
 export class MarkAttendanceInteractor {
   private readonly attendanceRepo: IAttendanceRepository;
@@ -22,7 +24,7 @@ export class MarkAttendanceInteractor {
     this.studentRepo = studentRepo;
   }
 
-  async execute(input: MarkAttendanceInput): Promise<Result<void>> {
+  async execute(input: MarkAttendanceInput): Promise<Result<MarkAttendanceOutput>> {
     try {
       // 1. Validate Class & Student existence
       const classEntity = await this.classRepo.getById(input.classId);
@@ -43,7 +45,10 @@ export class MarkAttendanceInteractor {
         date: input.date, // Entity expects string (ISO format)
         session: 'default', // Default session if not provided
         attendanceStatus: input.status,
-        metadata: input.note ? AttendanceMetadata.empty().withAbsentReason(input.note) : undefined
+        metadata: input.note ? AttendanceMetadata.empty().withAbsentReason(input.note) : undefined,
+        // Ghi nhận người thực hiện
+        createdBy: existingAttendance ? existingAttendance.createdBy : Identifier.create(input.performedBy),
+        updatedBy: Identifier.create(input.performedBy)
       });
 
       await this.attendanceRepo.save(attendance);
@@ -89,9 +94,12 @@ export class MarkAttendanceInteractor {
         }
       }
 
-      return Result.ok();
+      return Result.ok({
+        success: true,
+        attendanceId: attendance.id.toString()
+      });
     } catch (error: any) {
-      return Result.fail(error.message || 'Failed to mark attendance');
+      return Result.fail<MarkAttendanceOutput>(error.message || 'Failed to mark attendance');
     }
   }
 }

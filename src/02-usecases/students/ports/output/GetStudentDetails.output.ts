@@ -1,11 +1,3 @@
-interface AttendanceHistoryItem {
-  classId: string;
-  className: string;
-  date: string;
-  status: string;
-  score?: number;
-}
-
 export interface StudentEnrollmentDetail {
   branchId: string;
   classId: string;
@@ -19,14 +11,24 @@ export interface StudentEnrollmentDetail {
   usedSessions?: number;
 }
 
+export interface StudentAttendanceHistoryItem {
+  classId: string;
+  className: string;
+  date: string;
+  status: string;
+  markedBy?: string; // Tên người thực hiện
+  markedByAvatarUrl?: string;
+  score?: number;
+}
+
 export interface GetStudentDetailsOutput {
   id: string;
   name: string;
   email: string;
   phone?: string;
   status: string;
-  joinedDate: Date;
-  branchName: string;
+  joinedDate: string;
+  branchName?: string;
   enrollments: StudentEnrollmentDetail[];
-  attendanceHistory: AttendanceHistoryItem[];
+  attendanceHistory: StudentAttendanceHistoryItem[];
 }

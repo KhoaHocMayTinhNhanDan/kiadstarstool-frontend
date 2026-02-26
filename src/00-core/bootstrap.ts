@@ -4,7 +4,7 @@ import { AppContext, type AppContextType } from './app-context'
 import { createMockAuthDriver, MockAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/MockAuthDriver'
 import { createFirebaseAuthDriver } from '@/04-frameworks-and-drivers/devices/auth/FirebaseAuthDriver'
 import { AuthRepository } from '@/03-interface-adapters/gateways/inbound/repositories/AuthRepository'
-import { UserProfileRepository } from '@/03-interface-adapters/gateways/inbound/repositories/UserProfileRepository'
+import { UserRepository } from '@/03-interface-adapters/gateways/inbound/repositories/UserRepository'
 import { BranchRepository } from '@/03-interface-adapters/gateways/inbound/repositories/BranchRepository'
 import type { IAuthAuthentication } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAuthentication';
 import type { IAuthAccountManagement } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAccountManagement';
@@ -21,6 +21,7 @@ import { AuthorizationController } from '@/03-interface-adapters/controllers/Aut
 import { GetUserInteractor } from '@/02-usecases/users/GetUser.interactor';
 import { ListUsersInteractor } from '@/02-usecases/users/ListUsers.interactor';
 import { UsersController } from '@/03-interface-adapters/controllers/Users.controller';
+import { MockUserDataSource } from '@/04-frameworks-and-drivers/devices/user/MockUserDataSource';
 import { MockBranchDataSource } from '@/04-frameworks-and-drivers/devices/branch/MockBranchDataSource';
 import { CreateBranchInteractor } from '@/02-usecases/branch/CreateBranch.interactor';
 import { UpdateBranchInfoInteractor } from '@/02-usecases/branch/UpdateBranchInfo.interactor';
@@ -52,6 +53,7 @@ import { ListAttendanceByClassInteractor } from '@/02-usecases/attendance/ListAt
 import { MarkAttendanceInteractor } from '@/02-usecases/attendance/MarkAttendance.interactor';
 import { MarkBatchAttendanceInteractor } from '@/02-usecases/attendance/MarkBatchAttendance.interactor';
 import { AttendanceController } from '@/03-interface-adapters/controllers/Attendance.controller';
+import { AutoMarkAbsentInteractor } from '@/02-usecases/attendance/AutoMarkAbsent.interactor';
 import { MockTransactionDataSource } from '@/04-frameworks-and-drivers/devices/transaction/MockTransactionDataSource';
 import { CreateTransactionInteractor } from '@/02-usecases/finance/CreateTransaction.interactor';
 import { ListTransactionsInteractor } from '@/02-usecases/finance/ListTransactions.interactor';
@@ -122,8 +124,9 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
     await mockDriver.signInWithEmailAndPassword(mockUserEmail, mockUserPassword); // Await to ensure state is set before app renders
   }
   
-  const authRepository = new AuthRepository(authDriver)
-  const userRepository = new UserProfileRepository()
+  const authRepository = new AuthRepository(authDriver);
+  const userDataSource = new MockUserDataSource();
+  const userRepository = new UserRepository(userDataSource);
   const authPresenter = new AuthPresenter()
   
   const loginInteractor = new LoginInteractor(authRepository)
@@ -208,16 +211,30 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
   const listStudentsByBranchInteractor = new ListStudentsByBranchInteractor(studentRepository);
   const createStudentInteractor = new CreateStudentInteractor(studentRepository);
 
-  const getStudentDetailsInteractor = new GetStudentDetailsInteractor(studentRepository, branchRepository, attendanceRepository, classRepository);
-    const transferStudentInteractor = new TransferStudentInteractor(studentRepository, classRepository);
-    const enrollStudentInteractor = new EnrollStudentInteractor(studentRepository, classRepository);
-  const studentsController = new StudentsController(listStudentsByBranchInteractor, createStudentInteractor, getStudentDetailsInteractor, transferStudentInteractor, enrollStudentInteractor);
+  // Sử dụng chung userRepository (UserProfileRepository) thay vì tạo MockUserRepository riêng lẻ
+  const getStudentDetailsInteractor = new GetStudentDetailsInteractor(
+    studentRepository,
+    attendanceRepository,
+    classRepository,
+    branchRepository,
+    userRepository
+  );
+  const transferStudentInteractor = new TransferStudentInteractor(studentRepository, classRepository);
+  const enrollStudentInteractor = new EnrollStudentInteractor(studentRepository, classRepository);
+  const studentsController = new StudentsController(
+    listStudentsByBranchInteractor, 
+    createStudentInteractor, 
+    getStudentDetailsInteractor, 
+    transferStudentInteractor, 
+    enrollStudentInteractor
+  );
 
   // 1.7 Initialize Attendance
   const listAttendanceInteractor = new ListAttendanceByClassInteractor(attendanceRepository, studentRepository, classRepository);
   const markAttendanceInteractor = new MarkAttendanceInteractor(attendanceRepository, classRepository, studentRepository);
   const markBatchAttendanceInteractor = new MarkBatchAttendanceInteractor(attendanceRepository, classRepository, studentRepository);
-  const attendanceController = new AttendanceController(listAttendanceInteractor, markAttendanceInteractor, markBatchAttendanceInteractor);
+  const autoMarkAbsentInteractor = new AutoMarkAbsentInteractor(attendanceRepository, classRepository, studentRepository);
+  const attendanceController = new AttendanceController(listAttendanceInteractor, markAttendanceInteractor, markBatchAttendanceInteractor, autoMarkAbsentInteractor);
 
   // 1.8 Initialize Finance
   const transactionDataSource = new MockTransactionDataSource();

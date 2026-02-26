@@ -48,6 +48,7 @@ export const getBoxStyles = (props: BoxOwnProps) => css`
   padding-right: ${getSpacing(props.pr ?? props.px)};
 
   background-color: ${props.bg && COLORS[props.bg as keyof typeof COLORS]};
+  color: ${props.color && COLORS[props.color as keyof typeof COLORS]};
   border: ${props.border};
   border-radius: ${props.radius && RADIUS[props.radius as keyof typeof RADIUS]};
 `;

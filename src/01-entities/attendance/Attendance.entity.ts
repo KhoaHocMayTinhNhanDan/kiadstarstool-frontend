@@ -22,6 +22,8 @@ export interface AttendanceProps extends AuditedProps {
   attendanceStatus?: AttendanceStatus;
   flags?: AttendanceFlags;
   metadata?: AttendanceMetadata;
+  createdBy?: Identifier;
+  updatedBy?: Identifier;
 }
 
 export interface AttendanceJSON {
@@ -111,12 +113,11 @@ export class Attendance extends AuditedEntity<Identifier> {
 
   checkIn(at: string = new Date().toISOString()): this {
     this._time = this._time.checkIn(at);
-
+    
+    // Cải tiến: checkIn chỉ ghi nhận thời gian và cờ (flag), không tự động đổi status.
+    // Việc quyết định status (PRESENT hay LATE) sẽ do UseCase hoặc một method khác đảm nhiệm.
     if (this._time.isLate()) {
-      this._attendanceStatus = ATTENDANCE_STATUS.LATE;
       this._flags = this._flags.markLate();
-    } else {
-      this._attendanceStatus = ATTENDANCE_STATUS.PRESENT;
     }
 
     return this;

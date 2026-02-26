@@ -2,12 +2,13 @@
 import { useState } from 'react';
 import { Box, Button, Icon, Input, Text } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
-import { Calendar, Save, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
+import { Calendar, Save, RefreshCw, CheckCircle, XCircle, UserX } from 'lucide-react';
 import { useClassAttendance } from '../../../hooks/class/useClassAttendance';
 import { AttendanceStats } from './AttendanceStats';
 import { AttendanceTable } from './AttendanceTable';
 import { AppContext } from '@/00-core/app-context';
 import { useToast } from '../../../../01-ui-core/hooks/useToast';
+import { useAuth } from '../../../hooks/user/useAuth';
 
 interface ClassAttendanceListProps {
   classId: string;
@@ -15,6 +16,7 @@ interface ClassAttendanceListProps {
 
 export const AttendanceList = ({ classId }: ClassAttendanceListProps) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const { 
     attendanceList, 
     setAttendanceList, // Lấy hàm này từ hook đã sửa
@@ -59,7 +61,8 @@ export const AttendanceList = ({ classId }: ClassAttendanceListProps) => {
         classId,
         date: selectedDate,
         studentId,
-        status: status as any
+        status: status as any,
+        performedBy: user?.id || 'unknown'
       });
 
       if (result.isSuccess) {
@@ -97,7 +100,8 @@ export const AttendanceList = ({ classId }: ClassAttendanceListProps) => {
         classId,
         date: selectedDate,
         studentIds,
-        status: 'present' as any
+        status: 'present' as any,
+        performedBy: user?.id || 'unknown'
       });
 
       if (result.isSuccess) {
@@ -132,7 +136,8 @@ export const AttendanceList = ({ classId }: ClassAttendanceListProps) => {
         classId,
         date: selectedDate,
         studentIds,
-        status: 'absent' as any
+        status: 'absent' as any,
+        performedBy: user?.id || 'unknown'
       });
 
       if (result.isSuccess) {
@@ -140,6 +145,38 @@ export const AttendanceList = ({ classId }: ClassAttendanceListProps) => {
       }
     } catch (error) {
       toast.error('Lỗi hệ thống');
+    }
+  };
+
+  const handleAutoMarkAbsent = async () => {
+    // Tìm những học viên chưa được điểm danh trong list hiện tại để update UI Optimistic
+    const unmarkedStudents = attendanceList.filter(s => s.status === 'not_marked');
+    
+    if (unmarkedStudents.length === 0) {
+      toast.info('Tất cả học viên đã được điểm danh');
+      return;
+    }
+
+    // Optimistic Update
+    const optimisticList = attendanceList.map(s => 
+      s.status === 'not_marked' ? { ...s, status: 'absent' as any } : s
+    );
+    setAttendanceList(optimisticList);
+
+    try {
+      const controller = AppContext.getAttendanceController();
+      const result = await controller.autoMarkAbsent({
+        classId,
+        date: selectedDate,
+        performedBy: user?.id || 'unknown'
+      });
+
+      if (result.isSuccess) {
+        toast.success(`Đã đánh vắng ${result.getValue().markedCount} học viên còn lại`);
+      }
+    } catch (error) {
+      toast.error('Lỗi hệ thống');
+      fetchAttendance(); // Revert
     }
   };
 
@@ -171,6 +208,15 @@ export const AttendanceList = ({ classId }: ClassAttendanceListProps) => {
             sx={{ color: COLORS.DANGER, borderColor: COLORS.DANGER }}
           >
             Tất cả vắng mặt
+          </Button>
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={handleAutoMarkAbsent} 
+            leftIcon={<Icon><UserX /></Icon>}
+            title="Đánh dấu vắng mặt cho những người chưa điểm danh"
+          >
+            Đánh vắng còn lại
           </Button>
           <Button size="sm" variant="ghost" onClick={fetchAttendance} isLoading={isLoading} leftIcon={<Icon><RefreshCw /></Icon>}>
             Làm mới

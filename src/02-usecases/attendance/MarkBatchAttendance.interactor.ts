@@ -1,5 +1,6 @@
 import { Result } from '@/01-entities/shared/base/result';
 import { Attendance } from '@/01-entities/attendance/Attendance.entity';
+import { Identifier } from '@/01-entities/shared/Identifier.vo';
 import { ATTENDANCE_STATUS } from '@/shared/constants/classes.constant';
 import { type IAttendanceRepository } from './ports/gateways_interface/IAttendanceRepository';
 import { type IClassRepository } from '@/02-usecases/class/ports/gateways_interface/IClassRepository';
@@ -57,7 +58,10 @@ export class MarkBatchAttendanceInteractor {
           studentId: studentId,
           date: input.date, // Entity expects string
           session: 'default',
-          attendanceStatus: input.status
+          attendanceStatus: input.status,
+          // Ghi nhận người thực hiện
+          createdBy: Identifier.create(input.performedBy),
+          updatedBy: Identifier.create(input.performedBy)
         });
         
         attendance.checkIn(); // Set giờ check-in mặc định

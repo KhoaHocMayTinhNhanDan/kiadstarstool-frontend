@@ -1,6 +1,6 @@
 import { Student } from '@/01-entities/students/Student.entity';
 import { Enrollment } from '@/01-entities/students/value-objects/Enrollment.vo';
-import { type IStudentDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/students/IStudentDataSource';
+import { type IStudentDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/user/IUserDataSource';
 import { type StudentDTO, type StudentEnrollmentDTO } from '@/04-frameworks-and-drivers/devices/students/student.dto';
 import { type IStudentRepository } from '@/02-usecases/students/ports/gateways_interface/IStudentRepository';
 import { Identifier } from '@/01-entities/shared/Identifier.vo';

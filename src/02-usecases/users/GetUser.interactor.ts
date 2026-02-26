@@ -1,12 +1,12 @@
 import { type GetUserInput } from './ports/input/IGetUserInput';
 import { type UserOutput } from './ports/output/IUserOutput';
-import { type IUserProfileRepository } from './ports/gateways_interface/IUserProfileRepository';
+import { type IUserRepository } from './ports/gateways_interface/IUserRepository';
 import { Result } from '../../01-entities/shared/base/result';
 
 export class GetUserInteractor {
-    private readonly userRepo: IUserProfileRepository
+    private readonly userRepo: IUserRepository
     constructor(
-      userRepo: IUserProfileRepository
+      userRepo: IUserRepository
     ) {
       this.userRepo = userRepo;
     }
@@ -25,7 +25,7 @@ export class GetUserInteractor {
         displayName: user.profile.displayName,
         role: user.role.value,
         isActive: user.isActive,
-        email: user.profile.email,
+        email: user.email,
         photoURL: user.profile.photoURL,
       });
     } catch (error: any) {
