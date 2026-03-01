@@ -4,22 +4,24 @@ import { useTheme } from '../../01-ui-core/hooks/useTheme';
 import { useMode } from '../../01-ui-core/hooks/useMode';
 import { AppHeader } from '../../00-design-system/02-organisms/navigation/AppHeader/AppHeader.organism';
 import { AppSidebar } from '../../00-design-system/02-organisms/navigation/AppSidebar/AppSidebar.organism';
-import { Box } from '../../00-design-system/00-atoms/Box';
+import { Box, Text, Button } from '../../00-design-system/00-atoms';
 import { Icon } from '../../00-design-system/00-atoms/Icon';
 import { IconButton } from '../../00-design-system/00-atoms/IconButton';
 import { Breadcrumbs } from '../../00-design-system/02-organisms/navigation/Breadcrumbs/Breadcrumbs.organism';
 import { 
   LayoutDashboard, Users, BookOpen, GraduationCap, 
   ClipboardCheck, Building, Settings, User, LogOut, DollarSign,
-  Menu, X, ChevronLeft, ChevronRight, Bell, HelpCircle
+  Menu, X, ChevronLeft, ChevronRight, Bell, HelpCircle,
+  AlertTriangle
 } from 'lucide-react';
-import { useAuth } from '../hooks/user/useAuth';
+import { useAuth } from '../hooks/user/useAuthorization';
 import { useToast } from '../../01-ui-core/hooks/useToast';
 import { useState, useEffect } from 'react';
 import { IronmanLayout } from './dynamic/IronmanLayout';
 import { CosmicLayout } from './dynamic/CosmicLayout';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { type LanguageOption } from '../../00-design-system/01-molecules/LanguageSelector';
+import { COLORS } from '../../01-ui-core/constants/tokens-constants';
 
 // Định nghĩa page titles cho từng route
 const pageTitles: Record<string, string> = {
@@ -159,12 +161,33 @@ export const MainLayout = () => {
     return <CosmicLayout />;
   }
 
+  // Kiểm tra xem profile có đầy đủ không
+  const isProfileIncomplete = user && (!user.displayName || !user.photoURL);
+
+  const IncompleteProfileBanner = isProfileIncomplete ? (
+    <Box 
+      p="sm" 
+      bg="WARNING_LIGHT" 
+      display="flex" 
+      alignItems="center" 
+      justifyContent="space-between"
+      css={{
+        borderBottom: `1px solid ${COLORS.WARNING}`,
+      }}
+    >
+      <Box display="flex" alignItems="center" gap="sm">
+        <Icon color="WARNING" size="sm"><AlertTriangle /></Icon>
+        <Text size="sm" color="WARNING_DARK">Hồ sơ của bạn chưa đầy đủ (Tên hoặc Ảnh đại diện).</Text>
+      </Box>
+      <Button size="sm" variant="outline" onClick={() => navigate('/profile')}>Cập nhật ngay</Button>
+    </Box>
+  ) : null;
+
   return (
     <Box
       css={{
         display: 'flex',
         height: '100vh',
-        width: '100vw',
         width: '100%',
         overflow: 'hidden',
         backgroundColor: mode.colors.background.primary,
@@ -252,10 +275,10 @@ export const MainLayout = () => {
             { code: 'en', label: 'English', flag: '🇺🇸' },
           ]}
           userProfile={user ? {
-            name: user.displayName || 'User',
+            name: user.displayName || user.email?.split('@')[0] || 'User',
             email: user.email || '',
             avatarUrl: user.photoURL || undefined,
-            role: user.role,
+            role: user.roles?.[0] ? String(user.roles[0]) : 'User',
           } : null}
           userMenuItems={userMenuItems}
           css={{
@@ -263,6 +286,9 @@ export const MainLayout = () => {
             backgroundColor: mode.colors.surface.primary,
           }}
         />
+
+        {/* Banner thông báo nếu thiếu thông tin */}
+        {IncompleteProfileBanner}
 
         {/* Page Content */}
         <Box

@@ -3,6 +3,7 @@ export interface UserOutput {
   displayName: string;
   email?: string;
   photoURL?: string;
+  phone?: string;
   role: string;
   isActive: boolean;
 }

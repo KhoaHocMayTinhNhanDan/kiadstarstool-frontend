@@ -1,7 +1,7 @@
 // src/04-frameworks-and-drivers/ui/web/infrastructure/router/RouteGuard.tsx
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { type PermissionCode } from '@/shared/constants/authorization/auth.domain';
-import { useAuth } from '../../hooks/user/useAuth'; // Giả định hook này tồn tại
+import { useAuth } from '../../hooks/user/useAuthorization'; // Giả định hook này tồn tại
 import { LoadingSpinner } from '../../../00-design-system/00-atoms/LoadingSpinner'; // Giả định component này tồn tại
 
 interface RouteGuardProps {

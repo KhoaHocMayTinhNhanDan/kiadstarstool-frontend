@@ -1,3 +1,6 @@
+import { Student } from '@/01-entities/students/Student.entity';
+
+// Định nghĩa DTO ngay tại Layer Interface Adapters để đảm bảo Dependency Rule
 export interface StudentEnrollmentDTO {
   branchId: string;
   classId?: string;
@@ -18,4 +21,10 @@ export interface StudentDTO {
   phone?: string;
   status: string;
   enrollments: StudentEnrollmentDTO[];
+}
+
+export interface IStudentDataSource {
+  getById(id: string): Promise<StudentDTO | null>;
+  getByBranchId(branchId: string): Promise<StudentDTO[]>;
+  save(student: Student): Promise<void>;
 }

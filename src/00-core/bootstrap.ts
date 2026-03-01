@@ -19,9 +19,12 @@ import { GrantUserPermissionInteractor } from '@/02-usecases/authorization/Grant
 import { RevokeUserPermissionInteractor } from '@/02-usecases/authorization/RevokeUserPermission.interactor'
 import { AuthorizationController } from '@/03-interface-adapters/controllers/Authorization.controller'
 import { GetUserInteractor } from '@/02-usecases/users/GetUser.interactor';
+import { CreateUserInteractor } from '@/02-usecases/users/CreateUser.interactor';
 import { ListUsersInteractor } from '@/02-usecases/users/ListUsers.interactor';
+import { UpdateUserProfileInteractor } from '@/02-usecases/users/UpdateUserProfile.interactor';
+import { DeactivateUserInteractor } from '@/02-usecases/users/DeactivateUser.interactor';
 import { UsersController } from '@/03-interface-adapters/controllers/Users.controller';
-import { MockUserDataSource } from '@/04-frameworks-and-drivers/devices/user/MockUserDataSource';
+import { MockUserProfileDataSource } from '@/04-frameworks-and-drivers/devices/user/MockUserProfileDataSource';
 import { MockBranchDataSource } from '@/04-frameworks-and-drivers/devices/branch/MockBranchDataSource';
 import { CreateBranchInteractor } from '@/02-usecases/branch/CreateBranch.interactor';
 import { UpdateBranchInfoInteractor } from '@/02-usecases/branch/UpdateBranchInfo.interactor';
@@ -125,9 +128,15 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
   }
   
   const authRepository = new AuthRepository(authDriver);
-  const userDataSource = new MockUserDataSource();
+  const userDataSource = new MockUserProfileDataSource();
   const userRepository = new UserRepository(userDataSource);
   const authPresenter = new AuthPresenter()
+
+  // --- Wire up Auth Listener ---
+  // Lắng nghe thay đổi từ Driver (Firebase/Mock) và cập nhật Presenter
+  authDriver.onAuthStateChanged((userIdentity) => {
+    authPresenter.setUser(userIdentity);
+  });
   
   const loginInteractor = new LoginInteractor(authRepository)
   const logoutInteractor = new LogoutInteractor(authRepository)
@@ -150,10 +159,17 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
   // 1.2 Initialize Users
   const getUserInteractor = new GetUserInteractor(userRepository);
   const listUsersInteractor = new ListUsersInteractor(userRepository);
+  const updateProfileInteractor = new UpdateUserProfileInteractor(userRepository);
+  const deactivateUserInteractor = new DeactivateUserInteractor(userRepository);
+  const createUserInteractor = new CreateUserInteractor(userRepository);
   const usersController = new UsersController(
     getUserInteractor,
-    listUsersInteractor
+    listUsersInteractor,
+    updateProfileInteractor,
+    deactivateUserInteractor,
+    createUserInteractor
   );
+
 
   // --- Pre-initialize Student Repo for Branch dependency ---
   const studentDataSource = new MockStudentDataSource();

@@ -1,46 +1,25 @@
-// src/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAccountManagement.ts
-import type { AuthIdentity } from '@/01-entities/auth/AuthIdentity.entity';
+import { AuthIdentity } from '@/01-entities/auth/AuthIdentity.entity';
 
 /**
- * Interface chuyên biệt cho quản lý Tài khoản (Account Management)
- * Bao gồm: Đổi mật khẩu, Reset mật khẩu, Cập nhật email, Xóa tài khoản
+ * Interface quản lý tài khoản người dùng (Account Management)
+ * Bao gồm: Đăng ký, Đổi mật khẩu, Cập nhật thông tin, Xóa tài khoản...
  */
 export interface IAuthAccountManagement {
-  /**
-   * Send password reset email
-   * @param email - User email
-   */
-  sendPasswordResetEmail(email: string): Promise<void>;
-
-  /**
-   * Update user's email
-   * @param currentEmail - Current email
-   * @param newEmail - New email
-   */
-  updateEmail(currentEmail: string, newEmail: string): Promise<void>;
-
-  /**
-   * Update user's password
-   * @param email - User email
-   * @param newPassword - New password
-   */
-  updatePassword(email: string, newPassword: string): Promise<void>;
-
-  /**
-   * Create new user with email and password
-   * @param email - User email
-   * @param password - User password
-   * @returns Created AuthIdentity
-   */
   createUserWithEmailAndPassword(email: string, password: string): Promise<AuthIdentity>;
-
-  /**
-   * Delete current user account
-   */
+  sendPasswordResetEmail(email: string): Promise<void>;
+  updateEmail(currentEmail: string, newEmail: string): Promise<void>;
+  updatePassword(email: string, newPassword: string): Promise<void>;
   deleteUser(): Promise<void>;
+  sendEmailVerification(): Promise<void>;
+  signInAnonymously(): Promise<AuthIdentity>;
 
   /**
-   * Send email verification
+   * Cập nhật thông tin hiển thị (Tên, Ảnh đại diện) trên hệ thống Auth
    */
-  sendEmailVerification(): Promise<void>;
+  updateProfile(profile: { displayName?: string; photoURL?: string }): Promise<void>;
+
+  /**
+   * Tải lại thông tin người dùng từ Auth Provider (để cập nhật claims, email verified, v.v.)
+   */
+  reloadUser(): Promise<void>;
 }

@@ -3,29 +3,29 @@ import { UserRole } from '../../base/UserRole.vo'
 import { Permission } from '../../base/Permission.vo'
 import { PhoneNumber } from '../../../shared/base/PhoneNumber.vo'
 
-interface StaffProfileProps {
+interface TeacherProfileProps {
   displayName: string
   photoURL?: string
   phoneNumbers?: readonly PhoneNumber[]
 
   /**
-   * Thuộc tính RIÊNG của Staff (nếu có)
-   * Ví dụ: bộ phận, ghi chú nội bộ, ca làm việc...
+   * Thuộc tính RIÊNG của Teacher (nếu có)
+   * Ví dụ: chuyên môn, chứng chỉ...
    */
-  department?: string
+  specialization?: string
 }
 
-export class StaffProfile implements IUserProfile {
+export class TeacherProfile implements IUserProfile {
   readonly kind: UserRole
   readonly displayName: string
   readonly photoURL?: string
   readonly phoneNumbers: readonly PhoneNumber[]
 
-  // Staff-specific
-  readonly department?: string
+  // Teacher-specific
+  readonly specialization?: string
 
-  constructor(props: StaffProfileProps) {
-    const roleResult = UserRole.create('staff')
+  constructor(props: TeacherProfileProps) {
+    const roleResult = UserRole.create('teacher')
     if (roleResult.isFailure) {
       throw new Error(roleResult.getErrorValue().toString())
     }
@@ -34,7 +34,7 @@ export class StaffProfile implements IUserProfile {
     this.displayName = props.displayName.trim()
     this.photoURL = props.photoURL
     this.phoneNumbers = props.phoneNumbers ?? []
-    this.department = props.department
+    this.specialization = props.specialization
   }
 
   // =====================
@@ -46,13 +46,6 @@ export class StaffProfile implements IUserProfile {
   }
 
   supportsPermission(permission: Permission): boolean {
-    /**
-     * Profile KHÔNG quyết định policy
-     * Chỉ chặn những quyền KHÔNG BAO GIỜ được phép
-     *
-     * Ví dụ:
-     * - Staff không bao giờ có wildcard (*)
-     */
     if (permission.isWildcard()) return false
     return true
   }
@@ -62,11 +55,11 @@ export class StaffProfile implements IUserProfile {
   // =====================
 
   update(props: Partial<{ displayName: string; photoURL: string; phoneNumbers: PhoneNumber[] }>): IUserProfile {
-    return new StaffProfile({
+    return new TeacherProfile({
       displayName: props.displayName ?? this.displayName,
       photoURL: props.photoURL ?? this.photoURL,
       phoneNumbers: props.phoneNumbers ?? this.phoneNumbers,
-      department: this.department // Giữ nguyên các trường đặc thù
+      specialization: this.specialization // Giữ nguyên các trường đặc thù
     })
   }
 
@@ -75,15 +68,12 @@ export class StaffProfile implements IUserProfile {
   // =====================
 
   equals(other: IUserProfile): boolean {
-    if (!other) return false
-    if (!other.kind.equals(this.kind)) return false
-
-    const o = other as StaffProfile
-
+    if (!other || !other.kind.equals(this.kind)) return false
+    const o = other as TeacherProfile
     return (
       this.displayName === o.displayName &&
       this.photoURL === o.photoURL &&
-      this.department === o.department &&
+      this.specialization === o.specialization &&
       this.phoneNumbers.length === o.phoneNumbers.length &&
       this.phoneNumbers.every((p, i) => p.equals(o.phoneNumbers[i]))
     )
@@ -98,7 +88,7 @@ export class StaffProfile implements IUserProfile {
       kind: this.kind.toString(),
       displayName: this.displayName,
       photoURL: this.photoURL,
-      department: this.department,
+      specialization: this.specialization,
       phoneNumbers: this.phoneNumbers.map(p => p.toJSON()),
     }
   }

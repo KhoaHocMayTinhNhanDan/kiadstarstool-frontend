@@ -7,6 +7,7 @@ import { type LoginInput } from '@/02-usecases/auth/ports/input/ILoginInput';
 import { type LoginOutput } from '@/02-usecases/auth/ports/output/ILoginOutput';
 import { type LogoutInput } from '@/02-usecases/auth/ports/input/ILogoutInput';
 import { type LogoutOutput } from '@/02-usecases/auth/ports/output/ILogoutOutput';
+import { AppContext } from '@/00-core/app-context';
 
 export class AuthController {
   private readonly loginInteractor: LoginInteractor;
@@ -43,6 +44,23 @@ export class AuthController {
     } catch (error: any) {
       console.error('[AuthController] Logout unexpected error:', error);
       return Result.fail<LogoutOutput>('An unexpected error occurred during logout');
+    }
+  }
+
+  /**
+   * Xử lý đăng ký.
+   * Tạm thời gọi trực tiếp AuthDriver vì chưa có RegisterInteractor hoàn chỉnh.
+   * TODO: Refactor để sử dụng RegisterInteractor khi nó sẵn sàng.
+   */
+  async register(email: string, password: string): Promise<Result<void>> {
+    try {
+      const authDriver = AppContext.getAuthDriver();
+      // Giả sử driver có phương thức này (FirebaseAuthDriver và MockAuthDriver đều có)
+      await authDriver.signUpWithEmailAndPassword(email, password);
+      return Result.ok();
+    } catch (error: any) {
+      console.error('[AuthController] Register error:', error);
+      return Result.fail(error.message || 'Registration failed');
     }
   }
 }

@@ -18,6 +18,8 @@ export class MockAuthDriver
     emailVerified: boolean;
     customClaims: Record<string, any>;
     idToken?: string;
+    displayName?: string;
+    photoURL?: string;
   }> = [
     {
       email: 'admin@example.com',
@@ -66,6 +68,8 @@ export class MockAuthDriver
     const userAuthResult = AuthIdentity.create({
       id: `mock-id-${user.email}`,
       email: user.email,
+      displayName: user.displayName || user.email.split('@')[0],
+      photoURL: user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`,
       roles: roles,
       permissions: [], // Mock permissions if needed
       emailVerified: user.emailVerified,
@@ -152,6 +156,8 @@ export class MockAuthDriver
     const userAuthResult = AuthIdentity.create({
       id: `mock-id-${newUser.email}`,
       email: newUser.email,
+      displayName: newUser.email.split('@')[0],
+      photoURL: `https://i.pravatar.cc/150?u=${newUser.email}`,
       roles: roles,
       permissions: [],
       emailVerified: newUser.emailVerified,
@@ -164,7 +170,11 @@ export class MockAuthDriver
       throw new Error('auth/internal-mock-error');
     }
 
-    return userAuthResult.getValue();
+    // FIX: Tự động đăng nhập sau khi tạo tài khoản thành công (giống hành vi của Firebase)
+    this.currentUser = userAuthResult.getValue();
+    this.notifyAuthStateChange(this.currentUser);
+
+    return this.currentUser;
   }
 
   async deleteUser(): Promise<void> {
@@ -180,6 +190,52 @@ export class MockAuthDriver
   async sendEmailVerification(): Promise<void> {
     await this.delay(300);
     console.log('[Mock] Email verification sent');
+  }
+
+  async signInAnonymously(): Promise<AuthIdentity> {
+    await this.delay(500);
+    const id = `mock-anon-${Date.now()}`;
+    
+    const userAuthResult = AuthIdentity.create({
+      id,
+      email: '', // Anonymous user không có email
+      displayName: 'Guest',
+      roles: [],
+      permissions: [],
+      emailVerified: false,
+      lastLoginAt: new Date().toISOString(),
+      customClaims: { isAnonymous: true }
+    });
+
+    this.currentUser = userAuthResult.getValue();
+    this.notifyAuthStateChange(this.currentUser);
+    return this.currentUser;
+  }
+
+  async updateProfile(profile: { displayName?: string; photoURL?: string }): Promise<void> {
+    await this.delay(300);
+    if (!this.currentUser) throw new Error('auth/no-current-user');
+
+    const userIndex = this.mockUsers.findIndex(u => u.email === this.currentUser!.email);
+    if (userIndex !== -1) {
+      // Cập nhật dữ liệu trong mảng mockUsers để giữ lại sau khi reload/re-login
+      if (profile.displayName) this.mockUsers[userIndex].displayName = profile.displayName;
+      if (profile.photoURL) this.mockUsers[userIndex].photoURL = profile.photoURL;
+    }
+  }
+
+  async reloadUser(): Promise<void> {
+    await this.delay(200);
+    if (!this.currentUser) return;
+
+    // Đăng nhập lại "ngầm" để lấy dữ liệu mới nhất từ mockUsers
+    const user = this.mockUsers.find(u => u.email === this.currentUser!.email);
+    if (user) {
+      // Tái tạo AuthIdentity với dữ liệu mới
+      // Lưu ý: Trong thực tế ta nên tách logic tạo AuthIdentity ra hàm riêng để tái sử dụng
+      // Ở đây ta gọi lại signInWithEmailAndPassword để đơn giản hóa việc refresh
+      await this.signInWithEmailAndPassword(user.email, user.password);
+    }
   }
 
   onAuthStateChanged(callback: (user: AuthIdentity | null) => void): () => void {

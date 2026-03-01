@@ -20,4 +20,4 @@ export * from './Divider';
 export * from './Select';
 export * from './Code';
 export * from './Tooltip';
-
+export * from './Alert';

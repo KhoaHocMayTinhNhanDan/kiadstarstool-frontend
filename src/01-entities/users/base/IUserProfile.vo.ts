@@ -35,6 +35,12 @@ export interface IUserProfile {
    */
   supportsPermission(permission: Permission): boolean
 
+  /**
+   * Cập nhật thông tin profile.
+   * Trả về một instance mới (Immutable).
+   */
+  update(props: Partial<{ displayName: string; photoURL: string; phoneNumbers: PhoneNumber[] }>): IUserProfile
+
   toJSON(): unknown
   equals(other: IUserProfile): boolean
 }

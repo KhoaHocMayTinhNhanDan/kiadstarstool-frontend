@@ -5,7 +5,6 @@ import { ModeProvider } from '../../01-ui-core/contexts/ModeContext';
 import { ThemeProvider } from '../../01-ui-core/contexts/ThemeContext';
 import { ToastProvider } from './ToastProvider'; // Sử dụng App-level ToastProvider
 import { I18nProvider } from './I18nProvider';
-import { AuthProvider } from '../contexts/AuthContext';
 
 export const AppProviders = ({ children }: { children: ReactNode }) => {
   return (
@@ -13,9 +12,7 @@ export const AppProviders = ({ children }: { children: ReactNode }) => {
       <ThemeProvider>
         <ModeProvider>
           <ToastProvider>
-            <AuthProvider>
-              <ModalProvider>{children}</ModalProvider>
-            </AuthProvider>
+            <ModalProvider>{children}</ModalProvider>
           </ToastProvider>
         </ModeProvider>
       </ThemeProvider>

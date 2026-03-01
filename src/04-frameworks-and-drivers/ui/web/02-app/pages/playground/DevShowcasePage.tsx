@@ -60,7 +60,6 @@ import { AdvancedFilterPlayground } from '../../../00-design-system/02-organisms
 import { MultiStepFormPlayground } from '../../../00-design-system/02-organisms/forms/MultiStepForm/MultiStepForm.playground'
 import { SearchFilterFormPlayground } from '../../../00-design-system/02-organisms/forms/SearchFilterForm/SearchFilterForm.playground';
 
-import { LoginPageTest } from '../auth/LoginPage-test' 
 import { AppContext } from '@/00-core/app-context'
 import { ErrorBoundary } from '../../../00-design-system/02-organisms/feedback/system/ErrorBoundary'
 import { ToastProvider } from '../../providers/ToastProvider'
@@ -207,7 +206,6 @@ const categories: Category[] = [
     id: 'pages',
     label: '📄 Pages',
     items: [
-      { id: 'login', label: 'Login Page', component: <LoginPageTest /> },
     ]
   },
   {

@@ -3,15 +3,24 @@
 import { type IUserDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/user/IUserDataSource';
 import { type UserJSON } from '@/01-entities/users/User.entity';
 import { mockDatabase } from '@/04-frameworks-and-drivers/database/LocalStorage';
+import { ROLE_PRESETS } from '@/shared/constants/authorization/auth.policy';
 
-export class MockUserDataSource implements IUserDataSource {
+export class MockUserProfileDataSource implements IUserDataSource {
   constructor() {
     this.initialize();
   }
 
   private initialize() {
     const userStore = mockDatabase.getCollection<UserJSON>('users');
-    if (userStore.length === 0) {
+    
+    // Check for stale data (e.g. Teacher with Staff profile kind) or empty store
+    const hasStaleData = userStore.some(u => 
+      (u.role === 'teacher' && u.profile.kind !== 'teacher') ||
+      (u.role === 'admin' && u.profile.kind !== 'admin')
+    );
+
+    if (userStore.length === 0 || hasStaleData) {
+      console.log('[MockUserProfileDataSource] Detected empty or stale data. Seeding...');
       this.seed();
     }
   }
@@ -19,13 +28,13 @@ export class MockUserDataSource implements IUserDataSource {
   private seed() {
     const seedData: UserJSON[] = [
       {
-        id: 'mock-id-admin@example.com',
-        email: 'admin@example.com',
-        role: 'admin',
+        id: 'mock-id-admin@example.com', // LINK: Khớp với ID bên Auth System
+        email: 'admin@example.com',      // DUPLICATE: Lưu lại để hỗ trợ tìm kiếm/lọc (Query Model) mà không cần gọi Auth
+        role: 'admin',                   // DUPLICATE: Lưu lại để hiển thị trong danh sách quản trị
         isActive: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        permissions: [],
+        permissions: [...ROLE_PRESETS.admin], // SOURCE: Áp dụng Policy mặc định cho Admin
         profile: {
           kind: 'admin',
           displayName: 'Quản trị viên',
@@ -36,15 +45,15 @@ export class MockUserDataSource implements IUserDataSource {
         }
       },
       {
-        id: 'mock-id-teacher@example.com',
-        email: 'teacher@example.com',
-        role: 'teacher',
+        id: 'mock-id-teacher@example.com', // LINK: Khớp với ID bên Auth System
+        email: 'teacher@example.com',      // DUPLICATE
+        role: 'teacher',                   // DUPLICATE
         isActive: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        permissions: [],
+        permissions: [...ROLE_PRESETS.teacher], // SOURCE: Áp dụng Policy mặc định cho Teacher
         profile: {
-          kind: 'staff', // Fallback profile cho teacher (hoặc tạo TeacherProfile riêng nếu cần)
+          kind: 'teacher', // Sửa thành 'teacher' để khớp với role, tránh lỗi PROFILE_ROLE_MISMATCH
           displayName: 'Giáo viên',
           photoURL: 'https://i.pravatar.cc/150?u=teacher@example.com',
           phoneNumbers: [],

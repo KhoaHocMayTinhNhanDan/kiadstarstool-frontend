@@ -21,6 +21,7 @@ export class ListUsersInteractor {
         isActive: user.isActive,
         email: user.email,
         photoURL: user.profile.photoURL,
+        phone: user.profile.phoneNumbers?.[0]?.value,
       }));
 
       return Result.ok<UserOutput[]>(userOutputs);

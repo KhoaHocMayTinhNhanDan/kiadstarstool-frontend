@@ -1,7 +1,7 @@
 // src/03-interface-adapters/gateways/outbound/device_interfaces/user/IUserDataSource.ts
 
 import { type UserJSON } from '@/01-entities/users/User.entity';
-import { type StudentDTO } from '@/04-frameworks-and-drivers/devices/students/student.dto';
+import { type StudentDTO } from '@/03-interface-adapters/gateways/outbound/device_interfaces/student/IStudentDataSource';
 import { type Student } from '@/01-entities/students/Student.entity';
 
 /**

@@ -7,6 +7,8 @@ import { Permission } from '../users/base/Permission.vo';
 export interface AuthIdentityProps {
   id: string;
   email: string;
+  displayName?: string;
+  photoURL?: string;
   roles: UserRole[];
   permissions: Permission[];
   lastLoginAt: string | null;
@@ -17,6 +19,8 @@ export interface AuthIdentityProps {
 export interface AuthIdentityPrimitives {
   id: string;
   email: string;
+  displayName?: string;
+  photoURL?: string;
   roles: string[];
   permissions: string[];
   lastLoginAt: string | null;
@@ -27,6 +31,12 @@ export interface AuthIdentityPrimitives {
 export class AuthIdentity {
   readonly id: string;
   readonly email: string;
+  
+  // Snapshot từ Auth Provider (Firebase) để hiển thị UI nhanh (Header/Avatar) mà không cần query DB.
+  // Lưu ý: Dữ liệu gốc (Source of Truth) đầy đủ nằm ở User Profile trong Database.
+  readonly displayName?: string;
+  readonly photoURL?: string;
+  
   readonly roles: readonly UserRole[];
   readonly permissions: readonly Permission[];
   readonly lastLoginAt: string | null;
@@ -36,6 +46,8 @@ export class AuthIdentity {
   private constructor(props: AuthIdentityProps) {
     this.id = props.id;
     this.email = props.email.toLowerCase().trim();
+    this.displayName = props.displayName;
+    this.photoURL = props.photoURL;
     this.roles = Object.freeze([...props.roles]);
     this.permissions = Object.freeze([...props.permissions]);
     this.lastLoginAt = props.lastLoginAt;
@@ -79,6 +91,8 @@ export class AuthIdentity {
     return AuthIdentity.create({
       id: p.id,
       email: p.email,
+      displayName: p.displayName,
+      photoURL: p.photoURL,
       roles: mappedRoles,
       permissions: mappedPermissions,
       lastLoginAt: p.lastLoginAt,
@@ -106,6 +120,8 @@ export class AuthIdentity {
     return {
       id: this.id,
       email: this.email,
+      displayName: this.displayName,
+      photoURL: this.photoURL,
       roles: this.roles.map(r => r.value),
       permissions: this.permissions.map(p => p.value),
       lastLoginAt: this.lastLoginAt,

@@ -4,14 +4,15 @@ import { useState, useEffect, useMemo } from 'react';
 import { 
   Activity
 } from 'lucide-react';
-import { Box, Text, Icon } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { useAuth } from '@/04-frameworks-and-drivers/ui/web/02-app/hooks/user/useAuth';
+import { Box, Text, Icon, Avatar } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { useAuth } from '@/04-frameworks-and-drivers/ui/web/02-app/hooks/user/useAuthorization';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { AppContext } from '@/00-core/app-context';
 import { type StudentListItem } from '@/02-usecases/students/ports/output/ListStudentsByBranch.output';
 import { type ListBranchesOutput } from '@/02-usecases/branch/ports/output/ListBranches.output';
 import { type ListOngoingClassesOutput } from '@/02-usecases/class/ports/output/ListOngoingClasses.output';
 import { type ListTransactionsOutput } from '@/02-usecases/finance/ports/output/ListTransactions.output';
+import { type UserOutput } from '@/02-usecases/users/ports/output/IUserOutput';
 
 import { DashboardStatsGrid } from './components/DashboardStatsGrid';
 import { DashboardCharts } from './components/DashboardCharts';
@@ -95,6 +96,7 @@ export const DashboardPage = () => {
   const [allBranches, setAllBranches] = useState<ListBranchesOutput>([]);
   const [ongoingClasses, setOngoingClasses] = useState<ListOngoingClassesOutput>([]);
   const [allTransactions, setAllTransactions] = useState<ListTransactionsOutput>([]);
+  const [userProfile, setUserProfile] = useState<UserOutput | null>(null);
 
   // --- Filter States ---
   const [selectedBranchIds, setSelectedBranchIds] = useState<string[]>([]); // Empty array = All Branches
@@ -159,6 +161,24 @@ export const DashboardPage = () => {
 
     fetchAllData();
   }, []); // Fetch only once on mount
+
+  // Fetch User Profile
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user?.id) {
+        try {
+          const usersController = AppContext.getUsersController();
+          const result = await usersController.getUser({ userId: user.id });
+          if (result.isSuccess) {
+            setUserProfile(result.getValue());
+          }
+        } catch (e) {
+          console.error('Failed to fetch user profile', e);
+        }
+      }
+    };
+    fetchUserProfile();
+  }, [user]);
 
   // --- Derived Data Calculation using useMemo ---
   const pageData = useMemo(() => {
@@ -281,16 +301,26 @@ export const DashboardPage = () => {
     });
   };
 
-  const welcomeMessage = user?.displayName ? t('common.welcome_back', { name: user.displayName }) : t('dashboard.title');
+  const welcomeMessage = userProfile?.displayName 
+    ? t('common.welcome_back', { name: userProfile.displayName }) 
+    : (user?.email ? t('common.welcome_back', { name: user.email }) : t('dashboard.title'));
 
 
   return (
     <Box display="flex" flexDirection="column" gap="xl">
       {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="flex-end">
-        <Box>
-          <Text as="h1" variant="heading-xl" weight="bold">{welcomeMessage}</Text>
-          <Text color="SECONDARY">{t('dashboard.subtitle')}</Text>
+        <Box display="flex" alignItems="center" gap="md">
+          <Avatar 
+            src={userProfile?.photoURL} 
+            alt={userProfile?.displayName || user?.email || 'User'} 
+            size="xl" 
+            fallback={userProfile?.displayName?.[0] || user?.email?.[0] || 'U'}
+          />
+          <Box>
+            <Text as="h1" variant="heading-xl" weight="bold">{welcomeMessage}</Text>
+            <Text color="SECONDARY">{t('dashboard.subtitle')}</Text>
+          </Box>
         </Box>
         
         {/* Quick Actions */}

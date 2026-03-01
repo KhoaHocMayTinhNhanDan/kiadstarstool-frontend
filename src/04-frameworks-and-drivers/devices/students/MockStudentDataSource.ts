@@ -1,6 +1,5 @@
-import { type IStudentDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/user/IUserDataSource';
+import { type IStudentDataSource, type StudentDTO } from '@/03-interface-adapters/gateways/outbound/device_interfaces/student/IStudentDataSource';
 import { Student } from '@/01-entities/students/Student.entity';
-import { type StudentDTO } from './student.dto';
 import { mockDatabase } from '@/04-frameworks-and-drivers/database/LocalStorage';
 
 export class MockStudentDataSource implements IStudentDataSource {

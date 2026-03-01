@@ -27,6 +27,7 @@ export class GetUserInteractor {
         isActive: user.isActive,
         email: user.email,
         photoURL: user.profile.photoURL,
+        phone: user.profile.phoneNumbers?.[0]?.value,
       });
     } catch (error: any) {
       console.error(`[GetUserInteractor] Failed to get user ${input.userId}:`, error);

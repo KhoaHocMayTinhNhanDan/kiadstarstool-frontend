@@ -6,6 +6,7 @@ import { type IUserProfile } from './base/IUserProfile.vo';
 import { type PermissionCode } from '../../shared/constants/authorization/auth.domain';
 import { Permission } from './base/Permission.vo';
 import { EffectivePermissionService } from './services/EffectivePermission.service';
+import { PhoneNumber } from '../shared/base/PhoneNumber.vo';
 
 export interface UserProps {
   readonly id: UserId;
@@ -132,6 +133,15 @@ export class User extends AggregateRoot<UserId> {
   activate(): User {
     if (this.isActive) return this;
     return this.clone({ isActive: true });
+  }
+
+  /**
+   * Cập nhật thông tin profile của user.
+   * Logic cụ thể sẽ được delegate cho từng loại Profile (Admin/Staff).
+   */
+  updateProfile(props: Partial<{ displayName: string; photoURL: string; phoneNumbers: PhoneNumber[] }>): User {
+    const newProfile = this.profile.update(props);
+    return this.clone({ profile: newProfile });
   }
 
   /* ==============================

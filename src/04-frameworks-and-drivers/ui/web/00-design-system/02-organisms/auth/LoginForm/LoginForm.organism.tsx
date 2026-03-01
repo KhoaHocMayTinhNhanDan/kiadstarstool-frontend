@@ -1,9 +1,12 @@
 // src/04-frameworks-and-drivers/ui/web/components/02-organisms/auth/LoginForm/LoginForm.organism.tsx
 /** @jsxImportSource @emotion/react */
 import React, { useState } from 'react';
-import { Box, Button, Input, Text, Checkbox } from '../../../00-atoms';
+import { css } from '@emotion/react';
+import { Eye, EyeOff } from 'lucide-react';
+import { Box, Button, Input, Text, Checkbox, IconButton } from '../../../00-atoms';
 import * as styles from './LoginForm.styles';
 import type { LoginFormProps, LoginFormData } from './LoginForm.types';
+import { COLORS } from '../../../../01-ui-core/constants/tokens-constants';
 
 export const LoginForm: React.FC<LoginFormProps> = ({
   onSubmit,
@@ -15,6 +18,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
@@ -73,15 +77,33 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             </a>
           )}
         </Box>
-        <Input 
-          type="password" 
-          placeholder="Enter your password" 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={isLoading}
-          error={!!errors.password}
-          autoComplete="current-password"
-        />
+        <Box position="relative">
+          <Input 
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Enter your password" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
+            error={!!errors.password}
+            autoComplete="current-password"
+            css={css`padding-right: 40px;`}
+          />
+          <IconButton
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            icon={showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            css={css`
+              position: absolute;
+              right: 8px;
+              top: 50%;
+              transform: translateY(-50%);
+              color: ${COLORS.SECONDARY};
+            `}
+          />
+        </Box>
         {errors.password && <Text variant="caption" color="DANGER">{errors.password}</Text>}
       </Box>
 

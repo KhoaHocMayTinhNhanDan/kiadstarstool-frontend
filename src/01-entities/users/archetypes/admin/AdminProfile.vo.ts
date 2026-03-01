@@ -50,6 +50,20 @@ export class AdminProfile implements IUserProfile {
     return true // admin full quyền
   }
 
+  // =====================
+  // MUTATION
+  // =====================
+
+  update(props: Partial<{ displayName: string; photoURL: string; phoneNumbers: PhoneNumber[] }>): IUserProfile {
+    return new AdminProfile({
+      displayName: props.displayName ?? this.displayName,
+      photoURL: props.photoURL ?? this.photoURL,
+      phoneNumbers: props.phoneNumbers ?? this.phoneNumbers,
+      adminLevel: this.adminLevel, // Giữ nguyên
+      managedBranches: this.managedBranches // Giữ nguyên
+    })
+  }
+
   equals(other: IUserProfile): boolean {
     if (!other) return false
     if (!other.kind.equals(this.kind)) return false

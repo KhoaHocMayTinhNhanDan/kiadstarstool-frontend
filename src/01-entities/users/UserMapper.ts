@@ -5,6 +5,7 @@ import { UserPermissions } from '@/01-entities/users/base/UserPermissions.vo';
 import { type IUserProfile } from '@/01-entities/users/base/IUserProfile.vo';
 import { AdminProfile } from '@/01-entities/users/archetypes/admin/AdminProfile.vo';
 import { StaffProfile } from '@/01-entities/users/archetypes/staff/StaffProfile.vo';
+import { TeacherProfile } from '@/01-entities/users/archetypes/teacher/TeacherProfile.vo';
 import { PhoneNumber } from '@/01-entities/shared/base/PhoneNumber.vo';
 import { type PermissionCode } from '@/shared/constants/authorization/auth.domain';
 
@@ -61,6 +62,14 @@ export class UserMapper {
           photoURL: profileJson.photoURL,
           phoneNumbers: phoneNumbers,
           department: profileJson.department,
+        });
+      case 'teacher':
+        return new TeacherProfile({
+          displayName: profileJson.displayName,
+          photoURL: profileJson.photoURL,
+          phoneNumbers: phoneNumbers,
+          // Giả sử teacher có 'specialization'
+          specialization: profileJson.specialization,
         });
       // Thêm các case khác cho Teacher, Manager... ở đây
       default:

@@ -211,6 +211,13 @@ export class FirebaseAuthDriver
    * ===================== */
 
   private async mapFirebaseUser(firebaseUser: User): Promise<AuthIdentity> {
+    // =================================================================================
+    // ĐÂY LÀ NƠI TỐT NHẤT ĐỂ LOG DỮ LIỆU FIREBASE TRẢ VỀ
+    console.log('[FirebaseAuthDriver] Raw Firebase User Object:', firebaseUser);
+    // Bạn có thể xem chi tiết các thuộc tính như: firebaseUser.uid, firebaseUser.email, 
+    // firebaseUser.displayName, firebaseUser.photoURL, firebaseUser.metadata, ...
+    // =================================================================================
+
     // Force-refreshing the token should be done explicitly (e.g., via refreshToken).
     // Here we get the cached token result which is more efficient.
     const token = await firebaseUser.getIdTokenResult(false);
@@ -245,6 +252,8 @@ export class FirebaseAuthDriver
     const authIdentityResult = AuthIdentity.create({
       id: firebaseUser.uid,
       email: firebaseUser.email || '',
+      displayName: firebaseUser.displayName || '',
+      photoURL: firebaseUser.photoURL || '',
       roles: mappedRoles,
       permissions: mappedPermissions,
       emailVerified: firebaseUser.emailVerified || false,

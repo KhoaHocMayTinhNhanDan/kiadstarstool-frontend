@@ -25,6 +25,9 @@ import { ThemeSelector } from '../../pages/settings/ThemeSelector';
 import { FinancePage } from '../../pages/finance/FinancePage';
 import { CreateTransactionPage } from '../../pages/finance/CreateTransactionPage';
 import { CollectTuitionPage } from '../../pages/finance/CollectTuitionPage';
+import { UserProfilePage } from '../../pages/users/UserProfilePage';
+import { UserListPage } from '../../pages/users/UserListPage';
+import { CreateUserPage } from '../../pages/users/CreateUserPage';
 
 /* ==========================================================================
  * Router Configuration
@@ -139,6 +142,26 @@ const routes: RouteObject[] = [
               {
                 path: 'finance/collect-tuition',
                 element: <CollectTuitionPage />,
+              },
+              // User Management List
+              {
+                path: 'users',
+                element: <UserListPage />,
+              },
+              {
+                path: 'users/new',
+                element: <CreateUserPage />,
+              },
+              // User Profile
+              {
+                // Route for the current logged-in user's profile
+                path: 'profile',
+                element: <UserProfilePage />,
+              },
+              {
+                // Route for viewing a specific user's profile by ID
+                path: 'users/:id',
+                element: <UserProfilePage />,
               },
             ],
           },

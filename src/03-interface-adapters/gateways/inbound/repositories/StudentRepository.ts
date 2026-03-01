@@ -1,7 +1,6 @@
 import { Student } from '@/01-entities/students/Student.entity';
 import { Enrollment } from '@/01-entities/students/value-objects/Enrollment.vo';
-import { type IStudentDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/user/IUserDataSource';
-import { type StudentDTO, type StudentEnrollmentDTO } from '@/04-frameworks-and-drivers/devices/students/student.dto';
+import { type IStudentDataSource, type StudentDTO, type StudentEnrollmentDTO } from '@/03-interface-adapters/gateways/outbound/device_interfaces/student/IStudentDataSource';
 import { type IStudentRepository } from '@/02-usecases/students/ports/gateways_interface/IStudentRepository';
 import { Identifier } from '@/01-entities/shared/Identifier.vo';
 
@@ -34,7 +33,7 @@ export class StudentRepository implements IStudentRepository {
         }
         return enrollmentResult.getValue();
       })
-      .filter((e): e is Enrollment => e !== null); // Lọc bỏ các giá trị null
+      .filter((e: Enrollment | null): e is Enrollment => e !== null); // Lọc bỏ các giá trị null
 
     const studentResult = Student.create({
       id: Identifier.create(dto.id),
@@ -61,7 +60,7 @@ export class StudentRepository implements IStudentRepository {
 
   async getByBranchId(branchId: string): Promise<Student[]> {
     const dtos = await this.dataSource.getByBranchId(branchId);
-    return dtos.map(dto => this.hydrate(dto));
+    return dtos.map((dto: StudentDTO) => this.hydrate(dto));
   }
 
   async save(student: Student): Promise<void> {

@@ -6,6 +6,7 @@ import { CheckCircle, XCircle, Clock, AlertCircle, X, Save } from 'lucide-react'
 import { AppContext } from '@/00-core/app-context';
 import { type AttendanceListItem } from '@/02-usecases/attendance/ports/output/ListAttendanceByClass.output';
 import { useToast } from '../../../../01-ui-core/hooks/useToast';
+import { useAuth } from '../../../hooks/user/useAuthorization';
 
 interface AttendanceCheckinModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface AttendanceCheckinModalProps {
 
 export const AttendanceCheckinModal = ({ isOpen, onClose, classId, className, date }: AttendanceCheckinModalProps) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [students, setStudents] = useState<AttendanceListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -56,18 +58,31 @@ export const AttendanceCheckinModal = ({ isOpen, onClose, classId, className, da
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // Tối ưu hóa: Gom nhóm học viên theo trạng thái và gọi API hàng loạt
+      const studentsToSave = students.filter(s => s.status !== 'not_marked');
+      const groupedByStatus: Record<string, string[]> = {};
+
+      for (const student of studentsToSave) {
+        if (!groupedByStatus[student.status]) {
+          groupedByStatus[student.status] = [];
+        }
+        groupedByStatus[student.status].push(student.studentId);
+      }
+
       const controller = AppContext.getAttendanceController();
-      const attendanceTasks = students
-        .filter(s => s.status !== 'not_marked') // Chỉ lưu những học viên đã được điểm danh
-        .map(student => controller.markAttendance({
+      const batchTasks = Object.entries(groupedByStatus).map(([status, studentIds]) => {
+        // Lưu ý: Logic ghi chú cho từng học viên sẽ không được hỗ trợ khi dùng batch.
+        // Nếu cần ghi chú, phải dùng markAttendance cho từng người.
+        return controller.markBatchAttendance({
           classId,
           date,
-          studentId: student.studentId,
-          status: student.status as any, // Cast vì status có thể là 'not_marked' trong type nhưng đã lọc ở trên
-          note: student.notes,
-        }));
+          studentIds,
+          status: status as any,
+          performedBy: user?.id || 'unknown'
+        });
+      });
 
-      await Promise.all(attendanceTasks);
+      await Promise.all(batchTasks);
 
       toast.success('Đã lưu điểm danh thành công');
       onClose();
