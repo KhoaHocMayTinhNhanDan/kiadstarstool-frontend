@@ -1,7 +1,7 @@
 import { AggregateRoot } from '../shared/base/AggregateRoot';
 import { Identifier } from '../shared/value-objects/Identifier.vo';
 
-export type ActivityType = 'auth_login' | 'user_update' | 'transaction_created' | 'other';
+export type ActivityType = 'auth_login' | 'auth_logout' | 'user_update' | 'transaction_created' | 'other';
 
 export interface ActivityProps {
   readonly id: Identifier;

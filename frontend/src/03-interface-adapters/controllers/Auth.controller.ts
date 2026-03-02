@@ -38,9 +38,16 @@ export class AuthController {
   /**
    * Xử lý yêu cầu đăng xuất
    */
-  async logout(input?: LogoutInput): Promise<Result<LogoutOutput>> {
+  async logout(): Promise<Result<LogoutOutput>> {
     try {
-      return await this.logoutInteractor.execute(input);
+      // Lấy user ID từ presenter TRƯỚC KHI đăng xuất
+      const currentUser = AppContext.getAuthPresenter().getState().user;
+      
+      // Dù có user hay không, vẫn tiến hành logout và ghi log
+      // Nếu không có user, ghi log cho 'anonymous' để có thể truy vết nếu cần
+      const userId = currentUser ? currentUser.id : 'anonymous';
+
+      return await this.logoutInteractor.execute({ userId });
     } catch (error: any) {
       console.error('[AuthController] Logout unexpected error:', error);
       return Result.fail<LogoutOutput>('An unexpected error occurred during logout');

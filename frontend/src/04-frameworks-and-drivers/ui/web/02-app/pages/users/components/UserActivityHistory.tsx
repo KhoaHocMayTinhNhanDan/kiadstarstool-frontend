@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Box, Text, LoadingSpinner, Icon } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { AppContext } from '@/05-bootstrap/app-context';
 import { useToast } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/hooks/useToast';
-import { DollarSign, Edit, LogIn, UserCog } from 'lucide-react';
+import { DollarSign, Edit, LogIn, LogOut, UserCog } from 'lucide-react';
 import { type ActivityOutput } from '@/02-usecases/activity/ports/output/ListActivities.output';
 
 interface UserActivityHistoryProps {
@@ -12,6 +12,7 @@ interface UserActivityHistoryProps {
 
 // Map activity types to icons for the UI
 const activityIconMap: Record<string, React.ReactNode> = {
+  'auth_logout': <LogOut />,
   'auth_login': <LogIn />,
   'user_update': <UserCog />,
   'transaction_created': <DollarSign />,

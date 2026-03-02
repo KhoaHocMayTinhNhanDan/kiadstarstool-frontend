@@ -155,7 +155,7 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
 
   // Auth Interactors (Depends on recordActivityInteractor)
   const loginInteractor = new LoginInteractor(authRepository, recordActivityInteractor);
-  const logoutInteractor = new LogoutInteractor(authRepository);
+  const logoutInteractor = new LogoutInteractor(authRepository, recordActivityInteractor);
   const authController = new AuthController(loginInteractor, logoutInteractor);
 
   // 1.1 Initialize Authorization (New)
