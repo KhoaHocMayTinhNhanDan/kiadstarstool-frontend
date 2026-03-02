@@ -1,5 +1,6 @@
 import { CheckPermissionInteractor } from '../../02-usecases/authorization/CheckPermission.interactor';
 import { GetUserPermissionsInteractor } from '../../02-usecases/authorization/GetUserPermissions.interactor';
+import { Result } from '../../01-entities/shared/base/result';
 import { GrantUserPermissionInteractor } from '../../02-usecases/authorization/GrantUserPermission.interactor';
 import { RevokeUserPermissionInteractor } from '../../02-usecases/authorization/RevokeUserPermission.interactor';
 import { type PermissionCode } from '../../shared/constants/authorization/auth.domain';
@@ -43,17 +44,11 @@ export class AuthorizationController {
     return result.getValue();
   }
 
-  async grantPermission(input: { userId: string; permission: PermissionCode }) {
-    const result = await this.grantUserPermissionInteractor.execute(input);
-    if (result.isFailure) {
-      throw new Error(String(result.getErrorValue()));
-    }
+  async grantPermission(input: { userId: string; permission: PermissionCode }): Promise<Result<void>> {
+    return this.grantUserPermissionInteractor.execute(input);
   }
 
-  async revokePermission(input: { userId:string; permission: PermissionCode }) {
-    const result = await this.revokeUserPermissionInteractor.execute(input);
-    if (result.isFailure) {
-      throw new Error(String(result.getErrorValue()));
-    }
+  async revokePermission(input: { userId:string; permission: PermissionCode }): Promise<Result<void>> {
+    return this.revokeUserPermissionInteractor.execute(input);
   }
 }

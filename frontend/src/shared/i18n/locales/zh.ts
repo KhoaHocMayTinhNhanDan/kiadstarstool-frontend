@@ -3,6 +3,12 @@ export const zh = {
     welcome_back: "欢迎回来, {{name}}!",
     loading: "加载中...",
     error: "发生错误",
+    time: {
+      just_now: "刚刚",
+      minutes_ago: "{{count}}分钟前",
+      hours_ago: "{{count}}小时前",
+      days_ago: "{{count}}天前",
+    }
   },
   dashboard: {
     title: "仪表板",
@@ -28,11 +34,19 @@ export const zh = {
     revenue_chart_subtitle_month: "(本月)",
     revenue_chart_subtitle_year: "(近6个月)",
     error_loading_title: "数据加载失败",
+    ongoing_classes: "正在进行的课程",
+    no_activity: "暂无活动。",
+    new_student: "新生",
+    student_joined: "学生 {{name}} 已加入。",
   },
   sidebar: {
     dashboard: "仪表板",
     users: "用户",
     settings: "设置",
+  },
+  finance: {
+    income: "收入",
+    expense: "支出",
   },
   branch: {
     create_title: "创建新分校",

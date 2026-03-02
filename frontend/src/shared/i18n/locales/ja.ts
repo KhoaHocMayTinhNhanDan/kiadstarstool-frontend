@@ -3,6 +3,12 @@ export const ja = {
     welcome_back: "お帰りなさい, {{name}}!",
     loading: "読み込み中...",
     error: "エラーが発生しました",
+    time: {
+      just_now: "たった今",
+      minutes_ago: "{{count}}分前",
+      hours_ago: "{{count}}時間前",
+      days_ago: "{{count}}日前",
+    }
   },
   dashboard: {
     title: "ダッシュボード",
@@ -28,11 +34,19 @@ export const ja = {
     revenue_chart_subtitle_month: "(今月)",
     revenue_chart_subtitle_year: "(過去6ヶ月)",
     error_loading_title: "データの読み込みに失敗しました",
+    ongoing_classes: "進行中のクラス",
+    no_activity: "まだ活動はありません。",
+    new_student: "新入生",
+    student_joined: "生徒{{name}}が参加しました。",
   },
   sidebar: {
     dashboard: "ダッシュボード",
     users: "ユーザー",
     settings: "設定",
+  },
+  finance: {
+    income: "収入",
+    expense: "支出",
   },
   branch: {
     create_title: "新しい支店を作成",

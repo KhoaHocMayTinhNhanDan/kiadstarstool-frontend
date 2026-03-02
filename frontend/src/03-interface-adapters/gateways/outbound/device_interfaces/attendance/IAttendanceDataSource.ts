@@ -4,6 +4,7 @@ export interface IAttendanceDataSource {
   getByClassAndDate(classId: string, date: string): Promise<Attendance[]>;
   getByStudentAndDate(studentId: string, classId: string, date: string): Promise<Attendance | null>;
   save(attendance: Attendance): Promise<void>;
+  getByClassId(classId: string): Promise<Attendance[]>;
   deleteByClassId(classId: string): Promise<void>;
   getByStudentId(studentId: string): Promise<Attendance[]>;
 }

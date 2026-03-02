@@ -253,8 +253,10 @@ export const DashboardPage = () => {
       activities.push({
         id: `trx-${trx.id}`,
         type: 'finance',
-        title: trx.type === 'income' ? t('finance.income') : t('finance.expense'),
-        description: `${trx.description || t('finance.new_transaction')} - ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(trx.amount)}`,
+        titleKey: trx.type === 'income' ? 'finance.income' : 'finance.expense',
+        // Pass raw description and amount separately for i18n formatting in the component
+        descriptionContext: trx.description || '',
+        params: { amount: trx.amount },
         timestamp: new Date(trx.date)
       });
     });
@@ -266,8 +268,9 @@ export const DashboardPage = () => {
          activities.push({
            id: `stu-${s.id}`,
            type: 'student',
-           title: t('dashboard.new_student'),
-           description: t('dashboard.student_joined', { name: s.name }),
+           titleKey: 'dashboard.new_student',
+           descriptionKey: 'dashboard.student_joined',
+           params: { name: s.name },
            timestamp: new Date(joinedDate)
          });
        }

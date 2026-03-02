@@ -63,6 +63,11 @@ import { CreateTransactionInteractor } from '@/02-usecases/finance/CreateTransac
 import { ListTransactionsInteractor } from '@/02-usecases/finance/ListTransactions.interactor';
 import { FinanceController } from '@/03-interface-adapters/controllers/Finance.controller';
 import { CollectTuitionInteractor } from '@/02-usecases/finance/CollectTuition.interactor';
+import { MockActivityDataSource } from '@/04-frameworks-and-drivers/devices/activity/MockActivityDataSource';
+import { ActivityRepository } from '@/03-interface-adapters/gateways/inbound/repositories/ActivityRepository';
+import { RecordActivityInteractor } from '@/02-usecases/activity/RecordActivity.interactor';
+import { ListActivitiesInteractor } from '@/02-usecases/activity/ListActivities.interactor';
+import { ActivityController } from '@/03-interface-adapters/controllers/Activity.controller';
 
 export interface BootstrapOptions {
   useMockAuth?: boolean;
@@ -141,10 +146,17 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
     authPresenter.setUser(userIdentity);
   });
   
-  const loginInteractor = new LoginInteractor(authRepository)
-  const logoutInteractor = new LogoutInteractor(authRepository)
-  
-  const authController = new AuthController(loginInteractor, logoutInteractor)
+  // --- Initialize Activity Domain ---
+  const activityDataSource = new MockActivityDataSource();
+  const activityRepository = new ActivityRepository(activityDataSource);
+  const recordActivityInteractor = new RecordActivityInteractor(activityRepository);
+  const listActivitiesInteractor = new ListActivitiesInteractor(activityRepository);
+  const activityController = new ActivityController(listActivitiesInteractor);
+
+  // Auth Interactors (Depends on recordActivityInteractor)
+  const loginInteractor = new LoginInteractor(authRepository, recordActivityInteractor);
+  const logoutInteractor = new LogoutInteractor(authRepository);
+  const authController = new AuthController(loginInteractor, logoutInteractor);
 
   // 1.1 Initialize Authorization (New)
   const checkPermissionInteractor = new CheckPermissionInteractor(userRepository)
@@ -162,7 +174,7 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
   // 1.2 Initialize Users
   const getUserInteractor = new GetUserInteractor(userRepository);
   const listUsersInteractor = new ListUsersInteractor(userRepository);
-  const updateProfileInteractor = new UpdateUserProfileInteractor(userRepository);
+  const updateProfileInteractor = new UpdateUserProfileInteractor(userRepository, recordActivityInteractor);
   const deactivateUserInteractor = new DeactivateUserInteractor(userRepository);
   const createUserInteractor = new CreateUserInteractor(userRepository);
   const usersController = new UsersController(
@@ -312,6 +324,10 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
 
     finance: {
       controller: financeController
+    },
+
+    activity: {
+      controller: activityController
     }
   }
 

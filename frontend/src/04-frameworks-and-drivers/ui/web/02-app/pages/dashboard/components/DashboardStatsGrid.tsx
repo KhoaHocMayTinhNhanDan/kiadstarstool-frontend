@@ -76,11 +76,11 @@ export const DashboardStatsGrid = ({ pageData, isLoading }: DashboardStatsGridPr
         onClick: () => navigate('/branches'),
       },
       {
-        title: 'Điểm danh',
-        value: 'Truy cập',
+        title: t('sidebar.attendance'),
+        value: t('common.access', { defaultValue: 'Truy cập' }),
         icon: <ClipboardCheck />,
         accentColor: 'primary' as const,
-        description: 'Quản lý điểm danh',
+        description: t('attendance.title', { defaultValue: 'Quản lý điểm danh' }),
         onClick: () => navigate('/attendance'),
       }
     ];

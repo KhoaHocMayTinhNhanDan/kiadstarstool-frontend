@@ -9,6 +9,7 @@ import type { ClassesController } from '@/03-interface-adapters/controllers/Clas
 import type { StudentsController } from '@/03-interface-adapters/controllers/Students.controller';
 import type { AttendanceController } from '@/03-interface-adapters/controllers/Attendance.controller';
 import type { FinanceController } from '@/03-interface-adapters/controllers/Finance.controller';
+import type { ActivityController } from '@/03-interface-adapters/controllers/Activity.controller';
 import type { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
 import type { LoginInteractor } from '@/02-usecases/auth/Login.interactor'
 import type { LogoutInteractor } from '@/02-usecases/auth/Logout.interactor'
@@ -62,6 +63,11 @@ export type AppContextType = {
   // Finance feature
   finance?: {
     controller: FinanceController;
+  }
+
+  // Activity Log feature
+  activity?: {
+    controller: ActivityController;
   }
   
   // Configuration
@@ -162,6 +168,14 @@ class AppContextImpl {
     return ctx.finance;
   }
 
+  static getActivity() {
+    const ctx = this.get();
+    if (!ctx.activity) {
+      throw new Error('[AppContext] Activity feature not configured.');
+    }
+    return ctx.activity;
+  }
+
   static getConfig() {
     const ctx = this.get()
     if (!ctx.config) {
@@ -210,8 +224,12 @@ class AppContextImpl {
     return this.getFinance().controller;
   }
 
+  static getActivityController(): ActivityController {
+    return this.getActivity().controller;
+  }
+
   static getLoginInteractor(): LoginInteractor {
-    return this.getAuth().loginInteractor
+    return this.getAuth().loginInteractor;
   }
 
   static getAuthRepository(): AuthRepository {
@@ -284,6 +302,7 @@ class AppContextImpl {
         ...(ctx.students ? ['students'] : []),
         ...(ctx.attendance ? ['attendance'] : []),
         ...(ctx.finance ? ['finance'] : []),
+        ...(ctx.activity ? ['activity'] : []),
       ],
       config: ctx.config || {},
       auth: ctx.auth ? {

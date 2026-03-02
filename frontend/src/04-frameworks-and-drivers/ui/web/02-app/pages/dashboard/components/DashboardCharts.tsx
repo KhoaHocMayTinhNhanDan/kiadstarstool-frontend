@@ -58,7 +58,7 @@ export const DashboardCharts = ({ pageData, timeRange, isLoading }: DashboardCha
       
       {/* Revenue by Type Chart */}
       <Box css={css`background-color: ${COLORS.BACKGROUND_PAPER}; border: 1px solid ${COLORS.NEUTRAL_BORDER}; border-radius: ${RADIUS.md}; padding: ${SPACING.xl}; height: 400px; display: flex; flex-direction: column;`}>
-        <Box mb="lg"><Text as="h3" size="lg" weight="bold">Doanh thu theo loại hình</Text></Box>
+        <Box mb="lg"><Text as="h3" size="lg" weight="bold">{t('dashboard.revenue_by_type', { defaultValue: 'Doanh thu theo loại hình' })}</Text></Box>
         <Box css={css`flex: 1; min-height: 0; width: 100%; overflow: hidden;`}>
           <PieChart data={pageData?.revenueByTypeData || []} height="100%" isLoading={isLoading} />
         </Box>

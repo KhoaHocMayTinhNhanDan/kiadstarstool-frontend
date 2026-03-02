@@ -36,6 +36,10 @@ export const PERMISSIONS = {
   /* Courses */
   COURSE_MANAGE: 'manage_courses',
   COURSE_VIEW: 'view_courses',
+
+  /* Finance */
+  FINANCE_VIEW: 'finance_view',
+  FINANCE_MANAGE: 'finance_manage',
 } as const;
 
 export type PermissionCode = typeof PERMISSIONS[keyof typeof PERMISSIONS];

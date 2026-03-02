@@ -7,6 +7,13 @@ export const vi = {
     create_new: "Tạo mới",
     edit: "Chỉnh sửa",
     detail: "Chi tiết",
+    access: "Truy cập",
+    time: {
+      just_now: "Vừa xong",
+      minutes_ago: "{{count}} phút trước",
+      hours_ago: "{{count}} giờ trước",
+      days_ago: "{{count}} ngày trước",
+    }
   },
   dashboard: {
     title: "Bảng điều khiển",
@@ -36,6 +43,17 @@ export const vi = {
     ongoing_classes: "Lớp học đang diễn ra",
     check_in_now: "Điểm danh ngay",
     students_count: "Học viên",
+    no_activity: "Chưa có hoạt động nào.",
+    new_student: "Học viên mới",
+    student_joined: "Học viên {{name}} đã tham gia.",
+    revenue_by_type: "Doanh thu theo loại hình",
+    revenue_type_course: "Theo khóa",
+    revenue_type_session: "Theo buổi",
+    quick_actions: {
+      add_student: "Thêm học viên",
+      collect_tuition: "Thu học phí",
+      attendance: "Điểm danh",
+    }
   },
   sidebar: {
     dashboard: "Bảng điều khiển",
@@ -44,6 +62,11 @@ export const vi = {
     branches: "Chi nhánh",
     classes: "Lớp học",
     attendance: "Điểm danh",
+  },
+  finance: {
+    income: "Thu nhập",
+    expense: "Chi phí",
+    new_transaction: "Giao dịch mới"
   },
   classes: {
     create_title: "Tạo Lớp Học Mới",

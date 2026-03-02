@@ -3,6 +3,12 @@ export const en = {
     welcome_back: "Welcome back, {{name}}!",
     loading: "Loading...",
     error: "An error occurred",
+    time: {
+      just_now: "Just now",
+      minutes_ago: "{{count}} min ago",
+      hours_ago: "{{count}}h ago",
+      days_ago: "{{count}}d ago",
+    }
   },
   dashboard: {
     title: "Dashboard",
@@ -28,11 +34,19 @@ export const en = {
     revenue_chart_subtitle_month: "(This Month)",
     revenue_chart_subtitle_year: "(Last 6 Months)",
     error_loading_title: "Failed to load data",
+    ongoing_classes: "Ongoing Classes",
+    no_activity: "No activity yet.",
+    new_student: "New Student",
+    student_joined: "Student {{name}} has joined.",
   },
   sidebar: {
     dashboard: "Dashboard",
     users: "Users",
     settings: "Settings",
+  },
+  finance: {
+    income: "Income",
+    expense: "Expense",
   },
   branch: {
     create_title: "Create New Branch",
