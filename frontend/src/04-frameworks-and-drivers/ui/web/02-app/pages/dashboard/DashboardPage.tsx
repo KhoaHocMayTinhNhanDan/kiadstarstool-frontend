@@ -7,7 +7,7 @@ import {
 import { Box, Text, Icon, Avatar } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { useAuth } from '@/04-frameworks-and-drivers/ui/web/02-app/hooks/user/useAuthorization';
 import { useI18n } from '@/shared/i18n/useI18n';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { type StudentListItem } from '@/02-usecases/students/ports/output/ListStudentsByBranch.output';
 import { type ListBranchesOutput } from '@/02-usecases/branch/ports/output/ListBranches.output';
 import { type ListOngoingClassesOutput } from '@/02-usecases/class/ports/output/ListOngoingClasses.output';

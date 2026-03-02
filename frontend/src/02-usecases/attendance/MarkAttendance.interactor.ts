@@ -1,7 +1,7 @@
 import { Result } from '../../01-entities/shared/base/result';
 import { ATTENDANCE_STATUS } from '@/shared/constants/classes.constant';
 import { AttendanceMetadata } from '@/01-entities/attendance/value-objects/AttendanceMetadata.vo';
-import { Identifier } from '@/01-entities/shared/Identifier.vo';
+import { Identifier } from '@/01-entities/shared/value-objects/Identifier.vo';
 import { type IAttendanceRepository } from './ports/gateways_interface/IAttendanceRepository';
 import { type IClassRepository } from '../class/ports/gateways_interface/IClassRepository';
 import { type IStudentRepository } from '../students/ports/gateways_interface/IStudentRepository';

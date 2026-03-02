@@ -42,7 +42,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0901234567',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-15', tuitionAmount: 5000000, paymentStatus: 'paid' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-15', tuitionAmount: 5000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 5 }
           ]
         },
         // CASE 2: Chuyển cơ sở (Bản ghi cũ tại HN - Đã nghỉ)
@@ -53,7 +53,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0909876543',
           status: 'active', // Tài khoản vẫn active, nhưng enrollment cũ inactive
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'transferred', joinedDate: '2025-02-20', endDate: '2025-07-01', tuitionAmount: 5000000, paymentStatus: 'paid' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'transferred', joinedDate: '2025-02-20', endDate: '2025-07-01', tuitionAmount: 5000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 10 }
           ]
         },
         {
@@ -62,7 +62,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           email: 'cuong.le@example.com',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'dropped', joinedDate: '2024-11-10', endDate: '2025-01-01', tuitionAmount: 5000000, paymentStatus: 'partial' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'dropped', joinedDate: '2024-11-10', endDate: '2025-01-01', tuitionAmount: 5000000, paymentStatus: 'partial', prepaidSessions: 24, usedSessions: 4 }
           ]
         },
         // CASE 3: Học 3 lớp tại cơ sở A (Multi-class)
@@ -73,7 +73,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0912345678',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-20', tuitionAmount: 5000000, paymentStatus: 'paid' },
+            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-20', tuitionAmount: 5000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 2 },
             { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-15', tuitionAmount: 8750000, paymentStatus: 'paid', prepaidSessions: 30, usedSessions: 1 },
             { branchId: 'branch-01', classId: 'class-05', status: 'active', joinedDate: '2025-12-15', tuitionAmount: 3000000, paymentStatus: 'unpaid', prepaidSessions: 15, usedSessions: 1 }
           ]
@@ -86,7 +86,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           email: 'em.hoang@example.com',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-25', tuitionAmount: 4500000, paymentStatus: 'paid' }
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-25', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 12, usedSessions: 11 } // Sắp hết hạn
           ]
         },
         // CASE 1: Học viên học tại 2 cơ sở (Bản ghi tại HCM - ID khác, cùng thông tin cá nhân)
@@ -97,7 +97,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0901234567',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-12-01', tuitionAmount: 4500000, paymentStatus: 'paid' }
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-12-01', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 12, usedSessions: 2 }
           ]
         },
         // CASE 2: Chuyển cơ sở (Bản ghi mới tại HCM - Đang học)
@@ -107,7 +107,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           email: 'binh.tran@example.com',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-07-20', tuitionAmount: 4500000, paymentStatus: 'paid' }
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-07-20', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 15 }
           ]
         },
         // --- Additional Students for Pagination Demo ---
@@ -118,7 +118,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0911223344',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-16', tuitionAmount: 5000000, paymentStatus: 'paid' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-16', tuitionAmount: 5000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 6 }
           ]
         },
         {
@@ -138,7 +138,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0933445566',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-21', tuitionAmount: 4500000, paymentStatus: 'paid' }
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-21', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 12, usedSessions: 3 }
           ]
         },
         {
@@ -148,7 +148,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0944556677',
           status: 'archived',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'dropped', joinedDate: '2025-01-01', endDate: '2025-06-01', tuitionAmount: 5000000, paymentStatus: 'unpaid' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'dropped', joinedDate: '2025-01-01', endDate: '2025-06-01', tuitionAmount: 5000000, paymentStatus: 'unpaid', prepaidSessions: 24, usedSessions: 0 }
           ]
         },
         {
@@ -158,7 +158,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0955112233',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-28', tuitionAmount: 4500000, paymentStatus: 'paid' }
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-28', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 12, usedSessions: 1 }
           ]
         },
         {
@@ -188,7 +188,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0988445566',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-18', tuitionAmount: 5000000, paymentStatus: 'paid' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-18', tuitionAmount: 5000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 8 }
           ]
         },
         {
@@ -198,7 +198,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0999556677',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-22', tuitionAmount: 4500000, paymentStatus: 'paid' }
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-22', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 12, usedSessions: 4 }
           ]
         },
         {
@@ -228,7 +228,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0935678901',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-23', tuitionAmount: 4500000, paymentStatus: 'paid' }
+            { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-23', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 12, usedSessions: 5 }
           ]
         },
         {
@@ -238,7 +238,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0946789012',
           status: 'active',
           enrollments: [
-            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-19', tuitionAmount: 5000000, paymentStatus: 'paid' }
+            { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-19', tuitionAmount: 5000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 7 }
           ]
         },
         {
@@ -248,7 +248,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           phone: '0957890123',
           status: 'archived',
           enrollments: [
-            { branchId: 'branch-02', classId: 'class-04', status: 'completed', joinedDate: '2025-01-12', endDate: '2025-04-09', tuitionAmount: 6000000, paymentStatus: 'paid' }
+            { branchId: 'branch-02', classId: 'class-04', status: 'completed', joinedDate: '2025-01-12', endDate: '2025-04-09', tuitionAmount: 6000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 24 }
           ]
         }
       ];

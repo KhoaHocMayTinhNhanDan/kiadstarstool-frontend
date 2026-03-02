@@ -1,3 +1,4 @@
+// src/04-frameworks-and-drivers/ui/web/00-design-system/01-molecules/LanguageSelector/LanguageSelector.molecule.styles.ts
 import { css } from '@emotion/react';
 import { COLORS, SPACING, RADIUS, SHADOWS, TRANSITIONS, FONT_SIZES, FONT_WEIGHTS } from '../../../01-ui-core/constants/tokens-constants';
 
@@ -32,21 +33,26 @@ export const trigger = (isOpen: boolean, variant: string) => css`
   }
 `;
 
-export const dropdown = (isOpen: boolean) => css`
+export const dropdown = (isOpen: boolean, align: 'left' | 'right') => css`
   position: absolute;
   top: calc(100% + ${SPACING.xs});
-  right: 0;
+  /* Logic căn lề: 
+     - align='right' (default): Căn phải, mở sang trái (right: 0)
+     - align='left': Căn trái, mở sang phải (left: 0) 
+  */
+  ${align === 'right' ? 'right: 0; left: auto;' : 'left: 0; right: auto;'}
   min-width: 160px;
   background-color: ${COLORS.WHITE};
   border: 1px solid ${COLORS.NEUTRAL_BORDER};
   border-radius: ${RADIUS.md};
   box-shadow: ${SHADOWS.md};
   padding: ${SPACING.xs};
-  z-index: 100;
+  z-index: 1000;
   
   opacity: ${isOpen ? 1 : 0};
   visibility: ${isOpen ? 'visible' : 'hidden'};
   transform: translateY(${isOpen ? '0' : '-10px'});
+  transform-origin: ${align === 'right' ? 'top right' : 'top left'};
   transition: all ${TRANSITIONS.FAST};
 `;
 

@@ -1,5 +1,5 @@
 // src/01-entities/students/value-objects/Enrollment.vo.ts
-import { ValueObject } from '../../shared/base/ValueObject';
+import { ValueObject } from '../../shared/value-objects/ValueObject';
 import { Result } from '../../shared/base/result';
 
 export type PaymentStatus = 'paid' | 'unpaid' | 'partial' | 'waived'; // waived = miễn học phí

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { COLORS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 

@@ -1,6 +1,6 @@
 // src/01-entities/shared/Identifier.vo.ts
 import { v4 as uuidv4 } from 'uuid';
-import { ValueObject } from "./base/ValueObject";
+import { ValueObject } from "./ValueObject";
 
 interface IdentifierProps {
   value: string;

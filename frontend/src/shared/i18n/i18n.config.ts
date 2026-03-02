@@ -1,33 +1,22 @@
-// src/shared/i18n/i18n.config.ts
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
-import { SUPPORTED_LOCALES } from '@/shared/constants/i18n.constants';
-
-// Import trực tiếp các file bản dịch từ shared/i18n/locales
-import { en } from './locales/en';
 import { vi } from './locales/vi';
+import { en } from './locales/en';
 import { ja } from './locales/ja';
 import { zh } from './locales/zh';
 
-const resources = {
-  en: { translation: en },
-  vi: { translation: vi },
-  ja: { translation: ja },
-  zh: { translation: zh },
-};
+export const resources = {
+  vi,
+  en,
+  ja,
+  zh
+} as const;
 
-i18n
-  .use(LanguageDetector) // Tự động phát hiện ngôn ngữ & lưu vào localStorage
-  .use(initReactI18next) // Kết nối i18next với React
-  .init({
-    resources,
-    supportedLngs: SUPPORTED_LOCALES,
-    fallbackLng: 'vi', // <--- SỬA DÒNG NÀY: Fallback về tiếng Việt thay vì tiếng Anh
-    debug: import.meta.env.DEV, // Bật debug mode ở môi trường dev
-    interpolation: {
-      escapeValue: false, // React đã tự chống XSS
-    },
-  });
+export type LanguageCode = keyof typeof resources;
+export const DEFAULT_LANGUAGE: LanguageCode = 'vi';
 
-export default i18n;
+// Cấu hình hiển thị cho từng ngôn ngữ
+export const SUPPORTED_LANGUAGES = [
+  { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'en', label: 'English', flag: '🇺🇸' },
+  { code: 'ja', label: '日本語', flag: '🇯🇵' },
+  { code: 'zh', label: '中文', flag: '🇨🇳' },
+] as const;

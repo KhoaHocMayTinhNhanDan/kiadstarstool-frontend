@@ -3,10 +3,11 @@ import { User } from '@/01-entities/users/User.entity';
 import { UserId } from '@/01-entities/users/base/UserId.vo';
 import { UserRole } from '@/01-entities/users/base/UserRole.vo';
 import { UserPermissions } from '@/01-entities/users/base/UserPermissions.vo';
-import { PhoneNumber } from '@/01-entities/shared/base/PhoneNumber.vo';
+import { PhoneNumber } from '@/01-entities/shared/value-objects/PhoneNumber.vo';
 import { AdminProfile } from '@/01-entities/users/archetypes/admin/AdminProfile.vo';
 import { TeacherProfile } from '@/01-entities/users/archetypes/teacher/TeacherProfile.vo';
 import { StaffProfile } from '@/01-entities/users/archetypes/staff/StaffProfile.vo';
+import { BranchManagerProfile } from '@/01-entities/users/archetypes/branch_manager/BranchManagerProfile.vo';
 import { type IUserRepository } from './ports/gateways_interface/IUserRepository';
 import { ROLE_PRESETS, buildRolePermissions } from '@/shared/constants/authorization/auth.policy';
 import { type IUserProfile } from '@/01-entities/users/base/IUserProfile.vo';
@@ -18,6 +19,7 @@ export interface CreateUserInput {
   role: string;
   photoURL?: string;
   phone?: string;
+  branchId?: string; // Optional: Cần thiết nếu role là 'manager'
 }
 
 export class CreateUserInteractor {
@@ -60,6 +62,14 @@ export class CreateUserInteractor {
             displayName: input.displayName,
             photoURL: input.photoURL,
             phoneNumbers,
+          });
+          break;
+        case 'manager':
+          profile = new BranchManagerProfile({
+            displayName: input.displayName,
+            photoURL: input.photoURL,
+            phoneNumbers,
+            branchId: input.branchId || '', // Fallback nếu chưa chọn chi nhánh
           });
           break;
         default:

@@ -28,7 +28,7 @@ import { ModalPlayground } from '../../../00-design-system/01-molecules/Modal/Mo
 import { UserCardPlayground } from '../../../00-design-system/01-molecules/UserCard/UserCard.molecule-playground'
 import { LanguageSelectorPlayground } from '../../../00-design-system/01-molecules/LanguageSelector/LanguageSelector.molecule-playground'
 import { SearchInputPlayground } from '../../../00-design-system/01-molecules/SearchInput/SearchInput.molecule-playground'
-import { ThemeTogglePlayground } from '../../../00-design-system/01-molecules/ThemeToggle/ThemeToggle.molecule-playground'
+import { ThemeTogglePlayground } from '../../../00-design-system/01-molecules/LightDarkModeToggle/LightDarkModeToggle-playground'
 import { ToastPlayground } from '../../../00-design-system/01-molecules/Toast/Toast.molecule-playground'
 import { DropdownBasePlayground } from '../../../00-design-system/01-molecules/Dropdown/DropdownBase/DropdownBase.molecule-playground'
 import { DropdownMenuPlayground } from '../../../00-design-system/01-molecules/Dropdown/DropdownMenu/DropdownMenu.molecule-playground'
@@ -60,7 +60,7 @@ import { AdvancedFilterPlayground } from '../../../00-design-system/02-organisms
 import { MultiStepFormPlayground } from '../../../00-design-system/02-organisms/forms/MultiStepForm/MultiStepForm.playground'
 import { SearchFilterFormPlayground } from '../../../00-design-system/02-organisms/forms/SearchFilterForm/SearchFilterForm.playground';
 
-import { AppContext } from '@/00-core/app-context'
+import { AppContext } from '@/05-bootstrap/app-context'
 import { ErrorBoundary } from '../../../00-design-system/02-organisms/feedback/system/ErrorBoundary'
 import { ToastProvider } from '../../providers/ToastProvider'
 

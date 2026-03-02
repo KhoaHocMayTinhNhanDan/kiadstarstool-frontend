@@ -1,4 +1,4 @@
-import { type WeeklyOperatingHours } from "./GetBranchDetails.output";
+import { type WeeklyOperatingHours } from "@/01-entities/branch/value-objects/BranchOperatingHours.vo";
 
 export interface BranchListItem {
   id: string;

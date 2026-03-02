@@ -9,11 +9,11 @@ import {
   Icon, 
   Input,
   Badge,
-  LoadingSpinner
+  LoadingSpinner,
+  Select
 } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { 
   Search, 
-  Filter, 
   Calendar, 
   Users, 
   Clock, 
@@ -23,8 +23,8 @@ import {
   CheckCircle,
   BookOpen
 } from 'lucide-react';
-import { COLORS, SPACING, SHADOWS, RADIUS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
-import { AppContext } from '@/00-core/app-context';
+import { COLORS, SPACING, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { AttendanceList } from './components/AttendanceList';
 import { AttendanceCheckinModal } from './components/AttendanceCheckinModal';
 import { ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
@@ -185,29 +185,15 @@ export const AttendancePage = () => {
           </Box>
           
           <Box minWidth="200px">
-            <Box position="relative">
-              <select
-                value={selectedBranchId}
-                onChange={(e) => setSelectedBranchId(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  borderRadius: RADIUS.md,
-                  border: `1px solid ${COLORS.NEUTRAL_BORDER}`,
-                  backgroundColor: 'white',
-                  appearance: 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="">Tất cả chi nhánh</option>
-                {branches.map(b => (
-                  <option key={b.id} value={b.id}>{b.name}</option>
-                ))}
-              </select>
-              <Box position="absolute" right="12px" top="50%" style={{ transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-                <Icon size="sm" color="SECONDARY"><Filter /></Icon>
-              </Box>
-            </Box>
+            <Select
+              value={selectedBranchId}
+              onChange={(e) => setSelectedBranchId(e.target.value)}
+              options={[
+                { label: 'Tất cả chi nhánh', value: '' },
+                ...branches.map(b => ({ label: b.name, value: b.id }))
+              ]}
+              fullWidth
+            />
           </Box>
         </Box>
       </Box>
@@ -363,7 +349,7 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
     const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
   }, [targetDate]);
-  return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{timeLeft}</span>;
+  return <Text as="span" sx={{ fontVariantNumeric: 'tabular-nums' }}>{timeLeft}</Text>;
 };
 
 const InfoRow = ({ icon, text }: { icon: React.ReactNode, text: string }) => (

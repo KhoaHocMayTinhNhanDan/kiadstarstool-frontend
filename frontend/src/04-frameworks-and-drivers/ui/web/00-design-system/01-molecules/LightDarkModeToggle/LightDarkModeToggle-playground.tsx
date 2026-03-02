@@ -1,9 +1,9 @@
 import { Box } from '../../00-atoms/Box';
 import { Text } from '../../00-atoms/Text';
-import { ThemeToggle } from './ThemeToggle.molecule';
+import { ThemeToggle } from './LightDarkModeToggle.molecule';
 import { useTheme, ThemeProvider } from '../../../02-app/providers/ThemeProvider';
 
-const ThemeToggleDemo = () => {
+const LightDarkModeToggleDemo = () => {
   const { theme } = useTheme();
 
   return (
@@ -25,7 +25,7 @@ const ThemeToggleDemo = () => {
 export const ThemeTogglePlayground = () => {
   return (
     <ThemeProvider>
-      <ThemeToggleDemo />
+      <LightDarkModeToggleDemo />
     </ThemeProvider>
   );
 };

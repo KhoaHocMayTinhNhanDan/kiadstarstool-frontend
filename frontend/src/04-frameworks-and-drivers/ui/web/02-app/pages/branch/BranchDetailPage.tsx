@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Text, Button, Card, Icon, Input } from '../../../00-design-system/00-atoms';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { type GetBranchDetailsOutput, type DayOfWeek } from '@/02-usecases/branch/ports/output/GetBranchDetails.output';
 import { type ListClassesByBranchOutput } from '@/02-usecases/class/ports/output/ListClassesByBranch.output';
 import { type StudentListItem } from '@/02-usecases/students/ports/output/ListStudentsByBranch.output';

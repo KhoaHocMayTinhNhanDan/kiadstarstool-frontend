@@ -9,7 +9,7 @@ import { AttendanceTime } from './value-objects/AttendanceTime.vo';
 import { AttendanceScore } from './value-objects/AttendanceScore.vo';
 import { AttendanceFlags } from './value-objects/AttendanceFlags.vo';
 import { AttendanceMetadata } from './value-objects/AttendanceMetadata.vo';
-import { Identifier } from '../shared/Identifier.vo';
+import { Identifier } from '../shared/value-objects/Identifier.vo';
 
 export interface AttendanceProps extends AuditedProps {
   courseId: string;

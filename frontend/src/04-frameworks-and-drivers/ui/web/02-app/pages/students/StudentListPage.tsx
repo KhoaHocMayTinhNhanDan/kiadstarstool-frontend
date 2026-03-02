@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Filter, Search, Mail, Phone, MoreHorizontal } from 'lucide-react';
-import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { Box, Text, Button, Icon, Input, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SPACING, RADIUS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { Pagination } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/navigation/Pagination';
 import { type StudentListItem } from '@/02-usecases/students/ports/output/ListStudentsByBranch.output';
 import { PaymentStatusBadge } from './components/StudentSharedComponents';
@@ -103,23 +103,15 @@ export const StudentListPage = () => {
         
         <Box display="flex" gap="sm" alignItems="center">
           <Icon color="SECONDARY" size="sm"><Filter /></Icon>
-          <select 
+          <Select
             value={selectedBranchId}
             onChange={(e) => setSelectedBranchId(e.target.value)}
-            style={{
-              padding: SPACING.sm,
-              borderRadius: RADIUS.sm,
-              border: `1px solid ${COLORS.NEUTRAL_BORDER}`,
-              outline: 'none',
-              backgroundColor: 'white',
-              minWidth: '150px'
-            }}
-          >
-            <option value="">Tất cả chi nhánh</option>
-            {branches.map(b => (
-              <option key={b.id} value={b.id}>{b.name}</option>
-            ))}
-          </select>
+            options={[
+              { label: 'Tất cả chi nhánh', value: '' },
+              ...branches.map(b => ({ label: b.name, value: b.id }))
+            ]}
+            sx={{ minWidth: '150px' }}
+          />
         </Box>
       </Box>
 

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Identifier } from '../../shared/Identifier.vo';
+import { Identifier } from '../../shared/value-objects/Identifier.vo';
 
 export class BranchId extends Identifier {
   private constructor(value: string) {

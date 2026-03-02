@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Box } from '../../../00-atoms';
+import { Box, Text, Badge } from '../../../00-atoms';
 import * as styles from './AppSidebar.styles';
 import type { AppSidebarProps, SidebarItem, SidebarGroup } from './AppSidebar.types';
 
@@ -13,14 +13,14 @@ const SidebarItemComponent = React.memo<{
 }>(({ item, collapsed, borderRadius }) => {
   const content = (
     <>
-      <div css={styles.itemIcon(collapsed)}>
+      <Box css={styles.itemIcon(collapsed)}>
         {item.icon}
-      </div>
-      <span css={styles.itemLabel(collapsed)}>
+      </Box>
+      <Text as="span" css={styles.itemLabel(collapsed)}>
         {item.label}
-      </span>
+      </Text>
       {!collapsed && item.badge && (
-        <span css={styles.badge}>{item.badge}</span>
+        <Badge size="sm" color="danger" css={styles.badge}>{item.badge}</Badge>
       )}
     </>
   );
@@ -46,9 +46,9 @@ const SidebarItemComponent = React.memo<{
   }
 
   return (
-    <div role="button" tabIndex={item.disabled ? -1 : 0} {...commonProps}>
+    <Box role="button" tabIndex={item.disabled ? -1 : 0} {...commonProps}>
       {content}
-    </div>
+    </Box>
   );
 });
 
@@ -87,7 +87,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     <>
     {/* Mobile Overlay Backdrop */}
     {variant === 'drawer' && (
-      <div css={styles.overlay(isOpen)} onClick={onClose} aria-hidden="true" />
+      <Box css={styles.overlay(isOpen)} onClick={onClose} aria-hidden="true" />
     )}
 
     <Box 
@@ -98,33 +98,34 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       aria-label="Sidebar navigation"
     >
       {/* Header / Logo */}
-      <div css={styles.header}>
+      <Box css={styles.header}>
         {logo}
-      </div>
+      </Box>
 
       {/* Collapse Toggle Button */}
       {/* Chỉ hiện nút toggle khi ở chế độ Desktop Sidebar */}
       {variant === 'sidebar' && (
-        <button 
+        <Box 
+          as="button"
           css={styles.collapseButton} 
           onClick={handleToggle}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-        </button>
+        </Box>
       )}
 
       {/* Content */}
-      <div css={styles.content}>
+      <Box css={styles.content}>
         {items.map((itemOrGroup, index) => {
           if ('items' in itemOrGroup) {
             const group = itemOrGroup as SidebarGroup;
             return (
               <Box key={group.id || index} mb="sm">
                 {group.label && (
-                  <div css={styles.groupLabel(collapsed)}>
+                  <Text css={styles.groupLabel(collapsed)} size="xs" weight="bold" color="SECONDARY">
                     {group.label}
-                  </div>
+                  </Text>
                 )}
                 {group.items.map(subItem => (
                   <SidebarItemComponent 
@@ -147,13 +148,13 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             />
           );
         })}
-      </div>
+      </Box>
 
       {/* Footer */}
       {footer && (
-        <div css={styles.footer}>
+        <Box css={styles.footer}>
           {footer}
-        </div>
+        </Box>
       )}
     </Box>
     </>

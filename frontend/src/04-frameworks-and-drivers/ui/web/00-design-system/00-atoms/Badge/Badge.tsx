@@ -4,7 +4,7 @@ import { getBadgeStyles, badgeWrapper } from './Badge.styles';
 import type { BadgeProps } from './Badge.types';
 
 export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
-  ({ children, variant = 'filled', color = 'primary', size = 'md', className, sx, ...props }, ref) => {
+  ({ children, icon, variant = 'filled', color = 'primary', size = 'md', className, sx, ...props }, ref) => {
     return (
       <span css={badgeWrapper} className={className}>
         <span
@@ -12,6 +12,7 @@ export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
           css={[getBadgeStyles(variant, color, size), sx]}
           {...props}
         >
+          {icon}
           {children}
         </span>
       </span>

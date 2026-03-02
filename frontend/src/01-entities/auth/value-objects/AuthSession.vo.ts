@@ -1,6 +1,6 @@
 // src/01-entities/auth/AuthSession.vo.ts
-import { Result } from '../shared/base/result';
-import { ValueObject } from '../shared/base/ValueObject';
+import { Result } from '../../shared/base/result';
+import { ValueObject } from '../../shared/value-objects/ValueObject';
 
 interface AuthSessionProps {
   userId: string;

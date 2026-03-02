@@ -1,6 +1,6 @@
 import { Transaction, type TransactionProps } from '@/01-entities/finance/Transaction.entity';
 import { type ITransactionRepository } from '@/02-usecases/finance/ports/gateways_interface/ITransactionRepository';
-import { Identifier } from '@/01-entities/shared/Identifier.vo';
+import { Identifier } from '@/01-entities/shared/value-objects/Identifier.vo';
 import { mockDatabase } from '@/04-frameworks-and-drivers/database/LocalStorage';
 
 export class MockTransactionDataSource implements ITransactionRepository {

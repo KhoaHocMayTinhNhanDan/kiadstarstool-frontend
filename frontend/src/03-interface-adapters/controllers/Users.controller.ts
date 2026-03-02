@@ -8,7 +8,7 @@ import { type GetUserInput } from '@/02-usecases/users/ports/input/IGetUserInput
 import { type ListUsersInput } from '@/02-usecases/users/ports/input/IListUsersInput';
 import { type UserOutput } from '@/02-usecases/users/ports/output/IUserOutput';
 import { type UpdateUserProfileInput } from '@/02-usecases/users/ports/input/UpdateUserProfile.input';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 
 export class UsersController {
   private readonly getUserInteractor: GetUserInteractor;

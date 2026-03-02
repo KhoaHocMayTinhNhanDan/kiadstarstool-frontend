@@ -60,4 +60,10 @@ export const getAvatarFallbackStyles = (size: AvatarSize) => css`
   font-size: ${fontSizeMap[size]};
   font-weight: ${FONT_WEIGHTS.medium};
   line-height: 1;
+
+  /* Support for Icon fallbacks */
+  & svg {
+    width: 60%;
+    height: 60%;
+  }
 `;

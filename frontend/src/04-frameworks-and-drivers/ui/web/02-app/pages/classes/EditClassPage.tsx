@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, X, Trash2 } from 'lucide-react';
-import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { Box, Text, Button, Icon, Input, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { ConfirmDialog } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/modals/ConfirmDialog';
@@ -327,25 +327,24 @@ export const EditClassPage = () => {
         <Box display="grid" gridTemplateColumns="1fr 1fr" gap="lg">
           <Box>
             <Text weight="semibold" mb="xs">{t('classes.branch_label')} <Text as="span" color="DANGER">*</Text></Text>
-            <select
+            <Select
               value={formData.branchId}
               onChange={(e) => handleChange('branchId', e.target.value)}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}`, height: '40px', backgroundColor: 'white' }}
-            >
-              {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
+              options={branches.map(b => ({ label: b.name, value: b.id }))}
+              fullWidth
+            />
           </Box>
           <Box>
             <Text weight="semibold" mb="xs">Trạng thái</Text>
-            <select
+            <Select
               value={formData.status}
               onChange={(e) => handleChange('status', e.target.value as ClassStatus)}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}`, height: '40px', backgroundColor: 'white' }}
-            >
-              {Object.values(ClassStatus).map(statusValue => (
-                <option key={statusValue} value={statusValue}>{t(`classes.status.${statusValue}`, statusValue.charAt(0).toUpperCase() + statusValue.slice(1))}</option>
-              ))}
-            </select>
+              options={Object.values(ClassStatus).map(statusValue => ({
+                label: t(`classes.status.${statusValue}`, statusValue.charAt(0).toUpperCase() + statusValue.slice(1)),
+                value: statusValue
+              }))}
+              fullWidth
+            />
           </Box>
         </Box>
 
@@ -367,15 +366,12 @@ export const EditClassPage = () => {
                 {scheduleRows.map((row) => (
                   <tr key={row.id} style={{ borderTop: `1px solid ${COLORS.NEUTRAL_LIGHT}` }}>
                     <td style={{ padding: '8px' }}>
-                      <select
+                      <Select
                         value={row.day}
                         onChange={(e) => updateRowDay(row.id, e.target.value as DayOfWeek)}
-                        style={{ width: '100%', padding: '6px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
-                      >
-                        {(Object.keys(DAY_MAP) as DayOfWeek[]).map(dayKey => (
-                          <option key={dayKey} value={dayKey}>{DAY_MAP[dayKey]}</option>
-                        ))}
-                      </select>
+                        options={(Object.keys(DAY_MAP) as DayOfWeek[]).map(dayKey => ({ label: DAY_MAP[dayKey], value: dayKey }))}
+                        fullWidth
+                      />
                     </td>
                     {row.slots.map((slot, index) => (
                       <td key={index} style={{ padding: '8px' }}>

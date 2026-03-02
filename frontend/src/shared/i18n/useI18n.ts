@@ -1,7 +1,18 @@
-import { useTranslation } from 'react-i18next';
+import { createContext, useContext } from 'react';
+import { type LanguageCode } from './i18n.config';
 
-/**
- * Custom hook to use i18next functionalities.
- * @returns { t, i18n } - Hàm dịch và instance của i18next.
- */
-export const useI18n = () => useTranslation();
+interface I18nContextType {
+  language: LanguageCode;
+  changeLanguage: (lang: LanguageCode) => void;
+  t: (key: string, params?: Record<string, string | number>) => string;
+}
+
+export const I18nContext = createContext<I18nContextType | null>(null);
+
+export const useI18n = () => {
+  const context = useContext(I18nContext);
+  if (!context) {
+    throw new Error('useI18n must be used within an I18nProvider');
+  }
+  return context;
+};

@@ -1,4 +1,4 @@
-import { ValueObject } from '../../shared/base/ValueObject';
+import { ValueObject } from '../../shared/value-objects/ValueObject';
 import { Result } from '../../shared/base/result';
 
 export interface MoneyProps {

@@ -1,5 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { type AuthState } from '@/03-interface-adapters/presenters/auth/Auth.presenter';
 import { Result } from '@/01-entities/shared/base/result';
 

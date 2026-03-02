@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, DollarSign, TrendingUp, TrendingDown, FileText, Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { Box, Text, Button, Icon, Card, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { Box, Text, Button, Icon, Card, Input, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { StatCard } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/cards/StatCard/StatCard';
 import { IncomeExpenseChart } from './components/IncomeExpenseChart';
 import { BarChart, type BarSeries } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/charts/BarChart';
@@ -236,22 +236,16 @@ export const FinancePage = () => {
                  style={{ border: 'none', background: 'transparent', padding: '8px 0', outline: 'none', width: '200px' }}
                />
             </Box>
-            <select
+            <Select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as any)}
-              style={{ 
-                padding: '8px 12px', 
-                borderRadius: '6px', 
-                border: `1px solid ${COLORS.NEUTRAL_BORDER}`,
-                outline: 'none',
-                cursor: 'pointer',
-                height: '40px'
-              }}
-            >
-              <option value="all">Tất cả</option>
-              <option value="income">Khoản thu</option>
-              <option value="expense">Khoản chi</option>
-            </select>
+              options={[
+                { label: 'Tất cả', value: 'all' },
+                { label: 'Khoản thu', value: 'income' },
+                { label: 'Khoản chi', value: 'expense' }
+              ]}
+              sx={{ width: '150px' }}
+            />
           </Box>
         </Box>
         

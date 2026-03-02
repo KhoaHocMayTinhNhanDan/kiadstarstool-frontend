@@ -2,7 +2,7 @@
 import { Outlet } from 'react-router-dom';
 import { css } from '@emotion/react';
 import { useTheme } from '../../../01-ui-core/hooks/useTheme';
-import { useMode } from '../../../01-ui-core/hooks/useMode';
+import { useMode } from '../../../01-ui-core/hooks/useLightDarkMode';
 import { Box } from '../../../00-design-system/00-atoms';
 
 export const CosmicLayout = () => {
@@ -10,11 +10,11 @@ export const CosmicLayout = () => {
   const { mode } = useMode();
 
   const cosmicStyles = css`
-    background-color: ${mode.id === 'dark' ? '#0b0b1e' : '#f0f4f8'};
-    background-image: ${mode.id === 'dark' 
+    background-color: ${mode === 'dark' ? '#0b0b1e' : '#f0f4f8'};
+    background-image: ${mode === 'dark' 
       ? 'radial-gradient(circle at 10% 20%, rgba(90, 90, 255, 0.1) 0%, transparent 20%), radial-gradient(circle at 90% 80%, rgba(200, 50, 255, 0.1) 0%, transparent 20%)' 
       : 'none'};
-    color: ${mode.colors.text.primary};
+    color: ${theme.colors.text.primary};
     min-height: 100vh;
     display: flex;
     font-family: 'Inter', sans-serif; /* Giả sử font tròn trịa */
@@ -22,9 +22,9 @@ export const CosmicLayout = () => {
 
   const sidebarStyles = css`
     width: 80px; /* Collapsed style default */
-    background: ${mode.id === 'dark' ? 'rgba(20, 20, 40, 0.8)' : 'white'};
+    background: ${mode === 'dark' ? 'rgba(20, 20, 40, 0.8)' : 'white'};
     backdrop-filter: blur(10px);
-    border-right: 1px solid ${mode.colors.border.light};
+    border-right: 1px solid ${theme.colors.border.light};
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -44,7 +44,7 @@ export const CosmicLayout = () => {
     flex: 1;
     padding: 32px;
     margin: 16px;
-    background: ${mode.colors.surface.primary};
+    background: ${theme.colors.surface.primary};
     border-radius: 24px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
     overflow: hidden;
@@ -70,9 +70,9 @@ export const CosmicLayout = () => {
         
         {/* Icons only nav */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div style={{ width: '24px', height: '24px', background: mode.colors.text.secondary, borderRadius: '4px' }} />
-          <div style={{ width: '24px', height: '24px', background: mode.colors.text.secondary, borderRadius: '4px', opacity: 0.5 }} />
-          <div style={{ width: '24px', height: '24px', background: mode.colors.text.secondary, borderRadius: '4px', opacity: 0.5 }} />
+          <div style={{ width: '24px', height: '24px', background: theme.colors.text.secondary, borderRadius: '4px' }} />
+          <div style={{ width: '24px', height: '24px', background: theme.colors.text.secondary, borderRadius: '4px', opacity: 0.5 }} />
+          <div style={{ width: '24px', height: '24px', background: theme.colors.text.secondary, borderRadius: '4px', opacity: 0.5 }} />
         </div>
       </aside>
 

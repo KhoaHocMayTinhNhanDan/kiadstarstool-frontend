@@ -1,10 +1,10 @@
 // src/03-interface-adapters/gateways/repositories/AuthRepository.ts
 import { Result } from '@/01-entities/shared/base/result';
-import { Credentials } from '@/01-entities/auth/Credentials.vo';
-import { AuthSession } from '@/01-entities/auth/AuthSession.vo';
+import { Credentials } from '@/01-entities/auth/value-objects/Credentials.vo';
+import { AuthSession } from '@/01-entities/auth/value-objects/AuthSession.vo';
 import { type IAuthRepository } from '@/02-usecases/auth/ports/gateways_interface/IAuthRepository';
-import { type IAuthAuthentication } from '../../outbound/device_interfaces/auth/IAuthAuthentication';
-import { type IAuthSession } from '../../outbound/device_interfaces/auth/IAuthSession';
+import { type IAuthAuthentication } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAuthentication';
+import { type IAuthSession } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthSession';
 
 export class AuthRepository implements IAuthRepository {
   private readonly driver: IAuthAuthentication & IAuthSession;

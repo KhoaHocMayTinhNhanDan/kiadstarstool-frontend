@@ -1,9 +1,9 @@
 /** @jsxImportSource @emotion/react */
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { Box, Text, Button, Icon, Input, Card } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { Box, Text, Button, Icon, Input, Card, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { useToast } from '../../../../01-ui-core/hooks/useToast';
 import { type PaymentScheme } from '@/02-usecases/students/ports/input/EnrollStudent.input';
 import { ENROLLMENT_DEFAULTS } from '@/01-entities/students/value-objects/Enrollment.vo';
@@ -104,31 +104,31 @@ export const EnrollStudentModal = ({ isOpen, onClose, studentId, availableClasse
           <Box display="flex" flexDirection="column" gap="md">
             <Box>
               <Text weight="semibold" mb="xs">Chọn lớp học <Text as="span" color="DANGER">*</Text></Text>
-              <select
+              <Select
                 value={enrollClassId}
                 onChange={(e) => setEnrollClassId(e.target.value)}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}`, height: '40px', backgroundColor: 'white' }}
+                options={[
+                  { label: '-- Chọn lớp --', value: '' },
+                  ...availableClasses.map(c => ({ label: `${c.name} (${c.code})`, value: c.id }))
+                ]}
+                fullWidth
                 required
-              >
-                <option value="">-- Chọn lớp --</option>
-                {availableClasses.map(c => (
-                  <option key={c.id} value={c.id}>{c.name} ({c.code})</option>
-                ))}
-              </select>
+              />
             </Box>
 
             {selectedClassForEnroll && (
               <Box>
                 <Text weight="semibold" mb="xs">Hình thức đóng học phí <Text as="span" color="DANGER">*</Text></Text>
-                <select
+                <Select
                   value={paymentScheme}
                   onChange={(e) => setPaymentScheme(e.target.value as PaymentScheme)}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}`, height: '40px', backgroundColor: 'white' }}
-                >
-                  {selectedClassForEnroll.tuition?.courseFee !== undefined ? <option value="course">Trọn khóa ({(selectedClassForEnroll.tuition.courseFee || 0).toLocaleString()}đ)</option> : null}
-                  {selectedClassForEnroll.tuition?.monthlyFee !== undefined ? <option value="monthly">Theo tháng ({(selectedClassForEnroll.tuition.monthlyFee || 0).toLocaleString()}đ/tháng)</option> : null}
-                  {selectedClassForEnroll.tuition?.sessionFee !== undefined ? <option value="session">Theo buổi ({(selectedClassForEnroll.tuition.sessionFee || 0).toLocaleString()}đ/buổi)</option> : null}
-                </select>
+                  options={[
+                    ...(selectedClassForEnroll.tuition?.courseFee !== undefined ? [{ label: `Trọn khóa (${(selectedClassForEnroll.tuition.courseFee || 0).toLocaleString()}đ)`, value: 'course' }] : []),
+                    ...(selectedClassForEnroll.tuition?.monthlyFee !== undefined ? [{ label: `Theo tháng (${(selectedClassForEnroll.tuition.monthlyFee || 0).toLocaleString()}đ/tháng)`, value: 'monthly' }] : []),
+                    ...(selectedClassForEnroll.tuition?.sessionFee !== undefined ? [{ label: `Theo buổi (${(selectedClassForEnroll.tuition.sessionFee || 0).toLocaleString()}đ/buổi)`, value: 'session' }] : [])
+                  ]}
+                  fullWidth
+                />
                 
                 {/* Fallback if no tuition config */}
                 {!selectedClassForEnroll.tuition && <Text size="xs" color="DANGER">Lớp này chưa cấu hình học phí!</Text>}

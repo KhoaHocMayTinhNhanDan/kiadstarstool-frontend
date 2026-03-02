@@ -55,7 +55,7 @@ export const LoginFormPlayground = () => {
               1. Interactive Demo
             </Text>
             <Text variant="body-sm" color="SECONDARY">
-              (Nhập "error" vào email để test lỗi)
+              (Test lỗi với email "error", và thử tính năng xem/ẩn mật khẩu)
             </Text>
           </Box>
           <Box css={cardStyle}>

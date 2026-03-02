@@ -1,4 +1,4 @@
-import { ValueObject } from '../../shared/base/ValueObject';
+import { ValueObject } from '../../shared/value-objects/ValueObject';
 
 export interface BranchFinancialProps {
   monthlyRevenue: number;

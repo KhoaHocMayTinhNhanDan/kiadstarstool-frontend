@@ -1,6 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 
-export interface ThemeToggleProps {
+export interface LightDarkModeToggleProps {
   className?: string;
   /** Custom styles using Emotion CSSObject */
   sx?: CSSObject;

@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../../01-ui-core/hooks/useTheme';
-import { useMode } from '../../01-ui-core/hooks/useMode';
+import { useLightDarkMode } from '../../01-ui-core/hooks/useLightDarkMode'; // Sửa import nếu cần
 import { AppHeader } from '../../00-design-system/02-organisms/navigation/AppHeader/AppHeader.organism';
 import { AppSidebar } from '../../00-design-system/02-organisms/navigation/AppSidebar/AppSidebar.organism';
 import { Box, Text, Button } from '../../00-design-system/00-atoms';
@@ -20,7 +20,8 @@ import { useState, useEffect } from 'react';
 import { IronmanLayout } from './dynamic/IronmanLayout';
 import { CosmicLayout } from './dynamic/CosmicLayout';
 import { useI18n } from '@/shared/i18n/useI18n';
-import { type LanguageOption } from '../../00-design-system/01-molecules/LanguageSelector';
+import { LanguageSelector } from '../../00-design-system/01-molecules/LanguageSelector';
+import { SUPPORTED_LANGUAGES } from '@/shared/i18n/i18n.config';
 import { COLORS } from '../../01-ui-core/constants/tokens-constants';
 
 // Định nghĩa page titles cho từng route
@@ -38,7 +39,7 @@ const pageTitles: Record<string, string> = {
 
 export const MainLayout = () => {
   const { theme } = useTheme();
-  const { mode, toggleMode } = useMode();
+  const { mode, toggleMode } = useLightDarkMode(); // Sử dụng hook đã chuẩn hóa
   const { user, logout } = useAuth();
   const { t, language, changeLanguage } = useI18n();
   const { toast } = useToast();
@@ -59,6 +60,13 @@ export const MainLayout = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // FIX: Tự động đóng sidebar khi chuyển trang trên mobile
+  useEffect(() => {
+    if (isMobile) {
+      setMobileOpen(false);
+    }
+  }, [location.pathname, isMobile]);
 
   // Get current page title
   const currentPageTitle = pageTitles[location.pathname] || 'Trang chủ';
@@ -102,16 +110,17 @@ export const MainLayout = () => {
         icon={<Bell size={18} />}
         badge={3}
         css={{
-          border: `1px solid ${mode.colors.border.light}`,
+          border: `1px solid ${theme.colors.border.light}`,
         }}
       />
+      {/* Hiển thị lại nút Help, layout sẽ tự wrap nếu thiếu chỗ */}
       <IconButton
         size="sm"
         variant="ghost"
         aria-label="Help"
         icon={<HelpCircle size={18} />}
         css={{
-          border: `1px solid ${mode.colors.border.light}`,
+          border: `1px solid ${theme.colors.border.light}`,
         }}
       />
     </>
@@ -130,7 +139,7 @@ export const MainLayout = () => {
       aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
       icon={mobileOpen ? <X size={18} /> : <Menu size={18} />}
       css={{
-        border: `1px solid ${mode.colors.border.light}`,
+        border: `1px solid ${theme.colors.border.light}`,
         marginRight: '12px',
       }}
     />
@@ -145,7 +154,7 @@ export const MainLayout = () => {
       aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       icon={sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
       css={{
-        border: `1px solid ${mode.colors.border.light}`,
+        border: `1px solid ${theme.colors.border.light}`,
         marginRight: '12px',
       }}
     />
@@ -190,26 +199,26 @@ export const MainLayout = () => {
         height: '100vh',
         width: '100%',
         overflow: 'hidden',
-        backgroundColor: mode.colors.background.primary,
-        color: mode.colors.text.primary,
+        backgroundColor: theme.colors.background.primary,
+        color: theme.colors.text.primary,
       }}
     >
       {/* Unified Sidebar for both Desktop & Mobile */}
       <AppSidebar
         logo={
-          <div style={{
+          <Box sx={{
             fontSize: '20px',
             fontWeight: 700,
-            color: theme.colors?.primary || mode.colors.text.primary,
+            color: theme.colors.primary,
             whiteSpace: 'nowrap',
           }}>
             {sidebarCollapsed ? 'KS' : 'KiadStars'}
-          </div>
+          </Box>
         }
         items={navItems}
         // Removed: mode, themeColors (AppSidebar now uses internal tokens)
         borderRadius={theme.layout.cards.borderRadius}
-        width={theme.layout.sidebar.width}
+        width={isMobile ? '170px' : theme.layout.sidebar.width}
         collapsedWidth={theme.layout.sidebar.collapsedWidth}
         collapsed={sidebarCollapsed}
         onCollapseChange={setSidebarCollapsed}
@@ -220,16 +229,25 @@ export const MainLayout = () => {
         onClose={() => setMobileOpen(false)}
 
         footer={
-          <div style={{
-            padding: '16px',
-            color: mode.colors.text.secondary,
-            fontSize: '12px',
-            textAlign: 'center',
-            opacity: (!isMobile && sidebarCollapsed) ? 0 : 1,
-            transition: 'opacity 0.2s ease',
-          }}>
-            v1.0.0
-          </div>
+          <Box display="flex" flexDirection="column" alignItems="center" gap="sm" p="md">
+            {/* Chỉ hiện LanguageSelector khi Sidebar mở rộng hoặc trên Mobile */}
+            {(isMobile || !sidebarCollapsed) && (
+              <LanguageSelector 
+                value={language || 'vi'}
+                options={SUPPORTED_LANGUAGES}
+                onChange={(code) => changeLanguage(code as any)}
+                dropdownAlign="left"
+              />
+            )}
+            <Text 
+              size="xs" 
+              color="SECONDARY" 
+              align="center"
+              sx={{ opacity: (!isMobile && sidebarCollapsed) ? 0 : 1, transition: 'opacity 0.2s' }}
+            >
+              v1.0.0
+            </Text>
+          </Box>
         }
       />
 
@@ -256,12 +274,26 @@ export const MainLayout = () => {
             </>
           }
           logo={
-            <div>
-              <h1 style={{ fontSize: '20px', fontWeight: 600, margin: 0 }}>
+            <Box>
+              <Text 
+                as="h1" 
+                sx={{ 
+                  fontSize: '20px', 
+                  fontWeight: 600, 
+                  margin: 0,
+                  // Responsive: Chỉ giảm font size, bỏ giới hạn chiều rộng để text tự xuống dòng
+                  '@media (max-width: 768px)': {
+                    fontSize: '18px',
+                  }
+                }}
+              >
                 {currentPageTitle}
-              </h1>
-              <Breadcrumbs />
-            </div>
+              </Text>
+              {/* Hiển thị Breadcrumbs bình thường */}
+              <Box>
+                <Breadcrumbs />
+              </Box>
+            </Box>
           }
           showSearch={true}
           searchPlaceholder="Tìm kiếm..."
@@ -269,11 +301,8 @@ export const MainLayout = () => {
           actions={headerActions}
           onThemeToggle={toggleMode}
           currentLanguage={language}
-          onLanguageChange={changeLanguage}
-          languageOptions={[
-            { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
-            { code: 'en', label: 'English', flag: '🇺🇸' },
-          ]}
+          onLanguageChange={(code) => changeLanguage(code as any)}
+          languageOptions={SUPPORTED_LANGUAGES as any}
           userProfile={user ? {
             name: user.displayName || user.email?.split('@')[0] || 'User',
             email: user.email || '',
@@ -282,8 +311,8 @@ export const MainLayout = () => {
           } : null}
           userMenuItems={userMenuItems}
           css={{
-            borderBottom: `1px solid ${mode.colors.border.default}`,
-            backgroundColor: mode.colors.surface.primary,
+            borderBottom: `1px solid ${theme.colors.border.default}`,
+            backgroundColor: theme.colors.surface.primary,
           }}
         />
 
@@ -296,7 +325,7 @@ export const MainLayout = () => {
             flex: 1,
             overflowY: 'auto',
             padding: isMobile ? '16px' : '24px',
-            backgroundColor: mode.colors.background.secondary,
+            backgroundColor: theme.colors.background.secondary,
           }}
         >
           <Outlet />

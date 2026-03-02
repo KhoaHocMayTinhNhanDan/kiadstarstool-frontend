@@ -1,6 +1,7 @@
 import { Avatar } from './Avatar';
 import { Box } from '../Box/Box';
 import { Text } from '../Text/Text';
+import { User } from 'lucide-react';
 
 export const AvatarPlayground = () => {
   return (
@@ -33,6 +34,7 @@ export const AvatarPlayground = () => {
               fallback="CT" 
             />
             <Avatar size="lg" fallback="JD" />
+            <Avatar size="lg" fallback={<User />} />
           </Box>
         </Box>
 

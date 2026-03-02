@@ -6,7 +6,7 @@ import { Calendar, Save, RefreshCw, CheckCircle, XCircle, UserX } from 'lucide-r
 import { useClassAttendance } from '../../../hooks/class/useClassAttendance';
 import { AttendanceStats } from './AttendanceStats';
 import { AttendanceTable } from './AttendanceTable';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { useToast } from '../../../../01-ui-core/hooks/useToast';
 import { useAuth } from '../../../hooks/user/useAuthorization';
 

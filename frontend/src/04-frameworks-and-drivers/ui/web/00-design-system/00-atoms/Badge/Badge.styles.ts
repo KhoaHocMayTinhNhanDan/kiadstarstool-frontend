@@ -58,6 +58,7 @@ export const getBadgeStyles = (variant: BadgeVariant, color: BadgeColor, size: B
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: ${SPACING.xs};
     height: ${s.height};
     padding: 0 ${s.px};
     font-size: ${s.fontSize};

@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { useState, useRef, useEffect } from 'react';
 import { Globe, ChevronDown, Check } from 'lucide-react';
-import { Box, Text, Icon } from '../../00-atoms';
+import { Box, Button, Text, Icon } from '../../00-atoms';
 import * as styles from './LanguageSelector.molecule.styles';
 import type { LanguageSelectorProps, LanguageOption } from './LanguageSelector.types';
 
@@ -15,6 +15,7 @@ export const LanguageSelector = ({
   onChange,
   options = DEFAULT_OPTIONS,
   variant = 'default',
+  dropdownAlign = 'right',
   className,
   sx,
   testId = 'language-selector',
@@ -46,13 +47,13 @@ export const LanguageSelector = ({
   };
 
   return (
-    <div
+    <Box
       ref={containerRef}
       css={[styles.container, sx]}
       className={className}
       data-testid={testId}
     >
-      <button
+      <Button
         type="button"
         css={styles.trigger(isOpen, variant)}
         onClick={() => setIsOpen(!isOpen)}
@@ -61,9 +62,9 @@ export const LanguageSelector = ({
         aria-label="Select language"
       >
         {variant !== 'text-only' && (
-          <span css={styles.flag}>
+          <Box as="span" css={styles.flag}>
             {selectedOption.flag || <Icon size="sm"><Globe /></Icon>}
-          </span>
+          </Box>
         )}
         
         {variant !== 'icon-only' && (
@@ -75,13 +76,13 @@ export const LanguageSelector = ({
         <Icon size="xs" color="SECONDARY">
           <ChevronDown />
         </Icon>
-      </button>
+      </Button>
 
-      <div css={styles.dropdown(isOpen)} role="listbox">
+      <Box css={styles.dropdown(isOpen, dropdownAlign)} role="listbox">
         {options.map((option) => {
           const isActive = option.code === value;
           return (
-            <button
+            <Button
               key={option.code}
               type="button"
               role="option"
@@ -90,18 +91,18 @@ export const LanguageSelector = ({
               onClick={() => handleSelect(option.code)}
             >
               <Box display="flex" alignItems="center">
-                {option.flag && <span css={styles.flag}>{option.flag}</span>}
-                <span>{option.label}</span>
+                {option.flag && <Box as="span" css={styles.flag}>{option.flag}</Box>}
+                <Text as="span">{option.label}</Text>
               </Box>
               {isActive && (
                 <Icon size="xs" color="PRIMARY">
                   <Check />
                 </Icon>
               )}
-            </button>
+            </Button>
           );
         })}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };

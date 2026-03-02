@@ -2,7 +2,7 @@
 import { type IUserProfile } from '../../base/IUserProfile.vo'
 import { UserRole } from '../../base/UserRole.vo'
 import { Permission } from '../../base/Permission.vo'
-import { PhoneNumber } from '../../../shared/base/PhoneNumber.vo'
+import { PhoneNumber } from '../../../shared/value-objects/PhoneNumber.vo'
 
 interface AdminProfileProps {
   displayName: string

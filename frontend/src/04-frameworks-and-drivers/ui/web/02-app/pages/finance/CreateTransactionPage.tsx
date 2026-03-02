@@ -2,9 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save } from 'lucide-react';
-import { Box, Text, Button, Icon, Input, Card } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
-import { AppContext } from '@/00-core/app-context';
+import { Box, Text, Button, Icon, Input, Card, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { useToast } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/hooks/useToast';
 import { useAuth } from '../../hooks/user/useAuthorization';
 import { type BranchListItem } from '@/02-usecases/branch/ports/output/ListBranches.output';
@@ -58,7 +57,7 @@ export const CreateTransactionPage = () => {
         method: formData.method as any,
         transactionDate: new Date(formData.transactionDate),
         description: formData.description,
-        performedBy: user?.id || user?.uid || 'unknown'
+        performedBy: user?.id  || 'unknown'
       });
 
       if (result.isSuccess) {
@@ -86,30 +85,24 @@ export const CreateTransactionPage = () => {
       <Card>
         <form onSubmit={handleSubmit}>
           <Box display="flex" flexDirection="column" gap="md">
-            <Box>
-              <Text weight="semibold" mb="xs">Loại giao dịch</Text>
-              <select
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
-                value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-              >
-                <option value="expense">Chi phí (Expense)</option>
-                <option value="income">Thu nhập khác (Income)</option>
-              </select>
-            </Box>
+            <Select
+              label="Loại giao dịch"
+              value={formData.type}
+              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+              options={[
+                { label: 'Chi phí (Expense)', value: 'expense' },
+                { label: 'Thu nhập khác (Income)', value: 'income' }
+              ]}
+              fullWidth
+            />
 
-            <Box>
-              <Text weight="semibold" mb="xs">Chi nhánh</Text>
-              <select
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
-                value={formData.branchId}
-                onChange={(e) => setFormData({ ...formData, branchId: e.target.value })}
-              >
-                {branches.map(b => (
-                  <option key={b.id} value={b.id}>{b.name}</option>
-                ))}
-              </select>
-            </Box>
+            <Select
+              label="Chi nhánh"
+              value={formData.branchId}
+              onChange={(e) => setFormData({ ...formData, branchId: e.target.value })}
+              options={branches.map(b => ({ label: b.name, value: b.id }))}
+              fullWidth
+            />
 
             <Box>
               <Text weight="semibold" mb="xs">Số tiền</Text>
@@ -130,18 +123,17 @@ export const CreateTransactionPage = () => {
               />
             </Box>
 
-            <Box>
-              <Text weight="semibold" mb="xs">Hình thức</Text>
-              <select
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
-                value={formData.method}
-                onChange={(e) => setFormData({ ...formData, method: e.target.value })}
-              >
-                <option value="cash">Tiền mặt</option>
-                <option value="bank_transfer">Chuyển khoản</option>
-                <option value="credit_card">Thẻ tín dụng</option>
-              </select>
-            </Box>
+            <Select
+              label="Hình thức"
+              value={formData.method}
+              onChange={(e) => setFormData({ ...formData, method: e.target.value })}
+              options={[
+                { label: 'Tiền mặt', value: 'cash' },
+                { label: 'Chuyển khoản', value: 'bank_transfer' },
+                { label: 'Thẻ tín dụng', value: 'credit_card' }
+              ]}
+              fullWidth
+            />
 
             <Box>
               <Text weight="semibold" mb="xs">Mô tả</Text>

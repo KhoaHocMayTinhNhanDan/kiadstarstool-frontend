@@ -3,8 +3,6 @@ import { type IClassDataSource } from '@/03-interface-adapters/gateways/outbound
 import { Class } from '@/01-entities/classes/Class.entity';
 
 export class ClassRepository implements IClassRepository {
-
-  
   private readonly dataSource: IClassDataSource;
 
   constructor(dataSource: IClassDataSource) {

@@ -1,6 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { useState, useEffect } from 'react';
-import { css } from '@emotion/react';
+import { useState, useEffect, useMemo, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Plus, 
@@ -14,11 +13,12 @@ import {
   User as UserIcon,
   Trash2
 } from 'lucide-react';
-import { Box, Text, Button, Icon, Input, Avatar, Badge } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { Box, Text, Button, Icon, Input, Avatar, Badge, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { Pagination } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/navigation/Pagination';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
+import { DataTable, type Column } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/data/DataTable';
 
 // Định nghĩa interface cho dữ liệu hiển thị (có thể thay thế bằng DTO thực tế từ UseCase)
 interface UserListItem {
@@ -52,15 +52,19 @@ export const UserListPage = () => {
       
       if (result.isSuccess) {
         const data = result.getValue();
-        const mappedUsers: UserListItem[] = data.map((u: any) => ({
-          id: u.id,
-          displayName: u.displayName || u.email.split('@')[0],
-          email: u.email,
+        const mappedUsers: UserListItem[] = data
+          .map((u: any) => ({
+          // FIX: API trả về 'uid', cần ưu tiên lấy 'uid' trước, sau đó mới fallback sang 'id'
+          id: u.uid || (typeof u.id === 'object' ? u.id.value : u.id) || '',
+          displayName: u.displayName || u.email?.split('@')[0] || 'Unknown',
+          email: u.email || '',
           photoURL: u.photoURL,
-          role: u.role,
-          status: u.isActive ? 'active' : 'inactive',
+          role: u.role as UserListItem['role'],
+          status: (u.isActive ? 'active' : 'inactive') as UserListItem['status'],
           lastActive: u.lastLoginAt || u.updatedAt
-        }));
+        }))
+        .filter(u => u.id); // Chỉ giữ lại user có ID hợp lệ sau khi đã map xong
+        
         setUsers(mappedUsers);
       } else {
         toast.error(result.getErrorValue());
@@ -123,6 +127,70 @@ export const UserListPage = () => {
     }
   };
 
+  // Cấu hình cột cho DataTable
+  const columns = useMemo<Column<UserListItem>[]>(() => [
+    {
+      key: 'user',
+      header: 'Người dùng',
+      render: (user) => (
+        <Box display="flex" alignItems="center" gap="md">
+          <Avatar src={user.photoURL} alt={user.displayName} fallback={<UserIcon />} size="md" />
+          <Box>
+            <Text weight="medium">{user.displayName}</Text>
+            <Box display="flex" alignItems="center" gap="xs">
+              <Icon size="xs" color="SECONDARY"><Mail /></Icon>
+              <Text size="xs" color="SECONDARY">{user.email}</Text>
+            </Box>
+          </Box>
+        </Box>
+      )
+    },
+    {
+      key: 'role',
+      header: 'Vai trò',
+      render: (user) => (
+        <Badge color={getRoleBadgeColor(user.role)} icon={<Shield size={12}/>}>{user.role.toUpperCase()}</Badge>
+      )
+    },
+    {
+      key: 'status',
+      header: 'Trạng thái',
+      render: (user) => (
+        <Box display="flex" alignItems="center" gap="xs">
+          <Icon size="xs" color={user.status === 'active' ? 'SUCCESS' : 'SECONDARY'}>
+            {user.status === 'active' ? <CheckCircle /> : <XCircle />}
+          </Icon>
+          <Text size="sm">{user.status === 'active' ? 'Hoạt động' : 'Vô hiệu'}</Text>
+        </Box>
+      )
+    },
+    {
+      key: 'lastActive',
+      header: 'Hoạt động cuối',
+      render: (user) => (
+        <Text size="sm" color="SECONDARY">{user.lastActive ? new Date(user.lastActive).toLocaleDateString('vi-VN') : '-'}</Text>
+      )
+    },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      render: (user) => (
+        <Box display="flex" justifyContent="flex-end" gap="xs" onClick={(e: MouseEvent) => e.stopPropagation()}>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteUser(user.id, user.displayName); }}
+            title="Vô hiệu hóa"
+            sx={{ color: COLORS.DANGER, '&:hover': { backgroundColor: COLORS.DANGER_LIGHT } }}
+          >
+            <Icon size="sm"><Trash2 /></Icon>
+          </Button>
+        </Box>
+      )
+    }
+  ], []);
+
   return (
     <Box display="flex" flexDirection="column" gap="lg">
       {/* 1. Header Section */}
@@ -170,104 +238,32 @@ export const UserListPage = () => {
           <Box position="absolute" left="10px" style={{ pointerEvents: 'none' }}>
              <Icon color="SECONDARY" size="sm"><Filter /></Icon>
           </Box>
-          <select 
+          <Select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            style={{
-              padding: '10px 10px 10px 36px',
-              borderRadius: RADIUS.md,
-              border: `1px solid ${COLORS.NEUTRAL_BORDER}`,
-              outline: 'none',
-              backgroundColor: 'white',
-              minWidth: '180px',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="all">Tất cả vai trò</option>
-            <option value="admin">Quản trị viên</option>
-            <option value="manager">Quản lý</option>
-            <option value="teacher">Giáo viên</option>
-            <option value="staff">Nhân viên</option>
-            <option value="student">Học viên</option>
-          </select>
+            options={[
+              { label: 'Tất cả vai trò', value: 'all' },
+              { label: 'Quản trị viên', value: 'admin' },
+              { label: 'Quản lý', value: 'manager' },
+              { label: 'Giáo viên', value: 'teacher' },
+              { label: 'Nhân viên', value: 'staff' },
+              { label: 'Học viên', value: 'student' }
+            ]}
+            sx={{ paddingLeft: '36px', minWidth: '180px' }}
+          />
         </Box>
       </Box>
 
       {/* 3. Data Table Section */}
-      <Box bg="BACKGROUND_PAPER" overflow="hidden" css={{ 
-        boxShadow: SHADOWS.sm,
-        borderRadius: RADIUS.lg,
-        border: `1px solid ${COLORS.NEUTRAL_BORDER}`
-      }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom: `1px solid ${COLORS.NEUTRAL_BORDER}`, backgroundColor: COLORS.NEUTRAL_LIGHT }}>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Người dùng</Text></th>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Vai trò</Text></th>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Trạng thái</Text></th>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Hoạt động cuối</Text></th>
-              <th style={{ padding: SPACING.md, textAlign: 'right' }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr><td colSpan={5} style={{ padding: SPACING.xl, textAlign: 'center' }}><Text color="SECONDARY">Đang tải dữ liệu...</Text></td></tr>
-            ) : paginatedUsers.length === 0 ? (
-              <tr><td colSpan={5} style={{ padding: SPACING.xl, textAlign: 'center' }}><Text color="SECONDARY">Không tìm thấy người dùng nào.</Text></td></tr>
-            ) : (
-              paginatedUsers.map(user => (
-                <tr 
-                  key={user.id} 
-                  style={{ borderBottom: `1px solid ${COLORS.NEUTRAL_LIGHT}`, cursor: 'pointer', transition: 'background 0.2s' }}
-                  onClick={() => navigate(`/users/${user.id}`)}
-                  onMouseEnter={(e) => e.currentTarget.style.background = COLORS.NEUTRAL_LIGHT}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  <td style={{ padding: SPACING.md }}>
-                    <Box display="flex" alignItems="center" gap="md">
-                      <Avatar src={user.photoURL} alt={user.displayName} fallback={<UserIcon />} size="md" />
-                      <Box>
-                        <Text weight="medium">{user.displayName}</Text>
-                        <Box display="flex" alignItems="center" gap="xs">
-                          <Icon size="xs" color="SECONDARY"><Mail /></Icon>
-                          <Text size="xs" color="SECONDARY">{user.email}</Text>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </td>
-                  <td style={{ padding: SPACING.md }}>
-                    <Badge color={getRoleBadgeColor(user.role)} icon={<Shield size={12}/>}>{user.role.toUpperCase()}</Badge>
-                  </td>
-                  <td style={{ padding: SPACING.md }}>
-                    <Box display="flex" alignItems="center" gap="xs">
-                      <Icon size="xs" color={user.status === 'active' ? 'SUCCESS' : 'SECONDARY'}>
-                        {user.status === 'active' ? <CheckCircle /> : <XCircle />}
-                      </Icon>
-                      <Text size="sm">{user.status === 'active' ? 'Hoạt động' : 'Vô hiệu'}</Text>
-                    </Box>
-                  </td>
-                  <td style={{ padding: SPACING.md }}>
-                    <Text size="sm" color="SECONDARY">{user.lastActive ? new Date(user.lastActive).toLocaleDateString('vi-VN') : '-'}</Text>
-                  </td>
-                  <td style={{ padding: SPACING.md, textAlign: 'right' }}>
-                    <Box display="flex" justifyContent="flex-end" gap="xs">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={(e) => { e.stopPropagation(); handleDeleteUser(user.id, user.displayName); }}
-                        title="Vô hiệu hóa"
-                        sx={{ color: COLORS.DANGER, '&:hover': { backgroundColor: COLORS.DANGER_LIGHT } }}
-                      >
-                        <Icon size="sm"><Trash2 /></Icon>
-                      </Button>
-                    </Box>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </Box>
+      <DataTable
+        data={paginatedUsers}
+        columns={columns}
+        keyExtractor={(user) => user.id}
+        isLoading={isLoading}
+        onRowClick={(user) => navigate(`/users/${user.id}`)}
+        emptyMessage="Không tìm thấy người dùng nào."
+        totalPages={0} // Ẩn pagination mặc định của DataTable để dùng component Pagination bên dưới
+      />
 
       {/* 4. Pagination */}
       {!isLoading && filteredUsers.length > ITEMS_PER_PAGE && (

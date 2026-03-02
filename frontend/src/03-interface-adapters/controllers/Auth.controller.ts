@@ -7,7 +7,7 @@ import { type LoginInput } from '@/02-usecases/auth/ports/input/ILoginInput';
 import { type LoginOutput } from '@/02-usecases/auth/ports/output/ILoginOutput';
 import { type LogoutInput } from '@/02-usecases/auth/ports/input/ILogoutInput';
 import { type LogoutOutput } from '@/02-usecases/auth/ports/output/ILogoutOutput';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 
 export class AuthController {
   private readonly loginInteractor: LoginInteractor;

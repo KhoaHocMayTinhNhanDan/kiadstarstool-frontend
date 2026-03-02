@@ -6,7 +6,8 @@ import { type IUserProfile } from '@/01-entities/users/base/IUserProfile.vo';
 import { AdminProfile } from '@/01-entities/users/archetypes/admin/AdminProfile.vo';
 import { StaffProfile } from '@/01-entities/users/archetypes/staff/StaffProfile.vo';
 import { TeacherProfile } from '@/01-entities/users/archetypes/teacher/TeacherProfile.vo';
-import { PhoneNumber } from '@/01-entities/shared/base/PhoneNumber.vo';
+import { BranchManagerProfile } from '@/01-entities/users/archetypes/branch_manager/BranchManagerProfile.vo';
+import { PhoneNumber } from '@/01-entities/shared/value-objects/PhoneNumber.vo';
 import { type PermissionCode } from '@/shared/constants/authorization/auth.domain';
 
 export class UserMapper {
@@ -71,7 +72,13 @@ export class UserMapper {
           // Giả sử teacher có 'specialization'
           specialization: profileJson.specialization,
         });
-      // Thêm các case khác cho Teacher, Manager... ở đây
+      case 'manager':
+        return new BranchManagerProfile({
+          displayName: profileJson.displayName,
+          photoURL: profileJson.photoURL,
+          phoneNumbers: phoneNumbers,
+          branchId: profileJson.branchId || '', // Fallback an toàn
+        });
       default:
         // PRODUCT-READY FIX:
         // Không nên fallback âm thầm về StaffProfile vì có thể gây lỗi logic nghiệp vụ hoặc bảo mật.

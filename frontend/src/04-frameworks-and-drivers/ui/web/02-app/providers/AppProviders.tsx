@@ -1,21 +1,19 @@
-// 02-app/providers/AppProviders.tsx
 import { type ReactNode } from 'react';
-import { ModalProvider } from '../../01-ui-core/contexts/ModalContext';
-import { ModeProvider } from '../../01-ui-core/contexts/ModeContext';
-import { ThemeProvider } from '../../01-ui-core/contexts/ThemeContext';
-import { ToastProvider } from './ToastProvider'; // Sử dụng App-level ToastProvider
 import { I18nProvider } from './I18nProvider';
+import { ThemeProvider } from './ThemeProvider';
+import { ToastProvider } from './ToastProvider';
+import { LightDarkModeProvider } from './LightDarkModeProvider';
 
 export const AppProviders = ({ children }: { children: ReactNode }) => {
   return (
-    <I18nProvider>
+    <LightDarkModeProvider>
       <ThemeProvider>
-        <ModeProvider>
+        <I18nProvider>
           <ToastProvider>
-            <ModalProvider>{children}</ModalProvider>
+            {children}
           </ToastProvider>
-        </ModeProvider>
+        </I18nProvider>
       </ThemeProvider>
-    </I18nProvider>
+    </LightDarkModeProvider>
   );
 };

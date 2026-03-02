@@ -1,6 +1,6 @@
 // 02-app/pages/settings/ThemeSelector.tsx
 import { useTheme } from '../../../01-ui-core/hooks/useTheme';
-import { useMode } from '../../../01-ui-core/hooks/useMode';
+import { useMode } from '../../../01-ui-core/hooks/useLightDarkMode';
 import { availableThemes } from '../../../01-ui-core/themes/themes';
 import { Button } from '../../../00-design-system/00-atoms/Button';
 import { Card } from '../../../00-design-system/00-atoms/Card';

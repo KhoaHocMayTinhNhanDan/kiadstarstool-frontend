@@ -33,6 +33,7 @@ coverage/
 *-service-account.json
 firebase-config.json
 firebase-credentials.json
+kiadstarstool-firebase-adminsdk-fbsvc-19c286bbce.json
 
 # IDE
 .vscode/*

@@ -1,11 +1,5 @@
 import { type BranchFinancialProps } from "@/01-entities/branch/value-objects/BranchFinancial.vo";
-
-export interface OperatingHours {
-  open: string;
-  close: string;
-}
-export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
-export type WeeklyOperatingHours = Record<DayOfWeek, OperatingHours>;
+import { type WeeklyOperatingHours } from "@/01-entities/branch/value-objects/BranchOperatingHours.vo";
 
 export interface GetBranchDetailsOutput {
   id: string;

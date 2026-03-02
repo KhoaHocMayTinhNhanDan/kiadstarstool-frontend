@@ -2,7 +2,7 @@ import { Result } from '@/01-entities/shared/base/result';
 import { type IUserRepository } from './ports/gateways_interface/IUserRepository';
 import { type UpdateUserProfileInput } from './ports/input/UpdateUserProfile.input';
 import { type UpdateUserProfileOutput } from './ports/output/UpdateUserProfile.output';
-import { PhoneNumber } from '@/01-entities/shared/base/PhoneNumber.vo';
+import { PhoneNumber } from '@/01-entities/shared/value-objects/PhoneNumber.vo';
 
 export class UpdateUserProfileInteractor {
   private readonly userRepo: IUserRepository;

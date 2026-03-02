@@ -2,7 +2,7 @@
 import { Outlet } from 'react-router-dom';
 import { css } from '@emotion/react';
 import { useTheme } from '../../../01-ui-core/hooks/useTheme';
-import { useMode } from '../../../01-ui-core/hooks/useMode';
+import { useMode } from '../../../01-ui-core/hooks/useLightDarkMode';
 import { Box } from '../../../00-design-system/00-atoms';
 
 export const IronmanLayout = () => {
@@ -12,8 +12,8 @@ export const IronmanLayout = () => {
   // Ironman theme specific styles
   // Ví dụ: Viền sắc cạnh, màu đỏ/vàng đặc trưng, hiệu ứng glow
   const ironmanStyles = css`
-    background-color: ${mode.id === 'dark' ? '#1a0505' : '#fff5f5'};
-    color: ${mode.colors.text.primary};
+    background-color: ${mode === 'dark' ? '#1a0505' : '#fff5f5'};
+    color: ${theme.colors.text.primary};
     min-height: 100vh;
     display: flex;
     
@@ -22,7 +22,7 @@ export const IronmanLayout = () => {
       width: 8px;
     }
     ::-webkit-scrollbar-track {
-      background: ${mode.id === 'dark' ? '#2d0a0a' : '#ffe0e0'}; 
+      background: ${mode === 'dark' ? '#2d0a0a' : '#ffe0e0'}; 
     }
     ::-webkit-scrollbar-thumb {
       background: #d4af37; /* Gold */
@@ -32,7 +32,7 @@ export const IronmanLayout = () => {
 
   const sidebarStyles = css`
     width: 260px;
-    background: ${mode.id === 'dark' ? 'linear-gradient(180deg, #7a0000 0%, #2d0000 100%)' : 'linear-gradient(180deg, #ff4d4d 0%, #990000 100%)'};
+    background: ${mode === 'dark' ? 'linear-gradient(180deg, #7a0000 0%, #2d0000 100%)' : 'linear-gradient(180deg, #ff4d4d 0%, #990000 100%)'};
     border-right: 2px solid #d4af37;
     color: white;
     display: flex;
@@ -44,7 +44,7 @@ export const IronmanLayout = () => {
   const contentStyles = css`
     flex: 1;
     padding: 24px;
-    background-image: radial-gradient(circle at 50% 50%, ${mode.id === 'dark' ? 'rgba(255, 0, 0, 0.05)' : 'rgba(255, 0, 0, 0.02)'} 0%, transparent 70%);
+    background-image: radial-gradient(circle at 50% 50%, ${mode === 'dark' ? 'rgba(255, 0, 0, 0.05)' : 'rgba(255, 0, 0, 0.02)'} 0%, transparent 70%);
   `;
 
   return (
@@ -68,7 +68,7 @@ export const IronmanLayout = () => {
           display: 'flex', 
           justifyContent: 'space-between', 
           marginBottom: '32px', 
-          borderBottom: `1px solid ${mode.colors.border.default}`,
+          borderBottom: `1px solid ${theme.colors.border.default}`,
           paddingBottom: '16px'
         }}>
           <h1 style={{ margin: 0, fontFamily: 'monospace' }}>COMMAND CENTER</h1>

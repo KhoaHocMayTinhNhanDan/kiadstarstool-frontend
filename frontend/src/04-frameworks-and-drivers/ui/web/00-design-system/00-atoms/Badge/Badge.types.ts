@@ -7,6 +7,8 @@ export type BadgeSize = 'sm' | 'md';
 
 export interface BadgeProps {
   children: ReactNode;
+  /** Icon hiển thị trước text */
+  icon?: ReactNode;
   variant?: BadgeVariant;
   color?: BadgeColor;
   size?: BadgeSize;

@@ -1,5 +1,5 @@
 // src/01-entities/users/base/PhoneNumber.vo.ts
-import { ValueObject } from '../../shared/base/ValueObject'
+import { ValueObject } from './ValueObject'
 
 interface PhoneNumberProps {
   value: string

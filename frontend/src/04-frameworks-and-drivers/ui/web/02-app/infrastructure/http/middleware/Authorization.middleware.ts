@@ -1,5 +1,5 @@
 // src/04-frameworks-and-drivers/ui/web/infrastructure/http/middleware/Authorization.middleware.ts
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { type PermissionCode } from '@/shared/constants/authorization/auth.domain';
 
 /**

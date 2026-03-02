@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, X } from 'lucide-react';
-import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { Box, Text, Button, Icon, Input, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SPACING, RADIUS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
@@ -227,24 +227,15 @@ export const CreateClassPage = () => {
         {/* Branch Select */}
         <Box>
           <Text weight="semibold" mb="xs">{t('classes.branch_label')} <Text as="span" color="DANGER">*</Text></Text>
-          <select
+          <Select
             value={formData.branchId}
             onChange={(e) => handleChange('branchId', e.target.value)}
-            style={{
-              width: '100%',
-              padding: SPACING.sm,
-              borderRadius: RADIUS.md,
-              border: `1px solid ${COLORS.NEUTRAL_BORDER}`,
-              outline: 'none',
-              backgroundColor: 'white',
-              height: '40px'
-            }}
-          >
-            <option value="" disabled>{t('classes.branch_placeholder')}</option>
-            {branches.map(b => (
-              <option key={b.id} value={b.id}>{b.name}</option>
-            ))}
-          </select>
+            options={[
+              { label: t('classes.branch_placeholder'), value: '', disabled: true },
+              ...branches.map(b => ({ label: b.name, value: b.id }))
+            ]}
+            fullWidth
+          />
         </Box>
 
         {/* Schedule & Teacher */}
@@ -273,15 +264,12 @@ export const CreateClassPage = () => {
                 {scheduleRows.map((row) => (
                   <tr key={row.id} style={{ borderTop: `1px solid ${COLORS.NEUTRAL_LIGHT}` }}>
                     <td style={{ padding: '8px' }}>
-                      <select
+                      <Select
                         value={row.day}
                         onChange={(e) => updateRowDay(row.id, e.target.value as DayOfWeek)}
-                        style={{ width: '100%', padding: '6px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
-                      >
-                        {(Object.keys(DAY_MAP) as DayOfWeek[]).map(dayKey => (
-                          <option key={dayKey} value={dayKey}>{DAY_MAP[dayKey]}</option>
-                        ))}
-                      </select>
+                        options={(Object.keys(DAY_MAP) as DayOfWeek[]).map(dayKey => ({ label: DAY_MAP[dayKey], value: dayKey }))}
+                        fullWidth
+                      />
                     </td>
                     {row.slots.map((slot, index) => (
                       <td key={index} style={{ padding: '8px' }}>

@@ -25,6 +25,7 @@ import { UpdateUserProfileInteractor } from '@/02-usecases/users/UpdateUserProfi
 import { DeactivateUserInteractor } from '@/02-usecases/users/DeactivateUser.interactor';
 import { UsersController } from '@/03-interface-adapters/controllers/Users.controller';
 import { MockUserProfileDataSource } from '@/04-frameworks-and-drivers/devices/user/MockUserProfileDataSource';
+import { FirebaseUserProfileDataSource } from '@/04-frameworks-and-drivers/devices/user/FirebaseUserProfileDataSource';
 import { MockBranchDataSource } from '@/04-frameworks-and-drivers/devices/branch/MockBranchDataSource';
 import { CreateBranchInteractor } from '@/02-usecases/branch/CreateBranch.interactor';
 import { UpdateBranchInfoInteractor } from '@/02-usecases/branch/UpdateBranchInfo.interactor';
@@ -128,7 +129,9 @@ export async function bootstrapApp(options: BootstrapOptions = {}): Promise<void
   }
   
   const authRepository = new AuthRepository(authDriver);
-  const userDataSource = new MockUserProfileDataSource();
+  const userDataSource = useMockAuth 
+    ? new MockUserProfileDataSource() 
+    : new FirebaseUserProfileDataSource();
   const userRepository = new UserRepository(userDataSource);
   const authPresenter = new AuthPresenter()
 

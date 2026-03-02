@@ -1,7 +1,7 @@
 import { Branch } from '@/01-entities/branch/Branch.entity';
 import { BranchId } from '@/01-entities/branch/value-objects/BranchId.vo';
 import { type IBranchRepository } from '@/02-usecases/branch/ports/gateways_interface/IBranchRepository';
-import { type IBranchDataSource } from '../../outbound/device_interfaces/branch/IBranchDataSource';
+import { type IBranchDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/branch/IBranchDataSource';
 
 export class BranchRepository implements IBranchRepository {
   private readonly dataSource: IBranchDataSource;

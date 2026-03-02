@@ -1,5 +1,5 @@
 import { AggregateRoot } from '../shared/base/AggregateRoot';
-import { Identifier } from '../shared/Identifier.vo';
+import { Identifier } from '../shared/value-objects/Identifier.vo';
 import { Result } from '../shared/base/result';
 import { Enrollment, type EnrollmentProps } from './value-objects/Enrollment.vo';
 

@@ -1,7 +1,7 @@
 // src/01-entities/finance/Invoice.entity.ts
 
 import { v4 as uuidv4 } from 'uuid';
-import { Identifier } from '../shared/Identifier.vo';
+import { Identifier } from '../shared/value-objects/Identifier.vo';
 import { Result } from '../shared/base/result';
 import { AuditedEntity, type AuditedProps } from '../shared/base/audited.entity';
 

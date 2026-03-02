@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Box, Text, Button, Icon, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SPACING, type ColorKey } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { CheckCircle, XCircle, Clock, AlertCircle, X, Save } from 'lucide-react';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { type AttendanceListItem } from '@/02-usecases/attendance/ports/output/ListAttendanceByClass.output';
 import { useToast } from '../../../../01-ui-core/hooks/useToast';
 import { useAuth } from '../../../hooks/user/useAuthorization';

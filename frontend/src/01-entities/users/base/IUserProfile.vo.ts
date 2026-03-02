@@ -2,7 +2,7 @@
 
 import { UserRole } from './UserRole.vo'
 import { Permission } from './Permission.vo'
-import { PhoneNumber } from '../../shared/base/PhoneNumber.vo'
+import { PhoneNumber } from '../../shared/value-objects/PhoneNumber.vo'
 
 
 /**

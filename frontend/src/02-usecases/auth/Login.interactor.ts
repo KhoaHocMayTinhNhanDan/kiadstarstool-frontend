@@ -2,7 +2,7 @@
 import  { type LoginInput } from './ports/input/ILoginInput';
 import  { type LoginOutput } from './ports/output/ILoginOutput';
 import { type IAuthRepository } from './ports/gateways_interface/IAuthRepository';
-import { Credentials } from '../../01-entities/auth/Credentials.vo';
+import { Credentials } from '../../01-entities/auth/value-objects/Credentials.vo';
 import { Result } from '../../01-entities/shared/base/result';
 
 export class LoginInteractor {
@@ -32,7 +32,6 @@ export class LoginInteractor {
       }
 
       const session = authSessionResult.getValue();
-      // TODO: Map session to LoginOutput if needed, or adjust the return type.
       return Result.ok({ token: session.accessToken, refreshToken: session.refreshToken ?? '' });
     } catch (error: any) {
       return Result.fail(error.message || 'An unexpected error occurred during authentication');

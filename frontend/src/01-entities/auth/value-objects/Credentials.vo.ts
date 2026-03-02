@@ -1,7 +1,7 @@
 // src/01-entities/auth/Credentials.vo.ts
-import { Result } from '../shared/base/result';
-import { ValueObject } from '../shared/base/ValueObject';
-import { AuthError } from '../errors/AuthError';
+import { Result } from '../../shared/base/result';
+import { ValueObject } from '../../shared/value-objects/ValueObject';
+import { AuthError } from '../../errors/AuthError';
 
 interface CredentialsProps {
   username: string;

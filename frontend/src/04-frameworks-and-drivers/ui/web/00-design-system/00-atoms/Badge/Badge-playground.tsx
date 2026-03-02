@@ -1,6 +1,7 @@
 import { Badge } from './Badge';
 import { Box } from '../Box/Box';
 import { Text } from '../Text/Text';
+import { Shield, Check } from 'lucide-react';
 
 export const BadgePlayground = () => {
   return (
@@ -30,6 +31,14 @@ export const BadgePlayground = () => {
             <Badge color="warning">Warning</Badge>
             <Badge color="info">Info</Badge>
             <Badge color="neutral">Neutral</Badge>
+          </Box>
+        </Box>
+
+        <Box>
+          <Box mb="sm"><Text weight="semibold">With Icon</Text></Box>
+          <Box display="flex" gap="md">
+            <Badge icon={<Shield size={12} />}>Admin</Badge>
+            <Badge color="success" variant="outline" icon={<Check size={12} />}>Verified</Badge>
           </Box>
         </Box>
 

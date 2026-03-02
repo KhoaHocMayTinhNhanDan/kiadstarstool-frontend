@@ -1,10 +1,9 @@
 /** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
 import { 
   DataTable
 } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/data/DataTable';
 import { type Column } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/data/DataTable/DataTable.types';
-import { Box, Button } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { Box, Button, Text } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { Badge } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/Badge';
 import { Icon } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/Icon';
 import { Tooltip } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms/Tooltip';
@@ -40,20 +39,16 @@ export const AttendanceTable = ({ data, onMarkAttendance, isLoading }: Attendanc
       key: 'studentName',
       header: 'Học viên',
       render: (item) => (
-        <div css={css`display: flex; align-items: center; gap: 8px;`}>
-          <span css={css`font-weight: 500;`}>{item.studentName}</span>
+        <Box display="flex" alignItems="center" gap="xs">
+          <Text weight="medium">{item.studentName}</Text>
           {item.isLowBalance && (
             <Tooltip content={`Sắp hết hạn! Còn lại ${item.remainingSessions} buổi.`}>
-              <span css={css`
-                display: inline-flex; 
-                color: COLORS.WARNING;
-                cursor: help;
-              `}>
+              <Box as="span" color="WARNING" css={{ display: 'inline-flex', cursor: 'help' }}>
                 <Icon size="sm"><AlertTriangle size={16} /></Icon>
-              </span>
+              </Box>
             </Tooltip>
           )}
-        </div>
+        </Box>
       )
     },
     {
@@ -62,39 +57,10 @@ export const AttendanceTable = ({ data, onMarkAttendance, isLoading }: Attendanc
       render: (item) => getStatusBadge(item.status)
     },
     {
-      key: 'checkInTime',
-      header: 'Giờ vào/ra',
-      render: (item) => item.checkInTime ? (
-        <div css={css`font-size: 0.875rem;`}>
-          <div>In: {item.checkInTime}</div>
-          {item.checkOutTime && <div>Out: {item.checkOutTime}</div>}
-        </div>
-      ) : '-'
-    },
-    {
-      key: 'remainingSessions',
-      header: 'Số buổi còn lại',
-      render: (item) => item.remainingSessions !== undefined ? (
-        <span css={css`
-          font-weight: ${item.isLowBalance ? 'bold' : 'normal'};
-          color: ${item.isLowBalance ? COLORS.WARNING : 'inherit'};
-        `}>
-          {item.remainingSessions} buổi
-        </span>
-      ) : (
-        <span css={css`color: #9ca3af; font-style: italic;`}>N/A</span>
-      )
-    },
-    {
-      key: 'notes',
-      header: 'Ghi chú',
-      render: (item) => item.notes || '-'
-    },
-    {
       key: 'actions',
       header: 'Thao tác',
       render: (item) => (
-        <div css={css`display: flex; gap: 8px;`}>
+        <Box display="flex" gap="xs">
           <Button 
             size="sm" 
             variant={item.status === ATTENDANCE_STATUS.PRESENT ? 'primary' : 'ghost'}
@@ -122,8 +88,37 @@ export const AttendanceTable = ({ data, onMarkAttendance, isLoading }: Attendanc
           >
             <Icon size="sm" color={item.status === ATTENDANCE_STATUS.LATE ? 'WARNING' : 'WARNING'}><Clock /></Icon>
           </Button>
-        </div>
+        </Box>
       )
+    },
+    {
+      key: 'checkInTime',
+      header: 'Giờ vào/ra',
+      render: (item) => item.checkInTime ? (
+        <Box>
+          <Text size="sm">In: {item.checkInTime}</Text>
+          {item.checkOutTime && <Text size="sm">Out: {item.checkOutTime}</Text>}
+        </Box>
+      ) : <Text>-</Text>
+    },
+    {
+      key: 'remainingSessions',
+      header: 'Số buổi còn lại',
+      render: (item) => item.remainingSessions !== undefined ? (
+        <Text
+          weight={item.isLowBalance ? 'bold' : 'normal'}
+          color={item.isLowBalance ? 'WARNING' : undefined}
+        >
+          {item.remainingSessions} buổi
+        </Text>
+      ) : (
+        <Text color="SECONDARY" sx={{ fontStyle: 'italic' }}>N/A</Text>
+      )
+    },
+    {
+      key: 'notes',
+      header: 'Ghi chú',
+      render: (item) => <Text>{item.notes || '-'}</Text>
     }
   ];
 

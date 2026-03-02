@@ -4,7 +4,7 @@ import { css } from '@emotion/react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Text, Button, Input, Avatar, LoadingSpinner } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, RADIUS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { useAuth } from '../../hooks/user/useAuthorization';
 import { Save, User, ArrowLeft } from 'lucide-react';

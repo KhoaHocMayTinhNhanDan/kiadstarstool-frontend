@@ -1,6 +1,6 @@
 // src/01-entities/shared/base/AggregateRoot.ts
 import { Entity, type EntityProps } from './base.entity'
-import { Identifier } from '../Identifier.vo'
+import { Identifier } from '../value-objects/Identifier.vo'
 
 /**
  * Marker class cho Aggregate Root.

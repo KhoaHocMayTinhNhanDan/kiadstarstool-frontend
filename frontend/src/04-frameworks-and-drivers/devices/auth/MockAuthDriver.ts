@@ -7,6 +7,7 @@ import { AuthIdentity } from '@/01-entities/auth/AuthIdentity.entity';
 import { UserRole } from '@/01-entities/users/base/UserRole.vo';
 import { Permission } from '@/01-entities/users/base/Permission.vo';
 
+const MOCK_STORAGE_KEY = 'mock_auth_user_email';
 
 export class MockAuthDriver
   implements IAuthAuthentication, IAuthAccountManagement, IAuthSession
@@ -22,12 +23,24 @@ export class MockAuthDriver
     photoURL?: string;
   }> = [
     {
-      email: 'admin@example.com',
-      password: 'password123',
+      email: 'hoangdong@gmail.com',
+      password: '123@@@',
       roles: ['admin'],
       emailVerified: true,
       customClaims: { isBlocked: false },
-      idToken: 'mock-admin-token-123'
+      idToken: 'mock-admin-token-123',
+      displayName: 'Hoàng Đông',
+      photoURL: 'https://i.pravatar.cc/150?u=hoangdong'
+    },
+    {
+      email: 'manager@example.com',
+      password: 'password123',
+      roles: ['manager'],
+      emailVerified: true,
+      customClaims: { isBlocked: false },
+      idToken: 'mock-manager-token-456',
+      displayName: 'Quản Lý Chi Nhánh',
+      photoURL: 'https://i.pravatar.cc/150?u=manager'
     },
     {
       email: 'teacher@example.com',
@@ -35,12 +48,28 @@ export class MockAuthDriver
       roles: ['teacher'],
       emailVerified: true,
       customClaims: { isBlocked: false },
-      idToken: 'mock-teacher-token-456'
+      idToken: 'mock-teacher-token-789',
+      displayName: 'Giáo Viên',
+      photoURL: 'https://i.pravatar.cc/150?u=teacher'
+    },
+    {
+      email: 'staff@example.com',
+      password: 'password123',
+      roles: ['staff'],
+      emailVerified: true,
+      customClaims: { isBlocked: false },
+      idToken: 'mock-staff-token-101',
+      displayName: 'Nhân Viên',
+      photoURL: 'https://i.pravatar.cc/150?u=staff'
     }
   ];
 
   private currentUser: AuthIdentity | null = null;
   private authStateListeners: Array<(user: AuthIdentity | null) => void> = [];
+
+  constructor() {
+    this.restoreSession();
+  }
 
   /* =====================
    *  IAuthDriver Implementation
@@ -84,12 +113,14 @@ export class MockAuthDriver
     }
 
     this.currentUser = userAuthResult.getValue();
+    localStorage.setItem(MOCK_STORAGE_KEY, email); // Persist session
     this.notifyAuthStateChange(this.currentUser);
     return this.currentUser;
   }
 
   async signOut(): Promise<void> {
     await this.delay(300);
+    localStorage.removeItem(MOCK_STORAGE_KEY); // Clear session
     this.currentUser = null;
     this.notifyAuthStateChange(null);
   }
@@ -322,6 +353,36 @@ export class MockAuthDriver
         console.error('[MockAuthDriver] Error in auth state listener:', error);
       }
     });
+  }
+
+  private restoreSession() {
+    if (typeof window === 'undefined') return;
+    
+    const storedEmail = localStorage.getItem(MOCK_STORAGE_KEY);
+    if (!storedEmail) return;
+
+    const user = this.mockUsers.find(u => u.email === storedEmail);
+    if (user) {
+      const roles = user.roles.map(r => UserRole.create(r).getValue());
+      const userAuthResult = AuthIdentity.create({
+        id: `mock-id-${user.email}`,
+        email: user.email,
+        displayName: user.displayName || user.email.split('@')[0],
+        photoURL: user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`,
+        roles: roles,
+        permissions: [],
+        emailVerified: user.emailVerified,
+        customClaims: user.customClaims,
+        lastLoginAt: new Date().toISOString()
+      });
+
+      if (userAuthResult.isSuccess) {
+        this.currentUser = userAuthResult.getValue();
+        console.log('[MockAuthDriver] 🔄 Session restored for:', user.email);
+      }
+    } else {
+      localStorage.removeItem(MOCK_STORAGE_KEY); // Clean up invalid session
+    }
   }
 }
 

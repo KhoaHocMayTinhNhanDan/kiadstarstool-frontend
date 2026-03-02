@@ -3,7 +3,7 @@ export * from './FormField';
 export * from './UserCard';
 export * from './Modal';
 export * from './LanguageSelector';
-export * from './ThemeToggle';
+export * from './LightDarkModeToggle';
 export * from './Dropdown/DropdownMenu';
 export * from './Toast';
 

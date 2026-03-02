@@ -97,14 +97,14 @@ export const DashboardStatsGrid = ({ pageData, isLoading }: DashboardStatsGridPr
       {(isLoading || !pageData)
         ? Array.from({ length: 6 }).map((_, index) => <StatCardSkeleton key={index} />)
         : stats.map((stat) => (
-            <div 
+            <Box 
               key={stat.title} 
               onClick={stat.onClick} 
-              style={{ cursor: stat.onClick ? 'pointer' : 'default' }}
+              sx={{ cursor: stat.onClick ? 'pointer' : 'default' }}
               role={stat.onClick ? "button" : undefined}
             >
               <StatCard {...stat} />
-            </div>
+            </Box>
           ))
       }
     </Box>

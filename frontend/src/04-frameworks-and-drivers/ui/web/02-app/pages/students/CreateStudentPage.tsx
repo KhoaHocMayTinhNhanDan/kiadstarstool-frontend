@@ -2,8 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
-import { Box, Text, Button, Icon, Input, Card } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { AppContext } from '@/00-core/app-context';
+import { Box, Text, Button, Icon, Input, Card, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { useToast } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/hooks/useToast';
 import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 
@@ -141,7 +141,20 @@ export const CreateStudentPage = () => {
                 </Box>
               </Box>
 
-              <Box><Text as="label" htmlFor="student-branch" weight="semibold" mb="xs" sx={{ display: 'block' }}>Chi nhánh ban đầu <Text as="span" color="DANGER">*</Text></Text><select id="student-branch" value={branchId} onChange={(e) => setBranchId(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}`, height: '40px', backgroundColor: 'white' }} required><option value="" disabled>-- Chọn chi nhánh --</option>{branches.map(b => (<option key={b.id} value={b.id}>{b.name}</option>))}</select></Box>
+              <Box>
+                <Text as="label" htmlFor="student-branch" weight="semibold" mb="xs" sx={{ display: 'block' }}>Chi nhánh ban đầu <Text as="span" color="DANGER">*</Text></Text>
+                <Select
+                  id="student-branch"
+                  value={branchId}
+                  onChange={(e) => setBranchId(e.target.value)}
+                  options={[
+                    { label: '-- Chọn chi nhánh --', value: '', disabled: true },
+                    ...branches.map(b => ({ label: b.name, value: b.id }))
+                  ]}
+                  fullWidth
+                  required
+                />
+              </Box>
             </Box>
 
             <Box display="flex" justifyContent="flex-end" gap="sm" mt="md">

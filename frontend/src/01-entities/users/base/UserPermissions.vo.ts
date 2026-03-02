@@ -1,6 +1,6 @@
 // src/01-entities/users/base/UserPermissions.vo.ts
 
-import { ValueObject } from '../../shared/base/ValueObject';
+import { ValueObject } from '../../shared/value-objects/ValueObject';
 import { Result } from '../../shared/base/result';
 import { Permission } from './Permission.vo';
 import { PERMISSIONS, type PermissionCode } from '../../../shared/constants/authorization/auth.domain';

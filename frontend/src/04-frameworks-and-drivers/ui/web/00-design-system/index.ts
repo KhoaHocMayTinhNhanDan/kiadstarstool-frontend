@@ -26,7 +26,7 @@ export * from './01-molecules/FormField';
 export * from './01-molecules/UserCard';
 export * from './01-molecules/Modal';
 export * from './01-molecules/LanguageSelector';
-export * from './01-molecules/ThemeToggle';
+export * from './01-molecules/LightDarkModeToggle';
 export * from './01-molecules/Dropdown/DropdownMenu';
 export * from './01-molecules/Dropdown/DropdownMultiSelect';
 export * from './01-molecules/Dropdown/DropdownSelect';

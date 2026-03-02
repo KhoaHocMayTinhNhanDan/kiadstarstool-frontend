@@ -3,18 +3,28 @@ import { css } from '@emotion/react';
 import type { ThemeColors } from './AppHeader.types';
 
 export const header = (mode?: 'light' | 'dark', themeColors?: ThemeColors) => css`
-  height: 64px;
+  min-height: 64px; /* Thay height cứng bằng min-height để co giãn */
+  height: auto;
   background-color: ${themeColors?.surface || (mode === 'dark' ? '#1a1a1a' : '#ffffff')};
   border-bottom: 1px solid ${themeColors?.border?.default || (mode === 'dark' ? '#333' : '#e2e8f0')};
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* Left, Center, Right */
   align-items: center;
-  justify-content: space-between;
   padding: 0 16px 0 24px;
   position: sticky;
   top: 0;
   z-index: 99;
   transition: background-color 0.3s ease, border-color 0.3s ease;
   width: 100%;
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    padding: 8px 12px; /* Thêm padding dọc để thoáng hơn khi xuống dòng */
+    gap: 12px;
+    display: flex; /* Chuyển sang Flexbox trên mobile để dễ wrap */
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
 `;
 
 export const leftSection = css`
@@ -22,7 +32,13 @@ export const leftSection = css`
   align-items: center;
   gap: 16px;
   flex: 1;
+  justify-self: start;
   min-width: 0; /* Prevent overflow */
+
+  @media (max-width: 768px) {
+    flex: 1 1 auto; /* Cho phép co giãn tự nhiên */
+    min-width: auto;
+  }
 `;
 
 export const leftSectionContent = css`
@@ -85,8 +101,15 @@ export const navItemIcon = css`
 export const rightSection = css`
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
-  flex-shrink: 1; /* Cho phép phần bên phải co lại khi không đủ không gian */
+  justify-self: end;
+  grid-column: 3; /* Đẩy sang cột thứ 3 (Right) trong grid */
+
+  @media (max-width: 768px) {
+    flex: 0 0 auto; /* Giữ nguyên kích thước các nút bên phải */
+    margin-left: auto; /* FIX: Tự động đẩy sang phải bất kể đang ở dòng nào */
+  }
 `;
 
 export const actionsWrapper = css`

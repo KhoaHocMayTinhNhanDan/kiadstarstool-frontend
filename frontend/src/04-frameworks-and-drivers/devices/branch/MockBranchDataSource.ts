@@ -25,7 +25,7 @@ export class MockBranchDataSource implements IBranchDataSource {
       const seedData = [
         {
           id: 'branch-01', // Cơ sở A
-          name: 'KiadStars Hội Sở (Hà Nội)',
+          name: 'KiadStars Chi Nhánh Hà Nội',
           code: 'BR-HN-01',
           address: {
             street: '18 Hoàng Quốc Việt',

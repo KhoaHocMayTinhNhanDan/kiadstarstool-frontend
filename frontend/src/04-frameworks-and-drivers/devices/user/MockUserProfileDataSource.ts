@@ -28,6 +28,23 @@ export class MockUserProfileDataSource implements IUserDataSource {
   private seed() {
     const seedData: UserJSON[] = [
       {
+        id: 'mock-id-hoangdong@gmail.com',
+        email: 'hoangdong@gmail.com',
+        role: 'admin',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        permissions: [...ROLE_PRESETS.admin],
+        profile: {
+          kind: 'admin',
+          displayName: 'Hoàng Đông',
+          photoURL: 'https://i.pravatar.cc/150?u=hoangdong',
+          phoneNumbers: [],
+          adminLevel: 1,
+          managedBranches: []
+        }
+      },
+      {
         id: 'mock-id-admin@example.com', // LINK: Khớp với ID bên Auth System
         email: 'admin@example.com',      // DUPLICATE: Lưu lại để hỗ trợ tìm kiếm/lọc (Query Model) mà không cần gọi Auth
         role: 'admin',                   // DUPLICATE: Lưu lại để hiển thị trong danh sách quản trị
@@ -45,6 +62,22 @@ export class MockUserProfileDataSource implements IUserDataSource {
         }
       },
       {
+        id: 'mock-id-manager@example.com',
+        email: 'manager@example.com',
+        role: 'manager',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        permissions: [...ROLE_PRESETS.manager],
+        profile: {
+          kind: 'manager',
+          displayName: 'Quản Lý Chi Nhánh',
+          photoURL: 'https://i.pravatar.cc/150?u=manager',
+          phoneNumbers: [],
+          branchId: 'branch-01'
+        }
+      },
+      {
         id: 'mock-id-teacher@example.com', // LINK: Khớp với ID bên Auth System
         email: 'teacher@example.com',      // DUPLICATE
         role: 'teacher',                   // DUPLICATE
@@ -58,6 +91,22 @@ export class MockUserProfileDataSource implements IUserDataSource {
           photoURL: 'https://i.pravatar.cc/150?u=teacher@example.com',
           phoneNumbers: [],
           department: 'Academic'
+        }
+      },
+      {
+        id: 'mock-id-staff@example.com',
+        email: 'staff@example.com',
+        role: 'staff',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        permissions: [...ROLE_PRESETS.staff],
+        profile: {
+          kind: 'staff',
+          displayName: 'Nhân Viên Lễ Tân',
+          photoURL: 'https://i.pravatar.cc/150?u=staff',
+          phoneNumbers: [],
+          department: 'Front Desk'
         }
       }
     ];

@@ -2,7 +2,7 @@
 import { useTheme } from '../../../02-app/providers/ThemeProvider';
 import { Icon } from '../../00-atoms/Icon';
 import { IconButton } from '../../00-atoms/IconButton';
-import type { ThemeToggleProps } from './ThemeToggle.types';
+import type { LightDarkModeToggleProps } from './LightDarkModeToggle.types';
 
 const SunIcon = (
   <svg viewBox="0 0 24 24">
@@ -16,7 +16,7 @@ const MoonIcon = (
   </svg>
 );
 
-export const ThemeToggle = ({ className, sx }: ThemeToggleProps) => {
+export const ThemeToggle = ({ className, sx }: LightDarkModeToggleProps) => {
   const { theme, toggleTheme } = useTheme();
 
   return (

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Text } from '../../../00-atoms';
-import { useMode } from '../../../../01-ui-core/hooks/useMode';
+import { useMode } from '../../../../01-ui-core/hooks/useLightDarkMode';
 import * as styles from './AppFooter.styles';
 import type { AppFooterProps, FooterLink } from './AppFooter.types';
 

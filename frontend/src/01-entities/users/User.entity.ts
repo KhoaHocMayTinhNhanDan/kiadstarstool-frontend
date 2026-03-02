@@ -6,7 +6,7 @@ import { type IUserProfile } from './base/IUserProfile.vo';
 import { type PermissionCode } from '../../shared/constants/authorization/auth.domain';
 import { Permission } from './base/Permission.vo';
 import { EffectivePermissionService } from './services/EffectivePermission.service';
-import { PhoneNumber } from '../shared/base/PhoneNumber.vo';
+import { PhoneNumber } from '../shared/value-objects/PhoneNumber.vo';
 
 export interface UserProps {
   readonly id: UserId;

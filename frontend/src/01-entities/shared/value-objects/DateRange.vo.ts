@@ -1,6 +1,6 @@
 // src/01-entities/shared/DateRange.vo.ts
 import { ValueObject } from "./base/ValueObject";
-import { Result } from "./base/result";
+import { Result } from "../base/result";
 
 interface DateRangeProps {
   start: Date;

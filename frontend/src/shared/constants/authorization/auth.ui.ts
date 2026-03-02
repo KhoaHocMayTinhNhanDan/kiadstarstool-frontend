@@ -37,7 +37,7 @@ export const PERMISSION_GROUPS: Array<{
   codes: PermissionCode[];
 }> = [
   {
-    name: '⭐ Điểm danh',
+    name: 'Điểm danh',
     description: 'Quản lý việc điểm danh hàng ngày',
     codes: [
       PERMISSIONS.ATTENDANCE_VIEW,
@@ -45,7 +45,7 @@ export const PERMISSION_GROUPS: Array<{
     ],
   },
   {
-    name: '👨‍🎓 Học sinh',
+    name: 'Học sinh',
     description: 'Quản lý thông tin học sinh',
     codes: [
       PERMISSIONS.STUDENT_VIEW,
@@ -53,7 +53,7 @@ export const PERMISSION_GROUPS: Array<{
     ],
   },
   {
-    name: '🏢 Cơ sở & Lớp học',
+    name: 'Cơ sở & Lớp học',
     description: 'Quản lý chi nhánh và lớp học',
     codes: [
       PERMISSIONS.BRANCH_MANAGE,
@@ -62,7 +62,7 @@ export const PERMISSION_GROUPS: Array<{
     ],
   },
   {
-    name: '⚙️ Quản trị & Báo cáo',
+    name: 'Quản trị & Báo cáo',
     description: 'Quản lý hệ thống và xem báo cáo',
     codes: [
       PERMISSIONS.REPORT_VIEW,

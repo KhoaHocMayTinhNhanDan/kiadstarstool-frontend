@@ -195,6 +195,8 @@ export class FirebaseAuthDriver
       });
     }).catch(error => {
       console.error('[FirebaseAuthDriver] Failed to import firebase/auth for onAuthStateChanged:', error);
+      // FIX: Báo cho App biết là đã kiểm tra xong (dù lỗi) để tắt Loading
+      if (!isUnsubscribed) callback(null);
     });
 
     // Return a wrapper function that can be called synchronously.

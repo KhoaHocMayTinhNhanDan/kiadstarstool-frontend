@@ -1,5 +1,5 @@
 
-import { Identifier } from '../Identifier.vo'
+import { Identifier } from '../value-objects/Identifier.vo'
 
 export interface EntityProps {
   id?: Identifier

@@ -1,5 +1,5 @@
 import { Entity } from '../shared/base/base.entity';
-import { Identifier } from '../shared/Identifier.vo';
+import { Identifier } from '../shared/value-objects/Identifier.vo';
 import { Result } from '../shared/base/result';
 import { BranchId } from '../branch/value-objects/BranchId.vo';
 import { ClassId } from './value-objects/ClassId.vo';

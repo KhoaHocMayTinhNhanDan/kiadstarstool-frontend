@@ -1,8 +1,9 @@
 // src/04-frameworks-and-drivers/ui/web/main.tsx
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { bootstrapApp } from '../../../../00-core/bootstrap'
+import { bootstrapApp } from '../../../../05-bootstrap/bootstrap'
 import { App } from '../02-app/App';
+import { AppProviders } from './providers/AppProviders';
 
 // Determine which mode to use
 function getAuthMode(): boolean {
@@ -37,6 +38,8 @@ bootstrapApp({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <AppProviders>
+      <App />
+    </AppProviders>
   </StrictMode>,
 )

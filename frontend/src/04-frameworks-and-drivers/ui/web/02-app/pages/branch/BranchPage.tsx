@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Text, Button, Icon, Card } from '../../../00-design-system/00-atoms';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { type ListBranchesOutput } from '@/02-usecases/branch/ports/output/ListBranches.output';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { Plus, MapPin, Users, ChevronRight } from 'lucide-react';

@@ -2,10 +2,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, X } from 'lucide-react';
-import { Box, Text, Button, Input, Card, Icon } from '../../../00-design-system/00-atoms';
+import { Box, Text, Button, Input, Card, Icon, Select } from '../../../00-design-system/00-atoms';
 import { useBranch } from '../../hooks/branch/useBranch';
 import { useBranchForm, type BranchFormData } from '../../hooks/branch/useBranchForm';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { SPACING, COLORS } from '../../../01-ui-core/constants/tokens-constants';
@@ -246,9 +246,12 @@ export const EditBranchPage = () => {
                   {operatingRows.map((row) => (
                     <tr key={row.id} style={{ borderTop: `1px solid ${COLORS.NEUTRAL_LIGHT}` }}>
                       <td style={{ padding: '8px' }}>
-                        <select value={row.day} onChange={(e) => updateOperatingDay(row.id, 'day', e.target.value)} style={{ width: '100%', padding: '6px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}>
-                          {DAYS.map(d => (<option key={d} value={d}>{DAY_LABELS[d]}</option>))}
-                        </select>
+                        <Select
+                          value={row.day}
+                          onChange={(e) => updateOperatingDay(row.id, 'day', e.target.value)}
+                          options={DAYS.map(d => ({ label: DAY_LABELS[d], value: d }))}
+                          fullWidth
+                        />
                       </td>
                       <td style={{ padding: '8px', textAlign: 'center' }}><Box display="flex" justifyContent="center"><Input type="time" value={row.open} onChange={(e) => updateOperatingDay(row.id, 'open', e.target.value)} /></Box></td>
                       <td style={{ padding: '8px', textAlign: 'center' }}><Box display="flex" justifyContent="center"><Input type="time" value={row.close} onChange={(e) => updateOperatingDay(row.id, 'close', e.target.value)} /></Box></td>

@@ -1,11 +1,11 @@
 /** @jsxImportSource @emotion/react */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Text, Button, Input, Icon } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { Box, Text, Button, Input, Icon, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, RADIUS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { ArrowLeft, UserPlus } from 'lucide-react';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 
 export const CreateUserPage = () => {
   const navigate = useNavigate();
@@ -96,27 +96,17 @@ export const CreateUserPage = () => {
               onChange={(e) => handleChange('email', e.target.value)}
             />
             
-            <Box display="flex" flexDirection="column" gap="xs">
-              <Text size="sm" weight="medium" color="text-primary">Vai trò (*)</Text>
-              <select
-                value={formData.role}
-                onChange={(e) => handleChange('role', e.target.value)}
-                style={{
-                  padding: '10px',
-                  borderRadius: RADIUS.md,
-                  border: `1px solid ${COLORS.NEUTRAL_BORDER}`,
-                  outline: 'none',
-                  backgroundColor: 'white',
-                  width: '100%',
-                  height: '42px',
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="teacher">Giáo viên</option>
-                <option value="staff">Nhân viên</option>
-                <option value="admin">Quản trị viên</option>
-              </select>
-            </Box>
+            <Select
+              label="Vai trò (*)"
+              value={formData.role}
+              onChange={(e) => handleChange('role', e.target.value)}
+              options={[
+                { label: 'Giáo viên', value: 'teacher' },
+                { label: 'Nhân viên', value: 'staff' },
+                { label: 'Quản trị viên', value: 'admin' }
+              ]}
+              fullWidth
+            />
           </Box>
 
           <Input 

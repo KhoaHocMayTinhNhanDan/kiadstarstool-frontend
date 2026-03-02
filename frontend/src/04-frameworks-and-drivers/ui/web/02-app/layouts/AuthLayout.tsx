@@ -3,7 +3,7 @@
 import { Outlet } from 'react-router-dom';
 import { css } from '@emotion/react';
 import { useTheme } from '../../01-ui-core/hooks/useTheme';
-import { useMode } from '../../01-ui-core/hooks/useMode';
+import { useMode } from '../../01-ui-core/hooks/useLightDarkMode';
 import { Box, Card } from '../../00-design-system/00-atoms';
 import { SHADOWS } from '../../01-ui-core/constants/tokens-constants';
 
@@ -22,7 +22,7 @@ export const AuthLayout = () => {
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        background-color: ${mode.colors.background.secondary};
+        background-color: ${theme.colors.background.secondary};
         padding: 16px;
       `}
     >
@@ -31,10 +31,10 @@ export const AuthLayout = () => {
           width: 100%;
           max-width: 400px;
           padding: 32px;
-          background-color: ${mode.colors.surface.primary};
+          background-color: ${theme.colors.surface.primary};
           border-radius: ${theme.layout.cards.borderRadius || '8px'};
           box-shadow: ${SHADOWS.lg};
-          border: 1px solid ${mode.colors.border.default};
+          border: 1px solid ${theme.colors.border.default};
         `}
       >
         <Outlet />

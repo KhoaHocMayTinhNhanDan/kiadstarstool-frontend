@@ -3,9 +3,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 import { ArrowLeft, Save, Printer, Search, CreditCard } from 'lucide-react';
-import { Box, Text, Button, Icon, Input, Card } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { Box, Text, Button, Icon, Input, Card, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
-import { AppContext } from '@/00-core/app-context';
+import { AppContext } from '@/05-bootstrap/app-context';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { useAuth } from '../../hooks/user/useAuthorization';
 import { TuitionReceipt } from './components/TuitionReceipt';
@@ -213,16 +213,15 @@ export const CollectTuitionPage = () => {
               />
               <Button variant="ghost"><Icon><Search /></Icon></Button>
             </Box>
-            <select 
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
+            <Select
+              fullWidth
               value={selectedStudent?.id || ''}
               onChange={(e) => handleSelectStudent(e.target.value)}
-            >
-              <option value="">-- Chọn học viên --</option>
-              {students.map(s => (
-                <option key={s.id} value={s.id}>{s.name} - {s.phone}</option>
-              ))}
-            </select>
+              options={[
+                { label: '-- Chọn học viên --', value: '' },
+                ...students.map(s => ({ label: `${s.name} - ${s.phone}`, value: s.id }))
+              ]}
+            />
 
             {selectedStudent && (
               <Box mt="md" p="sm" bg="BACKGROUND_NEUTRAL" borderRadius="sm">
@@ -278,17 +277,18 @@ export const CollectTuitionPage = () => {
             </Box>
 
             <Box mb="md">
-              <Text size="sm" mb="xs">Hình thức thanh toán</Text>
-              <select
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: `1px solid ${COLORS.NEUTRAL_BORDER}` }}
+              <Select
+                label="Hình thức thanh toán"
+                fullWidth
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
-              >
-                <option value="cash">Tiền mặt</option>
-                <option value="bank_transfer">Chuyển khoản</option>
-                <option value="qr_code">Quét mã QR</option>
-                <option value="credit_card">Thẻ tín dụng</option>
-              </select>
+                options={[
+                  { label: 'Tiền mặt', value: 'cash' },
+                  { label: 'Chuyển khoản', value: 'bank_transfer' },
+                  { label: 'Quét mã QR', value: 'qr_code' },
+                  { label: 'Thẻ tín dụng', value: 'credit_card' }
+                ]}
+              />
             </Box>
 
             <Box mb="lg">

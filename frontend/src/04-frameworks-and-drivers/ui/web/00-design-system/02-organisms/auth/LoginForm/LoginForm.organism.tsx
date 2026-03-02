@@ -77,7 +77,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             </a>
           )}
         </Box>
-        <Box position="relative">
+        <Box css={css`position: relative;`}>
           <Input 
             type={showPassword ? 'text' : 'password'}
             placeholder="Enter your password" 
@@ -101,6 +101,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               top: 50%;
               transform: translateY(-50%);
               color: ${COLORS.SECONDARY};
+              z-index: 2;
             `}
           />
         </Box>

@@ -14,10 +14,17 @@ export interface LanguageSelectorProps {
   onChange: (code: string) => void;
 
   /** Danh sách ngôn ngữ tùy chọn (Mặc định: VI, EN) */
-  options?: LanguageOption[];
+  options?: LanguageOption[] | readonly LanguageOption[];
 
   /** Kiểu hiển thị */
   variant?: 'default' | 'icon-only' | 'text-only';
+
+  /** 
+   * Căn lề dropdown so với nút bấm
+   * - 'right' (Mặc định): Căn phải -> Menu mở sang TRÁI
+   * - 'left': Căn trái -> Menu mở sang PHẢI
+   */
+  dropdownAlign?: 'left' | 'right';
 
   className?: string;
   sx?: SerializedStyles;
