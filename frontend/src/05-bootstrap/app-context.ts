@@ -21,7 +21,7 @@ import type { IAuthAccountManagement } from '@/03-interface-adapters/gateways/ou
 import type { IAuthAuthentication } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAuthentication'
 import type { IAuthSession } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthSession'
 
-import type { DataMode, API_BASE_URL } from '@/shared/config/env'
+import type { DataMode } from '@/shared/config/env'
 
 /* =====================
  * CONFIG TYPE
