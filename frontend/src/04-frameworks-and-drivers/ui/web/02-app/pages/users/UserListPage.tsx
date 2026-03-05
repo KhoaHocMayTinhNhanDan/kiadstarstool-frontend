@@ -14,6 +14,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { Box, Text, Button, Icon, Input, Avatar, Badge, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { PermissionGuard } from '../../permissions/PermissionGuard';
 import { COLORS, SPACING, RADIUS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { AppContext } from '@/05-bootstrap/app-context';
 import { Pagination } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/navigation/Pagination';

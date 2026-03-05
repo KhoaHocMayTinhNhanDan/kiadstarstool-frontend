@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Box, Text } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
-import { useAuth } from '../../hooks/user/useAuthorization';
+import { useAuth } from '../../hooks/user/useAuth';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { LoginForm, type LoginFormData } from '../../../00-design-system/02-organisms/auth/LoginForm';
 

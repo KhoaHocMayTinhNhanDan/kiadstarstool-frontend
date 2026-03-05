@@ -14,7 +14,7 @@ import {
   Menu, X, ChevronLeft, ChevronRight, Bell, HelpCircle,
   AlertTriangle
 } from 'lucide-react';
-import { useAuth } from '../hooks/user/useAuthorization';
+import { useAuth } from '../hooks/user/useAuth';
 import { useToast } from '../../01-ui-core/hooks/useToast';
 import { useState, useEffect } from 'react';
 import { IronmanLayout } from './dynamic/IronmanLayout';

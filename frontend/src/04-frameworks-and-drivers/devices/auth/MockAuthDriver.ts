@@ -6,6 +6,7 @@ import type { IAuthSession } from '@/03-interface-adapters/gateways/outbound/dev
 import { AuthIdentity } from '@/01-entities/auth/AuthIdentity.entity';
 import { UserRole } from '@/01-entities/users/base/UserRole.vo';
 import { Permission } from '@/01-entities/users/base/Permission.vo';
+import { getPermissionsForRole, type RoleCode } from '@/shared/constants/authorization';
 
 const MOCK_STORAGE_KEY = 'mock_auth_user_email';
 
@@ -94,13 +95,21 @@ export class MockAuthDriver
 
     const roles = user.roles.map(r => UserRole.create(r).getValue());
 
+    // SIMULATE BACKEND LOGIC: Calculate effective permissions from roles.
+    // In a real system, this would be done by a backend function and embedded in the JWT claims.
+    const rolePermissions = user.roles.flatMap(r => getPermissionsForRole(r as RoleCode));
+    const mappedPermissions = [...new Set(rolePermissions)]
+      .map(p => Permission.create(p))
+      .filter(res => res.isSuccess)
+      .map(res => res.getValue());
+
     const userAuthResult = AuthIdentity.create({
       id: `mock-id-${user.email}`,
       email: user.email,
       displayName: user.displayName || user.email.split('@')[0],
       photoURL: user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`,
       roles: roles,
-      permissions: [], // Mock permissions if needed
+      permissions: mappedPermissions,
       emailVerified: user.emailVerified,
       customClaims: user.customClaims,
       lastLoginAt: new Date().toISOString()
@@ -184,13 +193,19 @@ export class MockAuthDriver
 
     const roles = newUser.roles.map(r => UserRole.create(r).getValue());
 
+    const rolePermissions = newUser.roles.flatMap(r => getPermissionsForRole(r as RoleCode));
+    const mappedPermissions = [...new Set(rolePermissions)]
+      .map(p => Permission.create(p))
+      .filter(res => res.isSuccess)
+      .map(res => res.getValue());
+
     const userAuthResult = AuthIdentity.create({
       id: `mock-id-${newUser.email}`,
       email: newUser.email,
       displayName: newUser.email.split('@')[0],
       photoURL: `https://i.pravatar.cc/150?u=${newUser.email}`,
       roles: roles,
-      permissions: [],
+      permissions: mappedPermissions,
       emailVerified: newUser.emailVerified,
       customClaims: newUser.customClaims,
       lastLoginAt: new Date().toISOString()
@@ -364,13 +379,20 @@ export class MockAuthDriver
     const user = this.mockUsers.find(u => u.email === storedEmail);
     if (user) {
       const roles = user.roles.map(r => UserRole.create(r).getValue());
+
+      const rolePermissions = user.roles.flatMap(r => getPermissionsForRole(r as RoleCode));
+      const mappedPermissions = [...new Set(rolePermissions)]
+        .map(p => Permission.create(p))
+        .filter(res => res.isSuccess)
+        .map(res => res.getValue());
+
       const userAuthResult = AuthIdentity.create({
         id: `mock-id-${user.email}`,
         email: user.email,
         displayName: user.displayName || user.email.split('@')[0],
         photoURL: user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`,
         roles: roles,
-        permissions: [],
+        permissions: mappedPermissions,
         emailVerified: user.emailVerified,
         customClaims: user.customClaims,
         lastLoginAt: new Date().toISOString()

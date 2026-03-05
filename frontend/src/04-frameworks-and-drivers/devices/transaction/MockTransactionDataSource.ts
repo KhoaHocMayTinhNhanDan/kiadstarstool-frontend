@@ -1,9 +1,8 @@
-import { Transaction, type TransactionProps } from '@/01-entities/finance/Transaction.entity';
-import { type ITransactionRepository } from '@/02-usecases/finance/ports/gateways_interface/ITransactionRepository';
-import { Identifier } from '@/01-entities/shared/value-objects/Identifier.vo';
+import type { Transaction } from '@/01-entities/finance/Transaction.entity';
+import type { ITransactionDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/finance/ITransactionDataSource';
 import { mockDatabase } from '@/04-frameworks-and-drivers/database/LocalStorage';
 
-export class MockTransactionDataSource implements ITransactionRepository {
+export class MockTransactionDataSource implements ITransactionDataSource {
   constructor() {
     this.initialize();
   }
@@ -81,52 +80,12 @@ export class MockTransactionDataSource implements ITransactionRepository {
     mockDatabase.setCollection('transactions', seedData);
   }
 
-  private hydrate(data: any): Transaction | null {
-    // Reconstruct entity from JSON data
-    const props: TransactionProps = {
-      id: Identifier.create(data.id),
-      branchId: data.branchId,
-      code: data.code,
-      type: data.type,
-      amount: data.amount,
-      method: data.method,
-      status: data.status,
-      transactionDate: new Date(data.transactionDate),
-      description: data.description,
-      performedBy: data.performedBy,
-      invoiceId: data.invoiceId,
-      studentId: data.studentId,
-      createdAt: new Date(data.createdAt),
-      updatedAt: new Date(data.updatedAt),
-      createdBy: data.createdBy ? Identifier.create(data.createdBy) : undefined,
-      updatedBy: data.updatedBy ? Identifier.create(data.updatedBy) : undefined,
-    };
-
-    const result = Transaction.create(props);
-    return result.isSuccess ? result.getValue() : null;
-  }
-
-  async save(transaction: Transaction): Promise<void> {
+  async save(transaction: any): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 300)); // Simulate delay
     const transactionStore = mockDatabase.getCollection<any>('transactions');
     const index = transactionStore.findIndex(t => t.id === transaction.id.toString());
 
-    const dataToSave = {
-      id: transaction.id.toString(),
-      branchId: transaction.branchId,
-      code: transaction.code,
-      type: transaction.type,
-      amount: transaction.amount,
-      method: transaction.method,
-      status: transaction.status,
-      transactionDate: transaction.transactionDate,
-      description: transaction.description,
-      performedBy: transaction.performedBy,
-      invoiceId: transaction.invoiceId,
-      studentId: transaction.studentId,
-      createdAt: transaction.createdAt,
-      updatedAt: transaction.updatedAt
-    };
+    const dataToSave = transaction; // It's already a JSON object from the repository
 
     if (index > -1) {
       transactionStore[index] = dataToSave;
@@ -136,31 +95,27 @@ export class MockTransactionDataSource implements ITransactionRepository {
     mockDatabase.persist();
   }
 
-  async getAll(): Promise<Transaction[]> {
+  async getAll(): Promise<any[]> {
     await new Promise(resolve => setTimeout(resolve, 300));
     const transactionStore = mockDatabase.getCollection<any>('transactions');
     return transactionStore
-      .map(data => this.hydrate(data)!)
-      .filter(Boolean)
       .sort((a, b) => {
-        const tA = a.transactionDate.getTime();
-        const tB = b.transactionDate.getTime();
+        const tA = new Date(a.transactionDate).getTime();
+        const tB = new Date(b.transactionDate).getTime();
         if (isNaN(tA)) return 1; // Đẩy ngày lỗi xuống cuối
         if (isNaN(tB)) return -1;
         return tB - tA;
       });
   }
 
-  async getByBranchId(branchId: string): Promise<Transaction[]> {
+  async getByBranchId(branchId: string): Promise<any[]> {
     await new Promise(resolve => setTimeout(resolve, 300));
     const transactionStore = mockDatabase.getCollection<any>('transactions');
     return transactionStore
       .filter(t => t.branchId === branchId)
-      .map(data => this.hydrate(data)!)
-      .filter(Boolean)
       .sort((a, b) => {
-        const tA = a.transactionDate.getTime();
-        const tB = b.transactionDate.getTime();
+        const tA = new Date(a.transactionDate).getTime();
+        const tB = new Date(b.transactionDate).getTime();
         if (isNaN(tA)) return 1;
         if (isNaN(tB)) return -1;
         return tB - tA;

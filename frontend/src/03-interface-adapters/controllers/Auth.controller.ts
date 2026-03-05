@@ -63,7 +63,7 @@ export class AuthController {
     try {
       const authDriver = AppContext.getAuthDriver();
       // Giả sử driver có phương thức này (FirebaseAuthDriver và MockAuthDriver đều có)
-      await authDriver.signUpWithEmailAndPassword(email, password);
+      await authDriver.signInWithEmailAndPassword(email, password);
       return Result.ok();
     } catch (error: any) {
       console.error('[AuthController] Register error:', error);

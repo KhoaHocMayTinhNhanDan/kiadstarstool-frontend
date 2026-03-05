@@ -3,9 +3,10 @@
 
 // Định nghĩa kiểu cho các biến môi trường trong .env
 interface ImportMetaEnv {
-  readonly VITE_USE_MOCK_AUTH: string;
+  readonly VITE_DATA_MODE: 'mock' | 'firebase';
   readonly VITE_API_URL?: string;
-  // Thêm các biến khác nếu có...
+  readonly VITE_PRE_AUTHENTICATE_AS: 'admin' | 'manager' | 'teacher' | 'staff' | 'none';
+  // ...
 }
 
 interface ImportMeta {

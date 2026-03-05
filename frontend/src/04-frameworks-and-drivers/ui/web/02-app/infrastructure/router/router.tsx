@@ -28,6 +28,8 @@ import { CollectTuitionPage } from '../../pages/finance/CollectTuitionPage';
 import { UserProfilePage } from '../../pages/users/UserProfilePage';
 import { UserListPage } from '../../pages/users/UserListPage';
 import { CreateUserPage } from '../../pages/users/CreateUserPage';
+import { RolesPage } from '../../pages/roles/RolesPage';
+import { PERMISSIONS } from '@/shared/constants/authorization';
 
 /* ==========================================================================
  * Router Configuration
@@ -145,12 +147,18 @@ const routes: RouteObject[] = [
               },
               // User Management List
               {
-                path: 'users',
-                element: <UserListPage />,
+                path: 'users', // Bọc route /users
+                element: <RouteGuard requiredPermissions={[PERMISSIONS.USERS_READ]} />,
+                children: [
+                  { index: true, element: <UserListPage /> },
+                ],
               },
               {
-                path: 'users/new',
-                element: <CreateUserPage />,
+                path: 'users/new', // Bọc route /users/new
+                element: <RouteGuard requiredPermissions={[PERMISSIONS.USERS_CREATE]} />,
+                children: [
+                  { index: true, element: <CreateUserPage /> },
+                ],
               },
               // User Profile
               {
@@ -162,6 +170,14 @@ const routes: RouteObject[] = [
                 // Route for viewing a specific user's profile by ID
                 path: 'users/:id',
                 element: <UserProfilePage />,
+              },
+              // Settings
+              {
+                path: 'settings/roles', // Bọc route /settings/roles
+                element: <RouteGuard requiredPermissions={[PERMISSIONS.ROLES_READ]} />,
+                children: [
+                  { index: true, element: <RolesPage /> },
+                ],
               },
             ],
           },

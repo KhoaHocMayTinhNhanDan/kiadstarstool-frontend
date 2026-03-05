@@ -1,11 +1,11 @@
 // src/04-frameworks-and-drivers/devices/user/MockUserRepository.ts
 
-import { type IUserDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/user/IUserDataSource';
+import { type IUserProfileDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/user/IUserProfileDataSource';
 import { type UserJSON } from '@/01-entities/users/User.entity';
 import { mockDatabase } from '@/04-frameworks-and-drivers/database/LocalStorage';
 import { ROLE_PRESETS } from '@/shared/constants/authorization/auth.policy';
 
-export class MockUserProfileDataSource implements IUserDataSource {
+export class MockUserProfileDataSource implements IUserProfileDataSource {
   constructor() {
     this.initialize();
   }
@@ -45,8 +45,8 @@ export class MockUserProfileDataSource implements IUserDataSource {
         }
       },
       {
-        id: 'mock-id-admin@example.com', // LINK: Khớp với ID bên Auth System
-        email: 'admin@example.com',      // DUPLICATE: Lưu lại để hỗ trợ tìm kiếm/lọc (Query Model) mà không cần gọi Auth
+        id: 'yfFwcB3VxLhI4ng1Zs8xqH9Vmba2', // LINK: Khớp với ID bên Auth System
+        email: 'dong@gmail.com',      // DUPLICATE: Lưu lại để hỗ trợ tìm kiếm/lọc (Query Model) mà không cần gọi Auth
         role: 'admin',                   // DUPLICATE: Lưu lại để hiển thị trong danh sách quản trị
         isActive: true,
         createdAt: new Date().toISOString(),

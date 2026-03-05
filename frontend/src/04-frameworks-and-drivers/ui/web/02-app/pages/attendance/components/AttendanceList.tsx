@@ -8,7 +8,7 @@ import { AttendanceStats } from './AttendanceStats';
 import { AttendanceTable } from './AttendanceTable';
 import { AppContext } from '@/05-bootstrap/app-context';
 import { useToast } from '../../../../01-ui-core/hooks/useToast';
-import { useAuth } from '../../../hooks/user/useAuthorization';
+import { useAuth } from '../../../hooks/user/useAuth';
 
 interface ClassAttendanceListProps {
   classId: string;

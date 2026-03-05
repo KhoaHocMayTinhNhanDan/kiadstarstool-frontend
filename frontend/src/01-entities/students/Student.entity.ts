@@ -109,4 +109,15 @@ export class Student extends AggregateRoot<Identifier> {
     this._enrollments.push(newEnrollmentResult.getValue());
     return Result.ok();
   }
+
+  public toJSON() {
+    return {
+      id: this.id.toString(),
+      name: this._name,
+      email: this._email,
+      phone: this._phone,
+      status: this._status,
+      enrollments: this._enrollments.map(e => e.toJSON())
+    };
+  }
 }

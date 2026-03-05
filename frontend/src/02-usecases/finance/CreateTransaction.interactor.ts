@@ -1,3 +1,4 @@
+// src/02-usecases/finance/CreateTransaction.interactor.ts
 import { Result } from '@/01-entities/shared/base/result';
 import { Transaction } from '@/01-entities/finance/Transaction.entity';
 import { type ITransactionRepository } from './ports/gateways_interface/ITransactionRepository';

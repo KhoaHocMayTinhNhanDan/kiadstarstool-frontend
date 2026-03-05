@@ -7,7 +7,7 @@ import { Box, Text, Button, Icon, Input, Card, Select } from '@/04-frameworks-an
 import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { AppContext } from '@/05-bootstrap/app-context';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
-import { useAuth } from '../../hooks/user/useAuthorization';
+import { useAuth } from '../../hooks/user/useAuth';
 import { TuitionReceipt } from './components/TuitionReceipt';
 
 export const CollectTuitionPage = () => {

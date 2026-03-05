@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AppContext } from '@/05-bootstrap/app-context';
 import { type UserOutput } from '@/02-usecases/users/ports/output/IUserOutput';
-import { useAuth } from './useAuthorization';
+import { useAuth } from './useAuth';
 
 export const useCurrentUserProfile = () => {
   const { user } = useAuth();

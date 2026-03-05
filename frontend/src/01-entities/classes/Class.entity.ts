@@ -118,4 +118,22 @@ export class Class extends Entity<ClassId> {
     if (props.tuition !== undefined) this._tuition = props.tuition;
     return Result.ok();
   }
+
+  public toJSON() { 
+    return {
+      id: this.id.toString(),
+      branchId: this._branchId.toString(),
+      name: this._name,
+      code: this._code,
+      status: this._status,
+      maxStudents: this._maxStudents,
+      currentStudents: this._currentStudents,
+      startDate: this._startDate.toISOString(),
+      endDate: this._endDate ? this._endDate.toISOString() : undefined,
+      sessions: this._sessions,
+      teacherName: this._teacherName,
+      tuition: this._tuition
+    };
+  }
+  
 }

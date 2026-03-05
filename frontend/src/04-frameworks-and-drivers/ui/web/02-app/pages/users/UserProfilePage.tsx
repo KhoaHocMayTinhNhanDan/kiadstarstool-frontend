@@ -6,23 +6,13 @@ import { Box, Text, Button, Input, Avatar, LoadingSpinner, Checkbox, Icon } from
 import { COLORS, RADIUS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { AppContext } from '@/05-bootstrap/app-context';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
-import { useAuth } from '../../hooks/user/useAuthorization';
+import { useAuth } from '../../hooks/user/useAuth';
 import { Save, User, ArrowLeft, Shield, AlertTriangle, Ban, History } from 'lucide-react';
 import { type UserOutput } from '@/02-usecases/users/ports/output/IUserOutput';
 import { useCurrentUserProfile } from '../../hooks/user/useCurrentUserProfile';
-import { type PermissionCode, PERMISSIONS } from '@/shared/constants/authorization/auth.domain';
+import { type PermissionCode, PERMISSION_GROUPS, getPermissionLabel, PERMISSIONS } from '@/shared/constants/authorization';
 import { UserActivityHistory } from './components/UserActivityHistory';
-
-// In a real app, this would be in a shared constants file
-const PERMISSIONS_CONFIG: { code: PermissionCode; label: string; description: string }[] = [
-  { code: PERMISSIONS.USER_MANAGE, label: 'Quản lý người dùng', description: 'Toàn quyền quản lý người dùng (Tạo, Xem, Sửa, Xóa).' },
-  { code: PERMISSIONS.BRANCH_MANAGE, label: 'Quản lý chi nhánh', description: 'Toàn quyền quản lý thông tin chi nhánh.' },
-  { code: PERMISSIONS.FINANCE_VIEW, label: 'Xem tài chính', description: 'Cho phép xem báo cáo và lịch sử giao dịch.' },
-  { code: PERMISSIONS.FINANCE_MANAGE, label: 'Quản lý tài chính', description: 'Cho phép thu học phí và tạo giao dịch.' },
-  { code: PERMISSIONS.ATTENDANCE_EDIT, label: 'Điểm danh', description: 'Cho phép thực hiện điểm danh cho các lớp học.' },
-  { code: PERMISSIONS.ATTENDANCE_VIEW, label: 'Xem điểm danh', description: 'Cho phép xem dữ liệu điểm danh.' },
-  { code: PERMISSIONS.COURSE_MANAGE, label: 'Quản lý khóa học', description: 'Tạo và chỉnh sửa khóa học.' },
-];
+import { PermissionGuard } from '../../permissions/PermissionGuard';
 
 export const UserProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -44,8 +34,7 @@ export const UserProfilePage = () => {
 
   // Xác định user cần xem: Lấy từ URL param hoặc lấy user hiện tại
   const targetUserId = id || currentUser?.id;
-  const isOwnProfile = currentUser?.id === targetUserId;
-  const canEditPermissions = currentUser?.roles.some(r => r.value === 'admin') && !isOwnProfile;
+  const isOwnProfile = !id || currentUser?.id === id;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -306,41 +295,52 @@ export const UserProfilePage = () => {
             </Box>
 
             {/* Permissions Section - Only for Admins viewing other profiles */}
-            {canEditPermissions && (
-              <Box>
-                <Box display="flex" alignItems="center" gap="sm" mb="md" pt="xl" borderTop={`1px solid ${COLORS.NEUTRAL_BORDER}`}>
-                  <Icon color="PRIMARY"><Shield /></Icon>
-                  <Text variant="heading-md" weight="bold">Phân quyền</Text>
-                </Box>
-                <Box 
-                  display="grid" 
-                  gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }} 
-                  gap="md"
-                >
-                  {PERMISSIONS_CONFIG.map(p => (
-                    <Box 
-                      key={p.code}
-                      p="sm"
-                      bg="BACKGROUND_NEUTRAL"
-                      borderRadius="md"
-                      display="flex"
-                      alignItems="flex-start"
-                      gap="sm"
-                    >
-                      <Checkbox 
-                        id={`perm-${p.code}`}
-                        checked={permissions.includes(p.code)}
-                        onCheckedChange={(checked) => handlePermissionChange(p.code, checked === true)}
-                      />
-                      <Box>
-                        <Text as="label" htmlFor={`perm-${p.code}`} weight="medium" size="sm" sx={{ cursor: 'pointer' }}>{p.label}</Text>
-                        <Text color="SECONDARY" size="xs">{p.description}</Text>
+            <PermissionGuard required={[PERMISSIONS.USERS_UPDATE]}>
+              {!isOwnProfile && (
+                <Box>
+                  <Box display="flex" alignItems="center" gap="sm" mb="md" pt="xl" borderTop={`1px solid ${COLORS.NEUTRAL_BORDER}`}>
+                    <Icon color="PRIMARY"><Shield /></Icon>
+                    <Text variant="heading-md" weight="bold">Phân quyền</Text>
+                  </Box>
+                  <Box display="flex" flexDirection="column" gap="xl">
+                    {PERMISSION_GROUPS.map(group => (
+                      <Box key={group.name}>
+                        <Text weight="semibold">{group.name}</Text>
+                        <Text size="sm" color="SECONDARY" mb="md">{group.description}</Text>
+                        <Box
+                          display="grid"
+                          gridTemplateColumns={{ base: '1fr', md: '1fr 1fr' }}
+                          gap="md"
+                        >
+                          {group.codes.map(code => (
+                            <Box
+                              key={code}
+                              p="sm"
+                              bg="BACKGROUND_NEUTRAL"
+                              borderRadius="md"
+                              display="flex"
+                              alignItems="flex-start"
+                              gap="sm"
+                            >
+                              <Checkbox
+                                id={`perm-${code}`}
+                                checked={permissions.includes(code)}
+                                onCheckedChange={(checked) => handlePermissionChange(code, checked === true)}
+                              />
+                              <Box>
+                                <Text as="label" htmlFor={`perm-${code}`} weight="medium" size="sm" sx={{ cursor: 'pointer' }}>
+                                  {getPermissionLabel(code)}
+                                </Text>
+                              </Box>
+                            </Box>
+                          ))}
+                        </Box>
                       </Box>
-                    </Box>
-                  ))}
+                    ))}
+                  </Box>
                 </Box>
-              </Box>
-            )}
+              )}
+            </PermissionGuard>
           </>
         )}
 
@@ -349,23 +349,25 @@ export const UserProfilePage = () => {
         )}
 
         {/* Danger Zone - Only for Admins viewing other profiles */}
-        {canEditPermissions && (
-          <Box mt="xl" pt="xl" borderTop={`1px solid ${COLORS.NEUTRAL_BORDER}`}>
-            <Box display="flex" alignItems="center" gap="sm" mb="md">
-              <Icon color="DANGER"><AlertTriangle /></Icon>
-              <Text variant="heading-md" weight="bold" color="DANGER">Khu vực nguy hiểm</Text>
-            </Box>
-            <Box p="md" bg="DANGER_LIGHT" borderRadius="md" display="flex" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Text weight="bold" color="DANGER_DARK">Vô hiệu hóa tài khoản</Text>
-                <Text size="sm" color="DANGER_DARK">Người dùng sẽ bị đăng xuất và không thể truy cập hệ thống.</Text>
+        <PermissionGuard required={[PERMISSIONS.USERS_DELETE]}>
+          {!isOwnProfile && (
+            <Box mt="xl" pt="xl" borderTop={`1px solid ${COLORS.NEUTRAL_BORDER}`}>
+              <Box display="flex" alignItems="center" gap="sm" mb="md">
+                <Icon color="DANGER"><AlertTriangle /></Icon>
+                <Text variant="heading-md" weight="bold" color="DANGER">Khu vực nguy hiểm</Text>
               </Box>
-              <Button variant="danger" onClick={handleDeactivateUser} leftIcon={<Ban size={16} />}>
-                Vô hiệu hóa
-              </Button>
+              <Box p="md" bg="DANGER_LIGHT" borderRadius="md" display="flex" justifyContent="space-between" alignItems="center">
+                <Box>
+                  <Text weight="bold" color="DANGER_DARK">Vô hiệu hóa tài khoản</Text>
+                  <Text size="sm" color="DANGER_DARK">Người dùng sẽ bị đăng xuất và không thể truy cập hệ thống.</Text>
+                </Box>
+                <Button variant="danger" onClick={handleDeactivateUser} leftIcon={<Ban size={16} />}>
+                  Vô hiệu hóa
+                </Button>
+              </Box>
             </Box>
-          </Box>
-        )}
+          )}
+        </PermissionGuard>
       </Box>
     </Box>
   );

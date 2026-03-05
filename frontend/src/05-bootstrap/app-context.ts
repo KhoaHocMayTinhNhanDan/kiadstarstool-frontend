@@ -3,24 +3,41 @@
 import type { AuthController } from '@/03-interface-adapters/controllers/Auth.controller'
 import type { AuthorizationController } from '@/03-interface-adapters/controllers/Authorization.controller'
 import type { AuthRepository } from '@/03-interface-adapters/gateways/inbound/repositories/AuthRepository'
-import type { UsersController } from '@/03-interface-adapters/controllers/Users.controller';
-import type { BranchController } from '@/03-interface-adapters/controllers/Branch.controller';
-import type { ClassesController } from '@/03-interface-adapters/controllers/Classes.controller';
-import type { StudentsController } from '@/03-interface-adapters/controllers/Students.controller';
-import type { AttendanceController } from '@/03-interface-adapters/controllers/Attendance.controller';
-import type { FinanceController } from '@/03-interface-adapters/controllers/Finance.controller';
-import type { ActivityController } from '@/03-interface-adapters/controllers/Activity.controller';
+
+import type { UsersController } from '@/03-interface-adapters/controllers/Users.controller'
+import type { BranchController } from '@/03-interface-adapters/controllers/Branch.controller'
+import type { ClassesController } from '@/03-interface-adapters/controllers/Classes.controller'
+import type { StudentsController } from '@/03-interface-adapters/controllers/Students.controller'
+import type { AttendanceController } from '@/03-interface-adapters/controllers/Attendance.controller'
+import type { FinanceController } from '@/03-interface-adapters/controllers/Finance.controller'
+import type { ActivityController } from '@/03-interface-adapters/controllers/Activity.controller'
+
 import type { AuthPresenter } from '@/03-interface-adapters/presenters/auth/Auth.presenter'
+
 import type { LoginInteractor } from '@/02-usecases/auth/Login.interactor'
 import type { LogoutInteractor } from '@/02-usecases/auth/Logout.interactor'
+
 import type { IAuthAccountManagement } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAccountManagement'
 import type { IAuthAuthentication } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthAuthentication'
 import type { IAuthSession } from '@/03-interface-adapters/gateways/outbound/device_interfaces/auth/IAuthSession'
 
-export type AppContextType = {
-  
-  
-  // Authentication feature
+import type { DataMode, API_BASE_URL } from '@/shared/config/env'
+
+/* =====================
+ * CONFIG TYPE
+ * ===================== */
+
+export type AppConfig = {
+  dataMode: DataMode
+  apiBaseUrl: string
+}
+
+/* =====================
+ * APP CONTEXT TYPE
+ * ===================== */
+
+export type AppContextType = Readonly<{
+
   auth?: {
     driver: IAuthAuthentication & IAuthAccountManagement & IAuthSession
     repository: AuthRepository
@@ -30,269 +47,229 @@ export type AppContextType = {
     controller: AuthController
   }
 
-  // Authorization feature
   authorization?: {
     controller: AuthorizationController
   }
 
-  // Users feature
   users?: {
-    controller: UsersController;
+    controller: UsersController
   }
 
-  // Branch feature
   branch?: {
-    controller: BranchController;
+    controller: BranchController
   }
 
-  // Classes feature
   classes?: {
-    controller: ClassesController;
+    controller: ClassesController
   }
 
-  // Students feature
   students?: {
-    controller: StudentsController;
+    controller: StudentsController
   }
 
-  // Attendance feature
   attendance?: {
-    controller: AttendanceController;
+    controller: AttendanceController
   }
 
-  // Finance feature
   finance?: {
-    controller: FinanceController;
+    controller: FinanceController
   }
 
-  // Activity Log feature
   activity?: {
-    controller: ActivityController;
+    controller: ActivityController
   }
-  
-  // Configuration
-  config?: {
-    isMockMode: boolean
-    apiBaseUrl: string
-    authDriverType: 'mock' | 'firebase'
-  }
-}
+
+  config?: AppConfig
+}>
+
+/* =====================
+ * IMPLEMENTATION
+ * ===================== */
 
 class AppContextImpl {
+
   private static instance: AppContextType | null = null
 
-  /* =====================
-   *  CORE METHODS
-   * ===================== */
+  /* CORE */
 
   static set(ctx: AppContextType) {
+
     this.instance = ctx
-    console.log('[AppContext] Context initialized', {
-      mode: ctx.config?.authDriverType || 'unknown',
-      hasAuth: !!ctx.auth,
+
+    console.log('[AppContext] initialized', {
+      dataMode: ctx.config?.dataMode ?? 'unknown',
+      hasAuth: !!ctx.auth
     })
   }
 
   static get(): AppContextType {
+
     if (!this.instance) {
-      throw new Error('[AppContext] Not initialized. Call bootstrap() or bootstrapApp() first.')
+      throw new Error(
+        '[AppContext] Not initialized. Call bootstrap() first.'
+      )
     }
+
     return this.instance
   }
 
-  /* =====================
-   *  FEATURE GETTERS
-   * ===================== */
+  /* FEATURES */
 
   static getAuth() {
     const ctx = this.get()
-    if (!ctx.auth) {
-      throw new Error('[AppContext] Auth feature not configured.')
-    }
+    if (!ctx.auth) throw new Error('[AppContext] Auth not configured')
     return ctx.auth
   }
 
   static getAuthorization() {
     const ctx = this.get()
-    if (!ctx.authorization) {
-      throw new Error('[AppContext] Authorization feature not configured.')
-    }
+    if (!ctx.authorization) throw new Error('[AppContext] Authorization not configured')
     return ctx.authorization
   }
 
   static getUsers() {
-    const ctx = this.get();
-    if (!ctx.users) {
-      throw new Error('[AppContext] Users feature not configured.');
-    }
-    return ctx.users;
+    const ctx = this.get()
+    if (!ctx.users) throw new Error('[AppContext] Users not configured')
+    return ctx.users
   }
 
   static getBranch() {
-    const ctx = this.get();
-    if (!ctx.branch) {
-      throw new Error('[AppContext] Branch feature not configured.');
-    }
-    return ctx.branch;
+    const ctx = this.get()
+    if (!ctx.branch) throw new Error('[AppContext] Branch not configured')
+    return ctx.branch
   }
 
   static getClasses() {
-    const ctx = this.get();
-    if (!ctx.classes) {
-      throw new Error('[AppContext] Classes feature not configured.');
-    }
-    return ctx.classes;
+    const ctx = this.get()
+    if (!ctx.classes) throw new Error('[AppContext] Classes not configured')
+    return ctx.classes
   }
 
   static getStudents() {
-    const ctx = this.get();
-    if (!ctx.students) {
-      throw new Error('[AppContext] Students feature not configured.');
-    }
-    return ctx.students;
+    const ctx = this.get()
+    if (!ctx.students) throw new Error('[AppContext] Students not configured')
+    return ctx.students
   }
 
   static getAttendance() {
-    const ctx = this.get();
-    if (!ctx.attendance) {
-      throw new Error('[AppContext] Attendance feature not configured.');
-    }
-    return ctx.attendance;
+    const ctx = this.get()
+    if (!ctx.attendance) throw new Error('[AppContext] Attendance not configured')
+    return ctx.attendance
   }
 
   static getFinance() {
-    const ctx = this.get();
-    if (!ctx.finance) {
-      throw new Error('[AppContext] Finance feature not configured.');
-    }
-    return ctx.finance;
+    const ctx = this.get()
+    if (!ctx.finance) throw new Error('[AppContext] Finance not configured')
+    return ctx.finance
   }
 
   static getActivity() {
-    const ctx = this.get();
-    if (!ctx.activity) {
-      throw new Error('[AppContext] Activity feature not configured.');
-    }
-    return ctx.activity;
+    const ctx = this.get()
+    if (!ctx.activity) throw new Error('[AppContext] Activity not configured')
+    return ctx.activity
   }
 
-  static getConfig() {
+  static getConfig(): AppConfig {
     const ctx = this.get()
-    if (!ctx.config) {
-      throw new Error('[AppContext] Config not initialized')
-    }
+    if (!ctx.config) throw new Error('[AppContext] Config not initialized')
     return ctx.config
   }
 
-  /* =====================
-   *  CONVENIENCE GETTERS
-   * ===================== */
+  /* CONVENIENCE */
 
-  static getAuthDriver(): IAuthAuthentication & IAuthAccountManagement & IAuthSession {
+  static getAuthDriver() {
     return this.getAuth().driver
   }
 
-  static getAuthController(): AuthController {
+  static getAuthController() {
     return this.getAuth().controller
   }
 
-  static getAuthorizationController(): AuthorizationController {
+  static getAuthorizationController() {
     return this.getAuthorization().controller
   }
 
-  static getUsersController(): UsersController {
-    return this.getUsers().controller;
+  static getUsersController() {
+    return this.getUsers().controller
   }
 
-  static getBranchController(): BranchController {
-    return this.getBranch().controller;
+  static getBranchController() {
+    return this.getBranch().controller
   }
 
-  static getClassesController(): ClassesController {
-    return this.getClasses().controller;
+  static getClassesController() {
+    return this.getClasses().controller
   }
 
-  static getStudentsController(): StudentsController {
-    return this.getStudents().controller;
+  static getStudentsController() {
+    return this.getStudents().controller
   }
 
-  static getAttendanceController(): AttendanceController {
-    return this.getAttendance().controller;
+  static getAttendanceController() {
+    return this.getAttendance().controller
   }
 
-  static getFinanceController(): FinanceController {
-    return this.getFinance().controller;
+  static getFinanceController() {
+    return this.getFinance().controller
   }
 
-  static getActivityController(): ActivityController {
-    return this.getActivity().controller;
+  static getActivityController() {
+    return this.getActivity().controller
   }
 
-  static getLoginInteractor(): LoginInteractor {
-    return this.getAuth().loginInteractor;
+  static getLoginInteractor() {
+    return this.getAuth().loginInteractor
   }
 
-  static getAuthRepository(): AuthRepository {
+  static getAuthRepository() {
     return this.getAuth().repository
   }
 
-  static getAuthPresenter(): AuthPresenter {
+  static getAuthPresenter() {
     return this.getAuth().presenter
   }
 
-  /* =====================
-   *  STATE CHECKERS
-   * ===================== */
+  /* STATE */
 
   static isMockMode(): boolean {
-    return this.getConfig().isMockMode
+    return this.getConfig().dataMode === 'mock'
   }
 
-  static isUsingMockAuth(): boolean {
-    return this.getConfig().authDriverType === 'mock'
-  }
-
-  /* =====================
-   *  RESET (FOR TESTING)
-   * ===================== */
+  /* RESET */
 
   static reset(): void {
+
     if (this.instance?.auth?.driver) {
-      const driver = this.instance.auth.driver;
+      const driver = this.instance.auth.driver
+
       if (typeof (driver as any).reset === 'function') {
-        (driver as any).reset();
+        (driver as any).reset()
       }
     }
-    
+
     this.instance = null
-    console.log('[AppContext] Context has been reset.')
+
+    console.log('[AppContext] reset')
   }
 
-  /* =====================
-   *  DEBUG METHODS
-   * ===================== */
+  /* DEBUG */
 
-  static debug(): {
-    mode: string
-    features: string[]
-    config: Record<string, any>
-    auth?: {
-      hasDriver: boolean
-      driverName?: string
-      hasController: boolean
-    }
-  } {
+  static debug() {
+
     const ctx = this.instance
+
     if (!ctx) {
-      return { 
-        mode: 'not-initialized', 
+      return {
+        mode: 'not-initialized',
         features: [],
-        config: {} 
+        config: {}
       }
     }
 
     return {
-      mode: ctx.config?.isMockMode ? 'mock' : 'production',
+
+      mode: ctx.config?.dataMode ?? 'unknown',
+
       features: [
         ...(ctx.auth ? ['auth'] : []),
         ...(ctx.authorization ? ['authorization'] : []),
@@ -302,14 +279,17 @@ class AppContextImpl {
         ...(ctx.students ? ['students'] : []),
         ...(ctx.attendance ? ['attendance'] : []),
         ...(ctx.finance ? ['finance'] : []),
-        ...(ctx.activity ? ['activity'] : []),
+        ...(ctx.activity ? ['activity'] : [])
       ],
-      config: ctx.config || {},
-      auth: ctx.auth ? {
-        hasDriver: !!ctx.auth.driver,
-        driverName: ctx.auth.driver.constructor.name,
-        hasController: !!ctx.auth.controller
-      } : undefined
+
+      config: ctx.config ?? {},
+
+      auth: ctx.auth
+        ? {
+            driver: ctx.auth.driver.constructor.name,
+            hasController: !!ctx.auth.controller
+          }
+        : undefined
     }
   }
 }

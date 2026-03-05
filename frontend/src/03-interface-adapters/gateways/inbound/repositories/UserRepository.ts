@@ -1,15 +1,15 @@
 // src/03-interface-adapters/gateways/inbound/repositories/UserRepository.ts
 
 import { type IUserRepository } from '@/02-usecases/users/ports/gateways_interface/IUserRepository';
-import { type IUserDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/user/IUserDataSource';
+import { type IUserProfileDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/user/IUserProfileDataSource';
 import { User } from '@/01-entities/users/User.entity';
 import { UserMapper } from '@/01-entities/users/UserMapper';
 import { type ListUsersInput } from '@/02-usecases/users/ports/input/IListUsersInput';
 
 export class UserRepository implements IUserRepository {
-  private readonly dataSource: IUserDataSource;
+  private readonly dataSource: IUserProfileDataSource;
 
-  constructor(dataSource: IUserDataSource) {
+  constructor(dataSource: IUserProfileDataSource) {
     this.dataSource = dataSource;
   }
 

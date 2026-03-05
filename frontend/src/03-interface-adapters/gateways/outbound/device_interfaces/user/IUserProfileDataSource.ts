@@ -1,13 +1,13 @@
 // src/03-interface-adapters/gateways/outbound/device_interfaces/user/IUserDataSource.ts
 
 import { type UserJSON } from '@/01-entities/users/User.entity';
-import { type StudentDTO } from '@/03-interface-adapters/gateways/outbound/device_interfaces/student/IStudentDataSource';
+import { type StudentDTO } from '@/03-interface-adapters/gateways/outbound/device_interfaces/students/IStudentDataSource';
 import { type Student } from '@/01-entities/students/Student.entity';
 
 /**
  * Interface cho User Data Source (làm việc với JSON/DTO)
  */
-export interface IUserDataSource {
+export interface IUserProfileDataSource {
   getById(id: string): Promise<UserJSON | null>;
   getByIds(ids: string[]): Promise<UserJSON[]>;
   save(user: UserJSON): Promise<void>;

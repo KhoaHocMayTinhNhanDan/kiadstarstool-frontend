@@ -69,4 +69,25 @@ export class Transaction extends AuditedEntity<Identifier> {
       updatedAt: new Date()
     }));
   }
+
+  public toJSON() {
+    return {
+      id: this.id.toString(),
+      branchId: this.branchId,
+      invoiceId: this.invoiceId,
+      studentId: this.studentId,
+      code: this.code,
+      type: this.type,
+      amount: this.amount,
+      method: this.method,
+      status: this.status,
+      transactionDate: this.transactionDate.toISOString(),
+      description: this.description,
+      performedBy: this.performedBy,
+      createdAt: this.createdAt.toISOString(),
+      updatedAt: this.updatedAt.toISOString(),
+      createdBy: this.createdBy?.toString(),
+      updatedBy: this.updatedBy?.toString()
+    };
+  }
 }

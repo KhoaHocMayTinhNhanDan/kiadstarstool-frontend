@@ -110,4 +110,19 @@ export class Enrollment extends ValueObject<EnrollmentProps> {
       usedSessions: Math.max(0, (this.props.usedSessions || 0) - 1)
     });
   }
+
+  public toJSON() {
+    return {
+      branchId: this.branchId,
+      classId: this.classId,
+      status: this.status,
+      joinedDate: this.joinedDate.toISOString(),
+      endDate: this.endDate ? this.endDate.toISOString() : undefined,
+      tuitionAmount: this.tuitionAmount,
+      paidAmount: this.paidAmount,
+      paymentStatus: this.paymentStatus,
+      prepaidSessions: this.prepaidSessions,
+      usedSessions: this.usedSessions
+    };
+  }
 }

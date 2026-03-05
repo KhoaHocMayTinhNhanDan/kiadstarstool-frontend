@@ -5,7 +5,7 @@ import {
   Activity
 } from 'lucide-react';
 import { Box, Text, Icon, Avatar } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { useAuth } from '@/04-frameworks-and-drivers/ui/web/02-app/hooks/user/useAuthorization';
+import { useAuth } from '@/04-frameworks-and-drivers/ui/web/02-app/hooks/user/useAuth';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { AppContext } from '@/05-bootstrap/app-context';
 import { type StudentListItem } from '@/02-usecases/students/ports/output/ListStudentsByBranch.output';

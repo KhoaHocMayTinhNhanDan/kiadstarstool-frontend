@@ -18,28 +18,44 @@ export const PERMISSIONS = {
   /** Wildcard – toàn quyền */
   ALL: '*',
 
-  /* Attendance */
-  ATTENDANCE_VIEW: 'attendance_view',
-  ATTENDANCE_EDIT: 'attendance_edit',
+  /* Users */
+  USERS_CREATE: 'users:create',
+  USERS_READ: 'users:read',
+  USERS_UPDATE: 'users:update',
+  USERS_DELETE: 'users:delete', // Deactivate/soft-delete
+
+  /* Branches */
+  BRANCHES_CREATE: 'branches:create',
+  BRANCHES_READ: 'branches:read',
+  BRANCHES_UPDATE: 'branches:update',
+  BRANCHES_DELETE: 'branches:delete',
+
+  /* Courses / Classes */
+  COURSES_CREATE: 'courses:create',
+  COURSES_READ: 'courses:read',
+  COURSES_UPDATE: 'courses:update',
+  COURSES_DELETE: 'courses:delete',
 
   /* Students */
-  STUDENT_VIEW: 'students_view',
-  STUDENT_EDIT: 'students_edit',
+  STUDENTS_CREATE: 'students:create',
+  STUDENTS_READ: 'students:read',
+  STUDENTS_UPDATE: 'students:update',
+  STUDENTS_DELETE: 'students:delete',
 
-  /* Reports */
-  REPORT_VIEW: 'view_reports',
-
-  /* Management */
-  USER_MANAGE: 'manage_users',
-  BRANCH_MANAGE: 'manage_branches',
-
-  /* Courses */
-  COURSE_MANAGE: 'manage_courses',
-  COURSE_VIEW: 'view_courses',
+  /* Attendance */
+  ATTENDANCE_READ: 'attendance:read',
+  ATTENDANCE_CREATE: 'attendance:create', // Mark attendance
 
   /* Finance */
-  FINANCE_VIEW: 'finance_view',
-  FINANCE_MANAGE: 'finance_manage',
+  FINANCE_READ: 'finance:read',
+  FINANCE_CREATE: 'finance:create', // Collect tuition, create transactions
+
+  /* Reports */
+  REPORTS_READ: 'reports:read',
+
+  /* Roles & Permissions */
+  ROLES_READ: 'roles:read',
+  ROLES_UPDATE: 'roles:update',
 } as const;
 
 export type PermissionCode = typeof PERMISSIONS[keyof typeof PERMISSIONS];
