@@ -2,8 +2,7 @@ import { AppContext, type AppContextType } from '../app-context'
 
 import {
   API_BASE_URL,
-  DATA_MODE,
-  PRE_AUTHENTICATE_AS
+  DATA_MODE
 } from '@/shared/config/env'
 
 import { getBootstrapModeInfo } from '../utils/bootstrapLogger'
