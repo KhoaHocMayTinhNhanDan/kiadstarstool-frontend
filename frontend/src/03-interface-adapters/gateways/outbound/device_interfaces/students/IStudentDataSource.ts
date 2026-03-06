@@ -19,6 +19,7 @@ export interface StudentDTO {
   name: string;
   email: string;
   phone?: string;
+  dateOfBirth?: string; // YYYY-MM-DD
   status: string;
   enrollments: StudentEnrollmentDTO[];
 }

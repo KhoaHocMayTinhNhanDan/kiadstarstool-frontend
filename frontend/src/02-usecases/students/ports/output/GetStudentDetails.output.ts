@@ -26,6 +26,7 @@ export interface GetStudentDetailsOutput {
   name: string;
   email: string;
   phone?: string;
+  dateOfBirth?: string;
   status: string;
   joinedDate: string;
   branchName?: string;

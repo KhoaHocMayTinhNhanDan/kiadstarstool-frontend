@@ -40,6 +40,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Nguyễn Văn An',
           email: 'an.nguyen@example.com',
           phone: '0901234567',
+          dateOfBirth: '2000-01-15',
           status: 'active',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-15', tuitionAmount: 5000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 5 }
@@ -51,6 +52,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Trần Thị Bình',
           email: 'binh.tran@example.com',
           phone: '0909876543',
+          dateOfBirth: '1999-05-20',
           status: 'active', // Tài khoản vẫn active, nhưng enrollment cũ inactive
           enrollments: [
             { branchId: 'branch-01', classId: 'class-01', status: 'transferred', joinedDate: '2025-02-20', endDate: '2025-07-01', tuitionAmount: 5000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 10 }
@@ -60,6 +62,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           id: 'student-03',
           name: 'Lê Văn Cường',
           email: 'cuong.le@example.com',
+          dateOfBirth: '2001-03-10',
           status: 'active',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-01', status: 'dropped', joinedDate: '2024-11-10', endDate: '2025-01-01', tuitionAmount: 5000000, paymentStatus: 'partial', prepaidSessions: 24, usedSessions: 4 }
@@ -71,6 +74,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Phạm Thị Dung',
           email: 'dung.pham@example.com',
           phone: '0912345678',
+          dateOfBirth: '2002-08-25',
           status: 'active',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-20', tuitionAmount: 5000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 2 },
@@ -84,6 +88,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           id: 'student-05',
           name: 'Hoàng Văn Em',
           email: 'em.hoang@example.com',
+          dateOfBirth: '2000-11-30',
           status: 'active',
           enrollments: [
             { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-25', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 12, usedSessions: 11 } // Sắp hết hạn
@@ -95,6 +100,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Nguyễn Văn An',
           email: 'an.nguyen@example.com',
           phone: '0901234567',
+          dateOfBirth: '2000-01-15',
           status: 'active',
           enrollments: [
             { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-12-01', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 12, usedSessions: 2 }
@@ -105,6 +111,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           id: 'student-transfer-new',
           name: 'Trần Thị Bình',
           email: 'binh.tran@example.com',
+          dateOfBirth: '1999-05-20',
           status: 'active',
           enrollments: [
             { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-07-20', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 15 }
@@ -116,6 +123,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Lý Thường Kiệt',
           email: 'kiet.ly@example.com',
           phone: '0911223344',
+          dateOfBirth: '1998-02-18',
           status: 'active',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-16', tuitionAmount: 5000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 6 }
@@ -126,6 +134,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Trần Hưng Đạo',
           email: 'dao.tran@example.com',
           phone: '0922334455',
+          dateOfBirth: '1997-07-07',
           status: 'active',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-16', tuitionAmount: 8750000, paymentStatus: 'paid', prepaidSessions: 30, usedSessions: 0 }
@@ -136,6 +145,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Ngô Quyền',
           email: 'quyen.ngo@example.com',
           phone: '0933445566',
+          dateOfBirth: '1996-12-01',
           status: 'active',
           enrollments: [
             { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-21', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 12, usedSessions: 3 }
@@ -146,6 +156,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Đinh Bộ Lĩnh',
           email: 'linh.dinh@example.com',
           phone: '0944556677',
+          dateOfBirth: '1995-04-14',
           status: 'archived',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-01', status: 'dropped', joinedDate: '2025-01-01', endDate: '2025-06-01', tuitionAmount: 5000000, paymentStatus: 'unpaid', prepaidSessions: 24, usedSessions: 0 }
@@ -156,6 +167,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Lê Hoàn',
           email: 'hoan.le@example.com',
           phone: '0955112233',
+          dateOfBirth: '1994-09-09',
           status: 'active',
           enrollments: [
             { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-28', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 12, usedSessions: 1 }
@@ -166,6 +178,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Lý Công Uẩn',
           email: 'uan.ly@example.com',
           phone: '0966223344',
+          dateOfBirth: '1993-10-10',
           status: 'active',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-20', tuitionAmount: 8750000, paymentStatus: 'paid', prepaidSessions: 30, usedSessions: 0 }
@@ -176,6 +189,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Trần Nhân Tông',
           email: 'tong.tran@example.com',
           phone: '0977334455',
+          dateOfBirth: '1992-11-11',
           status: 'active',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-05', status: 'active', joinedDate: '2025-12-20', tuitionAmount: 3000000, paymentStatus: 'paid', prepaidSessions: 15, usedSessions: 0 }
@@ -186,6 +200,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Lê Thánh Tông',
           email: 'tong.le@example.com',
           phone: '0988445566',
+          dateOfBirth: '1991-01-01',
           status: 'active',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-18', tuitionAmount: 5000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 8 }
@@ -196,6 +211,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Quang Trung',
           email: 'trung.quang@example.com',
           phone: '0999556677',
+          dateOfBirth: '1990-05-19',
           status: 'active',
           enrollments: [
             { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-22', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 12, usedSessions: 4 }
@@ -206,6 +222,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Yết Kiêu',
           email: 'kieu.yet@example.com',
           phone: '0913456789',
+          dateOfBirth: '1989-06-30',
           status: 'active',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-02', status: 'active', joinedDate: '2026-01-18', tuitionAmount: 8750000, paymentStatus: 'paid', prepaidSessions: 30, usedSessions: 0 }
@@ -216,6 +233,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Dã Tượng',
           email: 'tuong.da@example.com',
           phone: '0924567890',
+          dateOfBirth: '1988-07-21',
           status: 'active',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-05', status: 'active', joinedDate: '2025-12-18', tuitionAmount: 3000000, paymentStatus: 'paid', prepaidSessions: 15, usedSessions: 0 }
@@ -226,6 +244,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Phạm Ngũ Lão',
           email: 'lao.pham@example.com',
           phone: '0935678901',
+          dateOfBirth: '1987-08-15',
           status: 'active',
           enrollments: [
             { branchId: 'branch-02', classId: 'class-03', status: 'active', joinedDate: '2025-11-23', tuitionAmount: 4500000, paymentStatus: 'paid', prepaidSessions: 12, usedSessions: 5 }
@@ -236,6 +255,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Trần Quốc Tuấn',
           email: 'tuan.tran@example.com',
           phone: '0946789012',
+          dateOfBirth: '1986-09-10',
           status: 'active',
           enrollments: [
             { branchId: 'branch-01', classId: 'class-01', status: 'active', joinedDate: '2025-11-19', tuitionAmount: 5000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 7 }
@@ -246,6 +266,7 @@ export class MockStudentDataSource implements IStudentDataSource {
           name: 'Võ Thị Sáu',
           email: 'sau.vo@example.com',
           phone: '0957890123',
+          dateOfBirth: '1985-03-08',
           status: 'archived',
           enrollments: [
             { branchId: 'branch-02', classId: 'class-04', status: 'completed', joinedDate: '2025-01-12', endDate: '2025-04-09', tuitionAmount: 6000000, paymentStatus: 'paid', prepaidSessions: 24, usedSessions: 24 }
@@ -285,25 +306,7 @@ export class MockStudentDataSource implements IStudentDataSource {
 
     // Check if exists to update or push new
     const index = studentStore.findIndex(s => s.id === student.id.toString());
-    const data: StudentDTO = {
-      id: student.id.toString(),
-      name: student.name,
-      email: student.email,
-      phone: student.phone,
-      status: student.status,
-      enrollments: student.enrollments.map(e => ({
-        branchId: e.branchId,
-        classId: e.classId,
-        status: e.status,
-        joinedDate: e.joinedDate.toISOString(),
-        endDate: e.endDate?.toISOString(),
-        tuitionAmount: e.tuitionAmount,
-        paidAmount: e.paidAmount,
-        paymentStatus: e.paymentStatus,
-        prepaidSessions: e.prepaidSessions,
-        usedSessions: e.usedSessions
-      }))
-    };
+    const data: StudentDTO = student.toJSON();
 
     if (index >= 0) {
       studentStore[index] = data;
@@ -311,5 +314,21 @@ export class MockStudentDataSource implements IStudentDataSource {
       studentStore.push(data);
     }
     mockDatabase.persist();
+  }
+
+  saveInBatch(student: Student, batch: any): void {
+    console.log('[MockStudentDataSource] Saving student in batch:', student.id.toString());
+    const studentStore = mockDatabase.getCollection<StudentDTO>('students');
+
+    // Check if exists to update or push new
+    const index = studentStore.findIndex(s => s.id === student.id.toString());
+    const data: StudentDTO = student.toJSON();
+
+    if (index >= 0) {
+      studentStore[index] = data;
+    } else {
+      studentStore.push(data);
+    }
+    // Note: actual persistence is handled by batch operation
   }
 }

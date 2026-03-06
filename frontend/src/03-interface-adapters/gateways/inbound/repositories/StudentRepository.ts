@@ -40,6 +40,7 @@ export class StudentRepository implements IStudentRepository {
       name: dto.name,
       email: dto.email,
       phone: dto.phone,
+      dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
       status: dto.status as any,
       enrollments: enrollments,
     });

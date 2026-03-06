@@ -47,12 +47,14 @@ export class UserMapper {
     const phoneNumbers = (profileJson.phoneNumbers || []).map((p: any) =>
       PhoneNumber.create(p.value, p.label)
     );
+    const dateOfBirth = profileJson.dateOfBirth ? new Date(profileJson.dateOfBirth) : undefined;
 
     switch (profileJson.kind) {
       case 'admin':
         return new AdminProfile({
           displayName: profileJson.displayName,
           photoURL: profileJson.photoURL,
+          dateOfBirth: dateOfBirth,
           phoneNumbers: phoneNumbers,
           adminLevel: profileJson.adminLevel,
           managedBranches: profileJson.managedBranches,
@@ -61,6 +63,7 @@ export class UserMapper {
         return new StaffProfile({
           displayName: profileJson.displayName,
           photoURL: profileJson.photoURL,
+          dateOfBirth: dateOfBirth,
           phoneNumbers: phoneNumbers,
           department: profileJson.department,
         });
@@ -68,6 +71,7 @@ export class UserMapper {
         return new TeacherProfile({
           displayName: profileJson.displayName,
           photoURL: profileJson.photoURL,
+          dateOfBirth: dateOfBirth,
           phoneNumbers: phoneNumbers,
           // Giả sử teacher có 'specialization'
           specialization: profileJson.specialization,
@@ -76,6 +80,7 @@ export class UserMapper {
         return new BranchManagerProfile({
           displayName: profileJson.displayName,
           photoURL: profileJson.photoURL,
+          dateOfBirth: dateOfBirth,
           phoneNumbers: phoneNumbers,
           branchId: profileJson.branchId || '', // Fallback an toàn
         });

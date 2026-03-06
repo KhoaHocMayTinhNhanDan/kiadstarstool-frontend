@@ -57,14 +57,11 @@ export class FirebaseStudentDataSource implements IStudentDataSource {
 
   async save(student: Student): Promise<void> {
     try {
-      const data = stripId(student.toJSON());
-      
-      // TỰ ĐỘNG THÊM TRƯỜNG branchIds ĐỂ HỖ TRỢ QUERY SAU NÀY
+      const dataToSave = stripId(student.toJSON());
       const branchIds = [...new Set(student.enrollments.map(e => e.branchId))];
-      const dataToSave = { ...data, branchIds };
 
       const docRef = doc(this.collectionRef, student.id.toString());
-      await setDoc(docRef, dataToSave, { merge: true });
+      await setDoc(docRef, { ...dataToSave, branchIds }, { merge: true });
     } catch (error) {
       console.error("[FirebaseStudentDataSource] save error:", error);
       throw new Error("student/save-failed");
@@ -72,11 +69,10 @@ export class FirebaseStudentDataSource implements IStudentDataSource {
   }
 
   saveInBatch(student: Student, batch: WriteBatch): void {
-    const data = stripId(student.toJSON());
+    const dataToSave = stripId(student.toJSON());
     const branchIds = [...new Set(student.enrollments.map(e => e.branchId))];
-    const dataToSave = { ...data, branchIds };
 
     const docRef = doc(this.collectionRef, student.id.toString());
-    batch.set(docRef, dataToSave, { merge: true });
+    batch.set(docRef, { ...dataToSave, branchIds }, { merge: true });
   }
 }

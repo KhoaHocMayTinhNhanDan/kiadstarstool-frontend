@@ -96,6 +96,7 @@ export class GetStudentDetailsInteractor {
         name: student.name,
         email: student.email,
         phone: student.phone,
+        dateOfBirth: student.dateOfBirth ? student.dateOfBirth.toISOString() : undefined,
         status: student.status,
         joinedDate: student.enrollments[0]?.joinedDate.toISOString() || new Date().toISOString(),
         branchName: mainBranchId ? branchMap.get(mainBranchId) : 'Nhiều chi nhánh',

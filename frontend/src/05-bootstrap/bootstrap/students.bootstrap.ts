@@ -8,6 +8,7 @@ import { CreateStudentInteractor } from '@/02-usecases/students/CreateStudent.in
 import { GetStudentDetailsInteractor } from '@/02-usecases/students/GetStudentDetails.interactor';
 import { TransferStudentInteractor } from '@/02-usecases/students/TransferStudent.interactor';
 import { EnrollStudentInteractor } from '@/02-usecases/students/EnrollStudent.interactor';
+import { UpdateStudentInfoInteractor } from '@/02-usecases/students/UpdateStudentInfo.interactor';
 import { StudentsController } from '@/03-interface-adapters/controllers/Students.controller';
 
 export function bootstrapStudents(
@@ -28,12 +29,14 @@ export function bootstrapStudents(
   );
   const transferStudentInteractor = new TransferStudentInteractor(studentRepository, classRepository, branchRepository);
   const enrollStudentInteractor = new EnrollStudentInteractor(studentRepository, classRepository, branchRepository);
+  const updateStudentInfoInteractor = new UpdateStudentInfoInteractor(studentRepository);
   const studentsController = new StudentsController(
     listStudentsByBranchInteractor,
     createStudentInteractor,
     getStudentDetailsInteractor,
     transferStudentInteractor,
-    enrollStudentInteractor
+    enrollStudentInteractor,
+    updateStudentInfoInteractor
   );
 
   return {

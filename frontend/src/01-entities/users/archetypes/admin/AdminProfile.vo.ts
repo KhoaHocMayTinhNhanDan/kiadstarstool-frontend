@@ -7,6 +7,7 @@ import { PhoneNumber } from '../../../shared/value-objects/PhoneNumber.vo'
 interface AdminProfileProps {
   displayName: string
   photoURL?: string
+  dateOfBirth?: Date;
   phoneNumbers?: readonly PhoneNumber[]
 
   adminLevel: number
@@ -18,6 +19,7 @@ export class AdminProfile implements IUserProfile {
   readonly displayName: string
   readonly photoURL?: string
   readonly phoneNumbers: readonly PhoneNumber[]
+  readonly dateOfBirth?: Date;
 
   // admin-specific
   readonly adminLevel: number
@@ -35,6 +37,7 @@ export class AdminProfile implements IUserProfile {
     this.displayName = props.displayName.trim()
     this.photoURL = props.photoURL
     this.phoneNumbers = Object.freeze(props.phoneNumbers ?? [])
+    this.dateOfBirth = props.dateOfBirth;
 
     this.adminLevel = props.adminLevel
     this.managedBranches = Object.freeze(props.managedBranches ?? [])
@@ -54,11 +57,12 @@ export class AdminProfile implements IUserProfile {
   // MUTATION
   // =====================
 
-  update(props: Partial<{ displayName: string; photoURL: string; phoneNumbers: PhoneNumber[] }>): IUserProfile {
+  update(props: Partial<{ displayName: string; photoURL: string; phoneNumbers: PhoneNumber[], dateOfBirth: Date }>): IUserProfile {
     return new AdminProfile({
       displayName: props.displayName ?? this.displayName,
       photoURL: props.photoURL ?? this.photoURL,
       phoneNumbers: props.phoneNumbers ?? this.phoneNumbers,
+      dateOfBirth: props.dateOfBirth ?? this.dateOfBirth,
       adminLevel: this.adminLevel, // Giữ nguyên
       managedBranches: this.managedBranches // Giữ nguyên
     })
@@ -72,6 +76,7 @@ export class AdminProfile implements IUserProfile {
     return (
       this.displayName === o.displayName &&
       this.photoURL === o.photoURL &&
+      this.dateOfBirth?.getTime() === o.dateOfBirth?.getTime() &&
       this.adminLevel === o.adminLevel &&
       AdminProfile.sameStringSet(this.managedBranches, o.managedBranches) &&
       AdminProfile.samePhones(this.phoneNumbers, o.phoneNumbers)
@@ -83,6 +88,7 @@ export class AdminProfile implements IUserProfile {
       kind: this.kind.toString(),
       displayName: this.displayName,
       photoURL: this.photoURL,
+      dateOfBirth: this.dateOfBirth ? this.dateOfBirth.toISOString().split('T')[0] : undefined,
       phoneNumbers: this.phoneNumbers.map(p => p.toJSON()),
       adminLevel: this.adminLevel,
       managedBranches: [...this.managedBranches],

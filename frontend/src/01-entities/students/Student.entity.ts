@@ -8,6 +8,7 @@ export interface StudentProps {
   name: string;
   email: string;
   phone?: string;
+  dateOfBirth?: Date;
   status: 'active' | 'inactive' | 'archived';
   enrollments?: Enrollment[];
 }
@@ -16,12 +17,14 @@ export class Student extends AggregateRoot<Identifier> {
   private _name: string;
   private _email: string;
   private _phone?: string;
+  private _dateOfBirth?: Date;
   private _status: 'active' | 'inactive' | 'archived';
   private _enrollments: Enrollment[];
 
   get name(): string { return this._name; }
   get email(): string { return this._email; }
   get phone(): string | undefined { return this._phone; }
+  get dateOfBirth(): Date | undefined { return this._dateOfBirth; }
   get status(): 'active' | 'inactive' | 'archived' { return this._status; }
   get enrollments(): Enrollment[] { return this._enrollments; }
 
@@ -30,6 +33,7 @@ export class Student extends AggregateRoot<Identifier> {
     this._name = props.name;
     this._email = props.email;
     this._phone = props.phone;
+    this._dateOfBirth = props.dateOfBirth;
     this._status = props.status;
     this._enrollments = props.enrollments || [];
   }
@@ -87,6 +91,7 @@ export class Student extends AggregateRoot<Identifier> {
         name: this._name,
         email: this._email,
         phone: this._phone,
+        dateOfBirth: this._dateOfBirth,
         status: this._status,
         enrollments: newEnrollments
     });
@@ -136,8 +141,18 @@ export class Student extends AggregateRoot<Identifier> {
       name: this._name,
       email: this._email,
       phone: this._phone,
+      dateOfBirth: this._dateOfBirth ? this._dateOfBirth.toISOString().split('T')[0] : undefined,
       status: this._status,
       enrollments: this._enrollments.map(e => e.toJSON())
     };
+  }
+
+  public updateInfo(props: { name?: string; email?: string; phone?: string; dateOfBirth?: Date; status?: 'active' | 'inactive' | 'archived' }): Result<void> {
+    if (props.name !== undefined) this._name = props.name;
+    if (props.email !== undefined) this._email = props.email;
+    if (props.phone !== undefined) this._phone = props.phone;
+    if (props.dateOfBirth !== undefined) this._dateOfBirth = props.dateOfBirth;
+    if (props.status !== undefined) this._status = props.status;
+    return Result.ok();
   }
 }

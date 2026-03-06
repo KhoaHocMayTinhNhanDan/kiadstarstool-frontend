@@ -6,6 +6,7 @@ import { PhoneNumber } from '../../../shared/value-objects/PhoneNumber.vo'
 interface TeacherProfileProps {
   displayName: string
   photoURL?: string
+  dateOfBirth?: Date;
   phoneNumbers?: readonly PhoneNumber[]
 
   /**
@@ -20,6 +21,7 @@ export class TeacherProfile implements IUserProfile {
   readonly displayName: string
   readonly photoURL?: string
   readonly phoneNumbers: readonly PhoneNumber[]
+  readonly dateOfBirth?: Date;
 
   // Teacher-specific
   readonly specialization?: string
@@ -34,6 +36,7 @@ export class TeacherProfile implements IUserProfile {
     this.displayName = props.displayName.trim()
     this.photoURL = props.photoURL
     this.phoneNumbers = props.phoneNumbers ?? []
+    this.dateOfBirth = props.dateOfBirth;
     this.specialization = props.specialization
   }
 
@@ -54,11 +57,12 @@ export class TeacherProfile implements IUserProfile {
   // MUTATION
   // =====================
 
-  update(props: Partial<{ displayName: string; photoURL: string; phoneNumbers: PhoneNumber[] }>): IUserProfile {
+  update(props: Partial<{ displayName: string; photoURL: string; phoneNumbers: PhoneNumber[], dateOfBirth: Date }>): IUserProfile {
     return new TeacherProfile({
       displayName: props.displayName ?? this.displayName,
       photoURL: props.photoURL ?? this.photoURL,
       phoneNumbers: props.phoneNumbers ?? this.phoneNumbers,
+      dateOfBirth: props.dateOfBirth ?? this.dateOfBirth,
       specialization: this.specialization // Giữ nguyên các trường đặc thù
     })
   }
@@ -73,6 +77,7 @@ export class TeacherProfile implements IUserProfile {
     return (
       this.displayName === o.displayName &&
       this.photoURL === o.photoURL &&
+      this.dateOfBirth?.getTime() === o.dateOfBirth?.getTime() &&
       this.specialization === o.specialization &&
       this.phoneNumbers.length === o.phoneNumbers.length &&
       this.phoneNumbers.every((p, i) => p.equals(o.phoneNumbers[i]))
@@ -88,6 +93,7 @@ export class TeacherProfile implements IUserProfile {
       kind: this.kind.toString(),
       displayName: this.displayName,
       photoURL: this.photoURL,
+      dateOfBirth: this.dateOfBirth ? this.dateOfBirth.toISOString().split('T')[0] : undefined,
       specialization: this.specialization,
       phoneNumbers: this.phoneNumbers.map(p => p.toJSON()),
     }

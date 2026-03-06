@@ -2,7 +2,7 @@ import { Result } from '@/01-entities/shared/base/result';
 import { BranchId } from '@/01-entities/branch/value-objects/BranchId.vo';
 import { type IBranchRepository } from './ports/gateways_interface/IBranchRepository';
 import { type GetBranchDetailsInput } from './ports/input/GetBranchDetails.input';
-import { type GetBranchDetailsOutput, type WeeklyOperatingHours } from './ports/output/GetBranchDetails.output';
+import { type GetBranchDetailsOutput  } from './ports/output/GetBranchDetails.output';
 
 export class GetBranchDetailsInteractor {
   private readonly branchRepo: IBranchRepository;
@@ -37,7 +37,7 @@ export class GetBranchDetailsInteractor {
       },
       financial: branch.financial.props,
       // Pass the entire operating hours object
-      operatingHours: branch.operatingHours.props as WeeklyOperatingHours,
+      operatingHours: branch.operatingHours.props,
       updatedAt: branch.updatedAt,
     };
 
