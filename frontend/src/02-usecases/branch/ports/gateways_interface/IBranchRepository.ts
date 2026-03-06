@@ -6,5 +6,6 @@ export interface IBranchRepository {
   getById(id: BranchId): Promise<Branch | null>;
   delete(id: BranchId): Promise<void>;
   findAll(): Promise<Branch[]>;
-  exists(code: string): Promise<boolean>;
+  exists(code: string): Promise<boolean>; // Giữ nguyên
+  saveInBatch(branch: Branch, batch: any): void; // Thêm dòng này
 }

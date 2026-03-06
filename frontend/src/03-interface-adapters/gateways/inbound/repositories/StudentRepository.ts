@@ -66,4 +66,8 @@ export class StudentRepository implements IStudentRepository {
   async save(student: Student): Promise<void> {
     await this.dataSource.save(student);
   }
+
+  saveInBatch(student: Student, batch: any): void {
+    this.dataSource.saveInBatch(student, batch);
+  }
 }

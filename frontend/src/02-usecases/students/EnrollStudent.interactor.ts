@@ -4,6 +4,7 @@ import { type IClassRepository } from '@/02-usecases/class/ports/gateways_interf
 import { type IBranchRepository } from '@/02-usecases/branch/ports/gateways_interface/IBranchRepository';
 import { type EnrollStudentInput } from './ports/input/EnrollStudent.input';
 import { type EnrollStudentOutput } from './ports/output/EnrollStudent.output';
+import { db, writeBatch } from '@/shared/config/firebase'; // Import db và writeBatch
 import { Enrollment } from '@/01-entities/students/value-objects/Enrollment.vo';
 
 export class EnrollStudentInteractor {
@@ -88,12 +89,14 @@ export class EnrollStudentInteractor {
     }
     const updatedBranch = updatedBranchResult.getValue();
 
-    // 5. Persist all changes
-    await Promise.all([
-      this.studentRepo.save(updatedStudent),
-      this.classRepo.update(updatedClass),
-      this.branchRepo.save(updatedBranch),
-    ]);
+    // 5. Persist all changes using a Firestore batch write
+    const batch = writeBatch(db);
+
+    this.studentRepo.saveInBatch(updatedStudent, batch);
+    this.classRepo.updateInBatch(updatedClass, batch);
+    this.branchRepo.saveInBatch(updatedBranch, batch);
+
+    await batch.commit(); // Commit the atomic transaction
 
     return Result.ok({ success: true });
   }

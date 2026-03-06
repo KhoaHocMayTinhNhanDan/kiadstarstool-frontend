@@ -29,4 +29,8 @@ export class BranchRepository implements IBranchRepository {
   async exists(code: string): Promise<boolean> {
     return await this.dataSource.exists(code);
   }
+
+  saveInBatch(branch: Branch, batch: any): void {
+    this.dataSource.saveInBatch(branch, batch);
+  }
 }

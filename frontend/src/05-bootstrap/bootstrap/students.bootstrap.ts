@@ -18,8 +18,7 @@ export function bootstrapStudents(
   userRepository: UserRepository
 ) {
   const listStudentsByBranchInteractor = new ListStudentsByBranchInteractor(studentRepository);
-  // Giả định CreateStudentInteractor cũng cần đồng bộ sĩ số khi tạo học viên mới kèm enrollment
-  const createStudentInteractor = new CreateStudentInteractor(studentRepository, classRepository, branchRepository);
+  const createStudentInteractor = new CreateStudentInteractor(studentRepository, branchRepository);
   const getStudentDetailsInteractor = new GetStudentDetailsInteractor(
     studentRepository,
     attendanceRepository,
@@ -27,7 +26,6 @@ export function bootstrapStudents(
     branchRepository,
     userRepository
   );
-  // Interactor chuyển lớp cũng cần truy cập cả 2 branch để giảm và tăng sĩ số
   const transferStudentInteractor = new TransferStudentInteractor(studentRepository, classRepository, branchRepository);
   const enrollStudentInteractor = new EnrollStudentInteractor(studentRepository, classRepository, branchRepository);
   const studentsController = new StudentsController(

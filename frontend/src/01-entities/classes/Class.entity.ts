@@ -132,6 +132,26 @@ export class Class extends Entity<ClassId> {
     return Class.create(newProps);
   }
 
+  public removeStudent(): Result<Class> {
+    // Không cho phép số lượng < 0, nhưng không báo lỗi để đảm bảo tính tự sửa lỗi
+    const newCount = Math.max(0, this._currentStudents - 1);
+    const newProps: ClassProps = {
+      id: this.id,
+      branchId: this._branchId,
+      name: this._name,
+      code: this._code,
+      status: this._status,
+      maxStudents: this._maxStudents,
+      currentStudents: newCount,
+      startDate: this._startDate,
+      endDate: this._endDate,
+      sessions: this._sessions,
+      teacherName: this._teacherName,
+      tuition: this._tuition,
+    };
+    return Class.create(newProps);
+  }
+
   public updateInfo(props: Partial<ClassProps>): Result<void> {
     if (props.name !== undefined) this._name = props.name;
     if (props.code !== undefined) this._code = props.code;

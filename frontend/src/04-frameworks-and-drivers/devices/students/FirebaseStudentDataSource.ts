@@ -4,8 +4,9 @@ import {
   getDoc,
   getDocs,
   setDoc,
-  query,
-  where
+  query, // Giữ nguyên
+  where, // Giữ nguyên
+  WriteBatch // Thêm import này
 } from "firebase/firestore";;
 import type { IStudentDataSource, StudentDTO } from "@/03-interface-adapters/gateways/outbound/device_interfaces/students/IStudentDataSource";
 import { mapFirestoreDocs, stripId } from "@/shared/utils/firestoreMapper";
@@ -68,5 +69,14 @@ export class FirebaseStudentDataSource implements IStudentDataSource {
       console.error("[FirebaseStudentDataSource] save error:", error);
       throw new Error("student/save-failed");
     }
+  }
+
+  saveInBatch(student: Student, batch: WriteBatch): void {
+    const data = stripId(student.toJSON());
+    const branchIds = [...new Set(student.enrollments.map(e => e.branchId))];
+    const dataToSave = { ...data, branchIds };
+
+    const docRef = doc(this.collectionRef, student.id.toString());
+    batch.set(docRef, dataToSave, { merge: true });
   }
 }

@@ -5,9 +5,10 @@ import {
   getDocs,
   setDoc,
   deleteDoc,
-  query,
-  where,
-  limit
+  query, // Giữ nguyên
+  where, // Giữ nguyên
+  limit, // Giữ nguyên
+  WriteBatch // Thêm import này
 } from "firebase/firestore";
 import type { IBranchDataSource } from "@/03-interface-adapters/gateways/outbound/device_interfaces/branch/IBranchDataSource";
 import { Branch } from "@/01-entities/branch/Branch.entity";
@@ -64,6 +65,23 @@ export class FirebaseBranchDataSource implements IBranchDataSource {
       console.error("[FirebaseBranchDataSource] save error:", error);
       throw new Error("branch/save-failed");
     }
+  }
+
+  saveInBatch(branch: Branch, batch: WriteBatch): void {
+    const dataToSave = {
+      name: branch.name,
+      code: branch.code,
+      address: branch.address.props,
+      capacity: branch.capacity.props,
+      financial: branch.financial.props,
+      operatingHours: branch.operatingHours.props,
+      isActive: branch.isActive,
+      createdAt: branch.createdAt.toISOString(),
+      updatedAt: branch.updatedAt.toISOString(),
+    };
+
+    const docRef = doc(this.collectionRef, branch.id.toString());
+    batch.set(docRef, dataToSave, { merge: true });
   }
 
   async getById(id: string): Promise<Branch | null> {

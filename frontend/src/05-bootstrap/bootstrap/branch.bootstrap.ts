@@ -1,5 +1,4 @@
 import { BranchRepository } from '@/03-interface-adapters/gateways/inbound/repositories/BranchRepository';
-import { StudentRepository } from '@/03-interface-adapters/gateways/inbound/repositories/StudentRepository';
 import { CreateBranchInteractor } from '@/02-usecases/branch/CreateBranch.interactor';
 import { UpdateBranchInfoInteractor } from '@/02-usecases/branch/UpdateBranchInfo.interactor';
 import { GetBranchDetailsInteractor } from '@/02-usecases/branch/GetBranchDetails.interactor';
@@ -8,8 +7,7 @@ import { DeleteBranchInteractor } from '@/02-usecases/branch/DeleteBranch.intera
 import { BranchController } from '@/03-interface-adapters/controllers/Branch.controller';
 
 export function bootstrapBranch(
-  branchRepository: BranchRepository,
-  studentRepository: StudentRepository
+  branchRepository: BranchRepository
 ) {
   const createBranchInteractor = new CreateBranchInteractor(branchRepository);
   const updateBranchInfoInteractor = new UpdateBranchInfoInteractor(branchRepository);

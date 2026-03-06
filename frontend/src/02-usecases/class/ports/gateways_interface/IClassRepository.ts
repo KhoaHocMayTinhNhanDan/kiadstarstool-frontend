@@ -37,4 +37,6 @@ export interface IClassRepository {
    * Delete a class by ID
    */
   delete(id: string): Promise<void>;
+
+  updateInBatch(cls: Class, batch: any): void;
 }

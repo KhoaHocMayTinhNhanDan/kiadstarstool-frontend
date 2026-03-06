@@ -36,4 +36,8 @@ export class ClassRepository implements IClassRepository {
   async delete(id: string): Promise<void> {
     return this.dataSource.delete(id);
   }
+
+  updateInBatch(classEntity: Class, batch: any): void {
+    this.dataSource.saveInBatch(classEntity, batch); // DataSource có thể dùng chung saveInBatch
+  }
 }

@@ -6,4 +6,5 @@ export interface IClassDataSource {
   save(classEntity: Class): Promise<void>;
   update(classEntity: Class): Promise<void>;
   delete(id: string): Promise<void>;
+  saveInBatch(classEntity: Class, batch: any): void;
 }

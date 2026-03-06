@@ -6,7 +6,7 @@ import {
   query,
   where,
   writeBatch
-} from "firebase/firestore";;
+} from "firebase/firestore";
 import type { IAttendanceDataSource } from "@/03-interface-adapters/gateways/outbound/device_interfaces/attendance/IAttendanceDataSource";
 import { Attendance, type AttendanceJSON } from "@/01-entities/attendance/Attendance.entity";
 import { mapFirestoreDocs, stripId } from "@/shared/utils/firestoreMapper";
@@ -34,12 +34,13 @@ export class FirebaseAttendanceDataSource implements IAttendanceDataSource {
 
   async getByClassAndDate(classId: string, date: string): Promise<Attendance[]> {
     try {
-      // Lưu ý: date string format phải khớp chính xác (YYYY-MM-DD)
-      const queryDate = date.split('T')[0];
+      // FIX: Không dùng split('T')[0] vì nếu input là ISO string (UTC), nó sẽ bị lệch ngày 
+      // (ví dụ: 00:00 sáng VN là 17:00 chiều hôm trước UTC).
+      // Ta tin tưởng rằng input 'date' đã được format đúng là "YYYY-MM-DD" từ Interactor.
       const q = query(
         this.collectionRef, 
         where("courseId", "==", classId),
-        where("date", "==", queryDate)
+        where("date", "==", date)
       );
       const snapshot = await getDocs(q);
       const docs = mapFirestoreDocs<AttendanceJSON>(snapshot.docs);
@@ -52,12 +53,11 @@ export class FirebaseAttendanceDataSource implements IAttendanceDataSource {
 
   async getByStudentAndDate(studentId: string, classId: string, date: string): Promise<Attendance | null> {
     try {
-      const queryDate = date.split('T')[0];
       const q = query(
         this.collectionRef,
         where("studentId", "==", studentId),
         where("courseId", "==", classId),
-        where("date", "==", queryDate)
+        where("date", "==", date)
       );
       const snapshot = await getDocs(q);
       if (snapshot.empty) return null;

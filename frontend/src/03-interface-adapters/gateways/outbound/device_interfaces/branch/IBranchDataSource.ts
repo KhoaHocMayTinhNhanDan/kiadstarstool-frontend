@@ -9,4 +9,5 @@ export interface IBranchDataSource {
   delete(id: string): Promise<void>;
   findAll(): Promise<Branch[]>;
   exists(code: string): Promise<boolean>;
+  saveInBatch(branch: Branch, batch: any): void;
 }

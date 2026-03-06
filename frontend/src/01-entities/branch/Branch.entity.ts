@@ -76,6 +76,15 @@ export class Branch extends AuditedEntity<BranchId> {
     );
   }
 
+  removeStudent(): Result<Branch> {
+    return Result.ok(
+      this.clone({
+        capacity: this.capacity.removeStudent(),
+        updatedAt: new Date()
+      })
+    );
+  }
+
   monthlyProfit(): number {
     return this.financial.monthlyProfit();
   }

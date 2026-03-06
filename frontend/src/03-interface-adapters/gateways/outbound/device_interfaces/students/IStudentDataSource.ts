@@ -27,4 +27,5 @@ export interface IStudentDataSource {
   getById(id: string): Promise<StudentDTO | null>;
   getByBranchId(branchId: string): Promise<StudentDTO[]>;
   save(student: Student): Promise<void>;
+  saveInBatch(student: Student, batch: any): void;
 }

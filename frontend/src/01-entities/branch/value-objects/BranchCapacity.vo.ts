@@ -41,6 +41,14 @@ export class BranchCapacity extends ValueObject<BranchCapacityProps> {
     });
   }
 
+  removeStudent(): BranchCapacity {
+    if (this.props.currentStudents <= 0) return this;
+    return new BranchCapacity({
+      ...this.props,
+      currentStudents: this.props.currentStudents - 1
+    });
+  }
+
   get currentStudents(): number { return this.props.currentStudents; }
   get maxStudents(): number { return this.props.maxStudents; }
   get currentTeachers(): number { return this.props.currentTeachers; }

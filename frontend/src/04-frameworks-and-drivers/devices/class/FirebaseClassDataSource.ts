@@ -6,7 +6,8 @@ import {
   setDoc,
   deleteDoc,
   query,
-  where
+  where,
+  WriteBatch // Thêm import này
 } from "firebase/firestore";;
 import type { IClassDataSource } from "@/03-interface-adapters/gateways/outbound/device_interfaces/class/IClassDataSource";
 import { Class, type ClassProps } from "@/01-entities/classes/Class.entity";
@@ -70,10 +71,6 @@ export class FirebaseClassDataSource implements IClassDataSource {
       const json = classEntity.toJSON();
       const data = stripId(json);
 
-      // Ensure dates are Timestamps or strings, not Date objects
-      if (data.startDate  instanceof Date) data.startDate = data.startDate.toISOString();
-      if (data.endDate instanceof Date) data.endDate = data.endDate.toISOString();
-
       const docRef = doc(this.collectionRef, classEntity.id.toString());
       await setDoc(docRef, data, { merge: true });
     } catch (error) {
@@ -105,6 +102,15 @@ export class FirebaseClassDataSource implements IClassDataSource {
   async update(classEntity: Class): Promise<void> {
     return this.save(classEntity);
   }
+
+  saveInBatch(classEntity: Class, batch: WriteBatch): void {
+    const json = classEntity.toJSON();
+    const data = stripId(json);
+
+    const docRef = doc(this.collectionRef, classEntity.id.toString());
+    batch.set(docRef, data, { merge: true });
+  }
+
 
   async delete(id: string): Promise<void> {
     try {

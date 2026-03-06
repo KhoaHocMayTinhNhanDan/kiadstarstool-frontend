@@ -5,4 +5,5 @@ export interface IStudentRepository {
   getById(id: string): Promise<Student | null>;
   getByBranchId(branchId: string): Promise<Student[]>;
   save(student: Student): Promise<void>;
+  saveInBatch(student: Student, batch: any): void;
 }
