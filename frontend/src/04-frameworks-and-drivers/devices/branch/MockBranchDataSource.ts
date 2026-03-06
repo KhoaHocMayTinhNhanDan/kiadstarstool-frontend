@@ -186,4 +186,30 @@ export class MockBranchDataSource implements IBranchDataSource {
     const branchStore = mockDatabase.getCollection<any>('branches');
     return branchStore.some(b => b.code === code);
   }
+
+  saveInBatch(branch: Branch, batch: any): void {
+    console.log('[MockBranchDataSource] Saving branch in batch:', branch.id.toString());
+    const branchStore = mockDatabase.getCollection<any>('branches');
+    const index = branchStore.findIndex(b => b.id === branch.id.toString());
+
+    const dataToSave = {
+      id: branch.id.toString(),
+      name: branch.name,
+      code: branch.code,
+      address: getVOProps(branch.address),
+      capacity: getVOProps(branch.capacity),
+      financial: getVOProps(branch.financial),
+      operatingHours: getVOProps(branch.operatingHours),
+      isActive: branch.isActive,
+      createdAt: branch.createdAt,
+      updatedAt: branch.updatedAt,
+    };
+
+    if (index > -1) {
+      branchStore[index] = dataToSave;
+    } else {
+      branchStore.push(dataToSave);
+    }
+    mockDatabase.persist();
+  }
 }

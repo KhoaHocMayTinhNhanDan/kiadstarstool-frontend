@@ -12,6 +12,7 @@ export const CreateStudentPage = () => {
   const { toast } = useToast();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [phones, setPhones] = useState<{ number: string; note: string }[]>([{ number: '', note: 'Di động' }]);
   const [branchId, setBranchId] = useState('');
   const [branches, setBranches] = useState<any[]>([]);
@@ -65,6 +66,7 @@ export const CreateStudentPage = () => {
         name,
         email,
         phone: formattedPhone,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
         branchId,
       });
 
@@ -105,6 +107,16 @@ export const CreateStudentPage = () => {
             <Box display="flex" flexDirection="column" gap="md">
               <Box><Text as="label" htmlFor="student-name" weight="semibold" mb="xs" sx={{ display: 'block' }}>Họ và tên <Text as="span" color="DANGER">*</Text></Text><Input id="student-name" value={name} onChange={(e) => setName(e.target.value)} required /></Box>
               <Box><Text as="label" htmlFor="student-email" weight="semibold" mb="xs" sx={{ display: 'block' }}>Email <Text as="span" color="DANGER">*</Text></Text><Input id="student-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></Box>
+              
+              <Box>
+                <Text as="label" htmlFor="student-dob" weight="semibold" mb="xs" sx={{ display: 'block' }}>Ngày sinh</Text>
+                <Input 
+                  id="student-dob" 
+                  type="date" 
+                  value={dateOfBirth} 
+                  onChange={(e) => setDateOfBirth(e.target.value)} 
+                />
+              </Box>
               
               {/* Dynamic Phone List */}
               <Box>

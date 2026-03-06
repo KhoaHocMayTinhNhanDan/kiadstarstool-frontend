@@ -8,7 +8,7 @@ import {
   query,
   where,
   WriteBatch // Thêm import này
-} from "firebase/firestore";;
+} from "firebase/firestore";
 import type { IClassDataSource } from "@/03-interface-adapters/gateways/outbound/device_interfaces/class/IClassDataSource";
 import { Class, type ClassProps } from "@/01-entities/classes/Class.entity";
 import { mapFirestoreDocs, stripId } from "@/shared/utils/firestoreMapper";
@@ -68,7 +68,8 @@ export class FirebaseClassDataSource implements IClassDataSource {
   async save(classEntity: Class): Promise<void> {
     try {
       // Class entity toJSON might include id, strip it for firestore data
-      const json = classEntity.toJSON();
+      // FIX: Remove undefined fields (like endDate)
+      const json = JSON.parse(JSON.stringify(classEntity.toJSON()));
       const data = stripId(json);
 
       const docRef = doc(this.collectionRef, classEntity.id.toString());
@@ -104,7 +105,8 @@ export class FirebaseClassDataSource implements IClassDataSource {
   }
 
   saveInBatch(classEntity: Class, batch: WriteBatch): void {
-    const json = classEntity.toJSON();
+    // FIX: Remove undefined fields
+    const json = JSON.parse(JSON.stringify(classEntity.toJSON()));
     const data = stripId(json);
 
     const docRef = doc(this.collectionRef, classEntity.id.toString());

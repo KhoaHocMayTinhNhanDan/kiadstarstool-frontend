@@ -281,4 +281,29 @@ export class MockClassDataSource implements IClassDataSource {
     classStore = classStore.filter(c => c.id !== id);
     mockDatabase.setCollection('classes', classStore);
   }
+
+  saveInBatch(classEntity: Class, batch: any): void {
+    console.log('[MockClassDataSource] Saving class in batch:', classEntity.id.toString());
+    const classStore = mockDatabase.getCollection<any>('classes');
+    const index = classStore.findIndex(c => c.id === classEntity.id.toString());
+
+    const dataToSave = {
+      id: classEntity.id.toString(),
+      branchId: classEntity.branchId.toString(),
+      name: classEntity.name,
+      code: classEntity.code,
+      status: classEntity.status,
+      maxStudents: classEntity.maxStudents,
+      currentStudents: classEntity.currentStudents,
+      startDate: classEntity.startDate,
+      endDate: classEntity.endDate,
+      sessions: classEntity.sessions,
+      teacherName: classEntity.teacherName,
+      tuition: classEntity.tuition
+    };
+
+    if (index > -1) classStore[index] = dataToSave;
+    else classStore.push(dataToSave);
+    mockDatabase.persist();
+  }
 }

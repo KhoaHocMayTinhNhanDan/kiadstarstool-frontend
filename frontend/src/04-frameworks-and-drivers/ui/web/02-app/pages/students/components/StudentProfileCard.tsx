@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react';
-import { Mail, Phone, Calendar, MapPin, User } from 'lucide-react';
+import { Mail, Phone, Calendar, MapPin, User, Cake } from 'lucide-react';
 import { Box, Text, Icon } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { type GetStudentDetailsOutput } from '@/02-usecases/students/ports/output/GetStudentDetails.output';
@@ -11,6 +11,14 @@ interface StudentProfileCardProps {
 }
 
 export const StudentProfileCard = ({ student }: StudentProfileCardProps) => {
+  const getAge = (dobString?: string) => {
+    if (!dobString) return null;
+    const dob = new Date(dobString);
+    const diff = Date.now() - dob.getTime();
+    const ageDate = new Date(diff);
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+  };
+
   return (
     <Box 
       p="xl" 
@@ -67,6 +75,15 @@ export const StudentProfileCard = ({ student }: StudentProfileCardProps) => {
           } 
         />
         <InfoItem icon={<MapPin />} label="Chi nhánh" value={student.branchName || 'Chưa phân lớp'} />
+        <InfoItem 
+          icon={<Cake />} 
+          label="Ngày sinh" 
+          value={
+            student.dateOfBirth 
+              ? `${new Date(student.dateOfBirth).toLocaleDateString('vi-VN')} (${getAge(student.dateOfBirth)} tuổi)` 
+              : 'Chưa cập nhật'
+          } 
+        />
         <InfoItem 
           icon={<Calendar />} 
           label="Ngày tham gia" 

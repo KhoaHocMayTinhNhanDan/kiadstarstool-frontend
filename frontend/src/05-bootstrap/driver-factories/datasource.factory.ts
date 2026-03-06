@@ -19,7 +19,7 @@ import { FirebaseClassDataSource } from '@/04-frameworks-and-drivers/devices/cla
 import { FirebaseAttendanceDataSource } from '@/04-frameworks-and-drivers/devices/attendance/FirebaseAttendanceDataSource';
 import { FirebaseBranchDataSource } from '@/04-frameworks-and-drivers/devices/branch/FirebaseBranchDataSource';
 import { FirebaseTransactionDataSource } from '@/04-frameworks-and-drivers/devices/transaction/FirebaseTransactionDataSource';
-import { db } from '@/shared/config/firebase.ts'
+import { db } from '@/shared/config/firebase'
 
 // Interfaces
 import type { IActivityDataSource } from '@/03-interface-adapters/gateways/outbound/device_interfaces/activity/IActivityDataSource';

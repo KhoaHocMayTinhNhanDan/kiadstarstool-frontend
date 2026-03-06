@@ -7,7 +7,7 @@ import {
   query, // Giữ nguyên
   where, // Giữ nguyên
   WriteBatch // Thêm import này
-} from "firebase/firestore";;
+} from "firebase/firestore";
 import type { IStudentDataSource, StudentDTO } from "@/03-interface-adapters/gateways/outbound/device_interfaces/students/IStudentDataSource";
 import { mapFirestoreDocs, stripId } from "@/shared/utils/firestoreMapper";
 import { Student } from "@/01-entities/students/Student.entity";
@@ -57,19 +57,35 @@ export class FirebaseStudentDataSource implements IStudentDataSource {
 
   async save(student: Student): Promise<void> {
     try {
-      const dataToSave = stripId(student.toJSON());
+      // FIX: Loại bỏ các trường undefined (như dateOfBirth, phone) vì Firestore không hỗ trợ
+      const sanitizedData = JSON.parse(JSON.stringify(student.toJSON()));
+      const dataToSave = stripId(sanitizedData);
       const branchIds = [...new Set(student.enrollments.map(e => e.branchId))];
+
+      // --- DEBUG LOG: Kiểm tra dữ liệu trước khi gửi ---
+      console.log('[FirebaseStudentDataSource] Saving student:', {
+        id: student.id.toString(),
+        branchIds: branchIds,
+        data: dataToSave
+      });
+
+      if (branchIds.length === 0) {
+        console.warn('[FirebaseStudentDataSource] ⚠️ WARNING: branchIds is empty! This will likely cause a Permission Error.');
+      }
+      // ------------------------------------------------
 
       const docRef = doc(this.collectionRef, student.id.toString());
       await setDoc(docRef, { ...dataToSave, branchIds }, { merge: true });
     } catch (error) {
-      console.error("[FirebaseStudentDataSource] save error:", error);
+      console.error("[FirebaseStudentDataSource] save error details:", error);
       throw new Error("student/save-failed");
     }
   }
 
   saveInBatch(student: Student, batch: WriteBatch): void {
-    const dataToSave = stripId(student.toJSON());
+    // FIX: Loại bỏ các trường undefined
+    const sanitizedData = JSON.parse(JSON.stringify(student.toJSON()));
+    const dataToSave = stripId(sanitizedData);
     const branchIds = [...new Set(student.enrollments.map(e => e.branchId))];
 
     const docRef = doc(this.collectionRef, student.id.toString());
