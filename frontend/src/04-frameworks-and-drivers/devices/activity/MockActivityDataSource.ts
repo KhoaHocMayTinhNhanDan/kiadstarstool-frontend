@@ -48,15 +48,33 @@ export class MockActivityDataSource implements IActivityDataSource {
   }
 
   async save(activity: ActivityJSON): Promise<void> {
+    if (!activity.userId) {
+      throw new Error("activity/userId-required");
+    }
     await new Promise(resolve => setTimeout(resolve, 100));
     const activities = mockDatabase.getCollection<ActivityJSON>('activities');
-    activities.push(activity);
+
+    // Bắt chước hành vi của Firebase: không lưu 'id' của entity và thêm timestamp phía "server"
+    const { id, ...data } = activity;
+
+    const newActivity: ActivityJSON = {
+      ...data,
+      id: `mock-activity-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, // Mock cần tự tạo ID duy nhất
+      timestamp: new Date().toISOString() // Bắt chước serverTimestamp
+    };
+
+    activities.push(newActivity);
     mockDatabase.persist();
   }
 
   async findByUserId(userId: string): Promise<ActivityJSON[]> {
+    if (!userId) {
+      throw new Error("activity/userId-required");
+    }
     await new Promise(resolve => setTimeout(resolve, 300));
     const activities = mockDatabase.getCollection<ActivityJSON>('activities');
-    return activities.filter(a => a.userId === userId);
+    return activities.filter(a => a.userId === userId)
+      .sort((a, b) => new Date(b.timestamp as string).getTime() - new Date(a.timestamp as string).getTime())
+      .slice(0, 20);
   }
 }

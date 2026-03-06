@@ -72,6 +72,26 @@ export class Student extends AggregateRoot<Identifier> {
     return Result.ok();
   }
 
+  public addEnrollment(enrollment: Enrollment): Result<Student> {
+    const isAlreadyEnrolled = this._enrollments.some(
+      e => e.classId === enrollment.classId && e.status === 'active'
+    );
+    if (isAlreadyEnrolled) {
+      return Result.fail<Student>('Student is already actively enrolled in this class.');
+    }
+
+    const newEnrollments = [...this._enrollments, enrollment];
+    
+    return Student.create({
+        id: this.id,
+        name: this._name,
+        email: this._email,
+        phone: this._phone,
+        status: this._status,
+        enrollments: newEnrollments
+    });
+  }
+
   /**
    * Chuyển lớp cho học viên.
    */

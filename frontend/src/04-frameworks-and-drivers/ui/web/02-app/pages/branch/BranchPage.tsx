@@ -7,6 +7,8 @@ import { type ListBranchesOutput } from '@/02-usecases/branch/ports/output/ListB
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { Plus, MapPin, Users, ChevronRight } from 'lucide-react';
 import { useI18n } from '@/shared/i18n/useI18n';
+import { PermissionGuard } from '../../permissions/PermissionGuard';
+import { PERMISSIONS, type PermissionCode } from '@/shared/constants/authorization';
 
 export const BranchPage = () => {
   const navigate = useNavigate();
@@ -16,11 +18,17 @@ export const BranchPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Cờ để kiểm tra xem component có còn được mount hay không
+    let isMounted = true;
+
     const fetchBranches = async () => {
       setIsLoading(true);
       try {
         const controller = AppContext.getBranchController();
         const result = await controller.listBranches({});
+
+        // Nếu component đã bị unmount trong lúc chờ fetch, không làm gì cả
+        if (!isMounted) return;
 
         if (result.isSuccess) {
           setBranches(result.getValue());
@@ -28,21 +36,25 @@ export const BranchPage = () => {
           toast.error(result.getErrorValue() as string);
         }
       } catch (error) {
-        toast.error('Failed to load branches');
+        // Chỉ hiển thị toast nếu component vẫn còn mount
+        if (isMounted) {
+          toast.error('Failed to load branches');
+        }
       } finally {
-        setIsLoading(false);
+        // Chỉ cập nhật state nếu component vẫn còn mount
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchBranches();
-  }, []);
 
-  const formatAddress = (address: any) => {
-    if (!address) return '';
-    // Handle both Entity VO (with props) and plain DTO
-    const data = address.props || address;
-    return [data.street, data.ward, data.district, data.city].filter(Boolean).join(', ');
-  };
+    // Hàm dọn dẹp: sẽ được gọi khi component bị unmount
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <Box p="xl" maxWidth="1200px" mx="auto">
@@ -51,12 +63,14 @@ export const BranchPage = () => {
           <Text as="h1" variant="heading-xl" weight="bold">{t('branch.list_title')}</Text>
           <Text color="SECONDARY">{t('branch.list_subtitle')}</Text>
         </Box>
-        <Button 
-          leftIcon={<Icon><Plus /></Icon>} 
-          onClick={() => navigate('/branches/new')}
-        >
-          {t('branch.create_button')}
-        </Button>
+        <PermissionGuard required={PERMISSIONS.BRANCHES_CREATE as PermissionCode}>
+          <Button 
+            leftIcon={<Icon><Plus /></Icon>} 
+            onClick={() => navigate('/branches/new')}
+          >
+            {t('branch.create_button')}
+          </Button>
+        </PermissionGuard>
       </Box>
 
       {isLoading ? (
@@ -95,7 +109,7 @@ export const BranchPage = () => {
               <Box display="flex" flexDirection="column" gap="sm">
                 <Box display="flex" gap="sm" alignItems="center">
                   <Icon size="sm" color="SECONDARY"><MapPin /></Icon>
-                  <Text size="sm" color="SECONDARY" truncate>{formatAddress(branch.address)}</Text>
+                  <Text size="sm" color="SECONDARY" truncate>{branch.address}</Text>
                 </Box>
                 <Box display="flex" gap="sm" alignItems="center">
                   <Icon size="sm" color="SECONDARY"><Users /></Icon>

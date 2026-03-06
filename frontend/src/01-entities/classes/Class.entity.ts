@@ -107,6 +107,31 @@ export class Class extends Entity<ClassId> {
     }));
   }
 
+  public hasCapacity(): boolean {
+    return this._currentStudents < this._maxStudents;
+  }
+
+  public addStudent(): Result<Class> {
+    if (!this.hasCapacity()) {
+      return Result.fail<Class>('Class is already full');
+    }
+    const newProps: ClassProps = {
+      id: this.id,
+      branchId: this._branchId,
+      name: this._name,
+      code: this._code,
+      status: this._status,
+      maxStudents: this._maxStudents,
+      currentStudents: this._currentStudents + 1,
+      startDate: this._startDate,
+      endDate: this._endDate,
+      sessions: this._sessions,
+      teacherName: this._teacherName,
+      tuition: this._tuition,
+    };
+    return Class.create(newProps);
+  }
+
   public updateInfo(props: Partial<ClassProps>): Result<void> {
     if (props.name !== undefined) this._name = props.name;
     if (props.code !== undefined) this._code = props.code;

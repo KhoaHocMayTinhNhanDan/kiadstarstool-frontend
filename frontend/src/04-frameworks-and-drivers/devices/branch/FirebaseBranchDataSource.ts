@@ -38,8 +38,8 @@ export class FirebaseBranchDataSource implements IBranchDataSource {
       financial: BranchFinancial.create(data.financial),
       operatingHours: BranchOperatingHours.create(data.operatingHours),
       isActive: data.isActive,
-      createdAt: data.createdAt ? new Date(data.createdAt) : undefined,
-      updatedAt: data.updatedAt ? new Date(data.updatedAt) : undefined,
+      createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt ? new Date(data.createdAt) : undefined),
+      updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : (data.updatedAt ? new Date(data.updatedAt) : undefined),
     }).getValue();
   }
 
@@ -79,7 +79,14 @@ export class FirebaseBranchDataSource implements IBranchDataSource {
   async findAll(): Promise<Branch[]> {
     const snapshot = await getDocs(this.collectionRef);
     const docs = mapFirestoreDocs<any>(snapshot.docs);
-    return docs.map(this.hydrate);
+    return docs.map(d => {
+      try {
+        return this.hydrate(d);
+      } catch (error) {
+        console.warn(`[FirebaseBranchDataSource] Skipping invalid branch ${d.id}:`, error);
+        return null;
+      }
+    }).filter((b): b is Branch => b !== null);
   }
 
   async exists(code: string): Promise<boolean> {

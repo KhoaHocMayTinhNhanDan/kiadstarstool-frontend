@@ -14,7 +14,7 @@ export function bootstrapBranch(
   const createBranchInteractor = new CreateBranchInteractor(branchRepository);
   const updateBranchInfoInteractor = new UpdateBranchInfoInteractor(branchRepository);
   const getBranchDetailsInteractor = new GetBranchDetailsInteractor(branchRepository);
-  const listBranchesInteractor = new ListBranchesInteractor(branchRepository, studentRepository);
+  const listBranchesInteractor = new ListBranchesInteractor(branchRepository);
   const deleteBranchInteractor = new DeleteBranchInteractor(branchRepository);
 
   const branchController = new BranchController(

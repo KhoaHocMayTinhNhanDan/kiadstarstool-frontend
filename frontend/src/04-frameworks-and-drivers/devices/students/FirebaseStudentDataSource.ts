@@ -22,19 +22,17 @@ export class FirebaseStudentDataSource implements IStudentDataSource {
   }
   async getByBranchId(branchId: string): Promise<StudentDTO[]> {
     try {
-      // Lưu ý: Firestore không hỗ trợ query mảng object (enrollments) trực tiếp một cách hiệu quả
-      // trừ khi cấu trúc dữ liệu được tối ưu hóa (ví dụ: thêm trường branchIds: string[]).
-      // Ở đây ta tạm thời fetch all và filter client-side để đảm bảo logic đúng với Mock.
-      // TODO: Tối ưu hóa bằng cách thêm trường 'branchIds' vào document student.
-      
-      const snapshot = await getDocs(this.collectionRef);
-      const students = mapFirestoreDocs<StudentDTO>(snapshot.docs);
+      if (!branchId) {
+        // Nếu không có branchId, trả về mảng rỗng để tránh query toàn bộ collection,
+        // vốn không hiệu quả và thường bị chặn bởi security rules.
+        return [];
+      }
 
-      if (!branchId) return students;
-
-      return students.filter(s => 
-        s.enrollments && s.enrollments.some(e => e.branchId === branchId)
-      );
+      // Tối ưu: Sử dụng query với 'array-contains' trên trường 'branchIds' đã được denormalize.
+      // Điều này hiệu quả hơn và tương thích với các quy tắc bảo mật của Firestore, giải quyết lỗi "Missing or insufficient permissions".
+      const q = query(this.collectionRef, where("branchIds", "array-contains", branchId));
+      const snapshot = await getDocs(q);
+      return mapFirestoreDocs<StudentDTO>(snapshot.docs);
     } catch (error) {
       console.error("[FirebaseStudentDataSource] getByBranchId error:", error);
       throw new Error("student/fetch-failed");
@@ -59,8 +57,13 @@ export class FirebaseStudentDataSource implements IStudentDataSource {
   async save(student: Student): Promise<void> {
     try {
       const data = stripId(student.toJSON());
+      
+      // TỰ ĐỘNG THÊM TRƯỜNG branchIds ĐỂ HỖ TRỢ QUERY SAU NÀY
+      const branchIds = [...new Set(student.enrollments.map(e => e.branchId))];
+      const dataToSave = { ...data, branchIds };
+
       const docRef = doc(this.collectionRef, student.id.toString());
-      await setDoc(docRef, data, { merge: true });
+      await setDoc(docRef, dataToSave, { merge: true });
     } catch (error) {
       console.error("[FirebaseStudentDataSource] save error:", error);
       throw new Error("student/save-failed");
