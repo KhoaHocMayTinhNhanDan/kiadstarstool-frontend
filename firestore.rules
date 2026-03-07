@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: Kiểm tra đã đăng nhập chưa
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper: Kiểm tra có phải Admin không
+    function isAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.roles != null && 
+             'admin' in request.auth.token.roles;
+    }
+
+    // --- Users Collection ---
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // --- Branches Collection ---
+    match /branches/{branchId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // --- Students Collection ---
+    match /students/{studentId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // --- Classes Collection ---
+    match /classes/{classId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // --- Attendance Collection ---
+    match /attendances/{attendanceId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // --- Transactions Collection ---
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // --- Activities Collection ---
+    match /activities/{activityId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+  }
+}

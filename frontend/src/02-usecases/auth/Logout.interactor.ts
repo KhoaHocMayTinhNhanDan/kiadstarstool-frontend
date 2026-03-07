@@ -15,23 +15,36 @@ export class LogoutInteractor {
 
   async execute(input: LogoutInput): Promise<Result<LogoutOutput>> {
     try {
-      // Logic nghiệp vụ: Gọi repository để thực hiện đăng xuất
-      // Có thể mở rộng để xử lý input.revokeAllSessions nếu backend hỗ trợ
-      await this.authRepo.logout();
+      // FIX: Ghi log TRƯỚC KHI logout để đảm bảo user còn session (authenticated)
+      // Firestore Security Rules yêu cầu 'isAuthenticated' để cho phép ghi
+      if (input.userId) {
+        await this.recordActivityInteractor.execute({
+          userId: input.userId,
+          type: 'auth_logout',
+          description: 'Đăng xuất khỏi hệ thống',
+        });
+      }
 
-      // Ghi lại lịch sử hoạt động
-      await this.recordActivityInteractor.execute({
-        userId: input.userId,
-        type: 'auth_logout',
-        description: 'Đăng xuất khỏi hệ thống',
-      });
+      // Sau khi ghi log thành công (hoặc thất bại và catch bên dưới), mới thực hiện logout
+      await this.authRepo.logout();
 
       return Result.ok<LogoutOutput>({
         success: true
       });
     } catch (error: any) {
-      // Log error nếu cần thiết (thường là qua một logger service được inject vào)
-      return Result.fail<LogoutOutput>(error.message || 'Logout failed unexpectedly');
+      console.error('[LogoutInteractor] Error during logout process:', error);
+      
+      // Fallback: Ngay cả khi ghi log lỗi, vẫn BẮT BUỘC phải logout user để tránh kẹt session
+      try {
+        await this.authRepo.logout();
+      } catch (e) {
+        // Ignore error here, just ensure we tried
+      }
+
+      // Luôn trả về success để UI chuyển hướng về trang Login
+      return Result.ok<LogoutOutput>({
+        success: true
+      });
     }
   }
 }
