@@ -42,9 +42,6 @@ export class Student extends AggregateRoot<Identifier> {
     if (!props.name) {
       return Result.fail<Student>('Student name is required');
     }
-    if (!props.email) {
-      return Result.fail<Student>('Student email is required');
-    }
     
     return Result.ok<Student>(new Student({
       ...props,

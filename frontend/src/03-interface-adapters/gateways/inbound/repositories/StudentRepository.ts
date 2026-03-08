@@ -1,39 +1,34 @@
 import { Student } from '@/01-entities/students/Student.entity';
-import { Enrollment } from '@/01-entities/students/value-objects/Enrollment.vo';
-import { type IStudentDataSource, type StudentDTO, type StudentEnrollmentDTO } from '@/03-interface-adapters/gateways/outbound/device_interfaces/students/IStudentDataSource';
-import { type IStudentRepository } from '@/02-usecases/students/ports/gateways_interface/IStudentRepository';
 import { Identifier } from '@/01-entities/shared/value-objects/Identifier.vo';
+import { Enrollment } from '@/01-entities/students/value-objects/Enrollment.vo';
+import { type IStudentRepository } from '@/02-usecases/students/ports/gateways_interface/IStudentRepository';
+import { type IStudentDataSource, type StudentDTO } from '../../outbound/device_interfaces/students/IStudentDataSource';
+import { type IPendingTuitionDataSource } from '../../outbound/device_interfaces/finance/IPendingTuitionDataSource';
 
 export class StudentRepository implements IStudentRepository {
-  private readonly dataSource: IStudentDataSource;
+  public readonly dataSource: IStudentDataSource;
 
   constructor(dataSource: IStudentDataSource) {
     this.dataSource = dataSource;
   }
 
-  private hydrate(dto: StudentDTO): Student {
-    const enrollments = (dto.enrollments || [])
-      .map((e: StudentEnrollmentDTO) => {
-        const enrollmentResult = Enrollment.create({
-          branchId: e.branchId,
-          classId: e.classId,
-          status: e.status as any,
-          joinedDate: new Date(e.joinedDate),
-          endDate: e.endDate ? new Date(e.endDate) : undefined,
-          tuitionAmount: e.tuitionAmount,
-          paidAmount: e.paidAmount,
-          paymentStatus: e.paymentStatus as any,
-          prepaidSessions: e.prepaidSessions,
-          usedSessions: e.usedSessions,
-        });
-
-        if (enrollmentResult.isFailure) {
-          console.error(`Could not hydrate enrollment for student ${dto.id}:`, enrollmentResult.getErrorValue());
-          return null; // Bỏ qua enrollment bị lỗi
-        }
-        return enrollmentResult.getValue();
-      })
-      .filter((e: Enrollment | null): e is Enrollment => e !== null); // Lọc bỏ các giá trị null
+  private toDomain(dto: StudentDTO): Student {
+    const enrollments = (dto.enrollments || []).map(e => {
+      const enrollmentResult = Enrollment.create({
+        branchId: e.branchId,
+        classId: e.classId,
+        status: e.status as any,
+        joinedDate: new Date(e.joinedDate),
+        endDate: e.endDate ? new Date(e.endDate) : undefined,
+        tuitionAmount: e.tuitionAmount,
+        paidAmount: e.paidAmount,
+        paymentStatus: e.paymentStatus as any,
+        prepaidSessions: e.prepaidSessions,
+        usedSessions: e.usedSessions
+      });
+      // Trong repository, ta có thể tin tưởng dữ liệu từ DB là hợp lệ
+      return enrollmentResult.getValue();
+    });
 
     const studentResult = Student.create({
       id: Identifier.create(dto.id),
@@ -45,23 +40,27 @@ export class StudentRepository implements IStudentRepository {
       enrollments: enrollments,
     });
 
-    if (studentResult.isFailure) {
-      // Trong ứng dụng thực tế, bạn có thể throw lỗi hoặc trả về một giá trị mặc định an toàn
-      throw new Error(`Could not hydrate student ${dto.id}: ${studentResult.getErrorValue()}`);
-    }
-
     return studentResult.getValue();
   }
 
   async getById(id: string): Promise<Student | null> {
-    const dto = await this.dataSource.getById(id);
-    if (!dto) return null;
-    return this.hydrate(dto);
+    try {
+      const dto = await this.dataSource.getById(id);
+      return dto ? this.toDomain(dto) : null;
+    } catch (error) {
+      console.error("[StudentRepository] getById error:", error);
+      throw new Error("student/repo-fetch-failed");
+    }
   }
 
-  async getByBranchId(branchId: string): Promise<Student[]> {
-    const dtos = await this.dataSource.getByBranchId(branchId);
-    return dtos.map((dto: StudentDTO) => this.hydrate(dto));
+  async getByBranchId(branchId: string, limit?: number, lastId?: string, keyword?: string): Promise<Student[]> {
+    try {
+      const dtos = await this.dataSource.getByBranchId(branchId, limit, lastId, keyword);
+      return dtos.map(dto => this.toDomain(dto));
+    } catch (error) {
+      console.error("[StudentRepository] getByBranchId error:", error);
+      throw new Error("student/repo-fetch-failed");
+    }
   }
 
   async save(student: Student): Promise<void> {
@@ -70,5 +69,16 @@ export class StudentRepository implements IStudentRepository {
 
   saveInBatch(student: Student, batch: any): void {
     this.dataSource.saveInBatch(student, batch);
+  }
+
+  async getStudentsWithPendingTuition(branchId?: string): Promise<Student[]> {
+    const pendingSource = this.dataSource as unknown as IPendingTuitionDataSource;
+    
+    if (typeof pendingSource.getPendingTuitions !== 'function') {
+      return [];
+    }
+
+    const dtos = await pendingSource.getPendingTuitions(branchId);
+    return dtos.map(dto => this.toDomain(dto));
   }
 }

@@ -79,7 +79,7 @@ export const MainLayout = () => {
     { id: 'students', label: 'Học viên', href: '/students', icon: <Icon size="sm"><GraduationCap /></Icon> },
     { id: 'attendance', label: 'Điểm danh', href: '/attendance', icon: <Icon size="sm"><ClipboardCheck /></Icon>, badge: '12' },
     { id: 'finance', label: 'Tài chính', href: '/finance', icon: <Icon size="sm"><DollarSign /></Icon> },
-    { id: 'users', label: 'Người dùng', href: '/users', icon: <Icon size="sm"><Users /></Icon> },
+    { id: 'users', label: 'Người dùng hệ thống', href: '/users', icon: <Icon size="sm"><Users /></Icon> },
     { id: 'settings', label: 'Cài đặt', href: '/settings/theme', icon: <Icon size="sm"><Settings /></Icon> },
   ];
 

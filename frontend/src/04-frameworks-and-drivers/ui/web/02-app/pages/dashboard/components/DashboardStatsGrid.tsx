@@ -29,43 +29,60 @@ type StatData = {
 interface DashboardStatsGridProps {
   pageData: any;
   isLoading: boolean;
+  timeRange: 'today' | 'day' | 'week' | 'month' | 'year' | 'custom';
+  customDayCount?: number;
 }
 
-export const DashboardStatsGrid = ({ pageData, isLoading }: DashboardStatsGridProps) => {
+export const DashboardStatsGrid = ({ pageData, isLoading, timeRange, customDayCount }: DashboardStatsGridProps) => {
   const { t } = useI18n();
   const navigate = useNavigate();
 
   const stats: StatData[] = useMemo(() => {
     if (!pageData) return [];
 
+    let trendLabel = t('dashboard.from_last_month');
+    if (timeRange === 'custom') {
+      trendLabel = customDayCount 
+        ? t('dashboard.from_x_days_ago', { count: customDayCount }) 
+        : t('dashboard.from_previous_period');
+    } else if (timeRange === 'today' || timeRange === 'day') {
+      trendLabel = t('dashboard.from_yesterday');
+    } else if (timeRange === 'week') {
+      trendLabel = t('dashboard.from_last_week');
+    } else if (timeRange === 'month') {
+      trendLabel = t('dashboard.from_last_month');
+    } else if (timeRange === 'year') {
+      trendLabel = t('dashboard.from_last_year');
+    }
+
     return [
       {
         title: t('dashboard.total_revenue'),
-        value: `$${pageData.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        value: `${pageData.totalRevenue.toLocaleString('vi-VN')} đ`,
         icon: <DollarSign />,
         accentColor: 'success' as const,
-        trend: { value: 20.1, label: t('dashboard.from_last_month') },
+        trend: { value: pageData.revenueTrend, label: trendLabel },
       },
       {
         title: t('dashboard.subscriptions'),
         value: `+${pageData.totalSubs.toLocaleString()}`,
         icon: <Users />,
         accentColor: 'primary' as const,
-        trend: { value: 180.1, label: t('dashboard.from_last_month') },
+        trend: { value: pageData.subsTrend, label: trendLabel },
       },
       {
         title: t('dashboard.sales'),
         value: `+${pageData.totalSales.toLocaleString()}`,
         icon: <ShoppingCart />,
         accentColor: 'info' as const,
-        trend: { value: 19, label: t('dashboard.from_last_month') },
+        trend: { value: pageData.salesTrend, label: trendLabel },
       },
       {
         title: t('dashboard.active_now'),
         value: `+${pageData.totalActive.toLocaleString()}`,
         icon: <Activity />,
         accentColor: 'warning' as const,
-        description: t('dashboard.users_on_platform'),
+        description: t('dashboard.students_count'),
       },
       {
         title: t('dashboard.branches'),
@@ -84,7 +101,7 @@ export const DashboardStatsGrid = ({ pageData, isLoading }: DashboardStatsGridPr
         onClick: () => navigate('/attendance'),
       }
     ];
-  }, [pageData, t, navigate]);
+  }, [pageData, t, navigate, timeRange, customDayCount]);
 
   return (
     <Box 

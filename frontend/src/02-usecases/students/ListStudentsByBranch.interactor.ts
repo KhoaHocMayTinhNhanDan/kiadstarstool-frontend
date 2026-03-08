@@ -11,7 +11,12 @@ export class ListStudentsByBranchInteractor {
   }
 
   async execute(input: ListStudentsByBranchInput): Promise<Result<ListStudentsByBranchOutput>> {
-    const students = await this.studentRepo.getByBranchId(input.branchId);
+    const students = await this.studentRepo.getByBranchId(
+      input.branchId,
+      input.limit,
+      input.lastId,
+      input.keyword
+    );
     
     // Map Entity -> DTO
     const output = students.map(student => {
@@ -45,6 +50,7 @@ export class ListStudentsByBranchInteractor {
           endDate: e.endDate?.toISOString(),
           tuitionAmount: e.tuitionAmount,
           paymentStatus: e.paymentStatus,
+          paidAmount: e.paidAmount,
           prepaidSessions: e.prepaidSessions,
           usedSessions: e.usedSessions
         }))

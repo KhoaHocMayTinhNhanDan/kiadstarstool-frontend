@@ -24,7 +24,11 @@ export class FirebaseTransactionDataSource implements ITransactionDataSource {
       // Transaction entity toJSON or raw object
       // Assuming transaction has an id property
       const id = transaction.id?.toString() || transaction.id;
-      const data = stripId(transaction);
+      const rawData = stripId(transaction);
+      
+      // FIX: Firestore không cho phép lưu giá trị `undefined`.
+      // Dùng JSON.stringify để loại bỏ các trường có giá trị undefined trước khi lưu.
+      const data = JSON.parse(JSON.stringify(rawData));
       
       // Ensure dates are strings if they aren't already
       if (data.transactionDate instanceof Date) data.transactionDate = data.transactionDate.toISOString();
@@ -66,7 +70,16 @@ export class FirebaseTransactionDataSource implements ITransactionDataSource {
       );
       const snapshot = await getDocs(q);
       return mapFirestoreDocs<any>(snapshot.docs);
-    } catch (error) {
+    } catch (error: any) {
+      // Fallback: Nếu lỗi do thiếu Index, chuyển sang lọc client-side
+      if (error.code === 'failed-precondition' || error.message?.includes('requires an index')) {
+        console.warn("[FirebaseTransactionDataSource] ⚠️ Missing Index for getByBranchId. Falling back to client-side sorting.");
+        const qFallback = query(this.collectionRef, where("branchId", "==", branchId));
+        const snapshot = await getDocs(qFallback);
+        return mapFirestoreDocs<any>(snapshot.docs).sort((a, b) => 
+          new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime()
+        );
+      }
       console.error(`[FirebaseTransactionDataSource] getByBranchId(${branchId}) error:`, error);
       throw new Error("transaction/fetch-failed");
     }

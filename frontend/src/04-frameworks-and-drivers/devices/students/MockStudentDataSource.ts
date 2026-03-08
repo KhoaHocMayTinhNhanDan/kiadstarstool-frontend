@@ -276,17 +276,43 @@ export class MockStudentDataSource implements IStudentDataSource {
     mockDatabase.setCollection('students', seedData);
   }
 
-  async getByBranchId(branchId: string): Promise<StudentDTO[]> {
+  async getByBranchId(branchId: string, limitCount: number = 20, lastId?: string, keyword?: string): Promise<StudentDTO[]> {
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
     const studentStore = mockDatabase.getCollection<StudentDTO>('students');
 
-    if (!branchId) return studentStore; // Trả về tất cả nếu không có branchId
+    let filtered = studentStore;
     
-    // Lọc học viên có enrollment tại branchId (bất kể trạng thái active hay dropped/completed)
-    // This logic mimics a 'where array-contains' query
-    return studentStore.filter(s => 
-      s.enrollments.some(e => e.branchId === branchId)
-    );
+    // Logic này giờ đây mô phỏng Firebase:
+    // 1. Nếu có keyword -> Lọc theo keyword trước (giả lập server-side search)
+    // 2. Nếu có branchId -> Lọc theo branchId (nếu không có keyword thì server làm, có keyword thì client làm)
+    // Nhưng với Mock (in-memory), ta cứ lọc tuần tự là được.
+    
+    // Filter by Branch
+    if (branchId) {
+      filtered = filtered.filter(s => s.enrollments.some(e => e.branchId === branchId));
+    }
+
+    // Filter by Keyword
+    if (keyword) {
+      const lowerKeyword = keyword.toLowerCase();
+      filtered = filtered.filter(s => 
+        s.name.toLowerCase().includes(lowerKeyword) || s.email.toLowerCase().includes(lowerKeyword)
+      );
+    }
+    
+    // Sắp xếp theo ID để giả lập behavior của Firestore orderBy("__name__")
+    filtered.sort((a, b) => a.id.localeCompare(b.id));
+
+    // Pagination logic
+    let startIndex = 0;
+    if (lastId) {
+      const lastIndex = filtered.findIndex(s => s.id === lastId);
+      if (lastIndex !== -1) {
+        startIndex = lastIndex + 1;
+      }
+    }
+
+    return filtered.slice(startIndex, startIndex + limitCount);
   }
 
   async getById(id: string): Promise<StudentDTO | null> {
@@ -306,7 +332,7 @@ export class MockStudentDataSource implements IStudentDataSource {
 
     // Check if exists to update or push new
     const index = studentStore.findIndex(s => s.id === student.id.toString());
-    const data: StudentDTO = student.toJSON();
+    const data = student.toJSON() as StudentDTO;
 
     if (index >= 0) {
       studentStore[index] = data;
@@ -322,7 +348,7 @@ export class MockStudentDataSource implements IStudentDataSource {
 
     // Check if exists to update or push new
     const index = studentStore.findIndex(s => s.id === student.id.toString());
-    const data: StudentDTO = student.toJSON();
+    const data = student.toJSON() as StudentDTO;
 
     if (index >= 0) {
       studentStore[index] = data;

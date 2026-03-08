@@ -6,6 +6,8 @@ import { Box, Text, Button, Icon, Input, Card, Select } from '@/04-frameworks-an
 import { AppContext } from '@/05-bootstrap/app-context';
 import { useToast } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/hooks/useToast';
 import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
+import { formatPhoneString } from '@/shared/utils/phoneUtils';
+import { usePhoneList } from '../../hooks/usePhoneList';
 
 export const CreateStudentPage = () => {
   const navigate = useNavigate();
@@ -13,7 +15,7 @@ export const CreateStudentPage = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
-  const [phones, setPhones] = useState<{ number: string; note: string }[]>([{ number: '', note: 'Di động' }]);
+  const { phones, addPhone, removePhone, updatePhone, validateAll } = usePhoneList();
   const [branchId, setBranchId] = useState('');
   const [branches, setBranches] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,32 +36,20 @@ export const CreateStudentPage = () => {
     fetchBranches();
   }, []);
 
-  // --- Phone Handlers ---
-  const handleAddPhone = () => {
-    setPhones([...phones, { number: '', note: '' }]);
-  };
-
-  const handleRemovePhone = (index: number) => {
-    const newPhones = phones.filter((_, i) => i !== index);
-    setPhones(newPhones);
-  };
-
-  const handlePhoneChange = (index: number, field: 'number' | 'note', value: string) => {
-    const newPhones = [...phones];
-    newPhones[index][field] = value;
-    setPhones(newPhones);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateAll()) {
+      toast.error('Vui lòng kiểm tra lại số điện thoại');
+      return;
+    }
+
     setIsLoading(true);
     try {
       // Format phones array into a single string for backend compatibility
       // Ex: "090123 (Bố) - 090456 (Mẹ)"
-      const formattedPhone = phones
-        .filter(p => p.number.trim() !== '')
-        .map(p => p.note.trim() ? `${p.number.trim()} (${p.note.trim()})` : p.number.trim())
-        .join(' - ');
+      const formattedPhone = formatPhoneString(phones);
 
       const controller = AppContext.getStudentsController();
       const result = await controller.createStudent({
@@ -106,7 +96,7 @@ export const CreateStudentPage = () => {
 
             <Box display="flex" flexDirection="column" gap="md">
               <Box><Text as="label" htmlFor="student-name" weight="semibold" mb="xs" sx={{ display: 'block' }}>Họ và tên <Text as="span" color="DANGER">*</Text></Text><Input id="student-name" value={name} onChange={(e) => setName(e.target.value)} required /></Box>
-              <Box><Text as="label" htmlFor="student-email" weight="semibold" mb="xs" sx={{ display: 'block' }}>Email <Text as="span" color="DANGER">*</Text></Text><Input id="student-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></Box>
+              <Box><Text as="label" htmlFor="student-email" weight="semibold" mb="xs" sx={{ display: 'block' }}>Email</Text><Input id="student-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Box>
               
               <Box>
                 <Text as="label" htmlFor="student-dob" weight="semibold" mb="xs" sx={{ display: 'block' }}>Ngày sinh</Text>
@@ -128,25 +118,26 @@ export const CreateStudentPage = () => {
                         <Input 
                           placeholder="Số điện thoại..." 
                           value={item.number} 
-                          onChange={(e) => handlePhoneChange(index, 'number', e.target.value)} 
+                          onChange={(e) => updatePhone(index, 'number', e.target.value)} 
+                          error={(item as any).error}
                         />
                       </Box>
                       <Box width="150px">
                         <Input 
                           placeholder="Ghi chú (VD: Bố)" 
                           value={item.note} 
-                          onChange={(e) => handlePhoneChange(index, 'note', e.target.value)} 
+                          onChange={(e) => updatePhone(index, 'note', e.target.value)} 
                         />
                       </Box>
                       {phones.length > 1 && (
-                        <Button variant="ghost" size="sm" onClick={() => handleRemovePhone(index)} type="button" title="Xóa số này">
+                        <Button variant="ghost" size="sm" onClick={() => removePhone(index)} type="button" title="Xóa số này">
                           <Icon color="DANGER"><Trash2 /></Icon>
                         </Button>
                       )}
                     </Box>
                   ))}
                   <Box>
-                    <Button variant="outline" size="sm" onClick={handleAddPhone} type="button" leftIcon={<Icon><Plus /></Icon>}>
+                    <Button variant="outline" size="sm" onClick={addPhone} type="button" leftIcon={<Icon><Plus /></Icon>}>
                       Thêm số khác
                     </Button>
                   </Box>

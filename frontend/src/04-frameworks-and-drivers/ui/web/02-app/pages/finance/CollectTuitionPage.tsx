@@ -1,318 +1,351 @@
 /** @jsxImportSource @emotion/react */
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useReactToPrint } from 'react-to-print';
-import { ArrowLeft, Save, Printer, Search, CreditCard } from 'lucide-react';
-import { Box, Text, Button, Icon, Input, Card, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Printer, Filter, CreditCard } from 'lucide-react';
+import { Box, Text, Button, Icon, Input, Select, Card } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { AppContext } from '@/05-bootstrap/app-context';
-import { useToast } from '../../../01-ui-core/hooks/useToast';
-import { useAuth } from '../../hooks/user/useAuth';
+import { useToast } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/hooks/useToast';
 import { TuitionReceipt } from './components/TuitionReceipt';
+import { useAuth } from '../../hooks/user/useAuth';
+import { useReactToPrint } from 'react-to-print';
+import { DataTable } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/data/DataTable/DataTable.organism';
+import { Modal } from '@/04-frameworks-and-drivers/ui/web/00-design-system/01-molecules/Modal';
+import { PaymentStatusBadge } from '../students/components/StudentSharedComponents';
+
+type PendingTuitionItem = {
+  studentId: string;
+  studentName: string;
+  studentPhone?: string;
+  branchId: string;
+  branchName: string;
+  classId: string;
+  className: string;
+  tuitionAmount: number;
+  paidAmount: number;
+  paymentStatus: 'unpaid' | 'partial';
+  enrollment: any; // The original enrollment object
+};
+
+type PaymentMethod = 'cash' | 'bank_transfer' | 'qr_code';
 
 export const CollectTuitionPage = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const preSelectedStudentId = searchParams.get('studentId');
   const { toast } = useToast();
   const { user } = useAuth();
-  
-  // Refs for printing
   const receiptRef = useRef<HTMLDivElement>(null);
-  const handlePrint = useReactToPrint({
-    contentRef: receiptRef,
-  });
 
-  // Data States
-  const [students, setStudents] = useState<any[]>([]);
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
-  const [unpaidEnrollments, setUnpaidEnrollments] = useState<any[]>([]);
-  const [selectedEnrollment, setSelectedEnrollment] = useState<any>(null);
+  // Data states
+  const [allPendingTuitions, setAllPendingTuitions] = useState<PendingTuitionItem[]>([]);
   const [branches, setBranches] = useState<any[]>([]);
-  
-  // Form States
-  const [amount, setAmount] = useState<number>(0);
-  const [paymentMethod, setPaymentMethod] = useState('cash');
-  const [note, setNote] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [transactionData, setTransactionData] = useState<any>(null);
+  const [classes, setClasses] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // 1. Load initial data
+  // Filter states
+  const [selectedBranchId, setSelectedBranchId] = useState('');
+  const [selectedClassId, setSelectedClassId] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
+
+  // Modal states
+  const [paymentModalData, setPaymentModalData] = useState<PendingTuitionItem | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  const [amountToCollect, setAmountToCollect] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [receiptModalData, setReceiptModalData] = useState<any | null>(null);
+
   useEffect(() => {
-    const init = async () => {
-      const branchController = AppContext.getBranchController();
-      const studentController = AppContext.getStudentsController();
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const financeController = AppContext.getFinanceController();
+        const branchController = AppContext.getBranchController();
+        const classController = AppContext.getClassesController();
 
-      const [branchRes, studentRes] = await Promise.all([
-        branchController.listBranches({}),
-        studentController.listStudentsByBranch({ branchId: '' })
-      ]);
+        // OPTIMIZED: Sử dụng API chuyên biệt để lấy danh sách nợ
+        const [pendingResult, branchResult, classResult] = await Promise.all([
+          financeController.listPendingTuitions({}), 
+          branchController.listBranches({}),
+          classController.listClassesByBranch('') // Fetch all classes
+        ]);
 
-      if (branchRes.isSuccess) setBranches(branchRes.getValue());
-      if (studentRes.isSuccess) {
-        const allStudents = studentRes.getValue();
-        setStudents(allStudents);
-        
-        // Auto select if param exists
-        if (preSelectedStudentId) {
-          const found = allStudents.find(s => s.id === preSelectedStudentId);
-          if (found) handleSelectStudent(found.id);
+        const branchesData = branchResult.isSuccess ? branchResult.getValue() : [];
+        const classesData = classResult.isSuccess ? classResult.getValue() : [];
+        setBranches(branchesData);
+        setClasses(classesData);
+
+        if (pendingResult.isSuccess) {
+          const pendingDTOs = pendingResult.getValue();
+          const branchMap = new Map(branchesData.map(b => [b.id, b.name]));
+          const classMap = new Map(classesData.map(c => [c.id, c.name]));
+
+          const pendingItems: PendingTuitionItem[] = pendingDTOs.map(dto => ({
+            studentId: dto.studentId,
+            studentName: dto.studentName,
+            studentPhone: dto.studentPhone,
+            branchId: dto.branchId,
+            branchName: branchMap.get(dto.branchId) || dto.branchId,
+            classId: dto.classId,
+            className: classMap.get(dto.classId) || dto.classId,
+            tuitionAmount: dto.tuitionAmount,
+            paidAmount: dto.paidAmount,
+            paymentStatus: dto.paymentStatus,
+            // Mock enrollment object for compatibility with existing logic
+            enrollment: { 
+              branchId: dto.branchId, 
+              classId: dto.classId, 
+              paymentStatus: dto.paymentStatus,
+              tuitionAmount: dto.tuitionAmount,
+              paidAmount: dto.paidAmount
+            }
+          }));
+          
+          setAllPendingTuitions(pendingItems);
         }
+      } catch (error) {
+        toast.error('Lỗi tải dữ liệu các khoản phí cần thu.');
+        console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     };
-    init();
-  }, [preSelectedStudentId]);
+    fetchData();
+  }, []);
 
-  // 2. Handle Student Selection
-  const handleSelectStudent = async (studentId: string) => {
-    const student = students.find(s => s.id === studentId);
-    if (!student) return;
+  const filteredClassesForDropdown = useMemo(() => {
+    if (!selectedBranchId) return classes;
+    return classes.filter(c => c.branchId === selectedBranchId);
+  }, [selectedBranchId, classes]);
 
-    // Fetch full details to get enrollments
-    const controller = AppContext.getStudentsController();
-    const result = await controller.getStudentDetails({ studentId });
-    
-    if (result.isSuccess) {
-      const details = result.getValue();
-      setSelectedStudent(details);
-      
-      // Filter unpaid or partial enrollments
-      const unpaid = details.enrollments.filter(e => e.paymentStatus !== 'paid');
-      setUnpaidEnrollments(unpaid);
-      
-      // Auto select first unpaid if available
-      if (unpaid.length > 0) {
-        handleSelectEnrollment(unpaid[0], details);
-      } else {
-        setSelectedEnrollment(null);
-        setAmount(0);
-      }
+  const filteredTuitions = useMemo(() => {
+    return allPendingTuitions.filter(item => {
+      const branchMatch = !selectedBranchId || item.branchId === selectedBranchId;
+      const classMatch = !selectedClassId || item.classId === selectedClassId;
+      const keywordMatch = !searchKeyword || item.studentName.toLowerCase().includes(searchKeyword.toLowerCase());
+      return branchMatch && classMatch && keywordMatch;
+    });
+  }, [allPendingTuitions, selectedBranchId, selectedClassId, searchKeyword]);
+
+  const openPaymentModal = (item: PendingTuitionItem) => {
+    // const remainingAmount = item.tuitionAmount - item.paidAmount;
+    // setAmountToCollect(remainingAmount.toString());
+    setAmountToCollect('0');
+    setPaymentModalData(item);
+  };
+
+  const handleCollect = async (item: PendingTuitionItem) => {
+    const collectAmount = Number(amountToCollect);
+    const remainingAmount = item.tuitionAmount - item.paidAmount;
+
+    if (isNaN(collectAmount) || collectAmount <= 0) {
+      toast.error('Số tiền thu phải là một số dương.');
+      return;
     }
-  };
-
-  const handleSelectEnrollment = (enrollment: any, studentDetails: any = selectedStudent) => {
-    setSelectedEnrollment(enrollment);
-    // Suggest amount: tuitionAmount - paidAmount
-    const remaining = (enrollment.tuitionAmount || 0) - (enrollment.paidAmount || 0);
-    setAmount(remaining > 0 ? remaining : 0);
-  };
-
-  // 3. Submit Payment
-  const handleSubmit = async () => {
-    if (!selectedStudent || !selectedEnrollment || amount <= 0) {
-      toast.error('Vui lòng kiểm tra lại thông tin thanh toán');
+    if (collectAmount > remainingAmount) {
+      toast.error(`Số tiền thu không được lớn hơn số tiền chưa thanh toán (${remainingAmount.toLocaleString()} đ).`);
       return;
     }
 
-    setIsLoading(true);
+    // Tạo nội dung giao dịch chi tiết
+    let description = `Thu học phí lớp ${item.className} - ${item.studentName}`;
+    if (item.studentPhone) description += ` - ${item.studentPhone}`;
+    
+    // Thêm hậu tố nếu là thanh toán 1 phần hoặc thanh toán nốt
+    if (collectAmount < remainingAmount) {
+      description += ' (Thanh toán 1 phần)';
+    } else if (item.paidAmount > 0) {
+      description += ' (Thanh toán nốt)';
+    }
+
+    setIsProcessing(true);
     try {
       const controller = AppContext.getFinanceController();
-      
-      // Gọi UseCase CollectTuition (hoặc CreateTransaction nếu chưa có CollectTuition)
-      // Ở đây dùng collectTuition như đã định nghĩa trong controller
       const result = await controller.collectTuition({
-        studentId: selectedStudent.id,
-        branchId: selectedEnrollment.branchId,
-        classId: selectedEnrollment.classId,
-        amount: amount,
-        method: paymentMethod as any,
+        studentId: item.studentId,
+        branchId: item.branchId,
+        classId: item.classId,
+        amount: collectAmount,
+        method: paymentMethod,
         transactionDate: new Date(),
         performedBy: user?.id || 'unknown',
-        description: note || `Thu học phí lớp ${selectedEnrollment.classId}`
+        description: description
       });
 
       if (result.isSuccess) {
         toast.success('Thu học phí thành công!');
-        setIsSuccess(true);
+        const { updatedPaymentStatus, transactionId } = result.getValue();
+        setPaymentModalData(null); // Close payment modal
+        setReceiptModalData({ transactionResult: { transactionId }, tuitionItem: item, paymentMethod, amountCollected: collectAmount });
         
-        // Prepare data for receipt
-        const branch = branches.find(b => b.id === selectedEnrollment.branchId);
-        setTransactionData({
-          studentName: selectedStudent.name,
-          className: selectedEnrollment.classId, // Trong thực tế nên map sang tên lớp
-          amountPaid: amount,
-          paymentDate: new Date(),
-          paymentMethod: paymentMethod,
-          transactionCode: result.getValue().transactionId,
-          collectedBy: user?.displayName || 'Admin',
-          branchName: branch?.name || 'KiadStars',
-          branchAddress: branch?.address || ''
-        });
+        // Refresh list based on the new payment status
+        if (updatedPaymentStatus === 'paid') {
+          setAllPendingTuitions(prev => prev.filter(p => p.enrollment !== item.enrollment));
+        } else {
+          setAllPendingTuitions(prev => prev.map(p => {
+            if (p.enrollment === item.enrollment) {
+              return { ...p, paidAmount: p.paidAmount + collectAmount, paymentStatus: 'partial' };
+            }
+            return p;
+          }));
+        }
       } else {
         toast.error(result.getErrorValue() as string);
       }
     } catch (error) {
-      toast.error('Đã có lỗi xảy ra');
+      toast.error('Lỗi hệ thống khi thu học phí');
     } finally {
-      setIsLoading(false);
+      setIsProcessing(false);
     }
   };
 
-  const handleReset = () => {
-    setIsSuccess(false);
-    setTransactionData(null);
-    setAmount(0);
-    setNote('');
-    // Reload student data to update status
-    if (selectedStudent) handleSelectStudent(selectedStudent.id);
-  };
+  const handlePrint = useReactToPrint({ contentRef: receiptRef });
 
-  // --- Render Success View (Receipt) ---
-  if (isSuccess && transactionData) {
-    return (
-      <Box p="xl" maxWidth="800px" mx="auto">
-        <Box mb="lg" display="flex" justifyContent="space-between" alignItems="center">
-          <Box display="flex" alignItems="center" gap="sm">
-            <Icon color="SUCCESS" size="lg"><CreditCard /></Icon>
-            <Box>
-              <Text variant="heading-lg" weight="bold" color="SUCCESS">Giao dịch thành công</Text>
-              <Text color="SECONDARY">Mã GD: {transactionData.transactionCode}</Text>
-            </Box>
-          </Box>
-          <Box display="flex" gap="sm">
-            <Button variant="outline" onClick={handleReset}>Thu tiếp</Button>
-            <Button variant="primary" leftIcon={<Icon><Printer /></Icon>} onClick={handlePrint}>In phiếu thu</Button>
-          </Box>
+  const columns = [
+    {
+      key: 'student',
+      header: 'Học viên',
+      render: (item: PendingTuitionItem) => <Text weight="medium">{item.studentName}</Text>
+    },
+    {
+      key: 'class',
+      header: 'Lớp / Chi nhánh',
+      render: (item: PendingTuitionItem) => (
+        <Box>
+          <Text size="sm">{item.className}</Text>
+          <Text size="xs" color="SECONDARY">{item.branchName}</Text>
         </Box>
-
-        <Box border={`1px solid ${COLORS.NEUTRAL_BORDER}`} borderRadius="md" overflow="hidden">
-          {/* Hidden component for printing */}
-          <div style={{ display: 'none' }}>
-            <TuitionReceipt ref={receiptRef} {...transactionData} />
-          </div>
-          {/* Visible preview */}
-          <TuitionReceipt {...transactionData} />
-        </Box>
-      </Box>
-    );
-  }
-
-  // --- Render Form View ---
-  return (
-    <Box p="xl" maxWidth="800px" mx="auto">
-      <Box mb="lg" display="flex" alignItems="center" gap="sm">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} leftIcon={<Icon><ArrowLeft /></Icon>}>
-          Quay lại
+      )
+    },
+    {
+      key: 'amount',
+      header: 'Số tiền phải thu',
+      render: (item: PendingTuitionItem) => <Text weight="bold" color="DANGER">{(item.tuitionAmount - item.paidAmount).toLocaleString()} đ</Text>
+    },
+    {
+      key: 'status',
+      header: 'Trạng thái',
+      render: (item: PendingTuitionItem) => <PaymentStatusBadge status={item.paymentStatus} />
+    },
+    {
+      key: 'action',
+      header: 'Hành động',
+      align: 'center' as const,
+      render: (item: PendingTuitionItem) => (
+        <Button size="sm" variant="outline" onClick={() => openPaymentModal(item)} leftIcon={<Icon><CreditCard /></Icon>}>
+          Tạo phiếu thu
         </Button>
-        <Text as="h1" variant="heading-xl" weight="bold">Thu học phí</Text>
-      </Box>
+      )
+    }
+  ];
 
-      <Box display="grid" gridTemplateColumns="1fr 1fr" gap="lg">
-        {/* Left Column: Selection */}
-        <Box display="flex" flexDirection="column" gap="lg">
-          <Card>
-            <Text weight="bold" mb="md">1. Chọn Học viên</Text>
-            <Box display="flex" gap="sm" mb="md">
-              <Input 
-                placeholder="Tìm tên hoặc SĐT..." 
-                onChange={(e) => {
-                  // Simple client-side filter for demo
-                  // In real app, use debounce and API search
-                }}
-              />
-              <Button variant="ghost"><Icon><Search /></Icon></Button>
+  return (
+    <Box p="xl" maxWidth="1200px" mx="auto">
+      <Button variant="ghost" onClick={() => navigate('/finance')} leftIcon={<Icon><ArrowLeft /></Icon>} sx={{ mb: 'lg' }}>
+        Quay lại Tài chính
+      </Button>
+
+      <Text as="h1" variant="heading-xl" weight="bold" mb="md">Thu học phí</Text>
+
+      <Card>
+        <Box display="flex" gap="md" alignItems="center" mb="md" flexWrap="wrap">
+          <Input placeholder="Tìm theo tên học viên..." value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} fullWidth />
+          <Icon color="SECONDARY"><Filter /></Icon>
+          <Select
+            value={selectedBranchId}
+            onChange={(e) => setSelectedBranchId(e.target.value)}
+            options={[{ label: 'Tất cả chi nhánh', value: '' }, ...branches.map(b => ({ label: b.name, value: b.id }))]}
+          />
+          <Select
+            value={selectedClassId}
+            onChange={(e) => setSelectedClassId(e.target.value)}
+            options={[{ label: 'Tất cả lớp', value: '' }, ...filteredClassesForDropdown.map(c => ({ label: c.name, value: c.id }))]}
+          />
+        </Box>
+
+        <DataTable
+          data={filteredTuitions}
+          columns={columns}
+          keyExtractor={(item) => item.studentId + item.classId}
+          isLoading={isLoading}
+          emptyMessage="Không có khoản phí nào cần thu."
+          totalPages={0}
+        />
+      </Card>
+
+      {/* Payment Modal */}
+      <Modal isOpen={!!paymentModalData} onClose={() => setPaymentModalData(null)} title="Xác nhận thu học phí">
+        {paymentModalData && (
+          <Box display="flex" flexDirection="column" gap="md">
+            <Text>Học viên: <Text as="span" weight="bold">{paymentModalData.studentName}</Text></Text>
+            <Text>Lớp: <Text as="span" weight="bold">{paymentModalData.className}</Text></Text>
+            {/* <Text>Chưa thanh toán: <Text as="span" weight="bold">{(paymentModalData.tuitionAmount - paymentModalData.paidAmount).toLocaleString()} đ</Text></Text> */}
+            {/* <Text>Còn lại sau thu: <Text as="span" weight="bold" color="DANGER">{(paymentModalData.tuitionAmount - paymentModalData.paidAmount - (Number(amountToCollect) || 0)).toLocaleString()} đ</Text></Text> */}
+            <Text>Chưa thanh toán: <Text as="span" weight="bold" color="DANGER">{(paymentModalData.tuitionAmount - paymentModalData.paidAmount - (Number(amountToCollect) || 0)).toLocaleString()} đ</Text></Text>
+            <Box display="flex" gap="sm" alignItems="flex-end">
+              <Box flex={1}>
+                <Input
+                  type="number"
+                  label="Số tiền thu"
+                  value={amountToCollect}
+                  onChange={(e) => setAmountToCollect(e.target.value)}
+                  placeholder="Nhập số tiền cần thu"
+                  fullWidth
+                />
+              </Box>
+              <Button variant="outline" onClick={() => setAmountToCollect((paymentModalData.tuitionAmount - paymentModalData.paidAmount).toString())}>
+                Thu tất cả
+              </Button>
             </Box>
             <Select
-              fullWidth
-              value={selectedStudent?.id || ''}
-              onChange={(e) => handleSelectStudent(e.target.value)}
+              label="Phương thức thanh toán"
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
               options={[
-                { label: '-- Chọn học viên --', value: '' },
-                ...students.map(s => ({ label: `${s.name} - ${s.phone}`, value: s.id }))
+                { label: 'Tiền mặt', value: 'cash' },
+                { label: 'Chuyển khoản', value: 'bank_transfer' },
+                { label: 'Quét mã QR', value: 'qr_code' }
               ]}
+              fullWidth
             />
+            <Button onClick={() => handleCollect(paymentModalData)} isLoading={isProcessing} fullWidth>Xác nhận thu {Number(amountToCollect).toLocaleString()} đ</Button>
+          </Box>
+        )}
+      </Modal>
 
-            {selectedStudent && (
-              <Box mt="md" p="sm" bg="BACKGROUND_NEUTRAL" borderRadius="sm">
-                <Text weight="bold">{selectedStudent.name}</Text>
-                <Text size="sm" color="SECONDARY">{selectedStudent.phone}</Text>
-                <Text size="sm" color="SECONDARY">{selectedStudent.email}</Text>
-              </Box>
-            )}
-          </Card>
-
-          <Card>
-            <Text weight="bold" mb="md">2. Chọn Khoản thu (Lớp học)</Text>
-            {unpaidEnrollments.length === 0 ? (
-              <Text color="SECONDARY" size="sm">Học viên này không có khoản nợ nào.</Text>
-            ) : (
-              <Box display="flex" flexDirection="column" gap="sm">
-                {unpaidEnrollments.map((e, idx) => (
-                  <Box 
-                    key={idx}
-                    p="sm" 
-                    border={`1px solid ${selectedEnrollment === e ? COLORS.PRIMARY : COLORS.NEUTRAL_BORDER}`}
-                    borderRadius="sm"
-                    bg={selectedEnrollment === e ? 'PRIMARY_LIGHT' : 'white'}
-                    onClick={() => handleSelectEnrollment(e)}
-                    css={{ cursor: 'pointer' }}
-                  >
-                    <Text weight="medium">{e.classId || 'Chưa xếp lớp'}</Text>
-                    <Text size="sm" color="SECONDARY">{e.branchId}</Text>
-                    <Box display="flex" justifyContent="space-between" mt="xs">
-                      <Text size="sm">Học phí: {(e.tuitionAmount || 0).toLocaleString()}đ</Text>
-                      <Text size="sm" color="DANGER">Còn nợ: {((e.tuitionAmount || 0) - (e.paidAmount || 0)).toLocaleString()}đ</Text>
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
-            )}
-          </Card>
-        </Box>
-
-        {/* Right Column: Payment Details */}
-        <Box display="flex" flexDirection="column" gap="lg">
-          <Card>
-            <Text weight="bold" mb="md">3. Thông tin thanh toán</Text>
-            
-            <Box mb="md">
-              <Text size="sm" mb="xs">Số tiền thực thu</Text>
-              <Input 
-                type="number" 
-                value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
-                style={{ fontSize: '18px', fontWeight: 'bold', color: COLORS.PRIMARY }}
+      {/* Receipt Modal */}
+      <Modal isOpen={!!receiptModalData} onClose={() => setReceiptModalData(null)} title="Thu thành công">
+        {receiptModalData && (
+          <Box>
+            <div style={{ display: 'none' }}>
+              <TuitionReceipt
+                ref={receiptRef}
+                studentName={receiptModalData.tuitionItem.studentName}
+                className={receiptModalData.tuitionItem.className}
+                amountPaid={receiptModalData.amountCollected}
+                paymentDate={new Date()}
+                paymentMethod={receiptModalData.paymentMethod}
+                transactionCode={receiptModalData.transactionResult.transactionId}
+                collectedBy={user?.displayName || 'Admin'}
+                branchName={receiptModalData.tuitionItem.branchName}
+                branchAddress={branches.find(b => b.id === receiptModalData.tuitionItem.branchId)?.address || ''}
               />
+            </div>
+            <TuitionReceipt
+              studentName={receiptModalData.tuitionItem.studentName}
+              className={receiptModalData.tuitionItem.className}
+              amountPaid={receiptModalData.amountCollected}
+              paymentDate={new Date()}
+              paymentMethod={receiptModalData.paymentMethod}
+              transactionCode={receiptModalData.transactionResult.transactionId}
+              collectedBy={user?.displayName || 'Admin'}
+              branchName={receiptModalData.tuitionItem.branchName}
+              branchAddress={branches.find(b => b.id === receiptModalData.tuitionItem.branchId)?.address || ''}
+            />
+            <Box display="flex" justifyContent="center" gap="md" mt="lg">
+              <Button variant="outline" onClick={handlePrint} leftIcon={<Icon><Printer /></Icon>}>In biên lai</Button>
+              <Button onClick={() => setReceiptModalData(null)}>Đóng</Button>
             </Box>
-
-            <Box mb="md">
-              <Select
-                label="Hình thức thanh toán"
-                fullWidth
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                options={[
-                  { label: 'Tiền mặt', value: 'cash' },
-                  { label: 'Chuyển khoản', value: 'bank_transfer' },
-                  { label: 'Quét mã QR', value: 'qr_code' },
-                  { label: 'Thẻ tín dụng', value: 'credit_card' }
-                ]}
-              />
-            </Box>
-
-            <Box mb="lg">
-              <Text size="sm" mb="xs">Ghi chú</Text>
-              <Input 
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="VD: Phụ huynh đóng tiền mặt..."
-              />
-            </Box>
-
-            <Button 
-              variant="primary" 
-              size="lg"
-              onClick={handleSubmit}
-              isLoading={isLoading}
-              disabled={!selectedEnrollment || amount <= 0}
-              leftIcon={<Icon><Save /></Icon>}
-            >
-              Xác nhận thu tiền
-            </Button>
-          </Card>
-        </Box>
-      </Box>
+          </Box>
+        )}
+      </Modal>
     </Box>
   );
 };

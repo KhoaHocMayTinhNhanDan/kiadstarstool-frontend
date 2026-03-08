@@ -10,20 +10,26 @@ import { CollectTuitionInteractor } from '@/02-usecases/finance/CollectTuition.i
 import { type CollectTuitionInput } from '@/02-usecases/finance/ports/input/CollectTuition.input';
 import { type CollectTuitionOutput } from '@/02-usecases/finance/ports/output/CollectTuition.output';
 
+import { ListPendingTuitionsInteractor } from '@/02-usecases/finance/ListPendingTuitions.interactor';
+import { type ListPendingTuitionsInput } from '@/02-usecases/finance/ports/input/ListPendingTuitions.input';
+import { type ListPendingTuitionsOutput } from '@/02-usecases/finance/ports/output/ListPendingTuitions.output';
 
 export class FinanceController {
   private readonly createTransactionInteractor: CreateTransactionInteractor;
   private readonly listTransactionsInteractor: ListTransactionsInteractor;
   private readonly collectTuitionInteractor: CollectTuitionInteractor;
+  private readonly listPendingTuitionsInteractor: ListPendingTuitionsInteractor;
 
   constructor(
     createTransactionInteractor: CreateTransactionInteractor,
     listTransactionsInteractor: ListTransactionsInteractor,
-    collectTuitionInteractor: CollectTuitionInteractor // Inject new interactor
+    collectTuitionInteractor: CollectTuitionInteractor,
+    listPendingTuitionsInteractor: ListPendingTuitionsInteractor
   ) {
     this.createTransactionInteractor = createTransactionInteractor;
     this.listTransactionsInteractor = listTransactionsInteractor;
     this.collectTuitionInteractor = collectTuitionInteractor;
+    this.listPendingTuitionsInteractor = listPendingTuitionsInteractor;
   }
 
   async createTransaction(input: CreateTransactionInput): Promise<Result<CreateTransactionOutput>> {
@@ -48,6 +54,15 @@ export class FinanceController {
       return await this.collectTuitionInteractor.execute(input);
     } catch (error: any) {
       console.error('[FinanceController] CollectTuition error:', error);
+      return Result.fail('An unexpected error occurred');
+    }
+  }
+
+  async listPendingTuitions(input: ListPendingTuitionsInput): Promise<Result<ListPendingTuitionsOutput>> {
+    try {
+      return await this.listPendingTuitionsInteractor.execute(input);
+    } catch (error: any) {
+      console.error('[FinanceController] ListPendingTuitions error:', error);
       return Result.fail('An unexpected error occurred');
     }
   }

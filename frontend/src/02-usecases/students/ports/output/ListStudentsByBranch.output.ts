@@ -6,6 +6,7 @@ export interface StudentEnrollmentItem {
   endDate?: string;
   tuitionAmount?: number;
   paymentStatus?: string;
+  paidAmount?: number;
   prepaidSessions?: number;
   usedSessions?: number;
 }

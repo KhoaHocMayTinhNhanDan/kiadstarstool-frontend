@@ -71,9 +71,30 @@ export class Class extends Entity<ClassId> {
   // Computed property: Tự động tạo chuỗi hiển thị từ sessions
   get schedule(): string {
     if (!this._sessions || this._sessions.length === 0) return 'Chưa có lịch';
-    const days = this._sessions.map(s => DAY_MAP[s.day]).join('-');
-    const time = `${this._sessions[0].startTime}-${this._sessions[0].endTime}`;
-    return `${days} (${time})`;
+
+    // Nhóm các session theo khung giờ
+    const timeGroups: Record<string, string[]> = {};
+
+    this._sessions.forEach(session => {
+      const timeRange = `${session.startTime}-${session.endTime}`;
+      if (!timeGroups[timeRange]) {
+        timeGroups[timeRange] = [];
+      }
+      // Chỉ thêm ngày nếu chưa có trong nhóm giờ này (tránh lặp T2-T2)
+      const dayLabel = DAY_MAP[session.day];
+      if (!timeGroups[timeRange].includes(dayLabel)) {
+        timeGroups[timeRange].push(dayLabel);
+      }
+    });
+
+    // Tạo chuỗi hiển thị: "T2, T4 (18:00-19:30) | T7 (08:00-10:00)"
+    const parts = Object.entries(timeGroups).map(([time, days]) => {
+      // Sắp xếp thứ tự ngày nếu cần (hiện tại giả định input đã sort hoặc chấp nhận thứ tự xuất hiện)
+      // Để đơn giản và chuyên nghiệp: "T2, T4, T6 (18:00-19:30)"
+      return `${days.join(', ')} (${time})`;
+    });
+
+    return parts.join(' | ');
   }
 
   private constructor(props: ClassProps) {

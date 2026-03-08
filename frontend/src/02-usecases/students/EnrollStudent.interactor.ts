@@ -5,7 +5,7 @@ import { type IBranchRepository } from '@/02-usecases/branch/ports/gateways_inte
 import { type EnrollStudentInput } from './ports/input/EnrollStudent.input';
 import { type EnrollStudentOutput } from './ports/output/EnrollStudent.output';
 import { db, writeBatch } from '@/shared/config/firebase'; // Import db và writeBatch
-import { Enrollment } from '@/01-entities/students/value-objects/Enrollment.vo';
+import { Enrollment, ENROLLMENT_DEFAULTS } from '@/01-entities/students/value-objects/Enrollment.vo';
 
 export class EnrollStudentInteractor {
   private readonly studentRepo: IStudentRepository;
@@ -53,22 +53,44 @@ export class EnrollStudentInteractor {
         return Result.fail('Chi nhánh đã đạt sĩ số học viên tối đa.');
     }
 
-    // 3. Create the new enrollment value object
+    // 3. Calculate Tuition & Sessions based on Class Config & Input
+    let calculatedTuition = 0;
+    let prepaidSessions = 0;
+    const tuitionConfig = classEntity.tuition;
+
+    if (input.paymentScheme === 'course') {
+      calculatedTuition = tuitionConfig?.courseFee || 0;
+      prepaidSessions = ENROLLMENT_DEFAULTS.SESSIONS_PER_COURSE;
+    } else if (input.paymentScheme === 'monthly') {
+      calculatedTuition = (tuitionConfig?.monthlyFee || 0) * (input.quantity || 1);
+      prepaidSessions = ENROLLMENT_DEFAULTS.SESSIONS_PER_MONTH * (input.quantity || 1);
+    } else if (input.paymentScheme === 'session') {
+      calculatedTuition = (tuitionConfig?.sessionFee || 0) * (input.quantity || 1);
+      prepaidSessions = (input.quantity || 0);
+    }
+
+    if (input.discountAmount) {
+      calculatedTuition = Math.max(0, calculatedTuition - input.discountAmount);
+    }
+
+    // 4. Create the new enrollment value object
     const enrollmentResult = Enrollment.create({
       branchId: classEntity.branchId.toString(),
       classId: classEntity.id.toString(),
       status: 'active',
-      joinedDate: new Date(),
-      tuitionAmount: input.tuitionDetails?.amount,
-      paymentStatus: input.tuitionDetails?.paymentStatus,
-      paidAmount: input.tuitionDetails?.paidAmount,
+      joinedDate: input.joinedDate || new Date(),
+      tuitionAmount: calculatedTuition,
+      paymentStatus: 'unpaid', // Mặc định là chưa thanh toán khi mới ghi danh
+      paidAmount: 0,
+      prepaidSessions: prepaidSessions,
+      usedSessions: 0
     });
 
     if (enrollmentResult.isFailure) {
       return Result.fail(enrollmentResult.getErrorValue());
     }
 
-    // 4. Use domain methods to get the updated entities
+    // 5. Use domain methods to get the updated entities
     const newEnrollment = enrollmentResult.getValue();
 
     const updatedStudentResult = student.addEnrollment(newEnrollment);
@@ -89,7 +111,7 @@ export class EnrollStudentInteractor {
     }
     const updatedBranch = updatedBranchResult.getValue();
 
-    // 5. Persist all changes using a Firestore batch write
+    // 6. Persist all changes using a Firestore batch write
     const batch = writeBatch(db);
 
     this.studentRepo.saveInBatch(updatedStudent, batch);

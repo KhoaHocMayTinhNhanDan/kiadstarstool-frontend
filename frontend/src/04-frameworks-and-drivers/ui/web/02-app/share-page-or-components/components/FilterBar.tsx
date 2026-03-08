@@ -1,26 +1,25 @@
+// src/04-frameworks-and-drivers/ui/web/02-app/share-page-or-components/components/FilterBar.tsx
 /** @jsxImportSource @emotion/react */
-import { 
-  Filter,
-  Check,
-  Calendar
-} from 'lucide-react';
+import { Filter, Check, Calendar } from 'lucide-react';
 import { Box, Text, Icon, Button, Input } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { useI18n } from '@/shared/i18n/useI18n';
 
-interface DashboardFiltersProps {
+export type TimeRangeType = 'today' | 'day' | 'week' | 'month' | 'year' | 'custom';
+
+interface FilterBarProps {
   branches: any[];
   selectedBranchIds: string[];
   onToggleBranch: (branchId: string) => void;
   onClearBranchSelection: () => void;
-  timeRange: 'today' | 'day' | 'week' | 'month' | 'year' | 'custom';
-  onTimeRangeChange: (range: 'today' | 'day' | 'week' | 'month' | 'year' | 'custom') => void;
+  timeRange: TimeRangeType;
+  onTimeRangeChange: (range: TimeRangeType) => void;
   customStartDate: string;
   onCustomStartDateChange: (date: string) => void;
   customEndDate: string;
   onCustomEndDateChange: (date: string) => void;
 }
 
-export const DashboardFilters = ({ 
+export const FilterBar = ({ 
   branches, 
   selectedBranchIds, 
   onToggleBranch, 
@@ -29,7 +28,7 @@ export const DashboardFilters = ({
   onTimeRangeChange,
   customStartDate, onCustomStartDateChange,
   customEndDate, onCustomEndDateChange
-}: DashboardFiltersProps) => {
+}: FilterBarProps) => {
   const { t } = useI18n();
 
   return (

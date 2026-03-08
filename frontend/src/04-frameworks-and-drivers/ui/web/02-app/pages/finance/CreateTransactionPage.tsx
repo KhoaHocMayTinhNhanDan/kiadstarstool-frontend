@@ -14,9 +14,16 @@ export const CreateTransactionPage = () => {
   const { user } = useAuth();
   const [branches, setBranches] = useState<BranchListItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  const [formData, setFormData] = useState({
-    type: 'expense', // Default to expense as income usually comes from tuition
+  // Using a more specific type for formData improves type safety
+  const [formData, setFormData] = useState<{
+    type: 'income' | 'expense';
+    amount: string;
+    branchId: string;
+    description: string;
+    method: 'cash' | 'bank_transfer' | 'qr_code' | 'credit_card';
+    transactionDate: string;
+  }>({
+    type: 'expense',
     amount: '',
     branchId: '',
     description: '',
@@ -48,14 +55,22 @@ export const CreateTransactionPage = () => {
 
     setIsLoading(true);
     try {
+      // FIX: Kết hợp ngày từ form và giờ/phút/giây hiện tại để có timestamp chính xác
+      // Input 'date' chỉ trả về YYYY-MM-DD, khi new Date() sẽ bị set về 00:00:00
+      const datePart = formData.transactionDate;
+      const now = new Date();
+      const timePart = now.toTimeString().split(' ')[0]; // "HH:mm:ss"
+      const transactionDate = new Date(`${datePart}T${timePart}`);
+
       const controller = AppContext.getFinanceController();
       const result = await controller.createTransaction({
         branchId: formData.branchId,
-        code: `TRX-${Date.now()}`, // Simple ID generation
+        // NOTE: ID generation on the client is not robust. This should ideally be handled by the backend.
+        code: `TRX-${Date.now()}`,
         type: formData.type as any,
         amount: Number(formData.amount),
-        method: formData.method as any,
-        transactionDate: new Date(formData.transactionDate),
+        method: formData.method,
+        transactionDate: transactionDate,
         description: formData.description,
         performedBy: user?.id  || 'unknown'
       });
@@ -88,7 +103,7 @@ export const CreateTransactionPage = () => {
             <Select
               label="Loại giao dịch"
               value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
               options={[
                 { label: 'Chi phí (Expense)', value: 'expense' },
                 { label: 'Thu nhập khác (Income)', value: 'income' }
@@ -126,7 +141,7 @@ export const CreateTransactionPage = () => {
             <Select
               label="Hình thức"
               value={formData.method}
-              onChange={(e) => setFormData({ ...formData, method: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, method: e.target.value as any })}
               options={[
                 { label: 'Tiền mặt', value: 'cash' },
                 { label: 'Chuyển khoản', value: 'bank_transfer' },

@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
-import { ArrowLeft, Edit, Calendar, Users, BookOpen, DollarSign } from 'lucide-react';
+import { ArrowLeft, Edit, Calendar, Users, BookOpen, DollarSign, UserPlus } from 'lucide-react';
 import { Box, Text, Button, Icon } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { COLORS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { AppContext } from '@/05-bootstrap/app-context';
@@ -10,6 +10,7 @@ import { useI18n } from '@/shared/i18n/useI18n';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { AttendanceList } from '../attendance/components/AttendanceList';
 import { useClassAttendance } from '@/04-frameworks-and-drivers/ui/web/02-app/hooks/class/useClassAttendance';
+import { AddStudentToClassModal } from './components/AddStudentToClassModal';
 
 export const ClassDetailPage = () => {
   const { classId } = useParams<{ classId: string }>();
@@ -19,6 +20,7 @@ export const ClassDetailPage = () => {
 
   const [classData, setClassData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false);
 
   // Sử dụng hook để lấy dữ liệu điểm danh cho việc tính toán sĩ số
   const { attendanceList } = useClassAttendance(classId || '');
@@ -31,28 +33,28 @@ export const ClassDetailPage = () => {
     ).length;
   }, [attendanceList]);
 
-  useEffect(() => {
-    const fetchClassDetails = async () => {
-      if (!classId) return;
-      setIsLoading(true);
-      try {
-        const controller = AppContext.getClassesController();
-        const result = await controller.getClassDetails(classId);
+  const fetchClassDetails = async () => {
+    if (!classId) return;
+    setIsLoading(true);
+    try {
+      const controller = AppContext.getClassesController();
+      const result = await controller.getClassDetails(classId);
 
-        if (result.isSuccess) {
-          setClassData(result.getValue());
-        } else {
-          toast.error(t('classes.not_found'));
-          navigate('/classes');
-        }
-      } catch (error) {
-        console.error('Failed to fetch class details', error);
-        toast.error(t('common.error'));
-      } finally {
-        setIsLoading(false);
+      if (result.isSuccess) {
+        setClassData(result.getValue());
+      } else {
+        toast.error(t('classes.not_found'));
+        navigate('/classes');
       }
-    };
+    } catch (error) {
+      console.error('Failed to fetch class details', error);
+      toast.error(t('common.error'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchClassDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classId, navigate, t]);
@@ -76,14 +78,24 @@ export const ClassDetailPage = () => {
           />
           <Text as="h1" variant="heading-lg" weight="bold">{classData.name}</Text>
         </Box>
-        <Button 
-          variant="primary" 
-          leftIcon={<Icon><Edit /></Icon>}
-          size="sm"
-          onClick={() => navigate(`/classes/${classId}/edit`)}
-        >
-          {t('common.edit')}
-        </Button>
+        <Box display="flex" gap="sm">
+          <Button 
+            variant="primary" 
+            leftIcon={<Icon><UserPlus /></Icon>}
+            size="sm"
+            onClick={() => setIsAddStudentModalOpen(true)}
+          >
+            Thêm học viên
+          </Button>
+          <Button 
+            variant="outline" 
+            leftIcon={<Icon><Edit /></Icon>}
+            size="sm"
+            onClick={() => navigate(`/classes/${classId}/edit`)}
+          >
+            {t('common.edit')}
+          </Button>
+        </Box>
       </Box>
 
       {/* Main Info Card */}
@@ -150,6 +162,17 @@ export const ClassDetailPage = () => {
         */}
         <AttendanceList classId={classId || ''} />
       </Box>
+
+      {classData && (
+        <AddStudentToClassModal
+          isOpen={isAddStudentModalOpen}
+          onClose={() => setIsAddStudentModalOpen(false)}
+          classId={classData.id}
+          branchId={classData.branchId}
+          classInfo={classData}
+          onSuccess={fetchClassDetails}
+        />
+      )}
     </Box>
   );
 };

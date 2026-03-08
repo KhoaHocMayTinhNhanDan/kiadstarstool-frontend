@@ -1,85 +1,74 @@
 import { css } from '@emotion/react';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, TRANSITIONS } from '../../../01-ui-core/constants/tokens-constants';
-import type { SelectProps } from './Select.types';
+import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 
-const heightMap = {
-  sm: '32px',
-  md: '40px',
-  lg: '48px',
-};
-
-const fontSizeMap = {
-  sm: '0.875rem',  // 14px
-  md: '1rem',  // 16px
-  lg: '1.125rem',     // 18px
-};
-
-/** 🔥 GRID + FLEX SAFE WRAPPER (Giống Input) */
 export const selectWrapper = css`
   display: flex;
   flex-direction: column;
-  width: 100%;
-  min-width: 0;
-  position: relative;
-`;
-
-interface SelectStyleProps {
-  error?: boolean | string;
-  disabled?: boolean;
-  size?: SelectProps['size'];
-}
-
-export const getSelectStyles = ({ error, disabled, size = 'md' }: SelectStyleProps) => css`
-  appearance: none;
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-
-  height: ${heightMap[size]};
-  padding: 0 ${SPACING.xl} 0 ${SPACING.md}; /* Extra padding-right for arrow */
-  
-  font-size: ${fontSizeMap[size] || '0.875rem'};
-  color: ${COLORS.TEXT};
-  background-color: ${COLORS.WHITE};
-  
-  border: 1px solid ${error ? COLORS.DANGER : COLORS.NEUTRAL_LIGHT};
-  border-radius: ${RADIUS.md};
-  
-  transition: all ${TRANSITIONS.FAST};
-  outline: none;
-  cursor: pointer;
-  
-  /* Custom Arrow */
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right ${SPACING.sm} center;
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
-
-  &:hover:not(:disabled) {
-    border-color: ${error ? COLORS.DANGER_DARK : COLORS.PRIMARY_LIGHT};
-  }
-
-  &:focus:not(:disabled) {
-    border-color: ${error ? COLORS.DANGER : COLORS.PRIMARY};
-    box-shadow: 0 0 0 2px ${error ? COLORS.DANGER_LIGHT : COLORS.PRIMARY_LIGHT};
-  }
-
-  ${disabled && css`
-    background-color: ${COLORS.LIGHT};
-    color: ${COLORS.SECONDARY};
-    cursor: not-allowed;
-    border-color: ${COLORS.NEUTRAL_LIGHT};
-  `}
+  gap: ${SPACING.xs};
 `;
 
 export const labelStyles = css`
-  font-size: ${FONT_SIZES.sm};
   font-weight: 500;
-  color: ${COLORS.TEXT};
+  color: ${COLORS.TEXT_PRIMARY};
 `;
 
 export const errorTextStyles = css`
   font-size: ${FONT_SIZES.xs};
   color: ${COLORS.DANGER};
-  margin-top: 2px;
+  margin-top: ${SPACING.xxs};
 `;
+
+interface GetSelectStylesProps {
+  error?: boolean;
+  disabled?: boolean;
+  size?: string;
+}
+
+export const getSelectStyles = ({ error, disabled, size = 'md' }: GetSelectStylesProps) => {
+  const heightMap: Record<string, string> = {
+    sm: '32px',
+    md: '40px',
+    lg: '48px',
+  };
+
+  const paddingMap: Record<string, string> = {
+    sm: `0 ${SPACING.sm}`,
+    md: `0 ${SPACING.md}`,
+    lg: `0 ${SPACING.md}`,
+  };
+
+  const fontSizeMap: Record<string, string> = {
+    sm: FONT_SIZES.sm,
+    md: FONT_SIZES.md,
+    lg: FONT_SIZES.lg,
+  };
+
+  return css`
+    appearance: none;
+    width: 100%;
+    height: ${heightMap[size]};
+    padding: ${paddingMap[size]};
+    font-size: ${fontSizeMap[size]};
+    border: 1px solid ${error ? COLORS.DANGER : COLORS.NEUTRAL_BORDER};
+    border-radius: ${RADIUS.md};
+    background-color: ${disabled ? COLORS.NEUTRAL_LIGHT : COLORS.BACKGROUND_PAPER};
+    color: ${disabled ? COLORS.TEXT_DISABLED : COLORS.TEXT_PRIMARY};
+    cursor: ${disabled ? 'not-allowed' : 'pointer'};
+    transition: all 0.2s ease;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right ${SPACING.sm} top 50%;
+    background-size: 10px auto;
+    padding-right: ${SPACING.xl};
+
+    &:focus {
+      outline: none;
+      border-color: ${error ? COLORS.DANGER : COLORS.PRIMARY};
+      box-shadow: 0 0 0 2px ${error ? COLORS.DANGER_LIGHT : COLORS.PRIMARY_LIGHT};
+    }
+
+    &:hover:not(:disabled) {
+      border-color: ${error ? COLORS.DANGER_DARK : COLORS.PRIMARY};
+    }
+  `;
+};

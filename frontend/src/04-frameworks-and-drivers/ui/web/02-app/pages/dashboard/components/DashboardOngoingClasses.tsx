@@ -56,8 +56,8 @@ export const DashboardOngoingClasses = ({ classes }: DashboardOngoingClassesProp
             </Box>
             
             <Box display="flex" flexDirection="column" gap="xs" mb="md">
-              <Box display="flex" gap="xs" alignItems="center"><Icon size="xs" color="SECONDARY"><Users /></Icon><Text size="sm" color="SECONDARY">{cls.students} {t('dashboard.students_count')}</Text></Box>
-              <Box display="flex" gap="xs" alignItems="center"><Icon size="xs" color="SECONDARY"><Clock /></Icon><Text size="sm" color="SECONDARY">{cls.time}</Text></Box>
+              <Box display="flex" gap="xs" alignItems="center"><Icon size="xs" color="SECONDARY"><Users /></Icon><Text size="sm" color="SECONDARY">{cls.students || 0} {t('dashboard.students_count')}</Text></Box>
+              <Box display="flex" gap="xs" alignItems="center"><Icon size="xs" color="SECONDARY"><Clock /></Icon><Text size="sm" color="SECONDARY">{cls.time || 'N/A'}</Text></Box>
             </Box>
 
             <Button size="sm" variant="primary" fullWidth onClick={(e) => { e.stopPropagation(); navigate(`/classes/${cls.id}`); }}>

@@ -1,8 +1,7 @@
 /** @jsxImportSource @emotion/react */
-import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
-import { Box, Text, Button, Icon, Input, Card, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
+import { useState, useEffect, useMemo } from 'react';
+import { Box, Text, Button, Input, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { Modal } from '@/04-frameworks-and-drivers/ui/web/00-design-system/01-molecules/Modal';
 import { AppContext } from '@/05-bootstrap/app-context';
 import { useToast } from '../../../../01-ui-core/hooks/useToast';
 import { type PaymentScheme } from '@/02-usecases/students/ports/input/EnrollStudent.input';
@@ -12,11 +11,12 @@ interface EnrollStudentModalProps {
   isOpen: boolean;
   onClose: () => void;
   studentId: string;
+  studentBranchId?: string; // Thêm prop này để lọc lớp
   availableClasses: any[];
   onSuccess: () => void;
 }
 
-export const EnrollStudentModal = ({ isOpen, onClose, studentId, availableClasses, onSuccess }: EnrollStudentModalProps) => {
+export const EnrollStudentModal = ({ isOpen, onClose, studentId, studentBranchId, availableClasses, onSuccess }: EnrollStudentModalProps) => {
   const { toast } = useToast();
   const [enrollClassId, setEnrollClassId] = useState('');
   const [paymentScheme, setPaymentScheme] = useState<PaymentScheme>('course');
@@ -24,7 +24,13 @@ export const EnrollStudentModal = ({ isOpen, onClose, studentId, availableClasse
   const [enrollDiscount, setEnrollDiscount] = useState('');
   const [isEnrolling, setIsEnrolling] = useState(false);
 
-  const selectedClassForEnroll = availableClasses.find(c => c.id === enrollClassId);
+  // Lọc danh sách lớp: Chỉ hiện các lớp thuộc cùng chi nhánh với học viên
+  // FIX: Sử dụng useMemo để tránh tạo mảng mới mỗi lần render, gây loop cho useEffect bên dưới
+  const filteredClasses = useMemo(() => studentBranchId 
+    ? availableClasses.filter(c => c.branchId === studentBranchId)
+    : availableClasses, [studentBranchId, availableClasses]);
+
+  const selectedClassForEnroll = filteredClasses.find(c => c.id === enrollClassId);
   const showQuantityInput = paymentScheme === 'session' || paymentScheme === 'monthly';
   const quantityLabel = paymentScheme === 'session' ? 'Số buổi' : 'Số tháng';
 
@@ -42,13 +48,13 @@ export const EnrollStudentModal = ({ isOpen, onClose, studentId, availableClasse
         setPaymentScheme('session');
       }
     }
-  }, [enrollClassId, availableClasses]);
+  }, [enrollClassId, selectedClassForEnroll]); // FIX: Chỉ chạy lại khi lớp được chọn thay đổi
 
   const handleEnrollSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!studentId || !enrollClassId) return;
 
-    const selectedClass = availableClasses.find(c => c.id === enrollClassId);
+    const selectedClass = filteredClasses.find(c => c.id === enrollClassId);
     if (!selectedClass) return;
 
     setIsEnrolling(true);
@@ -83,23 +89,8 @@ export const EnrollStudentModal = ({ isOpen, onClose, studentId, availableClasse
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <Box 
-      position="fixed" top="0" left="0" right="0" bottom="0" 
-      bg="rgba(0,0,0,0.5)" 
-      display="flex" alignItems="center" justifyContent="center" 
-      zIndex={1000}
-    >
-      <Card sx={{ width: '100%', maxWidth: '500px', margin: SPACING.md }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb="lg">
-          <Text variant="heading-md" weight="bold">Ghi danh học viên</Text>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <Icon><X /></Icon>
-          </Button>
-        </Box>
-        
+    <Modal isOpen={isOpen} onClose={onClose} title="Ghi danh học viên">
         <form onSubmit={handleEnrollSubmit}>
           <Box display="flex" flexDirection="column" gap="md">
             <Box>
@@ -109,7 +100,7 @@ export const EnrollStudentModal = ({ isOpen, onClose, studentId, availableClasse
                 onChange={(e) => setEnrollClassId(e.target.value)}
                 options={[
                   { label: '-- Chọn lớp --', value: '' },
-                  ...availableClasses.map(c => ({ label: `${c.name} (${c.code})`, value: c.id }))
+                  ...filteredClasses.map(c => ({ label: `${c.name} (${c.code})`, value: c.id }))
                 ]}
                 fullWidth
                 required
@@ -188,7 +179,6 @@ export const EnrollStudentModal = ({ isOpen, onClose, studentId, availableClasse
             </Box>
           </Box>
         </form>
-      </Card>
-    </Box>
+    </Modal>
   );
 };

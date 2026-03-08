@@ -81,6 +81,10 @@ export const StudentDetailPage = () => {
 
   if (!student) return null;
 
+  // Xác định chi nhánh hiện tại của học viên để lọc lớp học
+  // Ưu tiên lấy từ enrollment active, nếu không thì lấy cái đầu tiên tìm thấy
+  const currentBranchId = student.enrollments?.find(e => e.status === 'active')?.branchId || student.enrollments?.[0]?.branchId;
+
   return (
     <Box display="flex" flexDirection="column" gap="lg">
       {/* Header */}
@@ -125,6 +129,7 @@ export const StudentDetailPage = () => {
         isOpen={isEnrollModalOpen}
         onClose={() => setIsEnrollModalOpen(false)}
         studentId={studentId || ''}
+        studentBranchId={currentBranchId}
         availableClasses={availableClasses}
         onSuccess={fetchStudentDetails}
       />

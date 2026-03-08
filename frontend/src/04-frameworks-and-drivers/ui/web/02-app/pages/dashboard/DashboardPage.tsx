@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { 
   Activity
 } from 'lucide-react';
-import { Box, Text, Icon, Avatar } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { Box, Text, Icon, Avatar, Card } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
 import { useAuth } from '@/04-frameworks-and-drivers/ui/web/02-app/hooks/user/useAuth';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { AppContext } from '@/05-bootstrap/app-context';
@@ -15,77 +15,56 @@ import { type ListTransactionsOutput } from '@/02-usecases/finance/ports/output/
 import { type UserOutput } from '@/02-usecases/users/ports/output/IUserOutput';
 
 import { DashboardStatsGrid } from './components/DashboardStatsGrid';
-import { DashboardCharts } from './components/DashboardCharts';
-import { DashboardFilters } from './components/DashboardFilters';
 import { DashboardOngoingClasses } from './components/DashboardOngoingClasses';
 import { QuickActions } from './components/QuickActions';
 import { RecentActivities, type ActivityItem } from './components/RecentActivities';
+import { IncomeExpenseChart } from '../finance/components/IncomeExpenseChart';
+import { BranchRevenueChart } from '../finance/components/BranchRevenueChart';
+import { FilterBar } from '../../share-page-or-components/components/FilterBar';
+import { getChartDateRange, groupIncomeExpenseByLabel } from '../../../../../../shared/utils/chartDataUtils';
 
-// --- Helper Functions for Data Calculation (moved from Interactor) ---
-const getStartDateForTimeRange = (timeRange: 'week' | 'month' | 'year'): Date => {
+// --- Local Helper to ensure correct Stats Date Range ---
+const getStatsDateRangeLocal = (
+  timeRange: 'today' | 'day' | 'week' | 'month' | 'year',
+  offset: number = 0
+): { start: Date; end: Date } => {
   const now = new Date();
-  now.setHours(0, 0, 0, 0);
+  const start = new Date(now);
+  const end = new Date(now);
 
-  switch (timeRange) {
-    case 'week':
-      const day = now.getDay();
-      const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust so Monday is the first day
-      return new Date(now.setDate(diff));
-    case 'month':
-      return new Date(now.getFullYear(), now.getMonth(), 1);
-    case 'year':
-      return new Date(now.getFullYear(), 0, 1);
-    default:
-      return new Date(now.getFullYear(), 0, 1);
+  if (timeRange === 'today' || timeRange === 'day') {
+    start.setDate(now.getDate() + offset);
+    start.setHours(0, 0, 0, 0);
+    end.setTime(start.getTime());
+    end.setHours(23, 59, 59, 999);
+  } else if (timeRange === 'week') {
+    const day = now.getDay();
+    // Adjust to start of week (Monday)
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1) + (offset * 7);
+    start.setDate(diff);
+    start.setHours(0, 0, 0, 0);
+    
+    end.setTime(start.getTime());
+    end.setDate(start.getDate() + 6);
+    end.setHours(23, 59, 59, 999);
+  } else if (timeRange === 'month') {
+    start.setMonth(now.getMonth() + offset, 1);
+    start.setHours(0, 0, 0, 0);
+    
+    end.setTime(start.getTime());
+    end.setMonth(start.getMonth() + 1, 0);
+    end.setHours(23, 59, 59, 999);
+  } else if (timeRange === 'year') {
+    start.setFullYear(now.getFullYear() + offset, 0, 1);
+    start.setHours(0, 0, 0, 0);
+    
+    end.setTime(start.getTime());
+    end.setFullYear(start.getFullYear(), 11, 31);
+    end.setHours(23, 59, 59, 999);
   }
+
+  return { start, end };
 };
-
-const getChartLabels = (timeRange: 'week' | 'month' | 'year', t: (key: string) => string): string[] => {
-    switch (timeRange) {
-        case 'week':
-            return [t('common.days.mon'), t('common.days.tue'), t('common.days.wed'), t('common.days.thu'), t('common.days.fri'), t('common.days.sat'), t('common.days.sun')];
-        case 'month':
-            return [t('common.weeks.1'), t('common.weeks.2'), t('common.weeks.3'), t('common.weeks.4')];
-        case 'year':
-            return [t('common.months.jan'), t('common.months.feb'), t('common.months.mar'), t('common.months.apr'), t('common.months.may'), t('common.months.jun'), t('common.months.jul'), t('common.months.aug'), t('common.months.sep'), t('common.months.oct'), t('common.months.nov'), t('common.months.dec')];
-    }
-}
-
-const groupRevenueByLabel = (
-    transactions: any[],
-    timeRange: 'week' | 'month' | 'year',
-    t: (key: string) => string
-): Array<{ name: string; value: number }> => {
-    const labels = getChartLabels(timeRange, t);
-    const dataMap = new Map<string, number>();
-    labels.forEach(label => dataMap.set(label, 0));
-
-    for (const trx of transactions) {
-        const date = new Date(trx.date); // Transaction has 'date' field
-        let key = '';
-
-        switch (timeRange) {
-            case 'year':
-                key = labels[date.getMonth()];
-                break;
-            case 'month':
-                const weekOfMonth = Math.ceil(date.getDate() / 7);
-                key = labels[(weekOfMonth > 4 ? 4 : weekOfMonth) - 1];
-                break;
-            case 'week':
-                const dayOfWeek = date.getDay(); // Sun: 0, Mon: 1, ...
-                key = labels[dayOfWeek === 0 ? 6 : dayOfWeek - 1];
-                break;
-        }
-
-        if (dataMap.has(key)) {
-            dataMap.set(key, (dataMap.get(key) || 0) + (trx.amount || 0));
-        }
-    }
-
-    return Array.from(dataMap.entries()).map(([name, value]) => ({ name, value }));
-};
-
 
 export const DashboardPage = () => {
   const { t } = useI18n();
@@ -100,7 +79,11 @@ export const DashboardPage = () => {
 
   // --- Filter States ---
   const [selectedBranchIds, setSelectedBranchIds] = useState<string[]>([]); // Empty array = All Branches
-  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('year');
+  const [timeRange, setTimeRange] = useState<'today' | 'day' | 'week' | 'month' | 'year' | 'custom'>('today'); // Default to Today view
+  
+  const todayStr = new Date().toISOString().split('T')[0];
+  const [customStartDate, setCustomStartDate] = useState(todayStr);
+  const [customEndDate, setCustomEndDate] = useState(todayStr);
   
   // --- UI States ---
   const [isLoading, setIsLoading] = useState(true);
@@ -186,34 +169,83 @@ export const DashboardPage = () => {
       return null;
     }
 
-    const startDate = getStartDateForTimeRange(timeRange);
+    // Range cho Stats (Thẻ thống kê)
+    let statsCurrentRange: { start: Date, end: Date };
+    let statsPreviousRange: { start: Date, end: Date };
+    // Range cho Chart (Biểu đồ)
+    let chartRange: { start: Date, end: Date };
+    let customDayCount = 0;
+
+    if (timeRange === 'custom') {
+      const start = new Date(customStartDate);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(customEndDate);
+      end.setHours(23, 59, 59, 999);
+      
+      // Với Custom, Stats và Chart dùng chung range
+      statsCurrentRange = { start, end };
+      chartRange = { start, end };
+      
+      // FIX: Tính toán kỳ trước cho Custom Range (x ngày so với x ngày trước đó)
+      const duration = end.getTime() - start.getTime();
+      const prevEnd = new Date(start.getTime() - 1); // Kết thúc ngay trước khi kỳ hiện tại bắt đầu
+      const prevStart = new Date(prevEnd.getTime() - duration);
+      statsPreviousRange = { start: prevStart, end: prevEnd };
+      customDayCount = Math.ceil(duration / (1000 * 60 * 60 * 24));
+    } else {
+      // Stats dùng getStatsDateRangeLocal (Lấy đúng ngày/tuần/tháng hiện tại)
+      statsCurrentRange = getStatsDateRangeLocal(timeRange as any, 0);
+      statsPreviousRange = getStatsDateRangeLocal(timeRange as any, -1);
+      // Chart dùng getChartDateRange (Lấy range rộng hơn để vẽ biểu đồ drill-down)
+      chartRange = getChartDateRange(timeRange, 0, customStartDate, customEndDate);
+    }
 
     // --- Filter Transactions for Revenue Stats ---
-    const filteredTransactions = allTransactions.filter(t => {
+    const filterTransactions = (range: { start: Date, end: Date }) => allTransactions.filter(t => {
       const trxDate = new Date(t.date);
       const isInBranch = selectedBranchIds.length === 0 || selectedBranchIds.includes(t.branchId);
-      const isInTimeRange = trxDate >= startDate;
+      const isInTimeRange = trxDate >= range.start && trxDate <= range.end;
       return isInBranch && isInTimeRange;
     });
 
-    const incomeTransactions = filteredTransactions.filter(t => t.type === 'income');
-    const expenseTransactions = filteredTransactions.filter(t => t.type === 'expense');
+    // Dữ liệu cho Stats
+    const currentStatsTransactions = filterTransactions(statsCurrentRange);
+    const previousStatsTransactions = filterTransactions(statsPreviousRange);
+    // Dữ liệu cho Chart
+    const currentChartTransactions = filterTransactions(chartRange);
+
+    // Tính toán KPI tổng quan
+    const currentIncome = currentStatsTransactions.filter(t => t.type === 'income');
+    const previousIncome = previousStatsTransactions.filter(t => t.type === 'income');
 
     // --- Calculate Stats ---
-    const totalRevenue = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
-    // Optional: Calculate Net Revenue (Income - Expense) if needed, but dashboard usually shows Total Revenue
-    // const totalExpense = expenseTransactions.reduce((sum, t) => sum + t.amount, 0);
+    const totalRevenue = currentIncome.reduce((sum, t) => sum + t.amount, 0);
+    const previousTotalRevenue = previousIncome.reduce((sum, t) => sum + t.amount, 0);
+    const revenueTrend = previousTotalRevenue === 0 ? (totalRevenue > 0 ? 100 : 0) : ((totalRevenue - previousTotalRevenue) / previousTotalRevenue) * 100;
     
-    const totalSales = incomeTransactions.length; // Number of income transactions
+    const totalSales = currentIncome.length; // Number of income transactions
+    const previousTotalSales = previousIncome.length;
+    const salesTrend = previousTotalSales === 0 ? (totalSales > 0 ? 100 : 0) : ((totalSales - previousTotalSales) / previousTotalSales) * 100;
 
-    // --- Filter Students for Active Count (Still derived from Students) ---
-    // We still use enrollments for "Total Subs" (Active Enrollments) as transactions don't represent active status
+    // --- Filter Students/Enrollments ---
     const allEnrollments = allStudents.flatMap(s => s.enrollments || []).filter(e => e);
-    const activeEnrollments = allEnrollments.filter(e => {
-      const isInBranch = selectedBranchIds.length === 0 || selectedBranchIds.includes(e.branchId);
-      return isInBranch && e.status === 'active';
+    
+    // FIX: Đếm số lượng Học viên mới (New Students) thay vì đếm lượt ghi danh (Enrollments) để tránh trùng lặp
+    const newStudentsCurrent = allStudents.filter(s => {
+      const joinedDate = new Date(s.joinedDate);
+      const isInBranch = selectedBranchIds.length === 0 || s.enrollments.some(e => selectedBranchIds.includes(e.branchId));
+      return isInBranch && joinedDate >= statsCurrentRange.start && joinedDate <= statsCurrentRange.end;
     });
-    const totalSubs = activeEnrollments.length;
+    
+    const newStudentsPrevious = allStudents.filter(s => {
+      const joinedDate = new Date(s.joinedDate);
+      const isInBranch = selectedBranchIds.length === 0 || s.enrollments.some(e => selectedBranchIds.includes(e.branchId));
+      return isInBranch && joinedDate >= statsPreviousRange.start && joinedDate <= statsPreviousRange.end;
+    });
+
+    const totalSubs = newStudentsCurrent.length;
+    const previousTotalSubs = newStudentsPrevious.length;
+    const subsTrend = previousTotalSubs === 0 ? (totalSubs > 0 ? 100 : 0) : ((totalSubs - previousTotalSubs) / previousTotalSubs) * 100;
 
     const activeStudentsCount = allStudents.filter(s => 
       s.status === 'active' &&
@@ -242,8 +274,20 @@ export const DashboardPage = () => {
         { name: t('dashboard.revenue_type_session'), value: sessionRevenue },
     ];
 
-    // --- Prepare Chart Data ---
-    const revenueChartData = groupRevenueByLabel(incomeTransactions, timeRange, t);
+    // Xác định chế độ gom nhóm cho biểu đồ
+    let chartGroupingMode: 'today' | 'day' | 'week' | 'month' | 'year' = timeRange as any;
+    if (timeRange === 'custom') {
+        const diffDays = (chartRange.end.getTime() - chartRange.start.getTime()) / (1000 * 3600 * 24);
+        if (diffDays <= 2) chartGroupingMode = 'today';
+        else if (diffDays <= 31) chartGroupingMode = 'day';
+        else if (diffDays <= 90) chartGroupingMode = 'week';
+        else if (diffDays <= 730) chartGroupingMode = 'month';
+        else chartGroupingMode = 'year';
+    }
+
+
+    // --- Prepare Chart Data (Thu & Chi) ---
+    const incomeExpenseChartData = groupIncomeExpenseByLabel(currentChartTransactions, chartGroupingMode, t);
 
     // --- Recent Activities Calculation ---
     const activities: ActivityItem[] = [];
@@ -281,16 +325,28 @@ export const DashboardPage = () => {
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       .slice(0, 5);
 
+    // --- Map Ongoing Classes to UI format ---
+    const mappedOngoingClasses = ongoingClasses.map((cls: any) => ({
+      ...cls,
+      students: cls.currentStudents ?? cls.students ?? 0,
+      time: cls.schedule ?? cls.time ?? 'N/A'
+    }));
+
     return {
       totalRevenue,
+      revenueTrend,
       totalSubs,
+      subsTrend,
       totalSales,
+      salesTrend,
       totalActive: activeStudentsCount,
-      chartData: revenueChartData,
+      chartData: incomeExpenseChartData,
       revenueByTypeData,
       recentActivities,
       branches: allBranches,
-      ongoingClasses: ongoingClasses.slice(0, 4) // Limit to 4
+      ongoingClasses: mappedOngoingClasses.slice(0, 4), // Limit to 4
+      currentTransactions: currentStatsTransactions, // Biểu đồ tròn dùng dữ liệu Stats (chính xác theo thời gian chọn)
+      customDayCount // Số ngày tùy chỉnh để hiển thị label
     };
   }, [allStudents, allBranches, ongoingClasses, allTransactions, selectedBranchIds, timeRange, t]);
 
@@ -333,13 +389,17 @@ export const DashboardPage = () => {
       </Box>
 
       {/* Filters Section */}
-      <DashboardFilters 
+      <FilterBar 
         branches={pageData?.branches || []}
         selectedBranchIds={selectedBranchIds}
         onToggleBranch={toggleBranch}
         onClearBranchSelection={() => setSelectedBranchIds([])}
         timeRange={timeRange}
         onTimeRangeChange={setTimeRange}
+        customStartDate={customStartDate}
+        onCustomStartDateChange={setCustomStartDate}
+        customEndDate={customEndDate}
+        onCustomEndDateChange={setCustomEndDate}
       />
 
       {/* Error State */}
@@ -354,12 +414,43 @@ export const DashboardPage = () => {
       )}
 
       {/* Stats Grid */}
-      <DashboardStatsGrid pageData={pageData} isLoading={isLoading} />
+      <DashboardStatsGrid 
+        pageData={pageData} 
+        isLoading={isLoading} 
+        timeRange={timeRange} 
+        customDayCount={pageData?.customDayCount}
+      />
 
       {/* Main Content: Charts & Recent Activities */}
       <Box display="grid" sx={{ gridTemplateColumns: { base: '1fr', lg: '2fr 1fr' } }} gap="xl">
         {/* Left Column: Charts */}
-        <DashboardCharts pageData={pageData} timeRange={timeRange} isLoading={isLoading} />
+        {/* <DashboardCharts pageData={pageData} timeRange={timeRange} isLoading={isLoading} /> */}
+        <Box
+          sx={{
+            display: "grid",
+            gap: "24px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", // Tự động xuống dòng nếu màn hình nhỏ
+            alignItems: "stretch"
+          }}
+        >
+          <Card sx={{ p: 'lg', height: 420 }}>
+            <Text variant="heading-md" mb="md">
+              Thu / Chi
+            </Text>
+            <Box sx={{ width: "100%", height: "340px" }}>
+              <IncomeExpenseChart data={pageData?.chartData} />
+            </Box>
+          </Card>
+
+          <Card sx={{ p: 'lg', height: 420 }}>
+            <Text variant="heading-md" mb="md">
+              Tỷ trọng doanh thu theo Chi nhánh
+            </Text>
+            <Box sx={{ width: "100%", height: "340px" }}>
+              <BranchRevenueChart transactions={pageData?.currentTransactions || []} branches={allBranches} />
+            </Box>
+          </Card>
+        </Box>
 
         {/* Right Column: Recent Activities */}
         <RecentActivities activities={pageData?.recentActivities || []} />

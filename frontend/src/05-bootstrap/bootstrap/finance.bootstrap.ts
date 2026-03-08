@@ -3,6 +3,7 @@ import type { TransactionRepository } from '@/03-interface-adapters/gateways/inb
 import { CreateTransactionInteractor } from '@/02-usecases/finance/CreateTransaction.interactor';
 import { ListTransactionsInteractor } from '@/02-usecases/finance/ListTransactions.interactor';
 import { CollectTuitionInteractor } from '@/02-usecases/finance/CollectTuition.interactor';
+import { ListPendingTuitionsInteractor } from '@/02-usecases/finance/ListPendingTuitions.interactor';
 import { FinanceController } from '@/03-interface-adapters/controllers/Finance.controller';
 
 export function bootstrapFinance(
@@ -12,11 +13,13 @@ export function bootstrapFinance(
   const createTransactionInteractor = new CreateTransactionInteractor(transactionRepository, studentRepository);
   const listTransactionsInteractor = new ListTransactionsInteractor(transactionRepository);
   const collectTuitionInteractor = new CollectTuitionInteractor(transactionRepository, studentRepository);
+  const listPendingTuitionsInteractor = new ListPendingTuitionsInteractor(studentRepository);
 
   const financeController = new FinanceController(
     createTransactionInteractor,
     listTransactionsInteractor,
-    collectTuitionInteractor
+    collectTuitionInteractor,
+    listPendingTuitionsInteractor
   );
 
   return {

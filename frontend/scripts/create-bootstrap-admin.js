@@ -18,7 +18,7 @@ import admin from 'firebase-admin';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.resolve(__dirname, '../../.env.local') });
+dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 // Lấy thông tin cấu hình Firebase từ biến môi trường
 // Điều này an toàn hơn là import trực tiếp file service-account-key.json

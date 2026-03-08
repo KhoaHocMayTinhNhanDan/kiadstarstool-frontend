@@ -49,9 +49,14 @@ export class FirebaseActivityDataSource implements IActivityDataSource {
       // FIX: Loại bỏ các trường undefined (như details) vì Firestore không hỗ trợ
       const sanitizedData = JSON.parse(JSON.stringify(data));
 
+      // Tính toán ngày hết hạn (360 ngày kể từ hôm nay) để dùng cho Firestore TTL Policy
+      const expireAt = new Date();
+      expireAt.setDate(expireAt.getDate() + 360);
+
       await addDoc(this.collectionRef, {
         ...sanitizedData,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
+        expireAt: expireAt // Trường này sẽ được Firestore dùng để tự động xóa
       });
     } catch (error) {
       console.error("[FirebaseActivityDataSource] save error:", error);

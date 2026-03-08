@@ -1,9 +1,10 @@
 /** @jsxImportSource @emotion/react */
 import { useState, useMemo, useEffect } from 'react';
-import { Box, Text, Icon, Button } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING, RADIUS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
+import { Box, Text, Icon, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+import { COLORS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { StatusBadge } from './StudentSharedComponents';
-import { User, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { User, Filter } from 'lucide-react';
+import { DataTable } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/data/DataTable/DataTable.organism';
 
 interface AttendanceHistoryItem {
   classId: string;
@@ -88,13 +89,44 @@ export const StudentAttendanceHistory = ({ history }: StudentAttendanceHistoryPr
     return filteredHistory.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredHistory, currentPage]);
 
-  const handlePrevPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, totalPages));
-  };
+  const columns = [
+    {
+      key: 'date',
+      header: 'Ngày',
+      render: (record: AttendanceHistoryItem) => (
+        <Text size="sm">{new Date(record.date).toLocaleDateString('vi-VN')}</Text>
+      )
+    },
+    {
+      key: 'className',
+      header: 'Lớp học',
+      render: (record: AttendanceHistoryItem) => (
+        <Text size="sm" weight="medium">{record.className}</Text>
+      )
+    },
+    {
+      key: 'status',
+      header: 'Trạng thái',
+      render: (record: AttendanceHistoryItem) => (
+        <StatusBadge status={record.status} />
+      )
+    },
+    {
+      key: 'score',
+      header: 'Điểm số',
+      render: (record: AttendanceHistoryItem) => <Text size="sm">{record.score ?? '-'}</Text>
+    },
+    {
+      key: 'markedBy',
+      header: 'Người thực hiện',
+      render: (record: AttendanceHistoryItem) => (
+        <Box display="flex" alignItems="center" gap="sm">
+          <Avatar src={record.markedByAvatarUrl} name={record.markedBy} />
+          <Text size="sm" color="SECONDARY">{record.markedBy || '-'}</Text>
+        </Box>
+      )
+    }
+  ];
 
   return (
     <Box>
@@ -105,103 +137,34 @@ export const StudentAttendanceHistory = ({ history }: StudentAttendanceHistoryPr
         <Box display="flex" gap="sm">
           <Box display="flex" alignItems="center" gap="xs" px="sm" py="xs" bg="BACKGROUND_PAPER" border={`1px solid ${COLORS.NEUTRAL_BORDER}`} borderRadius="md">
             <Icon size="xs" color="SECONDARY"><Filter /></Icon>
-            <select 
+            <Select 
               value={selectedMonth} 
               onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '14px' }}
-            >
-              {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
-                <option key={m} value={m}>Tháng {m}</option>
-              ))}
-            </select>
+              options={Array.from({ length: 12 }, (_, i) => i + 1).map(m => ({ label: `Tháng ${m}`, value: m }))}
+              sx={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '14px' }}
+            />
           </Box>
 
           <Box display="flex" alignItems="center" px="sm" py="xs" bg="BACKGROUND_PAPER" border={`1px solid ${COLORS.NEUTRAL_BORDER}`} borderRadius="md">
-            <select 
+            <Select 
               value={selectedYear} 
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '14px' }}
-            >
-              {availableYears.map(y => (
-                <option key={y} value={y}>Năm {y}</option>
-              ))}
-            </select>
+              options={availableYears.map(y => ({ label: `Năm ${y}`, value: y }))}
+              sx={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '14px' }}
+            />
           </Box>
         </Box>
       </Box>
       
-      <Box bg="BACKGROUND_PAPER" borderRadius="md" border={`1px solid ${COLORS.NEUTRAL_BORDER}`} overflow="hidden">
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom: `1px solid ${COLORS.NEUTRAL_BORDER}`, backgroundColor: COLORS.NEUTRAL_LIGHT }}>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Ngày</Text></th>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Lớp học</Text></th>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Trạng thái</Text></th>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Điểm số</Text></th>
-              <th style={{ padding: SPACING.md, textAlign: 'left' }}><Text weight="semibold" size="sm">Người thực hiện</Text></th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedHistory.length === 0 ? (
-              <tr>
-                <td colSpan={5} style={{ padding: SPACING.xl, textAlign: 'center' }}>
-                  <Text color="SECONDARY">Không có dữ liệu trong tháng {selectedMonth}/{selectedYear}.</Text>
-                </td>
-              </tr>
-            ) : (
-              paginatedHistory.map((record, index) => (
-                <tr key={index} style={{ borderBottom: `1px solid ${COLORS.NEUTRAL_BORDER}` }}>
-                  <td style={{ padding: SPACING.md }}>
-                    <Text size="sm">{new Date(record.date).toLocaleDateString('vi-VN')}</Text>
-                  </td>
-                  <td style={{ padding: SPACING.md }}>
-                    <Text size="sm" weight="medium">{record.className}</Text>
-                  </td>
-                  <td style={{ padding: SPACING.md }}>
-                    <StatusBadge status={record.status} />
-                  </td>
-                  <td style={{ padding: SPACING.md }}>
-                    <Text size="sm">{record.score ?? '-'}</Text>
-                  </td>
-                  <td style={{ padding: SPACING.md }}>
-                    <Box display="flex" alignItems="center" gap="sm">
-                      <Avatar src={record.markedByAvatarUrl} name={record.markedBy} />
-                      <Text size="sm" color="SECONDARY">{record.markedBy || '-'}</Text>
-                    </Box>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </Box>
-
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <Box display="flex" justifyContent="flex-end" alignItems="center" mt="md" gap="sm">
-          <Text size="sm" color="SECONDARY">
-            Trang {currentPage} / {totalPages}
-          </Text>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handlePrevPage} 
-            disabled={currentPage === 1}
-            leftIcon={<Icon><ChevronLeft /></Icon>}
-          >
-            Trước
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleNextPage} 
-            disabled={currentPage === totalPages}
-            rightIcon={<Icon><ChevronRight /></Icon>}
-          >
-            Sau
-          </Button>
-        </Box>
-      )}
+      <DataTable
+        data={paginatedHistory}
+        columns={columns}
+        keyExtractor={(item) => item.classId + item.date}
+        emptyMessage={`Không có dữ liệu trong tháng ${selectedMonth}/${selectedYear}.`}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </Box>
   );
 };

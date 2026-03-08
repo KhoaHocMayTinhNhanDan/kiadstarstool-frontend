@@ -5,6 +5,7 @@ import { Box, Text, Icon } from '@/04-frameworks-and-drivers/ui/web/00-design-sy
 import { COLORS, SHADOWS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { type GetStudentDetailsOutput } from '@/02-usecases/students/ports/output/GetStudentDetails.output';
 import { InfoItem } from './StudentSharedComponents';
+import { parsePhoneString } from '@/shared/utils/phoneUtils';
 
 interface StudentProfileCardProps {
   student: GetStudentDetailsOutput;
@@ -70,7 +71,20 @@ export const StudentProfileCard = ({ student }: StudentProfileCardProps) => {
           label="Điện thoại" 
           value={
             student.phone ? (
-              student.phone.split(' - ').map((p, i) => <div key={i}>{p}</div>)
+              <Box display="flex" flexDirection="column" gap="xs">
+                {parsePhoneString(student.phone).map((p, i) => {
+                  return (
+                    <Box key={i} display="flex" alignItems="center" gap="xs">
+                      <a href={`tel:${p.number}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Text size="sm" weight="medium" color="PRIMARY">{p.number}</Text>
+                        {/* Thêm ngoặc đơn cho note để hiển thị đẹp hơn */}
+                        {p.note && <Text size="sm" color="SECONDARY">({p.note})</Text>}
+                        <Icon size="xs" color="PRIMARY"><Phone size={12} /></Icon>
+                      </a>
+                    </Box>
+                  );
+                })}
+              </Box>
             ) : 'N/A'
           } 
         />

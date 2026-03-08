@@ -1,309 +1,432 @@
+// src/04-frameworks-and-drivers/ui/web/02-app/pages/finance/FinancePage.tsx
 /** @jsxImportSource @emotion/react */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, DollarSign, TrendingUp, TrendingDown, FileText, Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { Box, Text, Button, Icon, Card, Input, Select } from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
-import { COLORS, SPACING } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
+import { Plus, DollarSign, TrendingUp, TrendingDown, Download } from 'lucide-react';
+
+import {
+  Box,
+  Text,
+  Button,
+  Icon,
+  Select,
+  Card
+} from '@/04-frameworks-and-drivers/ui/web/00-design-system/00-atoms';
+
+import { COLORS } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/constants/tokens-constants';
 import { AppContext } from '@/05-bootstrap/app-context';
-import { StatCard } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/cards/StatCard/StatCard';
+import { useToast } from '@/04-frameworks-and-drivers/ui/web/01-ui-core/hooks/useToast';
+
+import { DataTable } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/data/DataTable/DataTable.organism';
+
 import { IncomeExpenseChart } from './components/IncomeExpenseChart';
-import { BarChart, type BarSeries } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/charts/BarChart';
-import { Pagination } from '@/04-frameworks-and-drivers/ui/web/00-design-system/02-organisms/navigation/Pagination';
+import { BranchRevenueChart } from './components/BranchRevenueChart';
+import { FilterBar, type TimeRangeType } from '../../share-page-or-components/components/FilterBar';
+import { getChartDateRange, groupIncomeExpenseByLabel } from '../../../../../../shared/utils/chartDataUtils';
+import { useI18n } from '@/shared/i18n/useI18n';
 
 export const FinancePage = () => {
   const navigate = useNavigate();
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
-  const ITEMS_PER_PAGE = 10;
+  const { toast } = useToast();
+  const { t } = useI18n();
 
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [branches, setBranches] = useState<any[]>([]);
+  const [selectedBranchIds, setSelectedBranchIds] = useState<string[]>([]);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState<TimeRangeType>('today');
+  const [customStartDate, setCustomStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [customEndDate, setCustomEndDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // ---------------------------
+  // Load branches (once)
+  // ---------------------------
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const branchController = AppContext.getBranchController();
+        const result = await branchController.listBranches({});
+
+        if (result.isSuccess) {
+          setBranches(result.getValue());
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchBranches();
+  }, []);
+
+  // ---------------------------
+  // Load transactions
+  // ---------------------------
   useEffect(() => {
     const fetchTransactions = async () => {
       setIsLoading(true);
+
       try {
-        const controller = AppContext.getFinanceController();
-        const result = await controller.listTransactions({});
+        const financeController = AppContext.getFinanceController();
+
+        // Fetch ALL transactions and filter locally for better UX
+        const result = await financeController.listTransactions({});
         if (result.isSuccess) {
           setTransactions(result.getValue());
         }
-      } catch (error) {
-        console.error('Failed to load transactions', error);
+      } catch (err) {
+        console.error(err);
+        toast.error('Lỗi tải dữ liệu giao dịch');
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchTransactions();
   }, []);
 
-  // Calculate Stats
-  const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-  const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-  const netProfit = totalIncome - totalExpense;
+  // ---------------------------
+  // Filter Logic
+  // ---------------------------
+  const filteredData = useMemo(() => {
+    const { start, end } = getChartDateRange(timeRange, 0, customStartDate, customEndDate);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    const filteredTransactions = transactions.filter(t => {
+      const trxDate = new Date(t.date);
+      const isInBranch = selectedBranchIds.length === 0 || selectedBranchIds.includes(t.branchId);
+      const isInTimeRange = trxDate >= start && trxDate <= end;
+      return isInBranch && isInTimeRange;
+    });
+
+    // Determine grouping mode for chart
+    let chartGroupingMode: any = timeRange;
+    if (timeRange === 'custom') {
+        const diffDays = (end.getTime() - start.getTime()) / (1000 * 3600 * 24);
+        if (diffDays <= 2) chartGroupingMode = 'today';
+        else if (diffDays <= 31) chartGroupingMode = 'day';
+        else if (diffDays <= 90) chartGroupingMode = 'week';
+        else if (diffDays <= 730) chartGroupingMode = 'month';
+        else chartGroupingMode = 'year';
+    }
+
+    const chartData = groupIncomeExpenseByLabel(filteredTransactions, chartGroupingMode, t);
+
+    return {
+      transactions: filteredTransactions,
+      chartData
+    };
+  }, [transactions, selectedBranchIds, timeRange, customStartDate, customEndDate, t]);
+
+  const toggleBranch = (branchId: string) => {
+    setSelectedBranchIds(prev => prev.includes(branchId) ? prev.filter(id => id !== branchId) : [...prev, branchId]);
   };
 
-  const formatDate = (dateValue: any) => {
-    try {
-      const d = new Date(dateValue);
-      return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString('vi-VN');
-    } catch {
-      return 'N/A';
-    }
-  };
+  // ---------------------------
+  // Summary
+  // ---------------------------
+  const summary = useMemo(() => {
+    return filteredData.transactions.reduce(
+      (acc, curr) => {
+        const amount = Number(curr.amount) || 0;
 
-  // Process data for BranchRevenueChart
-  const branchRevenueData = transactions.reduce((acc: { name: string, revenue: number }[], curr) => {
-    if (curr.type !== 'income') return acc;
-    
-    const branchName = curr.branchId; // TODO: Map branchId to branchName for better display
-    const existing = acc.find(item => item.name === branchName);
+        if (curr.type === 'income') acc.income += amount;
+        if (curr.type === 'expense') acc.expense += amount;
 
-    if (existing) {
-      existing.revenue += curr.amount;
-    } else {
-      acc.push({ name: branchName, revenue: curr.amount });
-    }
-    return acc;
-  }, []);
-  const revenueSeries: BarSeries[] = [{ key: 'revenue', name: 'Doanh thu', color: COLORS.PRIMARY }];
+        return acc;
+      },
+      { income: 0, expense: 0 }
+    );
+  }, [filteredData.transactions]);
 
-  // Filter logic
-  const filteredTransactions = transactions.filter(t => {
-    const matchesType = filterType === 'all' || t.type === filterType;
-    const matchesSearch = 
-      t.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (t.description && t.description.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    return matchesType && matchesSearch;
-  });
+  // ---------------------------
+  // Table columns
+  // ---------------------------
+  const columns = useMemo(
+    () => [
+      {
+        key: 'code',
+        header: 'Mã GD',
+        render: (item: any) => (
+          <Text weight="medium" size="sm">
+            {item.code}
+          </Text>
+        )
+      },
 
-  // Sort logic
-  const sortedTransactions = [...filteredTransactions].sort((a, b) => {
-    if (!sortConfig) return 0;
-    
-    let aValue = a[sortConfig.key];
-    let bValue = b[sortConfig.key];
+      {
+        key: 'date',
+        header: 'Ngày',
+        render: (item: any) => (
+          <Text size="sm">
+            {new Date(item.date).toLocaleDateString('vi-VN')}
+          </Text>
+        )
+      },
 
-    // Handle specific types
-    if (sortConfig.key === 'date') {
-      aValue = new Date(a.date).getTime();
-      bValue = new Date(b.date).getTime();
-    } else if (typeof aValue === 'string') {
-      aValue = aValue.toLowerCase();
-      bValue = bValue.toLowerCase();
-    }
+      {
+        key: 'type',
+        header: 'Loại',
+        render: (item: any) => (
+          <Box
+            display="inline-flex"
+            alignItems="center"
+            gap="xs"
+            px="sm"
+            py="xxs"
+            borderRadius="full"
+            bg={item.type === 'income' ? 'SUCCESS_LIGHT' : 'DANGER_LIGHT'}
+          >
+            <Icon
+              size="xs"
+              color={item.type === 'income' ? 'SUCCESS' : 'DANGER'}
+            >
+              {item.type === 'income' ? <TrendingUp /> : <TrendingDown />}
+            </Icon>
 
-    if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
-    return 0;
-  });
+            <Text
+              size="xs"
+              weight="bold"
+              color={item.type === 'income' ? 'SUCCESS' : 'DANGER'}
+            >
+              {item.type === 'income' ? 'Thu' : 'Chi'}
+            </Text>
+          </Box>
+        )
+      },
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filterType, searchQuery]);
+      {
+        key: 'description',
+        header: 'Nội dung',
+        width: '30%',
+        render: (item: any) => (
+          <Box>
+            <Text size="sm" truncate>
+              {item.description}
+            </Text>
 
-  // Pagination logic
-  const paginatedTransactions = sortedTransactions.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+            {item.studentId && (
+              <Text size="xs" color="SECONDARY">
+                HV: {item.studentId}
+              </Text>
+            )}
+          </Box>
+        )
+      },
 
-  const handleSort = (key: string) => {
-    let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    setSortConfig({ key, direction });
-  };
-
-  // Helper render header sortable
-  const SortableHeader = ({ label, sortKey, align = 'left' }: { label: string, sortKey?: string, align?: string }) => (
-    <Box 
-      display="flex" 
-      alignItems="center" 
-      gap="xs" 
-      onClick={() => sortKey && handleSort(sortKey)}
-      sx={{ 
-        cursor: sortKey ? 'pointer' : 'default',
-        justifyContent: align === 'right' ? 'flex-end' : 'flex-start',
-        userSelect: 'none',
-        '&:hover': sortKey ? { color: COLORS.PRIMARY } : {}
-      }}
-    >
-      <Text weight="semibold" size="sm">{label}</Text>
-      {sortKey && (
-        <Box display="flex" flexDirection="column" color={sortConfig?.key === sortKey ? 'PRIMARY' : 'NEUTRAL_LIGHT'}>
-          {sortConfig?.key === sortKey ? (
-            sortConfig.direction === 'asc' ? <Icon size="xs"><ArrowUp /></Icon> : <Icon size="xs"><ArrowDown /></Icon>
-          ) : (
-            <Icon size="xs"><ArrowUpDown /></Icon>
-          )}
-        </Box>
-      )}
-    </Box>
+      {
+        key: 'amount',
+        header: 'Số tiền',
+        render: (item: any) => (
+          <Text
+            weight="bold"
+            color={item.type === 'income' ? 'SUCCESS' : 'DANGER'}
+          >
+            {item.type === 'income' ? '+' : '-'}
+            {(item.amount || 0).toLocaleString('vi-VN')} đ
+          </Text>
+        )
+      }
+    ],
+    []
   );
 
   return (
-    <Box display="flex" flexDirection="column" gap="lg">
-      {/* Header */}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+    <Box
+      p="xl"
+      maxWidth="1200px"
+      mx="auto"
+      display="flex"
+      flexDirection="column"
+      gap="lg"
+    >
+      {/* HEADER */}
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        flexWrap="wrap"
+        gap="md"
+      >
         <Box>
-          <Text as="h1" variant="heading-lg" weight="bold">Quản lý Tài chính</Text>
-          <Text color="SECONDARY">Theo dõi thu chi và doanh thu.</Text>
+          <Text as="h1" variant="heading-xl" weight="bold">
+            Tài chính
+          </Text>
+
+          <Text color="SECONDARY">
+            Quản lý thu chi và dòng tiền.
+          </Text>
         </Box>
+
         <Box display="flex" gap="sm">
-          <Button 
-            variant="outline" 
-            leftIcon={<Icon><DollarSign /></Icon>}
+          <Button
+            variant="outline"
+            leftIcon={
+              <Icon>
+                <DollarSign />
+              </Icon>
+            }
             onClick={() => navigate('/finance/collect-tuition')}
           >
             Thu học phí
           </Button>
-          <Button 
-            variant="primary" 
-            leftIcon={<Icon><Plus /></Icon>}
+
+          <Button
+            variant="primary"
+            leftIcon={
+              <Icon>
+                <Plus />
+              </Icon>
+            }
             onClick={() => navigate('/finance/new')}
           >
-            Ghi chép Thu/Chi
+            Ghi chép thu chi
           </Button>
         </Box>
       </Box>
 
-      {/* Stats Cards */}
-      <Box display="grid" gridTemplateColumns="repeat(auto-fit, minmax(250px, 1fr))" gap="md">
-        <StatCard 
-          title="Tổng thu" 
-          value={formatCurrency(totalIncome)} 
-          icon={<TrendingUp />} 
-          accentColor="success" 
-          isLoading={isLoading}
-        />
-        <StatCard 
-          title="Tổng chi" 
-          value={formatCurrency(totalExpense)} 
-          icon={<TrendingDown />} 
-          accentColor="danger" 
-          isLoading={isLoading}
-        />
-        <StatCard 
-          title="Lợi nhuận ròng" 
-          value={formatCurrency(netProfit)} 
-          icon={<DollarSign />} 
-          accentColor={netProfit >= 0 ? 'primary' : 'danger'} 
-          isLoading={isLoading}
-        />
-      </Box>
+      {/* FILTERS */}
+      <FilterBar 
+        branches={branches}
+        selectedBranchIds={selectedBranchIds}
+        onToggleBranch={toggleBranch}
+        onClearBranchSelection={() => setSelectedBranchIds([])}
+        timeRange={timeRange}
+        onTimeRangeChange={setTimeRange}
+        customStartDate={customStartDate}
+        onCustomStartDateChange={setCustomStartDate}
+        customEndDate={customEndDate}
+        onCustomEndDateChange={setCustomEndDate}
+      />
 
-      {/* Charts Section */}
-      <Box display="grid" gridTemplateColumns="repeat(auto-fit, minmax(400px, 1fr))" gap="lg">
-        <Card>
-          <Text weight="bold" mb="md">Thu chi theo thời gian</Text>
-          <Box h="300px" w="100%">
-            {/* TODO: Nên thay thế bằng component AreaChart từ design system */}
-            <IncomeExpenseChart data={transactions} /> 
-          </Box>
-        </Card>
-        <Card>
-          <Text weight="bold" mb="md">Doanh thu theo chi nhánh</Text>
-          <Box h="300px" w="100%">
-            <BarChart 
-              data={branchRevenueData}
-              xAxisKey="name"
-              series={revenueSeries}
-              isLoading={isLoading}
-              valueFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
-            />
-          </Box>
-        </Card>
-      </Box>
-
-      {/* Recent Transactions List */}
-      <Card>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb="md" flexWrap="wrap" gap="md">
-          <Text weight="bold">Giao dịch gần đây</Text>
-          <Box display="flex" gap="sm" alignItems="center">
-            <Box display="flex" alignItems="center" gap="sm" px="md" borderRadius="md" border={`1px solid ${COLORS.NEUTRAL_BORDER}`}>
-               <Icon color="SECONDARY" size="sm"><Search /></Icon>
-               <Input 
-                 placeholder="Tìm mã, nội dung..." 
-                 value={searchQuery}
-                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-                 style={{ border: 'none', background: 'transparent', padding: '8px 0', outline: 'none', width: '200px' }}
-               />
-            </Box>
-            <Select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value as any)}
-              options={[
-                { label: 'Tất cả', value: 'all' },
-                { label: 'Khoản thu', value: 'income' },
-                { label: 'Khoản chi', value: 'expense' }
-              ]}
-              sx={{ width: '150px' }}
-            />
-          </Box>
-        </Box>
-        
-        {/* Table using Box Grid */}
-        <Box overflow="auto">
-          {/* Header */}
-          <Box 
-            display="grid" 
-            px="md" py="sm" 
-            bg="NEUTRAL_LIGHT"
-            sx={{ 
-              gridTemplateColumns: "1.5fr 1.5fr 3fr 1.5fr 1.5fr",
-              borderBottom: `1px solid ${COLORS.NEUTRAL_BORDER}`,
-              minWidth: '800px' // Ensure horizontal scroll on small screens
-            }}
-          >
-            <SortableHeader label="Mã GD" sortKey="code" />
-            <SortableHeader label="Ngày" sortKey="date" />
-            <SortableHeader label="Nội dung" sortKey="description" />
-            <SortableHeader label="Chi nhánh" sortKey="branchId" />
-            <SortableHeader label="Số tiền" sortKey="amount" align="right" />
-          </Box>
-
-          {/* Body */}
-          {paginatedTransactions.map(t => (
-            <Box 
-              key={t.id} 
-              display="grid" 
-              px="md" py="md"
-              alignItems="center"
-              sx={{ 
-                gridTemplateColumns: "1.5fr 1.5fr 3fr 1.5fr 1.5fr",
-                borderBottom: `1px solid ${COLORS.NEUTRAL_LIGHT}`,
-                minWidth: '800px',
-                '&:hover': { backgroundColor: COLORS.NEUTRAL_LIGHT }
-              }}
+      {/* KPI CARDS */}
+      <Box
+        display="grid"
+        gap="md"
+        sx={{
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))'
+        }}
+      >
+        <Card
+          sx={{
+            background: `linear-gradient(135deg, ${COLORS.PRIMARY} 0%, ${COLORS.PRIMARY_DARK} 100%)`,
+            color: 'white'
+          }}
+        >
+          <Box display="flex" alignItems="center" gap="md">
+            <Box
+              p="sm"
+              bg="rgba(255,255,255,0.2)"
+              borderRadius="full"
             >
-              <Text size="sm" weight="medium">{t.code}</Text>
-              <Text size="sm" color="SECONDARY">{formatDate(t.date)}</Text>
-              <Text size="sm" truncate>{t.description}</Text>
-              <Text size="sm" color="SECONDARY">{t.branchId}</Text>
-              <Text size="sm" weight="bold" align="right" color={t.type === 'income' ? 'SUCCESS' : 'DANGER'}>
-                {t.type === 'income' ? '+' : '-'}{t.amount.toLocaleString()}
+              <Icon size="lg" color="white">
+                <DollarSign />
+              </Icon>
+            </Box>
+
+            <Box>
+              <Text size="sm" color="white" sx={{ opacity: 0.9 }}>
+                Lợi nhuận ròng
+              </Text>
+
+              <Text variant="heading-lg" weight="bold">
+                {(summary.income - summary.expense).toLocaleString(
+                  'vi-VN'
+                )}{' '}
+                đ
               </Text>
             </Box>
-          ))}
-          
-          {sortedTransactions.length > ITEMS_PER_PAGE && (
-            <Box display="flex" justifyContent="center" p="md">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={Math.ceil(sortedTransactions.length / ITEMS_PER_PAGE)}
-                onPageChange={setCurrentPage}
-              />
+          </Box>
+        </Card>
+
+        <Card>
+          <Box display="flex" alignItems="center" gap="md">
+            <Box p="sm" bg="SUCCESS_LIGHT" borderRadius="full">
+              <Icon size="lg" color="SUCCESS">
+                <TrendingUp />
+              </Icon>
             </Box>
-          )}
+
+            <Box>
+              <Text color="SECONDARY" size="sm">
+                Tổng thu
+              </Text>
+
+              <Text color="SUCCESS" variant="heading-lg" weight="bold">
+                +{summary.income.toLocaleString('vi-VN')} đ
+              </Text>
+            </Box>
+          </Box>
+        </Card>
+      </Box>
+
+      {/* CHARTS */}
+      <Box
+        sx={{
+          display: "grid",
+          gap: "24px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))",
+          alignItems: "stretch"
+        }}
+      >
+        <Card sx={{ p: 3, height: 420 }}>
+          <Text variant="heading-md" mb="md">
+            Thu / Chi (6 tháng gần nhất)
+          </Text>
+
+          <Box sx={{ width: "100%", height: "340px" }}>
+            <IncomeExpenseChart data={filteredData.chartData} />
+          </Box>
+        </Card>
+
+        <Card sx={{ p: 3, height: 420 }}>
+          <Text variant="heading-md" mb="md">
+            Tỷ trọng doanh thu theo Chi nhánh
+          </Text>
+
+          <Box sx={{ width: "100%", height: "340px" }}>
+            <BranchRevenueChart
+              transactions={filteredData.transactions}
+              branches={branches}
+            />
+          </Box>
+        </Card>
+      </Box>
+
+      {/* TRANSACTIONS TABLE */}
+      <Box>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb="md"
+        >
+          <Text as="h2" variant="heading-lg" weight="bold">
+            Lịch sử giao dịch
+          </Text>
+
+          <Box display="flex" gap="sm">
+            <Button
+              variant="ghost"
+              leftIcon={
+                <Icon>
+                  <Download />
+                </Icon>
+              }
+            >
+              Xuất Excel
+            </Button>
+          </Box>
         </Box>
-      </Card>
+
+        <DataTable
+          data={filteredData.transactions}
+          columns={columns}
+          keyExtractor={(item) => item.id}
+          isLoading={isLoading}
+          emptyMessage="Chưa có giao dịch nào."
+          totalPages={0}
+        />
+      </Box>
     </Box>
   );
 };

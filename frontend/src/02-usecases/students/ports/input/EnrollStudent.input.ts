@@ -1,10 +1,11 @@
+export type PaymentScheme = 'course' | 'monthly' | 'session';
+
 export interface EnrollStudentInput {
   studentId: string;
   classId: string;
-  // Optional: details about the payment for this enrollment
-  tuitionDetails?: {
-    amount: number;
-    paymentStatus: 'paid' | 'unpaid' | 'partial';
-    paidAmount?: number;
-  };
+  branchId?: string;
+  paymentScheme?: PaymentScheme;
+  quantity?: number;
+  discountAmount?: number;
+  joinedDate?: Date;
 }
