@@ -14,11 +14,42 @@ export class CreateBranchInteractor {
     this.branchRepo = branchRepo;
   }
 
-  async execute(input: CreateBranchInput): Promise<Result<void>> {
-    // 1. Validate input cơ bản (nếu cần thiết ngoài entity)
+  private createAcronym(name: string): string {
+    if (!name) return 'XX';
+    // Chuẩn hóa, bỏ dấu, và lấy chữ cái đầu của mỗi từ
+    const normalized = name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d").replace(/Đ/g, "D");
+      
+    const acronym = normalized
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase();
+      
+    return acronym.substring(0, 3); // Giới hạn 3 ký tự cho nhất quán
+  }
+
+  private async generateBranchCode(province: string): Promise<string> {
+    const acronym = this.createAcronym(province);
+    const prefix = `BR-${acronym}-`;
+
+    const lastSequence = await this.branchRepo.findLastSequenceForPrefix(prefix);
+    const nextSequence = lastSequence + 1;
     
-    // 2. Kiểm tra trùng lặp (Business Rule: Mã chi nhánh là duy nhất)
-    const exists = await this.branchRepo.exists(input.code);
+    // Định dạng số với 2 chữ số (e.g., 1 -> 01, 10 -> 10)
+    const formattedSequence = nextSequence.toString().padStart(2, '0');
+
+    return `${prefix}${formattedSequence}`;
+  }
+
+  async execute(input: CreateBranchInput): Promise<Result<void>> {
+    // 1. Tự động sinh mã dựa trên tỉnh/thành phố
+    const code = await this.generateBranchCode(input.address.province);
+
+    // 2. Kiểm tra trùng lặp (an toàn, mặc dù logic sinh mã đã cố gắng đảm bảo)
+    const exists = await this.branchRepo.exists(code);
     if (exists) {
       return Result.fail('Branch code already exists');
     }
@@ -37,7 +68,7 @@ export class CreateBranchInteractor {
     // 4. Tạo Entity
     const branchOrError = Branch.create({
       name: input.name,
-      code: input.code,
+      code: code,
       address,
       capacity,
       financial,

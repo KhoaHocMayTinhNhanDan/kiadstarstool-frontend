@@ -25,10 +25,12 @@ export class GetBranchDetailsInteractor {
       name: branch.name,
       code: branch.code,
       address: branch.address.fullAddress, // Sử dụng getter để có địa chỉ đầy đủ
+      houseNumber: branch.address.props.houseNumber || '',
+      lane: branch.address.props.lane || '',
       street: branch.address.props.street || '',
       ward: branch.address.props.ward || '',
-      district: branch.address.props.district || '',
-      city: branch.address.props.city || '',
+      province: branch.address.props.province || '',
+      postalCode: branch.address.props.postalCode || '',
       isActive: branch.isActive,
       capacity: {
         current: branch.capacity.currentStudents,

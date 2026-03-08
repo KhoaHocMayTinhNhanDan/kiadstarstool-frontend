@@ -8,7 +8,8 @@ import {
   query, // Giữ nguyên
   where, // Giữ nguyên
   limit, // Giữ nguyên
-  WriteBatch // Thêm import này
+  WriteBatch, // Thêm import này
+  orderBy
 } from "firebase/firestore";
 import type { IBranchDataSource } from "@/03-interface-adapters/gateways/outbound/device_interfaces/branch/IBranchDataSource";
 import { Branch } from "@/01-entities/branch/Branch.entity";
@@ -111,5 +112,24 @@ export class FirebaseBranchDataSource implements IBranchDataSource {
     const q = query(this.collectionRef, where("code", "==", code), limit(1));
     const snapshot = await getDocs(q);
     return !snapshot.empty;
+  }
+
+  async findLastSequenceForPrefix(prefix: string): Promise<number> {
+    // Query for codes that start with the prefix, order by code descending, and get the top one.
+    // This is more efficient than fetching all and filtering.
+    // The `\uf8ff` is a high-point code character in Unicode, ensuring we get all codes starting with the prefix.
+    const q = query(
+      this.collectionRef, 
+      where("code", ">=", prefix), 
+      where("code", "<", prefix + '\uf8ff'),
+      orderBy("code", "desc"),
+      limit(1)
+    );
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+      return 0;
+    }
+    const lastCode = snapshot.docs[0].data().code as string;
+    return parseInt(lastCode.substring(prefix.length), 10) || 0;
   }
 }

@@ -1,14 +1,16 @@
 /** @jsxImportSource @emotion/react */
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Text, Button, Card, Icon, Input } from '../../../00-design-system/00-atoms';
+import { Box, Text, Button, Card, Icon, Input, Select } from '../../../00-design-system/00-atoms';
 import { AppContext } from '@/05-bootstrap/app-context';
-import { type GetBranchDetailsOutput, type DayOfWeek } from '@/02-usecases/branch/ports/output/GetBranchDetails.output';
+import { type GetBranchDetailsOutput } from '@/02-usecases/branch/ports/output/GetBranchDetails.output';
 import { type ListClassesByBranchOutput } from '@/02-usecases/class/ports/output/ListClassesByBranch.output';
 import { type StudentListItem } from '@/02-usecases/students/ports/output/ListStudentsByBranch.output';
+import { type UserOutput } from '@/02-usecases/users/ports/output/IUserOutput';
 import { ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
-import { ArrowLeft, MapPin, Users, Clock, Edit, Trash2, Calendar, BookOpen, GraduationCap, Plus, X } from 'lucide-react';
+import { ROLE_LABELS } from '@/shared/constants/authorization';
+import { ArrowLeft, MapPin, Users, Clock, Edit, Trash2, Calendar, BookOpen, GraduationCap, Plus, X, UserCheck } from 'lucide-react';
 import { SPACING } from '../../../01-ui-core/constants/tokens-constants';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { useBranch } from '../../hooks/branch/useBranch';
@@ -26,7 +28,10 @@ export const BranchDetailPage = () => {
   const [isLoadingClasses, setIsLoadingClasses] = useState(false);
   const [students, setStudents] = useState<StudentListItem[]>([]);
   const [isLoadingStudents, setIsLoadingStudents] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'classes' | 'students'>('overview');
+  const [users, setUsers] = useState<UserOutput[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'classes' | 'students' | 'users'>('overview');
+  const [userRoleFilter, setUserRoleFilter] = useState<'all' | string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 5;
   
@@ -99,10 +104,38 @@ export const BranchDetailPage = () => {
     }
   };
 
+  const fetchUsers = async () => {
+    if (!branchId || activeTab !== 'users') return;
+
+    setIsLoadingUsers(true);
+    try {
+      const controller = AppContext.getUsersController();
+      const result = await controller.listUsers({});
+      if (result.isSuccess) {
+        const allUsers = result.getValue();
+        // Filter users associated with this branch
+        // An admin should be visible in any branch, regardless of the managedBranches list.
+        const branchUsers = allUsers.filter(user => 
+          user.role === 'admin' || user.profile?.managedBranches?.includes(branchId));
+        setUsers(branchUsers);
+        setUserRoleFilter('all'); // Reset filter
+        setCurrentPage(1); // Reset pagination
+      }
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
   // Fetch data when tab changes
   useEffect(() => {
     fetchClasses();
     fetchStudents();
+    fetchUsers();
+    // Reset pagination and filters when tab changes
+    setCurrentPage(1);
+    if (activeTab !== 'users') {
+      setUserRoleFilter('all');
+    }
   }, [branchId, activeTab]);
 
   const handleDelete = async () => {
@@ -176,6 +209,18 @@ export const BranchDetailPage = () => {
       setIsCreatingStudent(false);
     }
   };
+
+  // Derived state for filtered users
+  const filteredUsers = users.filter(user => {
+    if (userRoleFilter === 'all') return true;
+    return user.role === userRoleFilter;
+  });
+
+  // Options for role filter dropdown
+  const roleOptions = [
+    { label: t('branch.all_roles'), value: 'all' },
+    ...Object.entries(ROLE_LABELS).map(([value, label]) => ({ label, value }))
+  ];
 
   if (isLoading) {
     return <Box p="xl"><Text>{t('branch.loading_detail')}</Text></Box>;
@@ -266,6 +311,18 @@ export const BranchDetailPage = () => {
           }}
         >
           Students
+        </Button>
+        <Button 
+          variant="ghost" 
+          onClick={() => setActiveTab('users')}
+          sx={{ 
+            borderBottom: activeTab === 'users' ? '2px solid' : 'none',
+            borderColor: 'PRIMARY',
+            borderRadius: '0',
+            color: activeTab === 'users' ? 'PRIMARY' : 'TEXT_SECONDARY'
+          }}
+        >
+          {t('sidebar.users')}
         </Button>
       </Box>
 
@@ -413,6 +470,62 @@ export const BranchDetailPage = () => {
                     totalPages={Math.ceil(students.length / ITEMS_PER_PAGE)}
                     onPageChange={setCurrentPage}
                     siblingCount={1}
+                  />
+                </Box>
+              )}
+            </Box>
+          )}
+        </Box>
+      )}
+
+      {activeTab === 'users' && (
+        <Box display="flex" flexDirection="column" gap="md">
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Box width="200px">
+              <Select
+                value={userRoleFilter}
+                onChange={(e) => setUserRoleFilter(e.target.value)}
+                options={roleOptions}
+                fullWidth
+              />
+            </Box>
+            <Button 
+              leftIcon={<Icon><Plus /></Icon>} 
+              onClick={() => toast.info('Chức năng đang được phát triển')}
+              size="sm"
+              disabled
+            >
+              {t('branch.add_user_button')}
+            </Button>
+          </Box>
+          {isLoadingUsers ? (
+            <Text>{t('common.loading')}</Text>
+          ) : filteredUsers.length === 0 ? (
+            <Box p="xl" textAlign="center" bg="NEUTRAL_LIGHT" borderRadius="md">
+              <Icon size="lg" color="SECONDARY"><UserCheck /></Icon>
+              <Text color="SECONDARY">{userRoleFilter === 'all' ? t('branch.no_users_found') : t('branch.no_users_match_filter')}</Text>
+            </Box>
+          ) : (
+            <Box display="flex" flexDirection="column" gap="md">
+              {filteredUsers
+                .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                .map(user => (
+                  <Card key={user.id}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <Box textAlign="left">
+                        <Text weight="bold" size="lg">{user.displayName || user.email}</Text>
+                        <Text color="SECONDARY" size="sm">{user.email}</Text>
+                      </Box>
+                      <Text size="sm" weight="bold" color="PRIMARY" sx={{ textTransform: 'capitalize' }}>{user.role}</Text>
+                    </Box>
+                  </Card>
+                ))}
+              {Math.ceil(filteredUsers.length / ITEMS_PER_PAGE) > 1 && (
+                <Box mt="md" display="flex" justifyContent="center">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={Math.ceil(filteredUsers.length / ITEMS_PER_PAGE)}
+                    onPageChange={setCurrentPage}
                   />
                 </Box>
               )}

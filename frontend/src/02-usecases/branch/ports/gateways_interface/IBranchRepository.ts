@@ -8,4 +8,5 @@ export interface IBranchRepository {
   findAll(): Promise<Branch[]>;
   exists(code: string): Promise<boolean>; // Giữ nguyên
   saveInBatch(branch: Branch, batch: any): void; // Thêm dòng này
+  findLastSequenceForPrefix(prefix: string): Promise<number>;
 }

@@ -3,12 +3,14 @@ import { type WeeklyOperatingHours } from '@/01-entities/branch/value-objects/Br
 
 export interface CreateBranchInput {
   name: string;
-  code: string;
+  code?: string; // Optional: System will generate if not provided
   address: {
+    houseNumber?: string;
+    lane?: string;
     street: string;
     ward: string;
-    district: string;
-    city: string;
+    province: string;
+    postalCode?: string;
   };
   maxStudents?: number;
   totalRooms?: number;

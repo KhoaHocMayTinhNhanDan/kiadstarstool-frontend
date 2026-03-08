@@ -6,10 +6,10 @@ export interface Coordinates {
 }
 
 export interface BranchAddressProps {
+  houseNumber?: string;
+  lane?: string; // Ngõ, ngách, hẻm
   street?: string;
   ward?: string;
-  district?: string;
-  city?: string;
   province?: string;
   country?: string;
   postalCode?: string;
@@ -23,11 +23,11 @@ export class BranchAddress extends ValueObject<BranchAddressProps> {
 
   static create(props: BranchAddressProps = {}): BranchAddress {
     return new BranchAddress({
+      houseNumber: props.houseNumber?.trim() || '',
+      lane: props.lane?.trim() || '',
       street: props.street?.trim() || '',
       ward: props.ward?.trim() || '',
-      district: props.district?.trim() || '',
-      city: props.city?.trim() || '',
-      province: props.province?.trim() || '',
+      province: props.province?.trim() || '', // e.g., "Hà Nội", "Tỉnh Đồng Nai"
       country: props.country?.trim() || 'Việt Nam',
       postalCode: props.postalCode?.trim() || '',
       coordinates: props.coordinates ?? { lat: 0, lng: 0 }
@@ -36,20 +36,16 @@ export class BranchAddress extends ValueObject<BranchAddressProps> {
 
   get fullAddress(): string {
     return [
+      this.props.houseNumber,
+      this.props.lane,
       this.props.street,
       this.props.ward,
-      this.props.district,
-      this.props.city,
       this.props.province,
       this.props.country
     ].filter(Boolean).join(', ');
   }
 
   get shortAddress(): string {
-    return [this.props.district, this.props.city].filter(Boolean).join(', ');
-  }
-
-  isInCity(city: string): boolean {
-    return this.props.city?.toLowerCase() === city.toLowerCase();
+    return [this.props.ward, this.props.province].filter(Boolean).join(', ');
   }
 }

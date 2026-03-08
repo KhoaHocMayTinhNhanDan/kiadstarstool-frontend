@@ -56,10 +56,12 @@ export const EditBranchPage = () => {
           reset({
             name: branch.name,
             code: branch.code,
+            houseNumber: branch.houseNumber,
+            lane: branch.lane,
             street: branch.street,
             ward: branch.ward,
-            district: branch.district,
-            city: branch.city,
+            province: branch.province,
+            postalCode: branch.postalCode,
             maxStudents: branch.capacity.max,
           });
 
@@ -124,10 +126,12 @@ export const EditBranchPage = () => {
       name: data.name,
       code: data.code,
       address: {
+        houseNumber: data.houseNumber,
+        lane: data.lane,
         street: data.street,
         ward: data.ward,
-        district: data.district,
-        city: data.city
+        province: data.province,
+        postalCode: (data as any).postalCode,
       },
       maxStudents: data.maxStudents,
       totalRooms: Number(totalRooms) || 0,
@@ -165,29 +169,43 @@ export const EditBranchPage = () => {
               label={t('branch.code_label')}
               {...register('code')}
               error={errors.code?.message}
+              disabled={true} // Mã chi nhánh không nên sửa đổi
             />
 
             <Text weight="semibold" sx={{ marginTop: SPACING.sm }}>{t('branch.address_section')}</Text>
+            <Box display="grid" gridTemplateColumns="1fr 1fr" gap="md">
+              <Input 
+                label={t('branch.house_number_label')} 
+                {...register('houseNumber')}
+                error={errors.houseNumber?.message}
+              />
+              <Input 
+                label={t('branch.lane_label')} 
+                {...register('lane')}
+                error={errors.lane?.message}
+              />
+            </Box>
             <Input 
               label={t('branch.street_label')} 
               {...register('street')}
               error={errors.street?.message}
             />
-            <Box display="grid" gridTemplateColumns="1fr 1fr 1fr" gap="md">
+            <Box display="grid" gridTemplateColumns="1fr 1fr" gap="md">
               <Input 
                 label={t('branch.ward_label')} 
                 {...register('ward')}
                 error={errors.ward?.message}
               />
               <Input 
-                label={t('branch.district_label')} 
-                {...register('district')}
-                error={errors.district?.message}
+                label={t('branch.province_label')} 
+                {...register('province')}
+                error={errors.province?.message}
               />
               <Input 
-                label={t('branch.city_label')} 
-                {...register('city')}
-                error={errors.city?.message}
+                label={t('branch.postal_code_label')} 
+                {...register('postalCode')}
+                // error={errors.postalCode?.message}
+                placeholder="VD: 100000"
               />
             </Box>
 

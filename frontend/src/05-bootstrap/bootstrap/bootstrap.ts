@@ -104,7 +104,8 @@ export async function bootstrapApp(): Promise<void> {
     const {
       branchController
     } = bootstrapBranch(
-      branchRepository
+      branchRepository,
+      studentRepository
     )
 
     const {

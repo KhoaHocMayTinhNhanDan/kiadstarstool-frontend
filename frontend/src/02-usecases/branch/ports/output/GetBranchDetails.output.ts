@@ -7,10 +7,12 @@ export interface GetBranchDetailsOutput {
   code: string;
   address: string; // Formatted address string
   // Structured address for editing
+  houseNumber: string;
+  lane: string;
   street: string;
   ward: string;
-  district: string;
-  city: string;
+  province: string;
+  postalCode: string;
   isActive: boolean;
   capacity: {
     current: number;

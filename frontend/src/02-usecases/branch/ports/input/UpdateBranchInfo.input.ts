@@ -6,10 +6,12 @@ export interface UpdateBranchInfoInput {
   name?: string;
   code?: string;
   address?: {
+    houseNumber?: string;
+    lane?: string;
     street: string;
     ward: string;
-    district: string;
-    city: string;
+    province: string;
+    postalCode?: string;
   };
   maxStudents?: number;
   totalRooms?: number;

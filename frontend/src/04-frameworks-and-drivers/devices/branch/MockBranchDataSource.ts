@@ -28,10 +28,12 @@ export class MockBranchDataSource implements IBranchDataSource {
           name: 'KiadStars Chi Nhánh Hà Nội',
           code: 'BR-HN-01',
           address: {
-            street: '18 Hoàng Quốc Việt',
+            houseNumber: '18',
+            lane: '',
+            street: 'Hoàng Quốc Việt',
             ward: 'Nghĩa Đô',
-            district: 'Cầu Giấy',
-            city: 'Hà Nội'
+            province: 'Hà Nội',
+            postalCode: '100000'
           },
           capacity: {
             maxStudents: 500,
@@ -62,10 +64,12 @@ export class MockBranchDataSource implements IBranchDataSource {
           name: 'KiadStars Chi Nhánh HCM',
           code: 'BR-HCM-01',
           address: {
-            street: '202 Võ Văn Tần',
+            houseNumber: '202',
+            lane: '',
+            street: 'Võ Văn Tần',
             ward: 'Phường 5',
-            district: 'Quận 3',
-            city: 'Hồ Chí Minh'
+            province: 'Hồ Chí Minh',
+            postalCode: '700000'
           },
           capacity: {
             maxStudents: 300,
@@ -96,10 +100,12 @@ export class MockBranchDataSource implements IBranchDataSource {
           name: 'KiadStars Cần Thơ (Sắp khai trương)',
           code: 'BR-CT-01',
           address: {
-            street: '202 30/4 Street',
+            houseNumber: '202',
+            lane: '',
+            street: 'Đường 30/4',
             ward: 'Xuan Khanh',
-            district: 'Ninh Kieu',
-            city: 'Can Tho'
+            province: 'Cần Thơ',
+            postalCode: '900000'
           },
           capacity: {
             maxStudents: 120,
@@ -211,5 +217,20 @@ export class MockBranchDataSource implements IBranchDataSource {
       branchStore.push(dataToSave);
     }
     mockDatabase.persist();
+  }
+
+  async findLastSequenceForPrefix(prefix: string): Promise<number> {
+    console.log('[MockBranchDataSource] Finding last sequence for prefix:', prefix);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const branchStore = mockDatabase.getCollection<any>('branches');
+    
+    const relevantCodes = branchStore
+      .map(b => b.code)
+      .filter((code): code is string => typeof code === 'string' && code.startsWith(prefix));
+
+    if (relevantCodes.length === 0) return 0;
+
+    const sequences = relevantCodes.map(code => parseInt(code.substring(prefix.length), 10));
+    return Math.max(0, ...sequences.filter(n => !isNaN(n)));
   }
 }

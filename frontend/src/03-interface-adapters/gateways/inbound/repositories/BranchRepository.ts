@@ -33,4 +33,8 @@ export class BranchRepository implements IBranchRepository {
   saveInBatch(branch: Branch, batch: any): void {
     this.dataSource.saveInBatch(branch, batch);
   }
+
+  async findLastSequenceForPrefix(prefix: string): Promise<number> {
+    return await this.dataSource.findLastSequenceForPrefix(prefix);
+  }
 }

@@ -10,4 +10,5 @@ export interface IBranchDataSource {
   findAll(): Promise<Branch[]>;
   exists(code: string): Promise<boolean>;
   saveInBatch(branch: Branch, batch: any): void;
+  findLastSequenceForPrefix(prefix: string): Promise<number>;
 }

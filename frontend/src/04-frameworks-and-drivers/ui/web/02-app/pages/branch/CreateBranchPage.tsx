@@ -72,12 +72,14 @@ export const CreateBranchPage = () => {
     });
     const success = await createBranch({
       name: data.name,
-      code: data.code,
+      // code: data.code, // Để hệ thống tự sinh
       address: {
+        houseNumber: data.houseNumber,
+        lane: data.lane,
         street: data.street,
         ward: data.ward,
-        district: data.district,
-        city: data.city
+        province: data.province,
+        postalCode: (data as any).postalCode,
       },
       maxStudents: data.maxStudents,
       totalRooms: Number(totalRooms) || 0,
@@ -109,34 +111,43 @@ export const CreateBranchPage = () => {
               {...register('name')}
               error={errors.name?.message}
             />
-            <Input 
-              label={t('branch.code_label')}
-              placeholder={t('branch.code_placeholder')}
-              {...register('code')}
-              error={errors.code?.message}
-            />
 
             <Text weight="semibold" sx={{ marginTop: SPACING.sm }}>{t('branch.address_section')}</Text>
+            <Box display="grid" gridTemplateColumns="1fr 1fr" gap="md">
+              <Input 
+                label={t('branch.house_number_label')} 
+                {...register('houseNumber')}
+                error={errors.houseNumber?.message}
+                placeholder="VD: 123"
+              />
+              <Input 
+                label={t('branch.lane_label')} 
+                {...register('lane')}
+                error={errors.lane?.message}
+                placeholder="VD: Ngõ 45"
+              />
+            </Box>
             <Input 
               label={t('branch.street_label')} 
               {...register('street')}
               error={errors.street?.message}
             />
-            <Box display="grid" gridTemplateColumns="1fr 1fr 1fr" gap="md">
+            <Box display="grid" gridTemplateColumns="1fr 1fr" gap="md">
               <Input 
                 label={t('branch.ward_label')} 
                 {...register('ward')}
                 error={errors.ward?.message}
               />
               <Input 
-                label={t('branch.district_label')} 
-                {...register('district')}
-                error={errors.district?.message}
+                label={t('branch.province_label')} 
+                {...register('province')}
+                error={errors.province?.message}
               />
               <Input 
-                label={t('branch.city_label')} 
-                {...register('city')}
-                error={errors.city?.message}
+                label={t('branch.postal_code_label')} 
+                {...register('postalCode')}
+                // error={errors.postalCode?.message} // Uncomment if validation added
+                placeholder="VD: 100000"
               />
             </Box>
 

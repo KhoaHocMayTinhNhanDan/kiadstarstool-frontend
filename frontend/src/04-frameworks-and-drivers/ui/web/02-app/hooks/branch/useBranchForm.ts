@@ -4,13 +4,19 @@ import { z } from 'zod';
 
 // 1. Define Validation Schema (Shared)
 export const branchFormSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters").max(100, "Name is too long"),
-  code: z.string().min(2, "Code must be at least 2 characters").regex(/^[A-Z0-9-]+$/, "Code must contain only uppercase letters, numbers, and hyphens"),
-  street: z.string().min(5, "Street address is required"),
-  ward: z.string().min(2, "Ward is required"),
-  district: z.string().min(2, "District is required"),
-  city: z.string().min(2, "City is required"),
-  maxStudents: z.number().min(1, "Capacity must be at least 1").max(10000, "Capacity is too high"),
+  name: z.string().min(3, "Tên chi nhánh phải có ít nhất 3 ký tự").max(100, "Tên chi nhánh quá dài"),
+  code: z.string().optional(), // Optional for creation (auto-generated)
+  
+  // Address fields
+  houseNumber: z.string().optional(),
+  lane: z.string().optional(),
+  street: z.string().min(3, "Tên đường là bắt buộc"),
+  ward: z.string().min(2, "Phường/Xã là bắt buộc"),
+  province: z.string().min(2, "Tỉnh/Thành phố là bắt buộc"),
+  postalCode: z.string().regex(/^[0-9]*$/, "Mã bưu chính chỉ chứa số").optional().or(z.literal('')),
+
+  // Capacity
+  maxStudents: z.number().min(1, "Sức chứa phải lớn hơn 0").max(10000, "Sức chứa quá lớn"),
 });
 
 export type BranchFormData = z.infer<typeof branchFormSchema>;
@@ -25,10 +31,12 @@ export const useBranchForm = ({ defaultValues }: UseBranchFormProps = {}) => {
     defaultValues: {
       name: '',
       code: '',
-      street: '',
+      houseNumber: '',
+      lane: '',
+      street: '',      
       ward: '',
-      district: '',
-      city: '',
+      province: '',
+      postalCode: '',
       maxStudents: 100,
       ...defaultValues,
     },
