@@ -1,37 +1,43 @@
-// api/sign-upload.ts
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import cloudinary from '../lib/cloudinary';
+import type { VercelRequest, VercelResponse } from "@vercel/node"
+import admin from "../lib/firebase-admin-init"
+import cloudinary from "../lib/cloudinary"
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
-  // Cấu hình CORS để Frontend (localhost:5173) có thể gọi được
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Trong production nên thay '*' bằng domain frontend
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
-
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" })
 
   try {
-    const apiSecret = process.env.CLOUDINARY_API_SECRET;
-    if (!apiSecret) {
-      console.error('[sign-upload] Critical Error: CLOUDINARY_API_SECRET is not set in environment variables.');
-      return res.status(500).json({ error: 'Server configuration error: Missing API Secret.' });
+    // 1. Xác thực Firebase Token
+    const authorization = req.headers.authorization
+    if (!authorization?.startsWith("Bearer ")) return res.status(401).json({ error: "Unauthorized" })
+    
+    const idToken = authorization.split("Bearer ")[1]
+    const decoded = await admin.auth().verifyIdToken(idToken)
+    const uid = decoded.uid
+
+    // 2. Lấy params từ Widget gửi lên
+    const params = req.body?.paramsToSign
+    if (!params) return res.status(400).json({ error: "Missing params" })
+
+    // 3. Bảo mật: Kiểm tra xem user có đang cố gắng upload vào folder/id của mình không
+    // Điều này ngăn chặn việc User A ghi đè ảnh của User B
+    const publicId = params.public_id || ""
+    if (!publicId.includes(uid)) {
+      return res.status(403).json({ error: "Access denied: UID mismatch" })
     }
 
-    const paramsToSign = req.body && req.body.paramsToSign ? req.body.paramsToSign : {};
-    
-    // Tạo chữ ký dựa trên tham số mà Widget gửi lên
+    // 4. KÝ TẤT CẢ các params mà Widget gửi sang (bao gồm cả cropping params)
+    // Cloudinary SDK sẽ tự động loại bỏ các key không cần thiết (file, api_key)
     const signature = cloudinary.utils.api_sign_request(
-      paramsToSign,
-      apiSecret
-    );
+      params,
+      process.env.CLOUDINARY_API_SECRET!
+    )
 
-    res.status(200).json({ signature });
-  } catch (error: any) {
-    console.error('[sign-upload] Failed to sign request:', error);
-    res.status(500).json({ error: 'Failed to sign request', details: error.message });
+    return res.status(200).json({
+      signature,
+      timestamp: params.timestamp // Trả lại timestamp gốc của widget
+    })
+  } catch (error) {
+    console.error("Signature Error:", error)
+    return res.status(500).json({ error: "Internal Server Error" })
   }
 }
