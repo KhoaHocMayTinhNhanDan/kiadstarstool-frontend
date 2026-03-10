@@ -10,6 +10,10 @@ import { useI18n } from '@/shared/i18n/useI18n';
 import { PermissionGuard } from '../../permissions/PermissionGuard';
 import { PERMISSIONS, type PermissionCode } from '@/shared/constants/authorization';
 
+// Cache đơn giản để giảm số lần đọc từ Firestore khi điều hướng qua lại
+let branchesCache: { data: ListBranchesOutput; timestamp: number } | null = null;
+const CACHE_TTL = 5 * 60 * 1000; // 5 phút
+
 export const BranchPage = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
@@ -22,6 +26,13 @@ export const BranchPage = () => {
     let isMounted = true;
 
     const fetchBranches = async () => {
+      // Kiểm tra cache trước khi gọi API
+      if (branchesCache && (Date.now() - branchesCache.timestamp < CACHE_TTL)) {
+        setBranches(branchesCache.data);
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       try {
         const controller = AppContext.getBranchController();
@@ -32,6 +43,8 @@ export const BranchPage = () => {
 
         if (result.isSuccess) {
           setBranches(result.getValue());
+          // Lưu kết quả vào cache
+          branchesCache = { data: result.getValue(), timestamp: Date.now() };
         } else {
           toast.error(result.getErrorValue() as string);
         }

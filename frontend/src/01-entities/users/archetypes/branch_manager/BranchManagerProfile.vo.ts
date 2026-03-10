@@ -57,7 +57,7 @@ export class BranchManagerProfile implements IUserProfile {
   // MUTATION
   // =====================
 
-  update(props: Partial<{ displayName: string; photoURL: string; phoneNumbers: PhoneNumber[], dateOfBirth: Date }>): IUserProfile {
+  update(props: any): IUserProfile {
     return new BranchManagerProfile({
       displayName: props.displayName ?? this.displayName,
       photoURL: props.photoURL ?? this.photoURL,
@@ -80,8 +80,8 @@ export class BranchManagerProfile implements IUserProfile {
     return {
       kind: this.kind.toString(),
       displayName: this.displayName,
-      photoURL: this.photoURL,
-      dateOfBirth: this.dateOfBirth ? this.dateOfBirth.toISOString().split('T')[0] : undefined,
+      photoURL: this.photoURL || null,
+      dateOfBirth: this.dateOfBirth ? this.dateOfBirth.toISOString().split('T')[0] : null,
       branchId: this.branchId,
       phoneNumbers: this.phoneNumbers.map(p => p.toJSON()),
     }

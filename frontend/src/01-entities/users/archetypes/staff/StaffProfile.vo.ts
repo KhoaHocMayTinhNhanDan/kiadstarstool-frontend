@@ -64,7 +64,7 @@ export class StaffProfile implements IUserProfile {
   // MUTATION
   // =====================
 
-  update(props: Partial<{ displayName: string; photoURL: string; phoneNumbers: PhoneNumber[], dateOfBirth: Date }>): IUserProfile {
+  update(props: any): IUserProfile {
     return new StaffProfile({
       displayName: props.displayName ?? this.displayName,
       photoURL: props.photoURL ?? this.photoURL,
@@ -102,9 +102,9 @@ export class StaffProfile implements IUserProfile {
     return {
       kind: this.kind.toString(),
       displayName: this.displayName,
-      photoURL: this.photoURL,
-      dateOfBirth: this.dateOfBirth ? this.dateOfBirth.toISOString().split('T')[0] : undefined,
-      department: this.department,
+      photoURL: this.photoURL || null,
+      dateOfBirth: this.dateOfBirth ? this.dateOfBirth.toISOString().split('T')[0] : null,
+      department: this.department || null,
       phoneNumbers: this.phoneNumbers.map(p => p.toJSON()),
     }
   }

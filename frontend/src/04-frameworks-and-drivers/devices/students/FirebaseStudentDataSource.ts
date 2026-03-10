@@ -9,7 +9,8 @@ import {
   limit, // Thêm limit để giới hạn khi query all
   orderBy,
   startAfter,
-  getDoc
+  getDoc,
+  getCountFromServer
 } from "firebase/firestore";
 import type { IStudentDataSource, StudentDTO } from "@/03-interface-adapters/gateways/outbound/device_interfaces/students/IStudentDataSource";
 import { mapFirestoreDocs, stripId } from "@/shared/utils/firestoreMapper";
@@ -175,6 +176,24 @@ export class FirebaseStudentDataSource implements IStudentDataSource, IPendingTu
     } catch (error) {
       console.error("[FirebaseStudentDataSource] getPendingTuitions error:", error);
       return [];
+    }
+  }
+
+  async countByBranchId(branchId?: string): Promise<number> {
+    try {
+      // Chỉ đếm học viên đang hoạt động (Active)
+      const constraints: any[] = [where("status", "==", "active")];
+      
+      if (branchId) {
+        constraints.push(where("branchIds", "array-contains", branchId));
+      }
+
+      const q = query(this.collectionRef, ...constraints);
+      const snapshot = await getCountFromServer(q);
+      return snapshot.data().count;
+    } catch (error) {
+      console.error("[FirebaseStudentDataSource] countByBranchId error:", error);
+      return 0;
     }
   }
 }

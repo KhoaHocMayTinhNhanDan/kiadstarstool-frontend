@@ -19,6 +19,7 @@
     "concurrently": "^8.2.2"
   },
   "dependencies": {
+    "cloudinary": "^2.9.0",
     "firebase": "^12.10.0"
   }
 }

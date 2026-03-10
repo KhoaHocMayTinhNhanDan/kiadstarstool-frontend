@@ -17,16 +17,12 @@ export class ListBranchesInteractor {
     // 1. Lấy tất cả chi nhánh
     const branches = await this.branchRepo.findAll();
 
-    // 2. Lấy số lượng học viên thực tế cho mỗi chi nhánh
-    // Chạy các promise song song để cải thiện hiệu năng so với vòng lặp tuần tự
-    const outputPromises = branches.map(async (branch) => {
+    // 2. Map sang DTO
+    // OPTIMIZATION: Sử dụng dữ liệu có sẵn trong Branch Entity để tránh N+1 query (đọc quá nhiều document)
+    // Điều này giúp giảm chi phí Firestore và tăng tốc độ tải.
+    const output = branches.map((branch) => {
       const branchId = branch.id.toString();
-
-      // Lấy danh sách học viên của chi nhánh và đếm số học viên đang hoạt động
-      // Lưu ý: Đây là N+1 query, có thể chậm nếu có nhiều chi nhánh.
-      // Một giải pháp tối ưu hơn là tạo một method trong repository để đếm hoặc lấy tất cả học viên một lần.
-      const students = await this.studentRepo.getByBranchId(branchId);
-      const activeStudentCount = students.filter(s => s.status === 'active').length;
+      const activeStudentCount = branch.capacity.currentStudents;
 
       return {
         id: branchId,
@@ -34,7 +30,7 @@ export class ListBranchesInteractor {
         code: branch.code,
         address: branch.address.fullAddress,
         isActive: branch.isActive,
-        studentCount: activeStudentCount, // Dữ liệu thực tế
+        studentCount: activeStudentCount,
         capacity: {
           current: activeStudentCount,
           max: branch.capacity.maxStudents
@@ -43,8 +39,6 @@ export class ListBranchesInteractor {
         updatedAt: branch.updatedAt
       };
     });
-
-    const output = await Promise.all(outputPromises);
 
     return Result.ok(output);
   }

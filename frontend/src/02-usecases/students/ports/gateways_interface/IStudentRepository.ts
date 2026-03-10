@@ -6,4 +6,5 @@ export interface IStudentRepository {
   save(student: Student): Promise<void>;
   saveInBatch(student: Student, batch: any): void;
   getStudentsWithPendingTuition(branchId?: string): Promise<Student[]>;
+  countByBranchId(branchId?: string): Promise<number>;
 }

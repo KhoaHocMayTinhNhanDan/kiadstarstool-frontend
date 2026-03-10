@@ -357,4 +357,18 @@ export class MockStudentDataSource implements IStudentDataSource {
     }
     // Note: actual persistence is handled by batch operation
   }
+
+  async countByBranchId(branchId?: string): Promise<number> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    const students = mockDatabase.getCollection<StudentDTO>('students');
+    
+    // Chỉ đếm học viên active
+    const activeStudents = students.filter(s => s.status === 'active');
+    
+    if (!branchId) return activeStudents.length;
+    
+    return activeStudents.filter(s => 
+      s.enrollments && s.enrollments.some(e => e.branchId === branchId)
+    ).length;
+  }
 }

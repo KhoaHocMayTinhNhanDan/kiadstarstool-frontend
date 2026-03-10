@@ -25,21 +25,34 @@ export class UpdateUserProfileInteractor {
       const updateProps: { displayName?: string; photoURL?: string; phoneNumbers?: PhoneNumber[] } = {};
       const changedFields: string[] = [];
 
-      if (input.displayName !== undefined) {
+      // Chỉ cập nhật nếu giá trị mới được cung cấp và khác với giá trị cũ.
+      if (input.displayName !== undefined && input.displayName !== user.profile.displayName) {
         updateProps.displayName = input.displayName;
         changedFields.push('displayName');
       }
 
-      if (input.photoURL !== undefined) {
+      // So sánh giá trị mới và cũ, xử lý cả trường hợp null/undefined
+      const oldPhotoURL = user.profile.photoURL || null;
+      
+      console.log('[UpdateUserProfileInteractor] Comparing photo URLs:');
+      console.log('  - New URL:', input.photoURL);
+      console.log('  - Old URL:', oldPhotoURL);
+
+      if (input.photoURL !== undefined && input.photoURL !== oldPhotoURL) {
         updateProps.photoURL = input.photoURL;
         changedFields.push('photoURL');
       }
 
-      if (input.phone) {
-        // Chuyển đổi string phone thành PhoneNumber VO
-        // Lưu ý: PhoneNumber.create sẽ throw error nếu format không đúng, catch block sẽ bắt lỗi này
+      const currentPhone = user.profile.phoneNumbers?.[0]?.value || '';
+      if (input.phone !== undefined && input.phone !== currentPhone) {
         updateProps.phoneNumbers = [PhoneNumber.create(input.phone)];
         changedFields.push('phone');
+      }
+
+      // Nếu không có trường nào thay đổi, chúng ta có thể bỏ qua việc lưu.
+      if (changedFields.length === 0) {
+        console.log('[UpdateUserProfileInteractor] Không có thay đổi nào được phát hiện, bỏ qua việc lưu vào cơ sở dữ liệu.');
+        return Result.ok({ success: true });
       }
 
       // Sử dụng Domain Method để cập nhật (đảm bảo tính bất biến và đa hình)
@@ -48,18 +61,17 @@ export class UpdateUserProfileInteractor {
       await this.userRepo.save(updatedUser);
 
       // Ghi lại lịch sử hoạt động
-      if (changedFields.length > 0) {
-        await this.recordActivityInteractor.execute({
-          userId: input.userId,
-          type: 'user_update',
-          description: 'Cập nhật thông tin hồ sơ',
-          details: { changedFields }
-        });
-      }
+      await this.recordActivityInteractor.execute({
+        userId: input.userId,
+        type: 'user_update',
+        description: 'Cập nhật thông tin hồ sơ',
+        details: { changedFields }
+      });
 
       return Result.ok({ success: true });
     } catch (error: any) {
-      return Result.fail(error.message || 'Failed to update profile');
+      console.error('[UpdateUserProfileInteractor] Failed to execute:', error);
+      return Result.fail(error.message || 'Không thể cập nhật hồ sơ');
     }
   }
 }

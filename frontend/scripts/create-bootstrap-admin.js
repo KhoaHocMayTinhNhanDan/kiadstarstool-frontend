@@ -86,26 +86,30 @@ async function bootstrapRootUser() {
     });
     console.log('Đã gán quyền Admin (Custom Claims)');
 
+    const photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(ROOT_USER.displayName)}&background=random&color=fff`;
+
     // 6. Tạo User Profile trong Firestore (để hiển thị trên UI)
-    await db.collection('users').doc(userRecord.uid).set({
-      id: userRecord.uid,
+    const userProfileRef = db.collection('users').doc(userRecord.uid);
+    await userProfileRef.set({
+      id: userRecord.uid, // Redundant but required by UserMapper
       email: ROOT_USER.email,
       role: 'admin',
       isActive: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      // Sử dụng server timestamp để đảm bảo thời gian chính xác
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       permissions: ['*'],
       profile: {
         kind: 'admin',
         displayName: ROOT_USER.displayName,
-        photoURL: '',
+        photoURL: photoURL,
         phoneNumbers: [], // Bổ sung trường này để khớp với AdminProfile.vo.ts
         adminLevel: 1,
         managedBranches: []
       }
     }, { merge: true });
     
-    console.log('Đã tạo User Profile trong Database');
+    console.log(`Đã tạo/cập nhật User Profile trong Firestore cho user: ${userRecord.uid}`);
     console.log('✅ HOÀN TẤT! Bạn có thể đăng nhập bằng:', ROOT_USER.email);
 
   } catch (error) {

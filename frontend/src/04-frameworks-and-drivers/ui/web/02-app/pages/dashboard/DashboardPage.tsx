@@ -76,10 +76,11 @@ export const DashboardPage = () => {
   const [ongoingClasses, setOngoingClasses] = useState<ListOngoingClassesOutput>([]);
   const [allTransactions, setAllTransactions] = useState<ListTransactionsOutput>([]);
   const [userProfile, setUserProfile] = useState<UserOutput | null>(null);
+  const [totalStudentsCount, setTotalStudentsCount] = useState<number>(0);
 
   // --- Filter States ---
   const [selectedBranchIds, setSelectedBranchIds] = useState<string[]>([]); // Empty array = All Branches
-  const [timeRange, setTimeRange] = useState<'today' | 'day' | 'week' | 'month' | 'year' | 'custom'>('today'); // Default to Today view
+  const [timeRange, setTimeRange] = useState<'today' | 'day' | 'week' | 'month' | 'year' | 'custom'>('month'); // Default to Month view for better data visibility
   
   const todayStr = new Date().toISOString().split('T')[0];
   const [customStartDate, setCustomStartDate] = useState(todayStr);
@@ -101,11 +102,13 @@ export const DashboardPage = () => {
         const financeController = AppContext.getFinanceController();
 
         // Fetch all data in parallel
-        const [studentResult, branchResult, ongoingClassResult, financeResult] = await Promise.all([
+        const [studentResult, branchResult, ongoingClassResult, financeResult, countResult] = await Promise.all([
           studentController.listStudentsByBranch({ branchId: '' }), // Assuming '' gets all
           branchController.listBranches({}),
           classController.listOngoingClasses(),
-          financeController.listTransactions({})
+          financeController.listTransactions({}),
+          // Sử dụng Aggregation Query để lấy tổng số học viên chính xác
+          studentController.countStudents()
         ]);
 
         if (studentResult.isSuccess) {
@@ -134,6 +137,10 @@ export const DashboardPage = () => {
         } else {
           // Don't throw here, just log, so dashboard still loads if finance fails
           console.error('Failed to load transactions:', financeResult.getErrorValue());
+        }
+
+        if (countResult.isSuccess) {
+          setTotalStudentsCount(countResult.getValue());
         }
       } catch (e: any) {
         setError(e.message || "Đã có lỗi không xác định xảy ra khi tải dữ liệu.");
@@ -202,7 +209,9 @@ export const DashboardPage = () => {
 
     // --- Filter Transactions for Revenue Stats ---
     const filterTransactions = (range: { start: Date, end: Date }) => allTransactions.filter(t => {
-      const trxDate = new Date(t.date);
+      // FIX: Check for both 'date' and 'transactionDate' properties to ensure compatibility with DTO
+      const dateVal = t.date || (t as any).transactionDate;
+      const trxDate = new Date(dateVal);
       const isInBranch = selectedBranchIds.length === 0 || selectedBranchIds.includes(t.branchId);
       const isInTimeRange = trxDate >= range.start && trxDate <= range.end;
       return isInBranch && isInTimeRange;
@@ -247,10 +256,13 @@ export const DashboardPage = () => {
     const previousTotalSubs = newStudentsPrevious.length;
     const subsTrend = previousTotalSubs === 0 ? (totalSubs > 0 ? 100 : 0) : ((totalSubs - previousTotalSubs) / previousTotalSubs) * 100;
 
-    const activeStudentsCount = allStudents.filter(s => 
-      s.status === 'active' &&
-      (selectedBranchIds.length === 0 || s.enrollments.some(e => selectedBranchIds.includes(e.branchId) && e.status === 'active'))
-    ).length;
+    // OPTIMIZATION: Sử dụng totalStudentsCount từ Aggregation Query nếu không lọc theo chi nhánh
+    // Nếu có lọc theo chi nhánh, ta vẫn dùng dữ liệu aggregate từ Branch Entity (studentCount)
+    const activeStudentsCount = selectedBranchIds.length === 0 
+      ? totalStudentsCount 
+      : allBranches
+          .filter(b => selectedBranchIds.includes(b.id))
+          .reduce((sum, b) => sum + (b.studentCount || 0), 0);
 
     // --- NEW: Revenue by Type Calculation ---
     // Since Transaction entity doesn't strictly separate Course vs Session fee yet (it's in description),
@@ -294,15 +306,18 @@ export const DashboardPage = () => {
 
     // 1. From Transactions
     allTransactions.forEach(trx => {
-      activities.push({
-        id: `trx-${trx.id}`,
-        type: 'finance',
-        titleKey: trx.type === 'income' ? 'finance.income' : 'finance.expense',
-        // Pass raw description and amount separately for i18n formatting in the component
-        descriptionContext: trx.description || '',
-        params: { amount: trx.amount },
-        timestamp: new Date(trx.date)
-      });
+      const dateVal = trx.date || (trx as any).transactionDate;
+      if (dateVal) {
+        activities.push({
+          id: `trx-${trx.id}`,
+          type: 'finance',
+          titleKey: trx.type === 'income' ? 'finance.income' : 'finance.expense',
+          // Pass raw description and amount separately for i18n formatting in the component
+          descriptionContext: trx.description || '',
+          params: { amount: trx.amount },
+          timestamp: new Date(dateVal)
+        });
+      }
     });
 
     // 2. From Students (Joined Date)
@@ -348,7 +363,7 @@ export const DashboardPage = () => {
       currentTransactions: currentStatsTransactions, // Biểu đồ tròn dùng dữ liệu Stats (chính xác theo thời gian chọn)
       customDayCount // Số ngày tùy chỉnh để hiển thị label
     };
-  }, [allStudents, allBranches, ongoingClasses, allTransactions, selectedBranchIds, timeRange, t]);
+  }, [allStudents, allBranches, ongoingClasses, allTransactions, selectedBranchIds, timeRange, t, totalStudentsCount]);
 
   const toggleBranch = (branchId: string) => {
     setSelectedBranchIds(prev => {

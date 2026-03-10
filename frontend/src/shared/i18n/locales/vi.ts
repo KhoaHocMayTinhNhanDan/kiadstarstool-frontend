@@ -95,7 +95,7 @@ export const vi = {
   },
   sidebar: {
     dashboard: "Bảng điều khiển",
-    users: "Người dùng",
+    users: "Người dùng hệ thống",
     settings: "Cài đặt",
     branches: "Chi nhánh",
     classes: "Lớp học",

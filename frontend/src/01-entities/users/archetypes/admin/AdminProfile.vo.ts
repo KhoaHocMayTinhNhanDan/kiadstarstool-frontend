@@ -57,7 +57,7 @@ export class AdminProfile implements IUserProfile {
   // MUTATION
   // =====================
 
-  update(props: Partial<{ displayName: string; photoURL: string; phoneNumbers: PhoneNumber[], dateOfBirth: Date }>): IUserProfile {
+  update(props: any): IUserProfile {
     return new AdminProfile({
       displayName: props.displayName ?? this.displayName,
       photoURL: props.photoURL ?? this.photoURL,
@@ -87,8 +87,8 @@ export class AdminProfile implements IUserProfile {
     return {
       kind: this.kind.toString(),
       displayName: this.displayName,
-      photoURL: this.photoURL,
-      dateOfBirth: this.dateOfBirth ? this.dateOfBirth.toISOString().split('T')[0] : undefined,
+      photoURL: this.photoURL || null,
+      dateOfBirth: this.dateOfBirth ? this.dateOfBirth.toISOString().split('T')[0] : null,
       phoneNumbers: this.phoneNumbers.map(p => p.toJSON()),
       adminLevel: this.adminLevel,
       managedBranches: [...this.managedBranches],

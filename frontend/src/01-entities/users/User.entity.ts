@@ -139,14 +139,10 @@ export class User extends AggregateRoot<UserId> {
    * Cập nhật thông tin profile của user.
    * Logic cụ thể sẽ được delegate cho từng loại Profile (Admin/Staff).
    */
-  updateProfile(props: Partial<{ displayName: string; photoURL: string; phoneNumbers: PhoneNumber[] }>): User {
+  updateProfile(props: any): User {
     const newProfile = this.profile.update(props);
     return this.clone({ profile: newProfile });
   }
-
-  /* ==============================
-   * INTERNAL
-   * ============================== */
 
   private clone(overrides: Partial<UserProps>): User {
     return new User({

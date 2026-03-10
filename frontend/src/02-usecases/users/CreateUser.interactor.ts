@@ -40,12 +40,13 @@ export class CreateUserInteractor {
       // 2. Create Profile based on Role
       let profile: IUserProfile;
       const phoneNumbers = input.phone ? [PhoneNumber.create(input.phone)] : [];
+      const photoURL = input.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(input.displayName)}&background=random`;
 
       switch (input.role) {
         case 'admin':
           profile = new AdminProfile({
             displayName: input.displayName,
-            photoURL: input.photoURL,
+            photoURL: photoURL,
             phoneNumbers,
             adminLevel: 1, // Default
           });
@@ -53,26 +54,27 @@ export class CreateUserInteractor {
         case 'teacher':
           profile = new TeacherProfile({
             displayName: input.displayName,
-            photoURL: input.photoURL,
+            photoURL: photoURL,
             phoneNumbers,
           });
           break;
         case 'staff':
           profile = new StaffProfile({
             displayName: input.displayName,
-            photoURL: input.photoURL,
+            photoURL: photoURL,
             phoneNumbers,
           });
           break;
         case 'manager':
           profile = new BranchManagerProfile({
             displayName: input.displayName,
-            photoURL: input.photoURL,
+            photoURL: photoURL,
             phoneNumbers,
             branchId: input.branchId || '', // Fallback nếu chưa chọn chi nhánh
           });
           break;
         default:
+          console.error(`[CreateUserInteractor] Unsupported role: ${input.role}`);
           return Result.fail(`Unsupported role for user creation: ${input.role}`);
       }
 

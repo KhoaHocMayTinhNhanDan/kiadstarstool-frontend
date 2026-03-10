@@ -50,16 +50,46 @@ export class FirebaseUserProfileDataSource implements IUserProfileDataSource {
   }
 
   async findAll(filters?: any): Promise<UserJSON[]> {
-    // Lưu ý: Firestore cần tạo Composite Index nếu query nhiều trường cùng lúc
-    let q = query(this.collectionRef);
+    let users: UserJSON[] = [];
 
-    if (filters?.role) {
-      q = query(q, where('role', '==', filters.role));
+    if (filters?.branchId) {
+      // Để hiển thị cả Admin và người dùng được gán, chúng ta cần 2 truy vấn song song
+      // 1. Lấy người dùng được gán cho chi nhánh này
+      const branchUsersQuery = query(this.collectionRef, where('profile.managedBranches', 'array-contains', filters.branchId));
+      
+      // 2. Lấy tất cả người dùng có vai trò 'admin'
+      const adminUsersQuery = query(this.collectionRef, where('role', '==', 'admin'));
+
+      // Chạy cả 2 truy vấn
+      const [branchUsersSnapshot, adminUsersSnapshot] = await Promise.all([
+        getDocs(branchUsersQuery),
+        getDocs(adminUsersQuery)
+      ]);
+
+      const userMap = new Map<string, UserJSON>();
+
+      // Thêm người dùng của chi nhánh vào map
+      branchUsersSnapshot.forEach(doc => {
+        const userData = doc.data() as UserJSON;
+        userMap.set(userData.id, userData);
+      });
+
+      // Thêm admin vào map (Map sẽ tự động xử lý trùng lặp)
+      adminUsersSnapshot.forEach(doc => {
+        const userData = doc.data() as UserJSON;
+        userMap.set(userData.id, userData);
+      });
+
+      users = Array.from(userMap.values());
+    } else {
+      // Logic cũ nếu không có bộ lọc branchId
+      let q = query(this.collectionRef);
+      if (filters?.role) {
+        q = query(q, where('role', '==', filters.role));
+      }
+      const querySnapshot = await getDocs(q);
+      users = querySnapshot.docs.map(doc => doc.data() as UserJSON);
     }
-
-    // Với Firestore, việc search text (searchQuery) thường cần giải pháp bên thứ 3 (Algolia) hoặc tải về client filter
-    const querySnapshot = await getDocs(q);
-    let users = querySnapshot.docs.map(doc => doc.data() as UserJSON);
 
     if (filters?.searchQuery) {
       const search = filters.searchQuery.toLowerCase();

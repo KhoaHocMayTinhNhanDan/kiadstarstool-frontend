@@ -28,4 +28,6 @@ export interface IStudentDataSource {
   getById(id: string): Promise<StudentDTO | null>;
   save(student: Student): Promise<void>;
   saveInBatch(student: Student, batch: any): void;
+  countByBranchId(branchId?: string): Promise<number>;
+
 }

@@ -5,6 +5,7 @@ import { GetStudentDetailsInteractor } from '@/02-usecases/students/GetStudentDe
 import { TransferStudentInteractor } from '@/02-usecases/students/TransferStudent.interactor';
 import { EnrollStudentInteractor } from '@/02-usecases/students/EnrollStudent.interactor';
 import { UpdateStudentInfoInteractor } from '@/02-usecases/students/UpdateStudentInfo.interactor';
+import { CountStudentsInteractor } from '@/02-usecases/students/CountStudents.interactor';
 import { type ListStudentsByBranchInput } from '@/02-usecases/students/ports/input/ListStudentsByBranch.input';
 import { type ListStudentsByBranchOutput } from '@/02-usecases/students/ports/output/ListStudentsByBranch.output';
 import { type CreateStudentInput } from '@/02-usecases/students/ports/input/CreateStudent.input';
@@ -23,6 +24,7 @@ export class StudentsController {
   private readonly transferStudentInteractor: TransferStudentInteractor;
   private readonly enrollStudentInteractor: EnrollStudentInteractor;
   private readonly updateStudentInfoInteractor: UpdateStudentInfoInteractor;
+  private readonly countStudentsInteractor: CountStudentsInteractor;
 
   constructor(
     listStudentsInteractor: ListStudentsByBranchInteractor,
@@ -30,7 +32,8 @@ export class StudentsController {
     getStudentDetailsInteractor: GetStudentDetailsInteractor,
     transferStudentInteractor: TransferStudentInteractor,
     enrollStudentInteractor: EnrollStudentInteractor,
-    updateStudentInfoInteractor: UpdateStudentInfoInteractor
+    updateStudentInfoInteractor: UpdateStudentInfoInteractor,
+    countStudentsInteractor: CountStudentsInteractor
   ) {
     this.listStudentsInteractor = listStudentsInteractor;
     this.createStudentInteractor = createStudentInteractor;
@@ -38,6 +41,7 @@ export class StudentsController {
     this.transferStudentInteractor = transferStudentInteractor;
     this.enrollStudentInteractor = enrollStudentInteractor;
     this.updateStudentInfoInteractor = updateStudentInfoInteractor;
+    this.countStudentsInteractor = countStudentsInteractor;
   }
 
   async listStudentsByBranch(input: ListStudentsByBranchInput): Promise<Result<ListStudentsByBranchOutput>> {
@@ -62,5 +66,9 @@ export class StudentsController {
 
   async updateStudentInfo(input: UpdateStudentInfoInput): Promise<Result<void>> {
     return this.updateStudentInfoInteractor.execute(input);
+  }
+
+  async countStudents(branchId?: string): Promise<Result<number>> {
+    return this.countStudentsInteractor.execute(branchId);
   }
 }

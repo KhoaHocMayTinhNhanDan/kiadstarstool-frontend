@@ -156,6 +156,15 @@ export class MockUserProfileDataSource implements IUserProfileDataSource {
           (u.profile as any).displayName?.toLowerCase().includes(q)
         );
       }
+      if (filters.branchId) {
+        users = users.filter(u => {
+          // Admin luôn thấy
+          if (u.role === 'admin') return true;
+          // Kiểm tra managedBranches (cho Admin/Manager cấu trúc mới) hoặc branchId (cho Manager cấu trúc cũ)
+          const profile = u.profile as any;
+          return profile.managedBranches?.includes(filters.branchId) || profile.branchId === filters.branchId;
+        });
+      }
     }
     return users;
   }

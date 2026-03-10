@@ -3,6 +3,7 @@ export interface ListUsersInput {
     role?: string;
     isActive?: boolean;
     searchQuery?: string;
+    branchId?: string;
   };
   pagination?: {
     page: number;

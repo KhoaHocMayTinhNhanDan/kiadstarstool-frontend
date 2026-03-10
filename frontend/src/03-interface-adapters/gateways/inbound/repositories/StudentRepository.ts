@@ -81,4 +81,8 @@ export class StudentRepository implements IStudentRepository {
     const dtos = await pendingSource.getPendingTuitions(branchId);
     return dtos.map(dto => this.toDomain(dto));
   }
+
+  async countByBranchId(branchId?: string): Promise<number> {
+    return await this.dataSource.countByBranchId(branchId);
+  }
 }

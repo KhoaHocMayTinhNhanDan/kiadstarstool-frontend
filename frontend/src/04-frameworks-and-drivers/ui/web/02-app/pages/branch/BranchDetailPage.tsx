@@ -7,6 +7,7 @@ import { type GetBranchDetailsOutput } from '@/02-usecases/branch/ports/output/G
 import { type ListClassesByBranchOutput } from '@/02-usecases/class/ports/output/ListClassesByBranch.output';
 import { type StudentListItem } from '@/02-usecases/students/ports/output/ListStudentsByBranch.output';
 import { type UserOutput } from '@/02-usecases/users/ports/output/IUserOutput';
+import { type DayOfWeek } from '@/01-entities/branch/value-objects/BranchOperatingHours.vo';
 import { ClassStatus } from '@/01-entities/classes/ClassStatus.enum';
 import { useToast } from '../../../01-ui-core/hooks/useToast';
 import { ROLE_LABELS } from '@/shared/constants/authorization';
@@ -15,6 +16,8 @@ import { SPACING } from '../../../01-ui-core/constants/tokens-constants';
 import { useI18n } from '@/shared/i18n/useI18n';
 import { useBranch } from '../../hooks/branch/useBranch';
 import { Pagination } from '../../../00-design-system/02-organisms/navigation/Pagination';
+
+const DAYS_OF_WEEK: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 export const BranchDetailPage = () => {
   const { branchId } = useParams<{ branchId: string }>();
@@ -110,13 +113,10 @@ export const BranchDetailPage = () => {
     setIsLoadingUsers(true);
     try {
       const controller = AppContext.getUsersController();
-      const result = await controller.listUsers({});
+      // OPTIMIZATION: Fetch only users for this specific branch instead of all users
+      const result = await controller.listUsers({ filters: { branchId } });
       if (result.isSuccess) {
-        const allUsers = result.getValue();
-        // Filter users associated with this branch
-        // An admin should be visible in any branch, regardless of the managedBranches list.
-        const branchUsers = allUsers.filter(user => 
-          user.role === 'admin' || user.profile?.managedBranches?.includes(branchId));
+        const branchUsers = result.getValue();
         setUsers(branchUsers);
         setUserRoleFilter('all'); // Reset filter
         setCurrentPage(1); // Reset pagination
@@ -351,9 +351,10 @@ export const BranchDetailPage = () => {
               <Box>
                 <Text weight="semibold">{t('branch.detail_operating_hours_label')}</Text>
                 <Box as="ul" sx={{ listStyle: 'none', padding: 0, margin: 0, marginTop: SPACING.xs }}>
-                  {(Object.keys(branch.operatingHours) as DayOfWeek[]).map((day) => {
+                  {DAYS_OF_WEEK.map((day) => {
                     const hours = branch.operatingHours[day];
-                    return (<Box as="li" key={day} display="grid" gridTemplateColumns="100px 1fr" sx={{ '&:not(:last-child)': { marginBottom: SPACING.xxs } }}>
+                    if (!hours) return null; // Safety check for incomplete data
+                    return (<Box as="li" key={day} display="grid" gridTemplateColumns="100px 1fr" sx={{ '&:not(:last-child)': { marginBottom: SPACING.xxs }}}>
                       <Text color="SECONDARY" size="sm">{t(`branch.days.${day}`)}:</Text>
                       <Text color="SECONDARY" size="sm" weight="medium">{hours.open} - {hours.close}</Text>
                     </Box>);
@@ -510,7 +511,7 @@ export const BranchDetailPage = () => {
               {filteredUsers
                 .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
                 .map(user => (
-                  <Card key={user.id}>
+                  <Card key={user.uid}>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                       <Box textAlign="left">
                         <Text weight="bold" size="lg">{user.displayName || user.email}</Text>
